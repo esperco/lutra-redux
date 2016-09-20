@@ -1,0 +1,45 @@
+/*
+  Purpose of this file is to set up TypeScript references and DOM so Mocha
+  can test front-end code entirely within Node. This is run *BEFORE*
+  Mocha is initialized.
+*/
+
+/*
+  This ensures we don't have to keep importing types into our test files
+*/
+/// <reference path="../typings/index.d.ts" />
+
+// Type declarations for Node code
+declare var require: (module: string) => any;
+declare var global: Window;
+declare global {
+  interface Document {
+    parentWindow: Window;
+  }
+}
+
+// Create a DOM for React and other libs to play with
+function createDOM() {
+  // if DOM alredy exists, we don't need to do anything
+  if (typeof document !== 'undefined') {
+    return;
+  }
+
+  var baseDOM =
+    '<!DOCTYPE html><html><head><meta charset="utf-8"></head>' +
+    '<body></body></html>';
+
+  var jsdom = require('jsdom').jsdom;
+  (<any> global).document = jsdom(baseDOM);
+  (<any> global).window = (<any> document).defaultView;
+  (<any> global).navigator = {
+    userAgent: 'node.js'
+  } as any;
+}
+
+// Things to do before tests start. Gets loaded when this module is imported.
+function init() {
+  createDOM();
+}
+
+export = createDOM();
