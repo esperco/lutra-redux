@@ -14,8 +14,8 @@ var prodLike = (NODE_ENV !== 'development');
 
 var config = {
   entry: {
-    app: "./index.js",
-    vendor: [
+    groups: "./groups.js",
+    "groups-vendor": [
       'jquery',
       'lodash',
       'react',
@@ -25,8 +25,8 @@ var config = {
   output: {
     path: path.join(__dirname, "pub"),
     publicPath: "/",
-    filename: "[name]-" + (prodLike ? "[chunkhash]" : "") + ".js",
-    chunkFilename: "[name]-" + (prodLike ? "[chunkhash]" : "") + ".js"
+    filename: "js/[name]-" + (prodLike ? "[chunkhash]" : "") + ".js",
+    chunkFilename: "js/[name]-" + (prodLike ? "[chunkhash]" : "") + ".js"
   },
 
 
@@ -53,11 +53,11 @@ var config = {
         })
       },
 
-      { test: /\.scss?$/,
+      { test: /\.less?$/,
         loader: ExtractTextPlugin.extract("style-loader",
           "css?" + (prodLike ? "minimize" : "") + "sourceMap" +
           "!postcss?sourceMap" +
-          "!sass?sourceMap"
+          "!less?sourceMap"
         )
       },
 
@@ -105,18 +105,12 @@ var config = {
       }
     }),
 
-    /*
-      NB: We're extracting CSS to "/bundle.css" rather than "/css/bundle.css"
-      because SCSS url imports get rewritten as relative to a root directory
-      CSS file (AFAIK, there's no way to pass the path of the extracted CSS
-      to sass-loader)
-    */
     new ExtractTextPlugin(
-      "bundle-" + (prodLike ? "[contenthash]" : "") + ".css",
+      "css/[name]-" + (prodLike ? "[contenthash]" : "") + ".css",
       { allChunks: true }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor",
-      filename: "[name]-" + (prodLike ? "[chunkhash]" : "") + ".js"
+      name: "groups-vendor",
+      filename: "js/[name]-" + (prodLike ? "[chunkhash]" : "") + ".js"
     }),
     new PathRewriterPlugin()
   ],

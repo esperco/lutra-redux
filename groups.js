@@ -1,4 +1,4 @@
-/* Webpack entry point */
+/* Webpack entry point for Groups */
 
 // This causes Webpack to load everything in the assets dir during the build
 var _req = require.context("./assets", true, /.*$/);
@@ -14,10 +14,10 @@ requireAsset = function(path) {
 window.jQuery = window.$ = window.JQuery = require("jquery");
 
 // Typescript entry point
-require("./ts/index.tsx");
+require("./ts/groups.tsx");
 
-// SASS
-require("./scss/index.scss");
+// LESS
+require("./less/groups.less");
 
 // HTML files
-require("./assets/index.html");
+require("./assets/groups.html");

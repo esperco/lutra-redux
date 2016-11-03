@@ -4,11 +4,6 @@
   Mocha is initialized.
 */
 
-/*
-  This ensures we don't have to keep importing types into our test files
-*/
-/// <reference path="../typings/index.d.ts" />
-
 // Type declarations for Node code
 declare var require: (module: string) => any;
 declare var global: Window;

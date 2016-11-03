@@ -7,7 +7,6 @@ default: build
 
 setup:
 	npm install
-	typings install
 
 clean:
 	rm -rf pub
