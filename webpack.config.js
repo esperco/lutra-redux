@@ -20,7 +20,10 @@ var config = {
       'lodash',
       'react',
       'react-dom'
-    ]
+    ],
+
+    // Single generic CSS vendor file
+    vendor: "./less/vendor.less"
   },
   output: {
     path: path.join(__dirname, "pub"),
@@ -78,7 +81,7 @@ var config = {
       },
 
       { test: /\.(woff|woff2|eot|ttf|svg)(\?.*)?$/,
-        loader: "file?context=node_modules&name=[path][name].[ext]",
+        loader: "file?context=node_modules&name=fonts/[name].[ext]",
         include: [ path.resolve(__dirname, "./node_modules") ]
       }
     ],
