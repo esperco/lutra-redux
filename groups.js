@@ -14,7 +14,7 @@ requireAsset = function(path) {
 window.jQuery = window.$ = window.JQuery = require("jquery");
 
 // Typescript entry point
-require("./ts/groups.tsx");
+require("./ts/groups.js/index.tsx");
 
 // LESS
 require("./less/groups.less");
