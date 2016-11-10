@@ -1,6 +1,10 @@
 {
   "name": "lutra-redux",
   "version": "0.1.0",
+  "engines": {
+    "node": ">= 6.0.0 < 7.0.0"
+  },
+  "engineStrict": true,
   "main": "pub/bundle.js",
   "devDependencies": {
     "@types/chai": "^3.4.34",
