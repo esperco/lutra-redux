@@ -21,6 +21,7 @@ import GroupEvents from "./GroupEvents";
 import { State, Action } from "./types";
 import * as Counter from "../states/counter";
 import * as Name from "../states/name";
+import initState from "./init-state";
 
 let store = createStore(
   // Reducers
@@ -34,13 +35,8 @@ let store = createStore(
     return state;
   }, 
 
-  // Load Initial State -- wrap in function because it plays nicer with
-  // _.extend typing
-  (function(): State {
-    let state = Counter.initCounter();
-    let state2 = _.extend(state, Name.initName());
-    return state2;
-  })());
+  // Initial state
+  initState());
 
 // Render view(s) hooked up to store
 store.subscribe(() => {

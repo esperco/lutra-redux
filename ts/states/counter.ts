@@ -13,7 +13,7 @@ export function incrReducer<S extends CounterState>(
   state: S, action: IncrAction
 ) {
   state = _.clone(state);
-  state.counter += 1;
+  state.counter += action.value;
   return state;
 } 
 
