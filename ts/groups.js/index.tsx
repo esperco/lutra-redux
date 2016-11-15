@@ -10,7 +10,7 @@ import { logLevel, logTag, production } from "config";
 import * as _ from "lodash";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { createStore } from "redux";
+import { createStore, compose } from "redux";
 import * as Log from "../lib/log";
 
 // Components
@@ -29,6 +29,9 @@ import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
 import initState from "./init-state";
 
+// Check for redux dev tools extension
+declare var devToolsExtension: any;
+
 let store = createStore(
   // Reducers
   function(state: State, action: Action) {
@@ -44,7 +47,10 @@ let store = createStore(
   }, 
 
   // Initial state
-  initState());
+  initState(),
+  
+  // Hook up to extension (if applicable)
+  compose(devToolsExtension ? devToolsExtension() : (f: any) => f));
 
 // Init misc modules
 Log.init({ 
