@@ -1,3 +1,5 @@
 module.exports = {
-  name: "Dev"
+  production: false,
+  logLevel: 0,
+  logTag: "Esper"
 };

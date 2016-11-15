@@ -3,7 +3,9 @@
 */
 declare module "config" {
   var config: {
-    name: string;
+    production: boolean;
+    logLevel: number; // => minmum level to log
+    logTag?: string;
   };
   export = config;
 }

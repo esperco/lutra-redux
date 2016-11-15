@@ -1,3 +1,5 @@
 module.exports = {
-  name: "Prod"
+  production: true,
+  logLevel: 3, // Warn and above,
+  logTag: "Esper"
 };

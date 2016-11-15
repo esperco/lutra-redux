@@ -6,11 +6,12 @@
 
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />
-import { name } from "config";
+import { logLevel, logTag, production } from "config";
 import * as _ from "lodash";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { createStore } from 'redux'
+import { createStore } from "redux";
+import * as Log from "../lib/log";
 
 // Components
 import App from "../components/App";
@@ -37,6 +38,13 @@ let store = createStore(
 
   // Initial state
   initState());
+
+// Init misc modules
+Log.init({ 
+  minLevel: logLevel,
+  logTag,
+  logTrace: production
+});
 
 // Render view(s) hooked up to store
 store.subscribe(() => {
