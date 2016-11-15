@@ -4,6 +4,7 @@
 
 import * as React from 'react';
 import { State, DispatchFn } from './types';
+import GroupNav from "./GroupNav";
 
 class Props {
   state: State;
@@ -13,6 +14,8 @@ class Props {
 class GroupEvents extends React.Component<Props, {}> {
   render() {
     return <div>
+      <GroupNav />
+      
       Hello { this.props.state.name }, the counter has been
       clicked {this.props.state.counter} times.
 
