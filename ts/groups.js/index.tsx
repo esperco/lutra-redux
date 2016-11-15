@@ -6,21 +6,27 @@
 
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />
-import { name } from "config";
+import { logLevel, logTag, production } from "config";
 import * as _ from "lodash";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { createStore } from 'redux'
+import { createStore } from "redux";
+import * as Log from "../lib/log";
 
 // Components
 import App from "../components/App";
 import Hello from "../components/Hello";
+import NotFound from "../components/NotFound";
+import Loading from "../components/Loading";
 import GroupEvents from "./GroupEvents";
+import Setup from "./Setup";
 
 // Store Types
 import { State, Action } from "./types";
 import * as Counter from "../states/counter";
 import * as Name from "../states/name";
+import * as Routing from "../lib/routing";
+import * as Routes from "./routes";
 import initState from "./init-state";
 
 let store = createStore(
@@ -31,6 +37,8 @@ let store = createStore(
         return Counter.incrReducer(state, action);
       case "NAME_CHANGE":
         return Name.nameChangeReducer(state, action);
+      case "ROUTE":
+        return Routing.routeReducer(state, action);
     }
     return state;
   }, 
@@ -38,19 +46,47 @@ let store = createStore(
   // Initial state
   initState());
 
+// Init misc modules
+Log.init({ 
+  minLevel: logLevel,
+  logTag,
+  logTrace: production
+});
+
 // Render view(s) hooked up to store
 store.subscribe(() => {
   let state = store.getState();
   let dispatch = (a: Action) => store.dispatch(a);
   let props = { state, dispatch };
+
   ReactDOM.render(
     <App>
-      <Hello name={name} />
-      <GroupEvents {...props} />
+      <MainView {...props} />
     </App>,
     document.getElementById("main")
   );
 });
+
+// View routing
+function MainView(props: { 
+  state: State, 
+  dispatch: (a: Action) => Action;
+}) {
+  if (props.state.route) {
+    switch(props.state.route.page) {
+      case "EVENT_LIST":
+        return <GroupEvents {...props} />;
+      case "SETUP":
+        return <Setup {...props} />;
+      case "NOT_FOUND":
+        return <NotFound />;
+    }
+  }
+  return <Loading />;
+}
+
+// This starts the router
+Routes.init((a) => store.dispatch(a));
 
 // Initial dispatch
 store.dispatch({ type: "" })

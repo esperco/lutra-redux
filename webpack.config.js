@@ -18,6 +18,7 @@ var config = {
     "groups-vendor": [
       'jquery',
       'lodash',
+      'page',
       'react',
       'react-dom'
     ],
