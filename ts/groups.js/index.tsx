@@ -6,7 +6,6 @@
 
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />
-/// <reference path="../../typings/crypto-sha1.d.ts" />
 import * as Conf from "config";
 import * as _ from "lodash";
 import * as React from "react";
