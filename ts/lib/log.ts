@@ -30,12 +30,12 @@ export enum Level { DEBUG = 1, INFO, WARN, ERROR, BOOM };
 export var level: Level = Level.DEBUG; // Default
 
 // Can change level here
-export function init({ minLevel, logTag, logTrace } : {
-  minLevel?: Level;
+export function init({ logLevel, logTag, logTrace } : {
+  logLevel?: Level;
   logTag?: string;
   logTrace?: boolean;
 }) {
-  level = typeof minLevel === "number" ? minLevel : level;
+  level = typeof logLevel === "number" ? logLevel : level;
   tag = typeof logTag === "string" ? logTag : tag;
   trace = typeof logTrace === "boolean" ? logTrace : trace;
 }

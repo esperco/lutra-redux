@@ -32,9 +32,4 @@ function createDOM() {
   } as any;
 }
 
-// Things to do before tests start. Gets loaded when this module is imported.
-function init() {
-  createDOM();
-}
-
 export = createDOM();

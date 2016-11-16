@@ -109,7 +109,7 @@ namespace LocalStore {
 }
 
 export interface LocalStoreSvc { 
-  localStore: typeof LocalStore; 
+  LocalStore: typeof LocalStore;
 };
 
 export default LocalStore;

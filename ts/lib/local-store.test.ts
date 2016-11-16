@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { expect } from "chai";
-import { sandbox, stub } from "./sandbox";
+import { stub } from "./sandbox";
 import LocalStore from "./local-store";
 
 describe("LocalStore", function() {

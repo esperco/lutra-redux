@@ -118,7 +118,7 @@ export function deparam(queryStr: string) {
 // Helper for navigating -- distiguish between hash paths and other
 export function go(path: string) {
   if (_.includes(path, "#")) {
-    let [base, fragment] = path.split("#");
+    let base = path.split("#")[0];
     if (base === location.pathname) { // Same path, use router for fragment
       page(path);
       return;
