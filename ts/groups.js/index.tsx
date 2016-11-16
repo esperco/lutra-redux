@@ -25,6 +25,7 @@ import Setup from "./Setup";
 // Store Types
 import { State, Action } from "./types";
 import * as Counter from "../states/counter";
+import * as ErrorMsg from "../states/error-msg";
 import * as Name from "../states/name";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
@@ -41,8 +42,6 @@ Log.init(_.extend({
   logTrace: Conf.production
 }, Conf));
 
-Api.init(Conf);
-
 
 /* Redux Store Initialization */
 
@@ -58,6 +57,9 @@ let store = createStore(
         return Name.nameChangeReducer(state, action);
       case "ROUTE":
         return Routing.routeReducer(state, action);
+      case "ADD_ERROR":
+      case "RM_ERROR":
+        return ErrorMsg.errorReducer(state, action);
       default:
         // Ignore actions that start with @@ (these are built-in Redux
         // actions) but log any other weird ones
@@ -86,7 +88,7 @@ store.subscribe(() => {
   let props = { state, dispatch };
 
   ReactDOM.render(
-    <App>
+    <App {...props} >
       <MainView {...props} />
     </App>,
     document.getElementById("main")
@@ -113,6 +115,11 @@ function MainView(props: {
 
 
 /* Redux-Dependent Initialization  */
+
+// Sets API prefixes -- needs dispatch for error handling
+Api.init(_.extend({
+  errorHandler: ErrorMsg.errorHandler(dispatch)
+}, Conf));
 
 // This starts the router
 Routes.init(dispatch);

@@ -6,29 +6,59 @@ import * as $ from "jquery";
 import * as _ from "lodash";
 import * as Log from "./log";
 import * as Util from "./util";
-import * as Variant from "./variant";
+import * as Errors from "./errors";
 
 /*
   By default, JQueryPromiseType does not type errors. Let's extend the
-  interface to include proper typing for error messages.
+  interface to include proper typing for error messages that we can throw
+  around in A+ thenable promises
 */
-export interface AjaxError {
+export class AjaxError extends Error {
   code: number
-  textStatus: string;
+  respBody: string;
   method: string;
   url: string;
   reqBody: any;
-  respBody: string;
 
   // Additional info populated if error is instance of ApiT.ClientError
-  errorMsg?: string;
-  errorDetails?: ApiT.ErrorDetails;
+  details?: Errors.ErrorDetails;
 
   /*
     Flag to signal that this error has been handled and should not be logged
     to Sentry or thrown as an exception.
   */
   handled?: boolean;
+
+  constructor({method, url, reqBody, code, respBody} : {
+    method: string;
+    url: string;
+    reqBody: any;
+    code: number;
+    respBody: string;
+  }) {
+    super("error");
+    this.method = method;
+    this.url = url;
+    this.reqBody = reqBody;
+    this.code = code;
+    this.respBody = respBody;
+
+    try {
+      var parsedJson: ApiT.ClientError = JSON.parse(this.respBody);
+      if (isClientError(parsedJson)) {
+        this.name = parsedJson.error_message;
+        this.details = Errors.errorDetail(parsedJson.error_details);
+      }
+    } catch (err) { /* Ignore - not JSON response */ }
+  }
+}
+
+// Typeguard to check nature of error details
+function isClientError(e: any): e is ApiT.ClientError {
+  let typedError = e as ApiT.ClientError;
+  return !_.isUndefined(typedError) &&
+    !!_.isNumber(typedError.http_status_code) &&
+    !!_.isString(typedError.error_message);
 }
 
 type DoneCallback<T> = JQueryPromiseCallback<T>;
@@ -43,7 +73,7 @@ export interface Promise<T> extends JQueryPromise<T> {
     Handles case where failFilter doesn't change error type, return
     value for .then is therefore another JsonHttp.Promise
   */
-  then<U>(doneFilter: (value: T, ...values: any[]) => U|Promise<U>,
+  then<U>(doneFilter: (value: T) => U|Promise<U>,
           failFilter?: (err: AjaxError) => AjaxError|void|Promise<U>,
           progressFilter?: (...progression: any[]) => any): Promise<U>;
 
@@ -52,7 +82,7 @@ export interface Promise<T> extends JQueryPromise<T> {
     inferences about error typing at this point and just return default
     JQueryPromise.
   */
-  then<U>(doneFilter: (value: T, ...values: any[]) => U|Promise<U>,
+  then<U>(doneFilter: (value: T) => U|Promise<U>,
           failFilter?: (err: AjaxError) => any,
           progressFilter?: (...progression: any[]) => any): JQueryPromise<T>;
 
@@ -60,7 +90,7 @@ export interface Promise<T> extends JQueryPromise<T> {
     Handles case where failFilter doesn't change error type, but voids
     return value. So return value for .then is JsonHttp.Promise<void>
   */
-  then(doneFilter: (value: T, ...values: any[]) => void,
+  then(doneFilter: (value: T) => void,
        failFilter?: (err: AjaxError) => AjaxError|void|Promise<void>,
        progressFilter?: (...progression: any[]) => any): Promise<void>;
 }
@@ -79,14 +109,23 @@ namespace JsonHttp {
     user times being out of sync with us.
   */
   export var offset: number|undefined;
+  
+  // Override in init
+  export var errorHandler = function(err: AjaxError) {};
 
   export interface Config {
     esperVersion?: string;
+
+    // Function that returns true if handled
+    errorHandler?: (err: AjaxError) => void;
   }
 
   export function init(props: Config = {}) {
     if (_.isString(props.esperVersion)) {
       esperVersion = props.esperVersion;
+    }
+    if (_.isFunction(props.errorHandler)) {
+      errorHandler = props.errorHandler;
     }
   }
 
@@ -137,23 +176,27 @@ namespace JsonHttp {
   }
 
   // Error logging helper
-  function logError(details: AjaxError) {
+  function logError(err: AjaxError) {
 
     /*
-      Fire error asynchronously to give promises further down an opportunity
-      to resolve.
+      Log error asynchronously to give promises further down an opportunity
+      to resolve. Use setTimeout rather than requestAnimationFrame because
+      (as of jQuery 3), `then` callbacks are called asynchronously, so we 
+      can't guarantee thens are executed synchronously before other promises 
+      have a chance to handle.
     */
-    window.requestAnimationFrame(() => {
-      if (details.handled) {
-        Log.i("Handled error", details);
-      } else if (details.code === 0) {
-        Log.w("Ignored error", details)
+    setTimeout(() => {
+      if (err.handled) {
+        Log.i("Handled error", err);
+      } else if (err.code === 0) {
+        Log.w("Ignored error", err)
       } else {
-        let errorMsg = details.errorDetails ?
-          Variant.tag(details.errorDetails) : details.respBody;
-        Log.e(`${details.code} ${errorMsg}`, details);
+        // Fire default error handler + log
+        errorHandler(err);
+        let errorMsg = err.details ? err.details.tag : err.respBody;
+        Log.e(`${err.code} ${errorMsg}`, err);
       }
-    });
+    }, 2000);
   }
 
   // Response logging helper
@@ -172,26 +215,7 @@ namespace JsonHttp {
           truncatedBody);
   }
 
-  // Populates AjaxError with details from body if applicable
-  function getErrorDetails(error: AjaxError): AjaxError {
-    try {
-      var parsedJson: ApiT.ClientError = JSON.parse(error.respBody);
-      if (isClientError(parsedJson)) {
-        error.errorMsg = parsedJson.error_message;
-        error.errorDetails = parsedJson.error_details;
-      }
-    } catch (err) { /* Ignore - not JSON response */ }
-    return error;
-  }
-
-  function isClientError(e: any): e is ApiT.ClientError {
-    let typedError = e as ApiT.ClientError;
-    return !_.isUndefined(typedError) &&
-      !!_.isNumber(typedError.http_status_code) &&
-      !!_.isString(typedError.error_message);
-  }
-
-
+  
   /** Executes an http request using our standard authentication,
    *  logging and error handling. Can have a custom (ie non-JSON)
    *  content type.
@@ -230,14 +254,15 @@ namespace JsonHttp {
     var startTime = Date.now();
     var ret: Promise<any> = $.ajax(request).then(
       (success) => success,
-      (xhr: JQueryXHR, textStatus: string) => getErrorDetails({
-        code: xhr.status,
-        textStatus: textStatus,
-        method: method,
-        url: path,
-        reqBody: body,
-        respBody: xhr.responseText
-      })
+      (xhr: JQueryXHR) => {
+        throw new AjaxError({
+          code: xhr.status,
+          respBody: xhr.responseText,
+          method: method,
+          url: path,
+          reqBody: body
+        });
+      }
     );
 
     ret.done(function(respBody) {
@@ -269,22 +294,29 @@ namespace JsonHttp {
       batchQueue.push(request);
       return batchDfd.promise()
         .then((success) => {
-          if (! success) return $.Deferred().reject("No value returned");
+          if (! success) {
+            throw new AjaxError({
+              code: 404,
+              method: method,
+              url: path,
+              reqBody: body,
+              respBody: ""
+            });
+          }
           let response = success.responses[index];
           let status = response && response.response_status;
           if (status && ((status >= 200 && status < 300) || status === 304)) {
             return response.response_body;
           } else {
-            let error = getErrorDetails({
+            let error = new AjaxError({
               code: status,
-              textStatus: "error",
               method: method,
               url: path,
               reqBody: body,
               respBody: JSON.stringify(response.response_body)
-            })
+            });
             logError(error);
-            return $.Deferred().reject(error);
+            throw error;
           }
         });
     }
