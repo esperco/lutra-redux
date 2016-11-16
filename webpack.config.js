@@ -16,6 +16,7 @@ var config = {
   entry: {
     groups: "./groups.js",
     "groups-vendor": [
+      'crypto-js/sha1',
       'jquery',
       'lodash',
       'page',

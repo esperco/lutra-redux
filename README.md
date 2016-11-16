@@ -40,6 +40,7 @@ These are determined via our Webpack entry points (current just `groups.js`).
   * `groups.js` - Groups-specific code + main loop
   * `lib` - Generic Typescript libraries and helpers
   * `states` - Redux-specific state management, includes reducers, actions, etc.
+* `typings` - Misc one-off typings
 
 Design Considerations
 ---------------------
