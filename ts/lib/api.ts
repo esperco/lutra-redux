@@ -25,6 +25,8 @@ namespace Api {
     JsonHttp.setSecret(credentials.apiSecret);
   }
 
+  export var setOffset = JsonHttp.setOffset;
+
   /*
     We call this to avoid making URLs containing "undefined" or "null".
     This prevents making a bogus API request, and hopefully makes bug

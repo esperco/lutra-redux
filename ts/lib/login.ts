@@ -5,6 +5,7 @@
 // Credentials => retrieve stored credentials from LocalStorage
 import { LocalStoreSvc } from "./local-store";
 import { ApiSvc } from "./api";
+import * as moment from "moment";
 import * as ApiT from "./apiT";
 import * as _ from "lodash";
 import * as $ from "jquery";
@@ -66,6 +67,21 @@ export function init(
 
     var asAdmin = !!credentials.as_admin;
     return Api.getLoginInfo()
+
+      // Fix offset based on clock result if invalid headers and try again
+      .then((info) => info, (err) => {
+        if (err.details && 
+            err.details.tag === "Invalid_authentication_headers") {
+          err.handled = true;
+          return Api.clock().then((v) => {
+            Api.setOffset(moment(v.timestamp).diff(moment(), 'seconds'));
+            return Api.getLoginInfo();
+          });
+        }
+        throw err;    
+      })
+      
+      // Success => dispatch info
       .then((info) => {
         dispatch({ type: "LOGIN", info, asAdmin });
         return info;

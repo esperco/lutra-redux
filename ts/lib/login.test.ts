@@ -3,6 +3,7 @@ import { expectCalledWith } from "./expect-helpers";
 import sandbox from "./sandbox";
 import { apiSvcFactory, stubApi } from "../fakes/api-fake";
 import LocalStoreFake from "../fakes/local-store-fake"; 
+import { AjaxError } from "./json-http";
 import * as Login  from "./login";
 import * as Sinon from 'sinon';
 
@@ -98,6 +99,51 @@ describe("Login", function() {
       }).then(done, done);
 
       dfd.resolve(fakeData);
+    });
+
+    it("adjusts offset using clock value from server if headers are invalid", 
+    function(done) {
+      let dispatch = Sinon.spy();
+      let apiSvc = apiSvcFactory();
+      let setOffset = sandbox.spy(apiSvc.Api, "setOffset");
+      let dfd1 = stubApi(apiSvc, "getLoginInfo");
+      let dfd2 = stubApi(apiSvc, "clock");
+
+      // Type doesn't matter here
+      let fakeData: any = { x: 1, y: 2 };
+
+      Login.init(dispatch, {
+        Api: apiSvc.Api,
+        LocalStore: getLocalStoreSvc().LocalStore
+      }).then((x) => {
+        expect(x).to.deep.equal(fakeData);
+        expectCalledWith(dispatch, {
+          type: "LOGIN",
+          info: fakeData,
+          asAdmin: true
+        });
+        expect(setOffset.called).to.be.true;
+      }).then(done, done);
+
+      // Reject with invalid auth headers
+      dfd1.reject(new AjaxError({
+        method: "GET",
+        url: "/api/login/uid/info",
+        reqBody: "",
+        code: 401,
+        respBody: JSON.stringify({
+          http_status_code: 401,
+          error_message: "Doesn't matter",
+          error_details: "Invalid_authentication_headers"
+        })
+      }));
+      let dfd3 = stubApi(apiSvc, "getLoginInfo");
+
+      // Resolve clock
+      dfd2.resolve({ timestamp: "2016-11-01T00:00:00.000-08:00" });
+
+      // Resolve second dfd
+      dfd3.resolve(fakeData);
     });
   });
 
