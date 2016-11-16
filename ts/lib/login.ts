@@ -7,6 +7,7 @@ import { LocalStoreSvc } from "./local-store";
 import { ApiSvc } from "./api";
 import * as ApiT from "./apiT";
 import * as _ from "lodash";
+import * as $ from "jquery";
 
 const storedLoginKey = "login";
 
