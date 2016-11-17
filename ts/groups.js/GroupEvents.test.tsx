@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { expect } from "chai";
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import { expectCalledWith } from "../lib/expect-helpers";
 import { simulateInput } from "../lib/react-test-helpers";
 import * as Sinon from 'sinon';
 
-import { DispatchFn } from "./types";
 import initState from "./init-state";
 import GroupEvents from './GroupEvents';
 
