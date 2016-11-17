@@ -2,6 +2,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin'),
     PathRewriterPlugin = require('webpack-path-rewriter'),
     autoprefixer = require('autoprefixer'),
     path = require('path'),
+    version = require('./version'),
     webpack = require('webpack');
 
 /*
@@ -30,8 +31,8 @@ var config = {
   output: {
     path: path.join(__dirname, "pub"),
     publicPath: "/",
-    filename: "js/[name]-" + (prodLike ? "[chunkhash]" : "") + ".js",
-    chunkFilename: "js/[name]-" + (prodLike ? "[chunkhash]" : "") + ".js"
+    filename: "js/[name]--" + (prodLike ? "[chunkhash]" : "dev") + ".js",
+    chunkFilename: "js/[name]--" + (prodLike ? "[chunkhash]" : "dev") + ".js"
   },
 
 
@@ -53,8 +54,17 @@ var config = {
       { test: /\.html?$/,
         loader: PathRewriterPlugin.rewriteAndEmit({
           name: "[path][name].html",
-          context: "assets",
-          includeHash: true
+          context: "html",
+          includeHash: true,
+          loader: 'nunjucks-html?' + JSON.stringify({
+            searchPaths: [ path.join(__dirname, "html") ],
+
+            // Nunjucks / Jinja context
+            context: {
+              PRODUCTION: prodLike,
+              VERSION: version()
+            }
+          })
         })
       },
 
@@ -78,8 +88,8 @@ var config = {
       // Static assets
       { test: /.*/,
         loader: "file?context=assets&name=[path][name].[ext]",
-        include: [ path.resolve(__dirname, "./assets") ],
-        exclude: /\.html$/
+        include: [ path.resolve(__dirname, "./assets") ]
+        // exclude: /\.html$/
       },
 
       { test: /\.(woff|woff2|eot|ttf|svg)(\?.*)?$/,
@@ -111,11 +121,11 @@ var config = {
     }),
 
     new ExtractTextPlugin(
-      "css/[name]-" + (prodLike ? "[contenthash]" : "") + ".css",
+      "css/[name]--" + (prodLike ? "[contenthash]" : "dev") + ".css",
       { allChunks: true }),
     new webpack.optimize.CommonsChunkPlugin({
       name: "groups-vendor",
-      filename: "js/[name]-" + (prodLike ? "[chunkhash]" : "") + ".js"
+      filename: "js/[name]--" + (prodLike ? "[chunkhash]" : "dev") + ".js"
     }),
     new PathRewriterPlugin()
   ],
