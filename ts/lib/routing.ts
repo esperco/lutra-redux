@@ -4,11 +4,12 @@
 import * as _ from 'lodash';
 import * as page from 'page';
 import * as Log from './log';
+import { randomString } from "./util";
 
 type StrMap = {[index: string]: string};
 
 /*
-  A Route defines a connection between a pageJs pattern and a callback 
+  A Route defines a connection between a pageJs pattern and a callback
   function that (optionally) returns a state change that can be passed to
   our Redux dispatcher.
 */
@@ -19,19 +20,19 @@ export class Path<P extends StrMap, Q extends StrMap> {
   constructor(public opts: {
     // Prefix for our path -- added to our path function when calling
     // href function -- can be used for base paths with a hash
-    base: string;     
+    base: string;
 
     // Object representing available params
-    params: P;        
+    params: P;
 
-    // Object representing querystring options -- we can't ensure this 
+    // Object representing querystring options -- we can't ensure this
     // type when coming in via URL input, so should clean input
-    query: Q;         
+    query: Q;
 
     // Function to convert params to path
     toStr: (p: P) => string;
   }) { }
-  
+
   // Public path, for links and navigation
   href(p: P, q?: Q) {
     let base = this.opts.base;
@@ -47,13 +48,13 @@ export class Path<P extends StrMap, Q extends StrMap> {
   param(q: Q) {
     if (_.isEmpty(q)) return "";
     return "?" + _(q)
-      .map((v: string, k: string) => 
+      .map((v: string, k: string) =>
         encodeURIComponent(k) + "=" + encodeURIComponent(v)
       )
       .join("&");
   }
 
-  // Generates the pattern used for routing purposes  
+  // Generates the pattern used for routing purposes
   routePattern() {
     let subPath = this.opts.toStr(keymap(this.opts.params));
     if (subPath[0] !== "/") { subPath = "/" + subPath; }
@@ -61,14 +62,21 @@ export class Path<P extends StrMap, Q extends StrMap> {
   }
 
   /*
-    Typechecks a callback hooked up to this path. Returns a 2-tuple of a 
+    Typechecks a callback hooked up to this path. Returns a 2-tuple of a
     route pattern and page.js callback you can hookup to the Route via the
     init function.
-  */ 
+  */
   route<S>(cb: (params: P, query: Q) => S|null): Route<S> {
     return [this.routePattern(), (ctx) => {
       let query: any = {};
       let params = deparam(ctx.querystring);
+
+      // Nav.go will store very long hashes in memory to avoid 2000-char
+      // URL limit
+      let hashKey = params['hash'];
+      if (hashKey && Nav.queryHashes[hashKey]) {
+        params = deparam(Nav.queryHashes[hashKey]);
+      }
 
       // Filter out only params that appear in query. Assign empty strings
       // if not available to avoid type errors
@@ -84,11 +92,11 @@ export class Path<P extends StrMap, Q extends StrMap> {
 }
 
 /*
-  Takes an object representing keys and mutates params so each param 
+  Takes an object representing keys and mutates params so each param
   is in form expected by routers
 
     keymap({ a: "", b: "" }) => { a: ":a", b: ":b" }
-*/ 
+*/
 function keymap<P extends Object>(p: P): P {
   _.each(p, (v, k) => {
     let params: any = p;
@@ -115,12 +123,21 @@ export function deparam(queryStr: string) {
   return ret;
 }
 
-// Helper for navigating -- distiguish between hash paths and other
+// Helper for navigating -- distiguish betwyeen hash paths and other
 export namespace Nav {
+  export var queryHashes: {[index: string]: string} = {};
+
   export function go(path: string) {
     if (_.includes(path, "#")) {
       let base = path.split("#")[0];
       if (base === location.pathname) { // Same path, use router for fragment
+        // Handle really long querystrings by storing in memroy
+        if (path.length > 2000) {
+          let [start, query] = path.split('?');
+          let id = randomString();
+          queryHashes[id] = query;
+          path = start + "?hash=" + id;
+        }
         page(path);
         return;
       }
