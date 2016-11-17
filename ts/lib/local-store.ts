@@ -9,6 +9,7 @@
 */
 
 import * as Log from "./log";
+import * as _ from "lodash";
 
 namespace LocalStore {
   export function set(k: string, v: any) {
@@ -92,9 +93,7 @@ namespace LocalStore {
     var ca = document.cookie.split(';');
     for (var i = 0, max = ca.length; i < max; i++) {
       var c = ca[i];
-      while (c.charAt(0) === ' ') {
-        c = c.substring(1, c.length);
-      }
+      c = _.trimStart(c);
       if (c.indexOf(nameEQ) === 0) {
         return c.substring(nameEQ.length, c.length);
       }
@@ -108,7 +107,7 @@ namespace LocalStore {
   }
 }
 
-export interface LocalStoreSvc { 
+export interface LocalStoreSvc {
   LocalStore: typeof LocalStore;
 };
 
