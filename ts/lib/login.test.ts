@@ -2,7 +2,8 @@ import { expect } from "chai";
 import { expectCalledWith } from "./expect-helpers";
 import sandbox from "./sandbox";
 import { apiSvcFactory, stubApi } from "../fakes/api-fake";
-import LocalStoreFake from "../fakes/local-store-fake"; 
+import localStoreFake from "../fakes/local-store-fake"; 
+import navFake from "../fakes/nav-fake";
 import { AjaxError } from "./json-http";
 import * as Login  from "./login";
 import * as Sinon from 'sinon';
@@ -10,7 +11,7 @@ import * as Sinon from 'sinon';
 describe("Login", function() {
   describe("init", function() {
     function getLocalStoreSvc() {
-      return LocalStoreFake({
+      return localStoreFake({
         login: {
           uid: "O-w_lois_____________w",
           api_secret: "lois_secret",
@@ -19,15 +20,17 @@ describe("Login", function() {
         }
       });
     }
+    const Conf = { loginRedirect: "//something/login" };
 
     it("gets credentials from local store", function() {
       let dispatch = Sinon.spy();
       let { Api } = apiSvcFactory(); 
       let spy = sandbox.spy(Api, "getLoginInfo");
 
-      Login.init(dispatch, {
+      Login.init(dispatch, Conf, {
         Api,
-        LocalStore: getLocalStoreSvc().LocalStore
+        LocalStore: getLocalStoreSvc().LocalStore,
+        Nav: navFake().Nav
       });
 
       expectCalledWith(spy);
@@ -39,9 +42,10 @@ describe("Login", function() {
       let { Api } = apiSvcFactory(); 
       let spy = sandbox.spy(Api, "setLogin");
 
-      Login.init(dispatch, {
+      Login.init(dispatch, Conf, {
         Api,
-        LocalStore: getLocalStoreSvc().LocalStore
+        LocalStore: getLocalStoreSvc().LocalStore,
+        Nav: navFake().Nav
       });
 
       expectCalledWith(spy, {
@@ -54,9 +58,10 @@ describe("Login", function() {
       let dispatch = Sinon.spy();
       let { Api } = apiSvcFactory(); 
 
-      Login.init(dispatch, {
+      Login.init(dispatch, Conf, {
         Api,
-        LocalStore: getLocalStoreSvc().LocalStore
+        LocalStore: getLocalStoreSvc().LocalStore,
+        Nav: navFake().Nav
       });
 
       expect(dispatch.called).to.be.false;
@@ -65,16 +70,20 @@ describe("Login", function() {
     it("handles missing credentials gracefully", function() {
       let dispatch = Sinon.spy();
       let { Api } = apiSvcFactory(); 
+      let { Nav } = navFake();
       let spy1 = sandbox.spy(Api, "getLoginInfo");
       let spy2 = sandbox.spy(Api, "setLogin")
+      let spy3 = sandbox.spy(Nav, "go");
 
-      Login.init(dispatch, {
+      Login.init(dispatch, Conf, {
         Api,
-        LocalStore: LocalStoreFake({}).LocalStore
+        LocalStore: localStoreFake({}).LocalStore,
+        Nav
       });
 
       expect(spy1.called).to.be.false;
       expect(spy2.called).to.be.false;
+      expectCalledWith(spy3, Conf.loginRedirect);
       expect(dispatch.called).to.be.false;
     });
 
@@ -86,9 +95,10 @@ describe("Login", function() {
       // Type doesn't matter here
       let fakeData: any = { x: 1, y: 2 };
 
-      Login.init(dispatch, {
+      Login.init(dispatch, Conf, {
         Api: apiSvc.Api,
-        LocalStore: getLocalStoreSvc().LocalStore
+        LocalStore: getLocalStoreSvc().LocalStore,
+        Nav: navFake().Nav
       }).then((x) => {
         expect(x).to.deep.equal(fakeData);
         expectCalledWith(dispatch, {
@@ -112,9 +122,10 @@ describe("Login", function() {
       // Type doesn't matter here
       let fakeData: any = { x: 1, y: 2 };
 
-      Login.init(dispatch, {
+      Login.init(dispatch, Conf, {
         Api: apiSvc.Api,
-        LocalStore: getLocalStoreSvc().LocalStore
+        LocalStore: getLocalStoreSvc().LocalStore,
+        Nav: navFake().Nav
       }).then((x) => {
         expect(x).to.deep.equal(fakeData);
         expectCalledWith(dispatch, {
@@ -144,6 +155,33 @@ describe("Login", function() {
 
       // Resolve second dfd
       dfd3.resolve(fakeData);
+    });
+
+    it("handles invalid logins gracefully", function(done) {
+      let dispatch = Sinon.spy();
+      let apiSvc = apiSvcFactory();
+      let dfd = stubApi(apiSvc, "getLoginInfo");
+      let { Nav } = navFake();
+      let spy = sandbox.spy(Nav, "go");
+
+      Login.init(dispatch, Conf, {
+        Api: apiSvc.Api,
+        LocalStore: getLocalStoreSvc().LocalStore,
+        Nav
+      }).then(() => {
+        throw new Error("Should not be successful");
+      }, (err) => {
+        expectCalledWith(spy, Conf.loginRedirect);
+      }).then(done, done);
+
+      // Reject with invalid auth headers
+      dfd.reject(new AjaxError({
+        method: "GET",
+        url: "/api/login/uid/info",
+        reqBody: "",
+        code: 401,
+        respBody: "Blergh!"
+      }));
     });
   });
 

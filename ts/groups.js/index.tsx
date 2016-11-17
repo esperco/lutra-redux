@@ -38,6 +38,11 @@ declare var devToolsExtension: any;
 
 /* Helper initialization */
 
+let Svcs = {
+  Api, LocalStore,
+  Nav: Routing.Nav
+};
+
 Log.init(_.extend({
   logTrace: Conf.production
 }, Conf));
@@ -125,7 +130,7 @@ Api.init(_.extend({
 Routes.init(dispatch);
 
 // This starts the login process
-Login.init(dispatch, { LocalStore, Api }).then((info) => {
+Login.init(dispatch, Conf, Svcs).then((info) => {
 
   // Things that should be initialized after login go here
   // TODO 

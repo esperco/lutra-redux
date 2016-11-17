@@ -5,6 +5,7 @@
 // Credentials => retrieve stored credentials from LocalStorage
 import { LocalStoreSvc } from "./local-store";
 import { ApiSvc } from "./api";
+import { NavSvc } from "./routing";
 import * as moment from "moment";
 import * as ApiT from "./apiT";
 import * as _ from "lodash";
@@ -55,10 +56,11 @@ export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
 // Returns a promise for when login process is done -- dispatches to store
 export function init(
   dispatch: (action: LoginAction) => LoginAction,
-  svcs: LocalStoreSvc & ApiSvc
+  Conf: { loginRedirect: string },
+  Svcs: LocalStoreSvc & ApiSvc & NavSvc
 ) {
-  let credentials = getCredentials(svcs);
-  let { Api } = svcs;
+  let credentials = getCredentials(Svcs);
+  let { Api, Nav } = Svcs;
   if (credentials) {
     Api.setLogin({ 
       uid: credentials.uid,
@@ -85,8 +87,16 @@ export function init(
       .then((info) => {
         dispatch({ type: "LOGIN", info, asAdmin });
         return info;
+      },
+      
+      // Failure, redirect to login
+      (err) => {
+        Nav.go(Conf.loginRedirect);
+        throw err;
       });
   }
+
+  Nav.go(Conf.loginRedirect);
   return $.Deferred<ApiT.LoginResponse>().reject().promise();
 }
 

@@ -116,18 +116,23 @@ export function deparam(queryStr: string) {
 }
 
 // Helper for navigating -- distiguish between hash paths and other
-export function go(path: string) {
-  if (_.includes(path, "#")) {
-    let base = path.split("#")[0];
-    if (base === location.pathname) { // Same path, use router for fragment
-      page(path);
-      return;
+export namespace Nav {
+  export function go(path: string) {
+    if (_.includes(path, "#")) {
+      let base = path.split("#")[0];
+      if (base === location.pathname) { // Same path, use router for fragment
+        page(path);
+        return;
+      }
     }
-  }
 
-  // Else, update entire path
-  location.href = path;
+    // Else, update entire path
+    location.href = path;
+  }
 }
+
+// Service type for code relying on this
+export type NavSvc = { Nav: typeof Nav };
 
 
 /* Special Hash-paths for home and not-found pages to handle quirks */
@@ -147,7 +152,7 @@ export function routeNotFound(...callbacks: PageJS.Callback[]) {
   page('*', function(ctx, next) {
     // To deal with weird issue where hrefs get too many slashes prepended.
     if (ctx.path.slice(0,2) === "//") {
-      go(ctx.path.slice(1));
+      Nav.go(ctx.path.slice(1));
     } else {
       Log.e("Route not found", ctx);
       next();
@@ -191,7 +196,7 @@ export function init<S>(routes: Route<S>[], opts: {
 }) {
   // Add default, home page callback
   routeHome(function() {
-    go(opts.home());
+    Nav.go(opts.home());
   });
 
   // Add specified routse
