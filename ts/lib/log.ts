@@ -2,8 +2,6 @@
   Logging helpers
 */
 
-/// <reference path="../../node_modules/@types/raven-js/index.d.ts" /> 
-
 /*
   Change this tag to distinguish between different scripts
   logging to the same console.
