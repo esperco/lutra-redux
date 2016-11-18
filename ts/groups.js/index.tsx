@@ -1,6 +1,6 @@
 /*
   This is the entry point and main file for groups.js. It should log
-  in our user (if possible), retrieve initial data, and render a view 
+  in our user (if possible), retrieve initial data, and render a view
   for a group.
 */
 
@@ -12,6 +12,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { createStore, compose } from "redux";
 import * as Log from "../lib/log";
+import Analytics from "../lib/analytics";
 import Api from "../lib/api";
 import LocalStore from "../lib/local-store";
 
@@ -39,7 +40,7 @@ declare var devToolsExtension: any;
 /* Helper initialization */
 
 let Svcs = {
-  Api, LocalStore,
+  Analytics, Api, LocalStore,
   Nav: Routing.Nav
 };
 
@@ -73,16 +74,16 @@ let store = createStore(
         }
     }
     return state;
-  }, 
+  },
 
   // Initial state
   initState(),
-  
+
   // Hook up to extension (if applicable)
   compose(devToolsExtension ? devToolsExtension() : (f: any) => f));
 
 
-/* Hook up main view to store */ 
+/* Hook up main view to store */
 
 // Bound dispatch function
 let dispatch: typeof store.dispatch = store.dispatch.bind(store);
@@ -101,8 +102,8 @@ store.subscribe(() => {
 });
 
 // View routing
-function MainView(props: { 
-  state: State, 
+function MainView(props: {
+  state: State,
   dispatch: (a: Action) => Action;
 }) {
   if (props.state.route) {
@@ -133,5 +134,5 @@ Routes.init(dispatch);
 Login.init(dispatch, Conf, Svcs).then((info) => {
 
   // Things that should be initialized after login go here
-  // TODO 
+  // TODO
 });

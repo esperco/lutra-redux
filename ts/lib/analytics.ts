@@ -17,6 +17,7 @@ export type Pageable =
 export namespace Analytics {
   // Track a separate event
   export function track(event: Trackable) {
+    if (disabled) return;
     let name: string;
     let props: any = {};
     if (_.isArray(event)) {
@@ -32,6 +33,7 @@ export namespace Analytics {
 
   // Track a page
   export function page(event: Pageable) {
+    if (disabled) return;
     let name: string;
     let props: any = { url: location.href }; // So hash is included
     if (_.isArray(event)) {
@@ -47,6 +49,7 @@ export namespace Analytics {
 
   // Identify user
   export function identify(loginInfo: LoginResponse) {
+    if (disabled) return;
     analytics.ready(function() {
       analytics.user().id() !== loginInfo.uid;
       if (loginInfo.is_sandbox_user) {
@@ -79,6 +82,9 @@ export namespace Analytics {
       user.reset();
     }
   }
+
+  // Lets things with access to service disable analytics as necessary
+  export var disabled = false;
 
 
   /* Helper functions */

@@ -4,6 +4,7 @@
 
 // Credentials => retrieve stored credentials from LocalStorage
 import { LocalStoreSvc } from "./local-store";
+import { AnalyticsSvc } from "./analytics";
 import { ApiSvc } from "./api";
 import { NavSvc } from "./routing";
 import * as moment from "moment";
@@ -57,12 +58,12 @@ export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
 export function init(
   dispatch: (action: LoginAction) => LoginAction,
   Conf: { loginRedirect: string },
-  Svcs: LocalStoreSvc & ApiSvc & NavSvc
+  Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc
 ) {
   let credentials = getCredentials(Svcs);
-  let { Api, Nav } = Svcs;
+  let { Analytics, Api, Nav } = Svcs;
   if (credentials) {
-    Api.setLogin({ 
+    Api.setLogin({
       uid: credentials.uid,
       apiSecret: credentials.api_secret
     });
@@ -72,7 +73,7 @@ export function init(
 
       // Fix offset based on clock result if invalid headers and try again
       .then((info) => info, (err) => {
-        if (err.details && 
+        if (err.details &&
             err.details.tag === "Invalid_authentication_headers") {
           err.handled = true;
           return Api.clock().then((v) => {
@@ -80,15 +81,17 @@ export function init(
             return Api.getLoginInfo();
           });
         }
-        throw err;    
+        throw err;
       })
-      
-      // Success => dispatch info
+
+      // Success => identify, dispatch info
       .then((info) => {
         dispatch({ type: "LOGIN", info, asAdmin });
+        if (asAdmin) { Analytics.disabled = true; }
+        else { Analytics.identify(info); }
         return info;
       },
-      
+
       // Failure, redirect to login
       (err) => {
         Nav.go(Conf.loginRedirect);
