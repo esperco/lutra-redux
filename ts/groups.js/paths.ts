@@ -4,7 +4,7 @@ const base = "/groups.html#!";
 
 export const eventList = new Path({
   base,
-  params: {},
+  params: {groupId: ""},
   query: {},
   toStr: (p) => "/event-list"
 });

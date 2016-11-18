@@ -6,7 +6,7 @@ import * as Paths from "./paths";
 
 export default function GroupNav({}: {}) {
   return <div>
-    <a href={Paths.eventList.href({})}>
+    <a href={Paths.eventList.href({ groupId: "default" })}>
       Event List
     </a> | <a href={Paths.setup.href({})}>
       Setup

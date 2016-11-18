@@ -108,11 +108,11 @@ function MainView(props: {
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
-      case "EVENT_LIST":
+      case "GroupEvents":
         return <GroupEvents {...props} />;
-      case "SETUP":
+      case "Setup":
         return <Setup {...props} />;
-      case "NOT_FOUND":
+      case "NotFound":
         return <NotFound />;
     }
   }
@@ -128,7 +128,7 @@ Api.init(_.extend({
 }, Conf));
 
 // This starts the router
-Routes.init(dispatch);
+Routes.init(dispatch, Svcs);
 
 // This starts the login process
 Login.init(dispatch, Conf, Svcs).then((info) => {

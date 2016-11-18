@@ -8,13 +8,6 @@ import { randomString } from "./util";
 
 type StrMap = {[index: string]: string};
 
-/*
-  A Route defines a connection between a pageJs pattern and a callback
-  function that (optionally) returns a state change that can be passed to
-  our Redux dispatcher.
-*/
-type Route<S> = [string, (ctx: PageJS.Context) => S|null];
-
 // A Path instance contains functions for creating a route
 export class Path<P extends StrMap, Q extends StrMap> {
   constructor(public opts: {
@@ -61,34 +54,20 @@ export class Path<P extends StrMap, Q extends StrMap> {
     return subPath;
   }
 
-  /*
-    Typechecks a callback hooked up to this path. Returns a 2-tuple of a
-    route pattern and page.js callback you can hookup to the Route via the
-    init function.
-  */
-  route<S>(cb: (params: P, query: Q) => S|null): Route<S> {
-    return [this.routePattern(), (ctx) => {
-      let query: any = {};
-      let params = deparam(ctx.querystring);
-
-      // Nav.go will store very long hashes in memory to avoid 2000-char
-      // URL limit
-      let hashKey = params['hash'];
-      if (hashKey && Nav.queryHashes[hashKey]) {
-        params = deparam(Nav.queryHashes[hashKey]);
-      }
-
-      // Filter out only params that appear in query. Assign empty strings
-      // if not available to avoid type errors
-      _.each(this.opts.query, (v, k) => {
-        if (k) {
-          query[k] = params[k] || "";
-        }
-      });
-
-      return cb(ctx.params, query);
-    }];
+  // Returns a Route. Exists primary for ease of type-checking.
+  route<S, V>(cb: (params: P, query: Q, svcs: V) => S|null): Route<P, Q, S, V> {
+    return { path: this, cb };
   }
+}
+
+/*
+  A Route defines a connection between a pageJs pattern and a callback
+  function that (optionally) returns a state change that can be passed to
+  our Redux dispatcher.
+*/
+type Route<P extends StrMap, Q extends StrMap, S, V> = {
+  path: Path<P, Q>;
+  cb: (p: P, q: Q, svcs: V) => S|null;
 }
 
 /*
@@ -192,7 +171,7 @@ export interface RouteState<S> {
 }
 
 export interface NotFoundRoute {
-  page: "NOT_FOUND"
+  page: "NotFound"
 }
 
 export function routeReducer<R, S extends RouteState<R>>(
@@ -207,9 +186,10 @@ export function routeReducer<R, S extends RouteState<R>>(
   Call to declare and initalize a list of routes. Generic type S should be
   specified as a union type to allow multiple route options.
 */
-export function init<S>(routes: Route<S>[], opts: {
+export function init<S, V>(routes: Route<any, any, S, V>[], opts: {
   dispatch: (action: RouteAction<S>) => any;
   home: () => string; // Home redirect
+  services: V;
 }) {
   // Add default, home page callback
   routeHome(function() {
@@ -217,9 +197,27 @@ export function init<S>(routes: Route<S>[], opts: {
   });
 
   // Add specified routse
-  _.each(routes, ([path, cb]) => {
-    page(path, function(ctx) {
-      let stateOrNull = cb(ctx);
+  _.each(routes, ({path, cb}) => {
+    page(path.routePattern(), function(ctx) {
+      let query: any = {};
+      let params = deparam(ctx.querystring);
+
+      // Nav.go will store very long hashes in memory to avoid 2000-char
+      // URL limit
+      let hashKey = params['hash'];
+      if (hashKey && Nav.queryHashes[hashKey]) {
+        params = deparam(Nav.queryHashes[hashKey]);
+      }
+
+      // Filter out only params that appear in query. Assign empty strings
+      // if not available to avoid type errors
+      _.each(path.opts.query, (v, k) => {
+        if (k) {
+          query[k] = params[k] || "";
+        }
+      });
+
+      let stateOrNull = cb(params, query, opts.services);
       if (stateOrNull) {
         opts.dispatch({
           type: "ROUTE",
@@ -233,7 +231,7 @@ export function init<S>(routes: Route<S>[], opts: {
   routeNotFound(function() {
     opts.dispatch({
       type: "ROUTE",
-      route: { page: "NOT_FOUND" }
+      route: { page: "NotFound" }
     });
   });
 
