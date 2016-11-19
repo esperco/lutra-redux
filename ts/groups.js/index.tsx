@@ -85,8 +85,9 @@ let store = createStore(
 
 /* Hook up main view to store */
 
-// Bound dispatch function
+// Bound dispatch and getState functions
 let dispatch: typeof store.dispatch = store.dispatch.bind(store);
+let getState: typeof store.getState = store.getState.bind(store);
 
 // Render view(s) hooked up to store
 store.subscribe(() => {
@@ -128,7 +129,7 @@ Api.init(_.extend({
 }, Conf));
 
 // This starts the router
-Routes.init(dispatch, Svcs);
+Routes.init(dispatch, getState, Svcs);
 
 // This starts the login process
 Login.init(dispatch, Conf, Svcs).then((info) => {

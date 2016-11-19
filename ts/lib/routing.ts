@@ -55,19 +55,19 @@ export class Path<P extends StrMap, Q extends StrMap> {
   }
 
   // Returns a Route. Exists primary for ease of type-checking.
-  route<S, V>(cb: (params: P, query: Q, svcs: V) => S|null): Route<P, Q, S, V> {
+  route<D>(cb: (p: P, q: Q, deps: D) => void): Route<P, Q, D> {
     return { path: this, cb };
   }
 }
 
 /*
   A Route defines a connection between a pageJs pattern and a callback
-  function that (optionally) returns a state change that can be passed to
-  our Redux dispatcher.
+  function that (optionally) returns a bound function to get params
+  and queries
 */
-type Route<P extends StrMap, Q extends StrMap, S, V> = {
+type Route<P extends StrMap, Q extends StrMap, D> = {
   path: Path<P, Q>;
-  cb: (p: P, q: Q, svcs: V) => S|null;
+  cb: (p: P, q: Q, deps: D) => void;
 }
 
 /*
@@ -186,11 +186,15 @@ export function routeReducer<R, S extends RouteState<R>>(
   Call to declare and initalize a list of routes. Generic type S should be
   specified as a union type to allow multiple route options.
 */
-export function init<S, V>(routes: Route<any, any, S, V>[], opts: {
-  dispatch: (action: RouteAction<S>) => any;
-  home: () => string; // Home redirect
-  services: V;
-}) {
+export function init<S, D extends {
+  dispatch: (a: RouteAction<NotFoundRoute>) => RouteAction<NotFoundRoute>;
+  getState: () => S;
+}>(
+  routes: Route<any, any, D & { state: S }>[],
+  opts: {
+    home: () => string; // Home redirect
+  }, deps: D)
+{
   // Add default, home page callback
   routeHome(function() {
     Nav.go(opts.home());
@@ -199,14 +203,14 @@ export function init<S, V>(routes: Route<any, any, S, V>[], opts: {
   // Add specified routse
   _.each(routes, ({path, cb}) => {
     page(path.routePattern(), function(ctx) {
-      let query: any = {};
-      let params = deparam(ctx.querystring);
+      let params = ctx.params;
+      let query: any = deparam(ctx.querystring);
 
       // Nav.go will store very long hashes in memory to avoid 2000-char
       // URL limit
-      let hashKey = params['hash'];
+      let hashKey = query['hash'];
       if (hashKey && Nav.queryHashes[hashKey]) {
-        params = deparam(Nav.queryHashes[hashKey]);
+        query = deparam(Nav.queryHashes[hashKey]);
       }
 
       // Filter out only params that appear in query. Assign empty strings
@@ -217,19 +221,16 @@ export function init<S, V>(routes: Route<any, any, S, V>[], opts: {
         }
       });
 
-      let stateOrNull = cb(params, query, opts.services);
-      if (stateOrNull) {
-        opts.dispatch({
-          type: "ROUTE",
-          route: stateOrNull
-        })
-      }
+      // Get state and pass to callback
+      cb(params, query, _.extend({}, deps, {
+        state: deps.getState()
+      }));
     });
   });
 
   // Add not found callback
   routeNotFound(function() {
-    opts.dispatch({
+    deps.dispatch({
       type: "ROUTE",
       route: { page: "NotFound" }
     });

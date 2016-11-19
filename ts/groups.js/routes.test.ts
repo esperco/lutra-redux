@@ -1,8 +1,8 @@
 import analyticsFake from "../fakes/analytics-fake";
 import apiFake from "../fakes/api-fake";
-import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { sandbox } from "../lib/sandbox";
+import initState from "./init-state";
 import * as Routes from "./routes";
 
 describe("Routes", function() {
@@ -13,19 +13,30 @@ describe("Routes", function() {
     };
   }
 
+  function getDeps() {
+    return {
+      dispatch: sandbox.spy(),
+      state: initState(),
+      Svcs: getSvcs(),
+    };
+  }
+
   describe("eventList", function() {
-    it("should return a GroupEvents state", function() {
+    it("should dispatch a GroupEvents state", function() {
       let { cb } = Routes.eventList;
-      let svcs = getSvcs();
-      let s = cb({groupId: "group-id-123"}, {}, svcs);
-      expect(s).to.deep.equal({ page: "GroupEvents" });
+      let deps = getDeps();
+      cb({groupId: "group-id-123"}, {}, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "ROUTE",
+        route: { page: "GroupEvents", groupId: "group-id-123" }
+      });
     });
 
     it("should call analytics for GroupEvents", function() {
       let { cb } = Routes.eventList;
-      let svcs = getSvcs();
-      let spy = sandbox.spy(svcs.Analytics, "page");
-      cb({groupId: "group-id-123"}, {}, svcs);
+      let deps = getDeps();
+      let spy = sandbox.spy(deps.Svcs.Analytics, "page");
+      cb({groupId: "group-id-123"}, {}, deps);
       expectCalledWith(spy, ["GroupEvents", {
         groupId: "group-id-123"
       }]);
@@ -35,16 +46,19 @@ describe("Routes", function() {
   describe("setup", function() {
     it("should return an setup state", function() {
       let { cb } = Routes.setup;
-      let svcs = getSvcs();
-      let s = cb({}, {}, svcs);
-      expect(s).to.deep.equal({ page: "Setup" });
+      let deps = getDeps();
+      cb({}, {}, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "ROUTE",
+        route: { page: "Setup" }
+      })
     });
 
     it("should call analytics for Setup", function() {
       let { cb } = Routes.setup;
-      let svcs = getSvcs();
-      let spy = sandbox.spy(svcs.Analytics, "page");
-      cb({}, {}, svcs);
+      let deps = getDeps();
+      let spy = sandbox.spy(deps.Svcs.Analytics, "page");
+      cb({}, {}, deps);
       expectCalledWith(spy, "GroupSetup");
     });
   })
