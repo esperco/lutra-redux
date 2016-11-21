@@ -2,32 +2,43 @@ import { expect } from "chai";
 import { expectCalledWith } from "./expect-helpers";
 import sandbox from "./sandbox";
 import { apiSvcFactory, stubApi } from "../fakes/api-fake";
-import LocalStoreFake from "../fakes/local-store-fake"; 
+import analyticsFake from "../fakes/analytics-fake";
+import localStoreFake from "../fakes/local-store-fake";
+import navFake from "../fakes/nav-fake";
+import { AjaxError } from "./json-http";
 import * as Login  from "./login";
 import * as Sinon from 'sinon';
 
 describe("Login", function() {
   describe("init", function() {
-    function getLocalStoreSvc() {
-      return LocalStoreFake({
+    const Conf = { loginRedirect: "//something/login" };
+
+    // Default helper for getting all of the services Login needs
+    function getSvcs(initData?: any) {
+      initData = initData || {
         login: {
           uid: "O-w_lois_____________w",
           api_secret: "lois_secret",
           email: "lois@esper.com",
-          as_admin: true
+          as_admin: false
         }
-      });
+      };
+
+      let { Analytics } = analyticsFake();
+      let { Api } = apiSvcFactory();
+      let { LocalStore } = localStoreFake(initData);
+      let { Nav } = navFake();
+      return {
+        Analytics, Api, LocalStore, Nav
+      };
     }
 
     it("gets credentials from local store", function() {
       let dispatch = Sinon.spy();
-      let { Api } = apiSvcFactory(); 
-      let spy = sandbox.spy(Api, "getLoginInfo");
+      let Svcs = getSvcs();
+      let spy = sandbox.spy(Svcs.Api, "getLoginInfo");
 
-      Login.init(dispatch, {
-        Api,
-        LocalStore: getLocalStoreSvc().LocalStore
-      });
+      Login.init(dispatch, Conf, Svcs);
 
       expectCalledWith(spy);
       expect(dispatch.called).to.be.false;
@@ -35,13 +46,10 @@ describe("Login", function() {
 
     it("sets API login", function() {
       let dispatch = Sinon.spy();
-      let { Api } = apiSvcFactory(); 
-      let spy = sandbox.spy(Api, "setLogin");
+      let Svcs = getSvcs();
+      let spy = sandbox.spy(Svcs.Api, "setLogin");
 
-      Login.init(dispatch, {
-        Api,
-        LocalStore: getLocalStoreSvc().LocalStore
-      });
+      Login.init(dispatch, Conf, Svcs);
 
       expectCalledWith(spy, {
         uid: "O-w_lois_____________w",
@@ -51,53 +59,153 @@ describe("Login", function() {
 
     it("should not dispatch until ready", function() {
       let dispatch = Sinon.spy();
-      let { Api } = apiSvcFactory(); 
+      let Svcs = getSvcs();
 
-      Login.init(dispatch, {
-        Api,
-        LocalStore: getLocalStoreSvc().LocalStore
-      });
+      Login.init(dispatch, Conf, Svcs);
 
       expect(dispatch.called).to.be.false;
     });
 
     it("handles missing credentials gracefully", function() {
       let dispatch = Sinon.spy();
-      let { Api } = apiSvcFactory(); 
-      let spy1 = sandbox.spy(Api, "getLoginInfo");
-      let spy2 = sandbox.spy(Api, "setLogin")
+      let Svcs = getSvcs({});
+      let spy1 = sandbox.spy(Svcs.Api, "getLoginInfo");
+      let spy2 = sandbox.spy(Svcs.Api, "setLogin")
+      let spy3 = sandbox.spy(Svcs.Nav, "go");
 
-      Login.init(dispatch, {
-        Api,
-        LocalStore: LocalStoreFake({}).LocalStore
-      });
+      Login.init(dispatch, Conf, Svcs);
 
       expect(spy1.called).to.be.false;
       expect(spy2.called).to.be.false;
+      expectCalledWith(spy3, Conf.loginRedirect);
       expect(dispatch.called).to.be.false;
     });
 
     it("dispatches login info", function(done) {
       let dispatch = Sinon.spy();
-      let apiSvc = apiSvcFactory(); 
-      let dfd = stubApi(apiSvc, "getLoginInfo");
+      let Svcs = getSvcs();
+      let dfd = stubApi(Svcs, "getLoginInfo");
 
       // Type doesn't matter here
       let fakeData: any = { x: 1, y: 2 };
 
-      Login.init(dispatch, {
-        Api: apiSvc.Api,
-        LocalStore: getLocalStoreSvc().LocalStore
-      }).then((x) => {
+      Login.init(dispatch, Conf, Svcs).then((x) => {
         expect(x).to.deep.equal(fakeData);
         expectCalledWith(dispatch, {
           type: "LOGIN",
           info: fakeData,
-          asAdmin: true
+          asAdmin: false
         });
       }).then(done, done);
 
       dfd.resolve(fakeData);
+    });
+
+    it("calls analytics.identify if user is not logged in as admin",
+    function(done) {
+      let dispatch = Sinon.spy();
+      let Svcs = getSvcs();
+      let dfd = stubApi(Svcs, "getLoginInfo");
+      let spy = sandbox.spy(Svcs.Analytics, "identify");
+
+      // Type doesn't matter here
+      let fakeData: any = { x: 1, y: 2 };
+
+      Login.init(dispatch, Conf, Svcs).then((x) => {
+        expectCalledWith(spy, fakeData);
+        expect(Svcs.Analytics.disabled).to.be.false;
+      }).then(done, done);
+
+      dfd.resolve(fakeData);
+    });
+
+    it("disables analytics if user is logged in as admin",
+    function(done) {
+      let dispatch = Sinon.spy();
+      let Svcs = getSvcs({
+        login: {
+          uid: "O-w_lois_____________w",
+          api_secret: "lois_secret",
+          email: "lois@esper.com",
+          as_admin: true
+        }
+      });
+      let dfd = stubApi(Svcs, "getLoginInfo");
+      let spy = sandbox.spy(Svcs.Analytics, "identify");
+
+      // Type doesn't matter here
+      let fakeData: any = { x: 1, y: 2 };
+
+      Login.init(dispatch, Conf, Svcs).then((x) => {
+        expect(Svcs.Analytics.disabled).to.be.true;
+        expect(spy.called).to.be.false;
+      }).then(done, done);
+
+      dfd.resolve(fakeData);
+    });
+
+    it("adjusts offset using clock value from server if headers are invalid",
+    function(done) {
+      let dispatch = Sinon.spy();
+      let Svcs = getSvcs();
+      let setOffset = sandbox.spy(Svcs.Api, "setOffset");
+      let dfd1 = stubApi(Svcs, "getLoginInfo");
+      let dfd2 = stubApi(Svcs, "clock");
+
+      // Type doesn't matter here
+      let fakeData: any = { x: 1, y: 2 };
+
+      Login.init(dispatch, Conf, Svcs).then((x) => {
+        expect(x).to.deep.equal(fakeData);
+        expectCalledWith(dispatch, {
+          type: "LOGIN",
+          info: fakeData,
+          asAdmin: false
+        });
+        expect(setOffset.called).to.be.true;
+      }).then(done, done);
+
+      // Reject with invalid auth headers
+      dfd1.reject(new AjaxError({
+        method: "GET",
+        url: "/api/login/uid/info",
+        reqBody: "",
+        code: 401,
+        respBody: JSON.stringify({
+          http_status_code: 401,
+          error_message: "Doesn't matter",
+          error_details: "Invalid_authentication_headers"
+        })
+      }));
+      let dfd3 = stubApi(Svcs, "getLoginInfo");
+
+      // Resolve clock
+      dfd2.resolve({ timestamp: "2016-11-01T00:00:00.000-08:00" });
+
+      // Resolve second dfd
+      dfd3.resolve(fakeData);
+    });
+
+    it("handles invalid logins gracefully", function(done) {
+      let dispatch = Sinon.spy();
+      let Svcs = getSvcs();
+      let dfd = stubApi(Svcs, "getLoginInfo");
+      let spy = sandbox.spy(Svcs.Nav, "go");
+
+      Login.init(dispatch, Conf, Svcs).then(() => {
+        throw new Error("Should not be successful");
+      }, (err) => {
+        expectCalledWith(spy, Conf.loginRedirect);
+      }).then(done, done);
+
+      // Reject with invalid auth headers
+      dfd.reject(new AjaxError({
+        method: "GET",
+        url: "/api/login/uid/info",
+        reqBody: "",
+        code: 401,
+        respBody: "Blergh!"
+      }));
     });
   });
 

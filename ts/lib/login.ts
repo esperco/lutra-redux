@@ -4,7 +4,10 @@
 
 // Credentials => retrieve stored credentials from LocalStorage
 import { LocalStoreSvc } from "./local-store";
+import { AnalyticsSvc } from "./analytics";
 import { ApiSvc } from "./api";
+import { NavSvc } from "./routing";
+import * as moment from "moment";
 import * as ApiT from "./apiT";
 import * as _ from "lodash";
 import * as $ from "jquery";
@@ -54,23 +57,49 @@ export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
 // Returns a promise for when login process is done -- dispatches to store
 export function init(
   dispatch: (action: LoginAction) => LoginAction,
-  svcs: LocalStoreSvc & ApiSvc
+  Conf: { loginRedirect: string },
+  Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc
 ) {
-  let credentials = getCredentials(svcs);
-  let { Api } = svcs;
+  let credentials = getCredentials(Svcs);
+  let { Analytics, Api, Nav } = Svcs;
   if (credentials) {
-    Api.setLogin({ 
+    Api.setLogin({
       uid: credentials.uid,
       apiSecret: credentials.api_secret
     });
 
     var asAdmin = !!credentials.as_admin;
     return Api.getLoginInfo()
+
+      // Fix offset based on clock result if invalid headers and try again
+      .then((info) => info, (err) => {
+        if (err.details &&
+            err.details.tag === "Invalid_authentication_headers") {
+          err.handled = true;
+          return Api.clock().then((v) => {
+            Api.setOffset(moment(v.timestamp).diff(moment(), 'seconds'));
+            return Api.getLoginInfo();
+          });
+        }
+        throw err;
+      })
+
+      // Success => identify, dispatch info
       .then((info) => {
         dispatch({ type: "LOGIN", info, asAdmin });
+        if (asAdmin) { Analytics.disabled = true; }
+        else { Analytics.identify(info); }
         return info;
+      },
+
+      // Failure, redirect to login
+      (err) => {
+        Nav.go(Conf.loginRedirect);
+        throw err;
       });
   }
+
+  Nav.go(Conf.loginRedirect);
   return $.Deferred<ApiT.LoginResponse>().reject().promise();
 }
 

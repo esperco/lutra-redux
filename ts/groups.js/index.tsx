@@ -1,6 +1,6 @@
 /*
   This is the entry point and main file for groups.js. It should log
-  in our user (if possible), retrieve initial data, and render a view 
+  in our user (if possible), retrieve initial data, and render a view
   for a group.
 */
 
@@ -12,6 +12,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { createStore, compose } from "redux";
 import * as Log from "../lib/log";
+import Analytics from "../lib/analytics";
 import Api from "../lib/api";
 import LocalStore from "../lib/local-store";
 
@@ -25,6 +26,7 @@ import Setup from "./Setup";
 // Store Types
 import { State, Action } from "./types";
 import * as Counter from "../states/counter";
+import * as ErrorMsg from "../states/error-msg";
 import * as Name from "../states/name";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
@@ -37,11 +39,14 @@ declare var devToolsExtension: any;
 
 /* Helper initialization */
 
+let Svcs = {
+  Analytics, Api, LocalStore,
+  Nav: Routing.Nav
+};
+
 Log.init(_.extend({
   logTrace: Conf.production
 }, Conf));
-
-Api.init(Conf);
 
 
 /* Redux Store Initialization */
@@ -58,6 +63,9 @@ let store = createStore(
         return Name.nameChangeReducer(state, action);
       case "ROUTE":
         return Routing.routeReducer(state, action);
+      case "ADD_ERROR":
+      case "RM_ERROR":
+        return ErrorMsg.errorReducer(state, action);
       default:
         // Ignore actions that start with @@ (these are built-in Redux
         // actions) but log any other weird ones
@@ -66,16 +74,16 @@ let store = createStore(
         }
     }
     return state;
-  }, 
+  },
 
   // Initial state
   initState(),
-  
+
   // Hook up to extension (if applicable)
   compose(devToolsExtension ? devToolsExtension() : (f: any) => f));
 
 
-/* Hook up main view to store */ 
+/* Hook up main view to store */
 
 // Bound dispatch function
 let dispatch: typeof store.dispatch = store.dispatch.bind(store);
@@ -86,7 +94,7 @@ store.subscribe(() => {
   let props = { state, dispatch };
 
   ReactDOM.render(
-    <App>
+    <App {...props} >
       <MainView {...props} />
     </App>,
     document.getElementById("main")
@@ -94,17 +102,17 @@ store.subscribe(() => {
 });
 
 // View routing
-function MainView(props: { 
-  state: State, 
+function MainView(props: {
+  state: State,
   dispatch: (a: Action) => Action;
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
-      case "EVENT_LIST":
+      case "GroupEvents":
         return <GroupEvents {...props} />;
-      case "SETUP":
+      case "Setup":
         return <Setup {...props} />;
-      case "NOT_FOUND":
+      case "NotFound":
         return <NotFound />;
     }
   }
@@ -114,12 +122,17 @@ function MainView(props: {
 
 /* Redux-Dependent Initialization  */
 
+// Sets API prefixes -- needs dispatch for error handling
+Api.init(_.extend({
+  errorHandler: ErrorMsg.errorHandler(dispatch)
+}, Conf));
+
 // This starts the router
-Routes.init(dispatch);
+Routes.init(dispatch, Svcs);
 
 // This starts the login process
-Login.init(dispatch, { LocalStore, Api }).then((info) => {
+Login.init(dispatch, Conf, Svcs).then((info) => {
 
   // Things that should be initialized after login go here
-  // TODO 
+  // TODO
 });
