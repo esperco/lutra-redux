@@ -4,6 +4,7 @@
 
 import * as Counter from "../states/counter";
 import * as DataStatus from "../states/data-status";
+import * as Groups from "../states/groups";
 import * as Name from "../states/name";
 import * as ErrorMsg from "../states/error-msg";
 import * as Login from "../lib/login";
@@ -13,6 +14,7 @@ import * as Routes from "./routes";
 export type Action =
   Counter.IncrAction|
   DataStatus.DataAction|
+  Groups.GroupDataAction|
   Name.NameChangeAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
@@ -22,6 +24,7 @@ export type Action =
 export interface State extends
   Counter.CounterState,
   DataStatus.DataState,
+  Groups.GroupState,
   Name.NameState,
   ErrorMsg.ErrorMsgState,
   Login.LoginState,

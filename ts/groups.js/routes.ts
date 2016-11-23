@@ -3,21 +3,33 @@ import * as Routing from "../lib/routing";
 import { Action, State } from "./types";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
+import * as Groups from "../handlers/groups"
+import * as Log from "../lib/log";
 
 export interface EventListRoute { page: "GroupEvents", groupId: string };
 export const eventList = Paths.eventList.route<{
   dispatch: (action: Action) => any,
   state: State,
-  Svcs: AnalyticsSvc & ApiSvc
+  Svcs: AnalyticsSvc & ApiSvc,
 }>(function(p, q, deps) {
   deps.Svcs.Analytics.page(["GroupEvents", { groupId: p.groupId }]);
-  deps.dispatch({
-    type: "ROUTE",
-    route: {
-      page: "GroupEvents",
-      groupId: p.groupId
-    }
-  });
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupId) {
+    Groups.fetch(groupId, { withLabels: true }, deps);
+    deps.dispatch({
+      type: "ROUTE",
+      route: {
+        page: "GroupEvents",
+        groupId: groupId
+      }
+    });
+  } else {
+    Log.e("Missing groupId", p.groupId);
+    deps.dispatch({
+      type: "ROUTE",
+      route: { page: "NotFound" }
+    });
+  }
 });
 
 export interface SetupRoute { page: "Setup" };

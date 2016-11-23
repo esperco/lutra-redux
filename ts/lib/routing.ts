@@ -238,7 +238,7 @@ export function init<S, D extends {
 
   page.base(location.pathname);
   page({
-    click: false,
+    click: true,
     hashbang: true
   });
 }

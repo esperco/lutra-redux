@@ -28,6 +28,7 @@ import { State, Action } from "./types";
 import * as Counter from "../states/counter";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
+import * as Groups from "../states/groups";
 import * as Name from "../states/name";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
@@ -64,6 +65,8 @@ let store = createStore(
         return Name.nameChangeReducer(state, action);
       case "ROUTE":
         return Routing.routeReducer(state, action);
+      case "GROUP_DATA":
+        return Groups.groupDataReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);
@@ -138,12 +141,10 @@ Api.init(_.extend({
   }
 }, Conf));
 
-// This starts the router
-Routes.init(dispatch, getState, Svcs);
-
 // This starts the login process
 Login.init(dispatch, Conf, Svcs).then((info) => {
-
   // Things that should be initialized after login go here
-  // TODO
+
+  // This starts the router
+  Routes.init(dispatch, getState, Svcs);
 });
