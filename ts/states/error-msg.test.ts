@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { 
+import {
   expectDeepIncludes, expectNotDeepIncludes
 } from "../lib/expect-helpers";
 import { ErrorDetails } from "../lib/errors";
@@ -22,13 +22,13 @@ describe("errorReducer", function() {
 
   it("replaces multiple copies of an error with the same tag", function() {
     let s1: ErrorMsg.ErrorMsgState = { };
-  
+
     let detail2: ErrorDetails = {
-      tag: "Unauthorized_team_member",
+      tag: "Login_required",
       value: {
-        unauthorized_uid: "uid1",
-        unauthorized_email: "email@email.com"
-      } 
+        uid: "uid1",
+        email: "email@email.com"
+      }
     };
     let s2 = ErrorMsg.errorReducer(s1, {
       type: "ADD_ERROR",
@@ -37,11 +37,11 @@ describe("errorReducer", function() {
     });
 
     let detail3: ErrorDetails = {
-      tag: "Unauthorized_team_member",
+      tag: "Login_required",
       value: {
-        unauthorized_uid: "uid2",
-        unauthorized_email: "email2@email.com"
-      } 
+        uid: "uid2",
+        email: "email2@email.com"
+      }
     };
     let s3 = ErrorMsg.errorReducer(s2, {
       type: "ADD_ERROR",
@@ -92,7 +92,7 @@ describe("errorReducer", function() {
     });
     expectDeepIncludes(s4.errors || [], {
       code: 400,
-      details: <ErrorDetails> { tag: "Invalid_authentication_headers" } 
+      details: <ErrorDetails> { tag: "Invalid_authentication_headers" }
     });
     expect((s4.errors || []).length).to.equal(2);
   });
