@@ -21,12 +21,12 @@ class ErrorMsg extends React.Component<Props, State> {
   render() {
     if (_.isEmpty(this.props.errors)) return null;
     return <div className={this.props.className}>
-      { _.map(this.props.errors || [], (err) => 
+      { _.map(this.props.errors || [], (err) =>
         <div key={err.details ? err.details.tag : err.code} className="error">
           <span>
             { getText(err.code, err.details) }
           </span>
-          <span className="action" 
+          <span className="action"
                 onClick={() => this.props.onDismiss(err.code, err.details)}>
             <i className="fa fa-fw fa-close" />
           </span>

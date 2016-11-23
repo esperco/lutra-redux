@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import { State } from "./types";
 import * as Counter from "../states/counter";
+import * as DataStatus from "../states/data-status";
 import * as Name from "../states/name";
 
 /*
@@ -10,5 +11,6 @@ import * as Name from "../states/name";
 export default function initState(): State {
   let state = Counter.initCounter();
   let state2 = _.extend(state, Name.initName());
-  return state2;
+  let state3 = _.extend(state2, DataStatus.initState());
+  return state3;
 }
