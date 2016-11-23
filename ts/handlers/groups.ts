@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
 import { LoginState } from "../lib/login";
 import { GroupState, GroupDataAction } from "../states/groups";
@@ -61,4 +62,27 @@ export function fetch(groupid: string, opts: {
       });
   }
   return Promise.resolve(undefined);
+}
+
+// Fetch group names after logging in
+export function initData(info: ApiT.LoginResponse, deps: {
+  dispatch: (a: GroupDataAction) => GroupDataAction;
+  Svcs: ApiSvc
+}) {
+  deps.dispatch({
+    type: "GROUP_DATA",
+    dataType: "FETCH_START",
+    groupIds: info.groups,
+  });
+
+  return deps.Svcs.Api.getGroupsByUid(info.uid, {})
+    .catch((err) => ({ items: [] as ApiT.Group[] }))
+    .then((groupList) => {
+      deps.dispatch({
+        type: "GROUP_DATA",
+        dataType: "FETCH_END",
+        groupIds: info.groups,
+        groups: groupList.items
+      });
+    });
 }

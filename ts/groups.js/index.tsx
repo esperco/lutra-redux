@@ -35,6 +35,9 @@ import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
 import initState from "./init-state";
 
+// Handlers
+import { initData as initGroupsData } from "../handlers/groups";
+
 // Check for redux dev tools extension
 declare var devToolsExtension: any;
 
@@ -147,4 +150,7 @@ Login.init(dispatch, Conf, Svcs).then((info) => {
 
   // This starts the router
   Routes.init(dispatch, getState, Svcs);
+
+  // Load groups data
+  initGroupsData(info, { dispatch, Svcs });
 });

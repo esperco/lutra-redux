@@ -86,6 +86,25 @@ namespace Api {
     });
   }
 
+  // Fetch all groups for user
+  export function getGroupsByUid(uid: string, opts: {
+      withMembers?: boolean,
+      withLabels?: boolean
+    }): Promise<ApiT.GroupList>
+  {
+    var query = opts.withMembers || opts.withLabels ? "?" : "";
+    var membersParam = opts.withMembers ? "members=true" : "";
+    var labelsParam = opts.withLabels ? "labels=true" : "";
+    var paramString = query + (opts.withMembers && opts.withLabels ?
+                               membersParam + "&" + labelsParam :
+                               membersParam + labelsParam);
+    var url = prefix + "/api/group/user/" + myUid()
+      + "/" + string(uid)
+      + paramString;
+    return JsonHttp.get(url);
+  }
+
+  // Fetch group details
   export function getGroupDetails(groupid: string, opts: {
       withMembers?: boolean,
       withLabels?: boolean

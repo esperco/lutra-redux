@@ -91,4 +91,50 @@ describe("Groups handlers", function() {
       });
     });
   });
+
+  describe("initData", function() {
+    function getDeps() {
+      return {
+        dispatch: sandbox.spy(),
+        Svcs: apiSvcFactory()
+      };
+    }
+
+    it("should dispatch a FETCH_START for all data in login info", function() {
+      let deps = getDeps();
+      let info: any = { // Incomplete login info, but OK for testing
+        uid: "my-uid",
+        groups: ["id-1", "id-2"]
+      };
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "getGroupsByUid");
+      Groups.initData(info, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_DATA",
+        dataType: "FETCH_START",
+        groupIds: ["id-1", "id-2"]
+      });
+      expectCalledWith(apiSpy, "my-uid", {});
+    });
+
+    it("should dispatch a FETCH_END once API call resolves", function(done) {
+      let deps = getDeps();
+      let info: any = { // Incomplete login info, but OK for testing
+        uid: "my-uid",
+        groups: ["id-1", "id-2"]
+      };
+      let g1 = makeGroup({ groupid: "id-1" });
+      let dfd = stubApi(deps.Svcs, "getGroupsByUid");
+
+      Groups.initData(info, deps).then(function() {
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_DATA",
+          dataType: "FETCH_END",
+          groupIds: ["id-1", "id-2"],
+          groups: [g1]
+        });
+      }).then(done, done);
+
+      dfd.resolve({ items: [g1] });
+    });
+  });
 });
