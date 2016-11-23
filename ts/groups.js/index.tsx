@@ -26,7 +26,9 @@ import Setup from "./Setup";
 // Store Types
 import { State, Action } from "./types";
 import * as Counter from "../states/counter";
+import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
+import * as Groups from "../states/groups";
 import * as Name from "../states/name";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
@@ -63,6 +65,11 @@ let store = createStore(
         return Name.nameChangeReducer(state, action);
       case "ROUTE":
         return Routing.routeReducer(state, action);
+      case "GROUP_DATA":
+        return Groups.groupDataReducer(state, action);
+      case "DATA_START":
+      case "DATA_END":
+        return DataStatus.dataReducer(state, action);
       case "ADD_ERROR":
       case "RM_ERROR":
         return ErrorMsg.errorReducer(state, action);
@@ -80,13 +87,15 @@ let store = createStore(
   initState(),
 
   // Hook up to extension (if applicable)
-  compose(devToolsExtension ? devToolsExtension() : (f: any) => f));
+  compose(typeof devToolsExtension === "undefined" ?
+   (f: any) => f : devToolsExtension()));
 
 
 /* Hook up main view to store */
 
-// Bound dispatch function
+// Bound dispatch and getState functions
 let dispatch: typeof store.dispatch = store.dispatch.bind(store);
+let getState: typeof store.getState = store.getState.bind(store);
 
 // Render view(s) hooked up to store
 store.subscribe(() => {
@@ -124,15 +133,18 @@ function MainView(props: {
 
 // Sets API prefixes -- needs dispatch for error handling
 Api.init(_.extend({
-  errorHandler: ErrorMsg.errorHandler(dispatch)
+  startHandler: DataStatus.dataStartHandler(dispatch),
+  successHandler: DataStatus.dataEndHandler(dispatch),
+  errorHandler: function(id: string, err: Error) {
+    DataStatus.dataEndHandler(dispatch)(id);
+    ErrorMsg.errorHandler(dispatch)(id, err);
+  }
 }, Conf));
-
-// This starts the router
-Routes.init(dispatch, Svcs);
 
 // This starts the login process
 Login.init(dispatch, Conf, Svcs).then((info) => {
-
   // Things that should be initialized after login go here
-  // TODO
+
+  // This starts the router
+  Routes.init(dispatch, getState, Svcs);
 });

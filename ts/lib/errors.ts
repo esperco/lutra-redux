@@ -9,7 +9,7 @@ import * as _ from "lodash";
 
   If no value is associated with the tag, the JSON representation is just
   a string.
-  
+
   If a value is associated with the tag, the representation is
   [tag, value] where value has its own type specific to the tag.
 */
@@ -19,13 +19,13 @@ type Variant = string | [string, any];
   Union types of different tag/value combos -- we use objects with string
   literals instead of the tagged arrays returned by Wolverine because
   TypeScript is much better with inferring types with objects (and because
-  it's more robust for an error object to not have a value than the type 
+  it's more robust for an error object to not have a value than the type
   to differ between sometimes being a string and sometimes being a 2-tuple
 
   List below is incomplete but that's fine. We add an "DEFAULT" literal to the
   mix so we can reliably check other tag results and get correct value info.
-*/ 
-export type ErrorDetails = { 
+*/
+export type ErrorDetails = {
   /*
     Lump all the value-less tags together since there's nothing extra
     to infer from those literal values other than the lack of a value
@@ -42,11 +42,11 @@ export type ErrorDetails = {
        "Expired_token"|
        "DEFAULT" // Default exists so we can exhaustively check all known tags
                  // and not have TypeScript assume all cases have been checked
-}|{ 
-  tag: "Unauthorized_team_member",
+}|{
+  tag: "Login_required",
   value: {
-    unauthorized_uid: string;
-    unauthorized_email: string;
+    uid: string;
+    email: string;
   }
 };
 

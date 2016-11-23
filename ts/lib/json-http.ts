@@ -2,17 +2,11 @@
 
 import * as ApiT from "./apiT";
 import * as SHA1 from "crypto-js/sha1";
-import * as $ from "jquery";
 import * as _ from "lodash";
 import * as Log from "./log";
 import * as Util from "./util";
 import * as Errors from "./errors";
 
-/*
-  By default, JQueryPromiseType does not type errors. Let's extend the
-  interface to include proper typing for error messages that we can throw
-  around in A+ thenable promises
-*/
 export class AjaxError extends Error {
   code: number
   respBody: string;
@@ -22,12 +16,6 @@ export class AjaxError extends Error {
 
   // Additional info populated if error is instance of ApiT.ClientError
   details?: Errors.ErrorDetails;
-
-  /*
-    Flag to signal that this error has been handled and should not be logged
-    to Sentry or thrown as an exception.
-  */
-  handled?: boolean;
 
   constructor({method, url, reqBody, code, respBody} : {
     method: string;
@@ -53,46 +41,19 @@ export class AjaxError extends Error {
   }
 }
 
+/*
+  Normally the whole point of promises is to avoid callbacks, but JsonHttp
+  functions provide a callback as a quick way to avoid triggering the default
+  error handler(s).
+*/
+type ErrCb<T> = (err: AjaxError) => T;
+
 // Typeguard to check nature of error details
 function isClientError(e: any): e is ApiT.ClientError {
   let typedError = e as ApiT.ClientError;
   return !_.isUndefined(typedError) &&
     !!_.isNumber(typedError.http_status_code) &&
     !!_.isString(typedError.error_message);
-}
-
-type DoneCallback<T> = JQueryPromiseCallback<T>;
-type ErrorCallback = JQueryPromiseCallback<AjaxError>;
-
-// JQueryPromise with proper failure typing
-export interface Promise<T> extends JQueryPromise<T> {
-  done(...cbs: Array<DoneCallback<T>|DoneCallback<T>[]>): Promise<T>;
-  fail(...cbs: Array<ErrorCallback|ErrorCallback[]>): Promise<T>;
-
-  /*
-    Handles case where failFilter doesn't change error type, return
-    value for .then is therefore another JsonHttp.Promise
-  */
-  then<U>(doneFilter: (value: T) => U|Promise<U>,
-          failFilter?: (err: AjaxError) => AjaxError|void|Promise<U>,
-          progressFilter?: (...progression: any[]) => any): Promise<U>;
-
-  /*
-    Handles case where failFilter does change error type. We stop making
-    inferences about error typing at this point and just return default
-    JQueryPromise.
-  */
-  then<U>(doneFilter: (value: T) => U|Promise<U>,
-          failFilter?: (err: AjaxError) => any,
-          progressFilter?: (...progression: any[]) => any): JQueryPromise<T>;
-
-  /*
-    Handles case where failFilter doesn't change error type, but voids
-    return value. So return value for .then is JsonHttp.Promise<void>
-  */
-  then(doneFilter: (value: T) => void,
-       failFilter?: (err: AjaxError) => AjaxError|void|Promise<void>,
-       progressFilter?: (...progression: any[]) => any): Promise<void>;
 }
 
 namespace JsonHttp {
@@ -109,20 +70,34 @@ namespace JsonHttp {
     user times being out of sync with us.
   */
   export var offset: number|undefined;
-  
+
   // Override in init
-  export var errorHandler = function(err: AjaxError) {};
+  export var startHandler = function(id: string, modData: boolean) {};
+  export var successHandler = function(id: string) {};
+  export var errorHandler = function(id: string, err: Error) {};
 
   export interface Config {
     esperVersion?: string;
 
-    // Function that returns true if handled
-    errorHandler?: (err: AjaxError) => void;
+    // Global handler for when JSON call starts
+    startHandler?: (id: string, modData: boolean) => void;
+
+    // Global success handler -- gets called if no error or if error is handled
+    successHandler?: (id: string) => void;
+
+    // Global error handler -- gets called if error is not handled
+    errorHandler?: (id: string, err: Error) => void;
   }
 
   export function init(props: Config = {}) {
     if (_.isString(props.esperVersion)) {
       esperVersion = props.esperVersion;
+    }
+    if (_.isFunction(props.startHandler)) {
+      startHandler = props.startHandler;
+    }
+    if (_.isFunction(props.successHandler)) {
+      successHandler = props.successHandler;
     }
     if (_.isFunction(props.errorHandler)) {
       errorHandler = props.errorHandler;
@@ -150,21 +125,23 @@ namespace JsonHttp {
     ).toString();
   }
 
-  function setHttpHeaders(path: string) {
-    return function(jqXHR: JQueryXHR) {
-      if (apiSecret) {
-        let typedOffset = _.isNumber(offset) ? offset : 0;
-        let unixTime = Math.round(Date.now()/1000 + typedOffset).toString();
-        let signature = sign(unixTime, path, apiSecret);
-        jqXHR.setRequestHeader("Esper-Timestamp", unixTime);
-        jqXHR.setRequestHeader("Esper-Path", path);
-        jqXHR.setRequestHeader("Esper-Signature", signature);
-
-        if (esperVersion) {
-          jqXHR.setRequestHeader("Esper-Version", esperVersion);
-        }
+  function getHeaders(path: string, contentType?: string) {
+    let headers = new Headers();
+    if (apiSecret) {
+      let typedOffset = _.isNumber(offset) ? offset : 0;
+      let unixTime = Math.round(Date.now()/1000 + typedOffset).toString();
+      let signature = sign(unixTime, path, apiSecret);
+      headers.append("Esper-Timestamp", unixTime);
+      headers.append("Esper-Path", path);
+      headers.append("Esper-Signature", signature);
+      if (esperVersion) {
+        headers.append("Esper-Version", esperVersion);
       }
     }
+    if (contentType) {
+      headers.append("content-type", contentType);
+    }
+    return headers;
   }
 
   function truncateText(s: any,
@@ -175,47 +152,52 @@ namespace JsonHttp {
       return s;
   }
 
-  // Error logging helper
-  function logError(err: AjaxError) {
-
-    /*
-      Log error asynchronously to give promises further down an opportunity
-      to resolve. Use setTimeout rather than requestAnimationFrame because
-      (as of jQuery 3), `then` callbacks are called asynchronously, so we 
-      can't guarantee thens are executed synchronously before other promises 
-      have a chance to handle.
-    */
-    setTimeout(() => {
-      if (err.handled) {
-        Log.i("Handled error", err);
-      } else if (err.code === 0) {
-        Log.w("Ignored error", err)
-      } else {
-        // Fire default error handler + log
-        errorHandler(err);
-        let errorMsg = err.details ? err.details.tag : err.respBody;
-        Log.e(`${err.code} ${errorMsg}`, err);
+  /*
+    Add success and error handlers to a promise -- branches off main
+    promise so these are mostly just callbacks, logging
+  */
+  function withCallbacks<T>(id: string, promise: Promise<T>) {
+    promise.then(
+      (respBody) => successHandler(id),
+      (err: Error) => {
+        if (err instanceof AjaxError && err.code === 0) {
+          Log.w(`Ignored error`, err)
+        } else if (err instanceof AjaxError) {
+          // Fire default error handler + log
+          let errorMsg = err.details ? err.details.tag : err.respBody;
+          Log.e(`${err.code} ${errorMsg}`, err);
+        } else {
+          Log.e(`Unknown error`, err);
+        }
+        errorHandler(id, err);
       }
-    }, 2000);
+    );
+    return promise;
   }
 
-  // Response logging helper
-  function logResponse({id, method, path, respBody, latency} : {
+  // Success logging helper
+  function logResponse({id, method, path, respBody, startTime} : {
     id: string;
     method: string;
     path: string;
     respBody: string;
-    latency: number;
+    startTime: number;
   }) {
-    var truncatedBody = truncateText(respBody, 1000);
+    let latency = (Date.now() - startTime) / 1000;
+    let resp: any = respBody;
+    try {
+      resp = JSON.parse(respBody)
+    } catch (err) {
+      resp = truncateText(respBody, 1000);
+    }
     Log.d("API response " + id
           + " " + method
           + " " + path
           + " [" + latency + "s]",
-          truncatedBody);
+          resp);
   }
 
-  
+
   /** Executes an http request using our standard authentication,
    *  logging and error handling. Can have a custom (ie non-JSON)
    *  content type.
@@ -223,56 +205,33 @@ namespace JsonHttp {
    *  contentType can be "" if the request should not have a
    *  Content-Type header at all. (This is translated to jQuery as
    *  `false', which it supports since 1.5.)
-   *
-   *  processData controls whether the body is converted to a query
-   *  string. It is true by default.
    */
-  export function httpRequest(method: string,
-                              path: string,
-                              body: string,
-                              dataType: string,
-                              contentType: string,
-                              processData = true): Promise<any> {
-    var id = Util.randomString();
-    var contentTypeJQ : any = contentType == "" ? false : contentType;
+  function httpRequest({id, method, path, body, contentType} : {
+    id: string;
+    method: string;
+    path: string;
+    body?: string;
+    contentType: string;
+  }): Promise<{ resp: Response; respBody: string; }> {
+    Log.d("API request " + id + " " + method + " " + path, body);
 
-    /*
-      We return a Deferred object.
-      Use .done(function(result){...}) to access the result.
-      (see jQuery documentation)
-    */
-    var request = {
-      url: path,
-      type: method,
-      data: body,
-      contentType: contentTypeJQ,
-      beforeSend: setHttpHeaders(path),
-      dataType: dataType // type of the data expected from the server
-    };
-    Log.d("API request " + id + " " + method + " " + path, request);
-
-    var startTime = Date.now();
-    var ret: Promise<any> = $.ajax(request).then(
-      (success) => success,
-      (xhr: JQueryXHR) => {
-        throw new AjaxError({
-          code: xhr.status,
-          respBody: xhr.responseText,
-          method: method,
-          url: path,
-          reqBody: body
-        });
-      }
-    );
-
-    ret.done(function(respBody) {
-      var latency = (Date.now() - startTime) / 1000;
-      logResponse({id, method, path, respBody, latency});
-    });
-
-    ret.fail(logError);
-
-    return ret;
+    let headers = getHeaders(path, contentType);
+    let startTime = Date.now();
+    return fetch(path, Util.compactObject({ method, headers, body }))
+      .then((resp) => resp.text().then((respBody) => ({ resp, respBody })))
+      .then(({resp, respBody}) => {
+        logResponse({ id, method, path, respBody, startTime });
+        if (! resp.ok) {
+          throw new AjaxError({
+            code: resp.status,
+            respBody,
+            method: method,
+            url: path,
+            reqBody: body
+          });
+        };
+        return {resp, respBody};
+      });
   }
 
   /** Executes an HTTP request using our standard authentication and
@@ -280,9 +239,15 @@ namespace JsonHttp {
    */
   function jsonHttp(method: ApiT.HttpMethod,
                     path: string,
-                    body?: any) {
+                    modData = false,
+                    body?: any,
+                    errCb?: ErrCb<any>) {
+    // Assign random ID to this request
+    let id = Util.randomString();
+    startHandler(id, modData);
+
     // Batch, don't fire call.
-    if (insideBatch) {
+    if (!!batchPromise) {
       let request: ApiT.HttpRequest<any> = {
         request_method: method,
         request_uri: path
@@ -291,8 +256,9 @@ namespace JsonHttp {
         request.request_body = body;
       }
       let index = batchQueue.length;
-      batchQueue.push(request);
-      return batchDfd.promise()
+      batchQueue.push({ modData, request });
+
+      let p = batchPromise
         .then((success) => {
           if (! success) {
             throw new AjaxError({
@@ -315,75 +281,100 @@ namespace JsonHttp {
               reqBody: body,
               respBody: JSON.stringify(response.response_body)
             });
-            logError(error);
+            if (errCb) { return errCb(error); }
             throw error;
           }
         });
+      return withCallbacks(id, p);
     }
 
-    // Normal, non-batch
-    var contentType = body ? "application/json; charset=UTF-8" : "";
-    return httpRequest(
-      method,
-      path,
-      JSON.stringify(body),
-      "json",
-      contentType);
+    // Normal, non-batch.
+    let contentType = body ? "application/json; charset=UTF-8" : "";
+    let request = httpRequest({
+      id, method, path,
+      body: body ? JSON.stringify(body) : undefined,
+      contentType
+    }).then(
+      ({ respBody }) => JSON.parse(respBody),
+      (err) => {
+        if (errCb && err instanceof AjaxError) {
+          return errCb(err);
+        }
+        throw err;
+      }
+    );
+    return withCallbacks(id, request);
   }
 
-  // Track whether we're inside a batch sequence.
-  var insideBatch = false;
-
   // Queue up batched requests
-  var batchQueue: ApiT.HttpRequest<any>[] = [];
-  var batchDfd: JQueryDeferred<ApiT.BatchHttpResponses<any>>;
+  interface BatchRequest {
+    modData: boolean; // Does this call modify data?
+    request: ApiT.HttpRequest<any>;
+  }
+  var batchQueue: BatchRequest[] = [];
 
-  export function batch<T>(fn: () => JQueryPromise<T>|T,
+  // Initialize this if we're inside a batch sequence
+  var batchPromise: Promise<ApiT.BatchHttpResponses<any>>|null = null;
+
+  export function batch<T>(fn: () => Promise<T>|T,
                            batchPath: string): Promise<T> {
-    var topLevel = !insideBatch;
-    if (topLevel) {
-      insideBatch = true;
-      batchDfd = $.Deferred();
+    var topLevel = false;
+    var resolveFn: (value?: {}|Thenable<{}>|undefined) => void = () => null;
+    var rejectFn: (error?: Error) => void = () => null;
+    if (! batchPromise) {
+      topLevel = true;
+      batchPromise = new Promise(function(resolve, reject) {
+        resolveFn = resolve;
+        rejectFn = reject;
+      });
     }
 
-    var ret = fn();
+    let ret = fn();
+    let p = batchPromise.then(() => ret);
     try {
       if (topLevel) {
-        insideBatch = false;
-        jsonHttp("POST", batchPath, {
-          requests: batchQueue
-        }).then(
-          (r) => batchDfd.resolve(r),
-          (e) => batchDfd.reject(e)
-        );
+        batchPromise = null;
+        let modData = !!_.find(batchQueue, (b) => b.modData);
+        jsonHttp("POST", batchPath, modData, {
+          requests: _.map(batchQueue, (b) => b.request)
+        }).then(resolveFn, rejectFn);
       }
-      return batchDfd.then(() => ret);
     } catch(e) {
-      return batchDfd.reject(e).then(() => ret);
+      rejectFn(e);
     } finally {
       if (topLevel) {
-        insideBatch = false;
+        batchPromise = null;
         batchQueue = [];
       }
     }
+    return p;
   }
 
-  export function get(path: string) {
-    return jsonHttp("GET", path, null);
+  export function get(path: string, errCb?: ErrCb<any>) {
+    return jsonHttp("GET", path, false, null, errCb);
   }
 
   export function post(path: string,
-                       body?: any) {
-    return jsonHttp("POST", path, body);
+                       body?: any,
+                       errCb?: ErrCb<any>) {
+    return jsonHttp("POST", path, true, body, errCb);
+  }
+
+  // Like post, but used to signal that this post doesn't modify data on server
+  export function postGet(path: string,
+                          body?: any,
+                          errCb?: ErrCb<any>) {
+    return jsonHttp("POST", path, false, body, errCb);
   }
 
   export function put(path: string,
-                      body?: any) {
-    return jsonHttp("PUT", path, body);
+                      body?: any,
+                      errCb?: ErrCb<any>) {
+    return jsonHttp("PUT", path, true, body, errCb);
   }
 
-  export function delete_(path: string) {
-    return jsonHttp("DELETE", path, null);
+  export function delete_(path: string, errCb?: ErrCb<any>) {
+    return jsonHttp("DELETE", path, true, null, errCb);
   }
 }
 

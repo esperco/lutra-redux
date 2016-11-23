@@ -36,7 +36,7 @@ describe("Login", function() {
     it("gets credentials from local store", function() {
       let dispatch = Sinon.spy();
       let Svcs = getSvcs();
-      let spy = sandbox.spy(Svcs.Api, "getLoginInfo");
+      let spy = sandbox.spy(Svcs.Api, "getLoginInfoWithRetry");
 
       Login.init(dispatch, Conf, Svcs);
 
@@ -69,7 +69,7 @@ describe("Login", function() {
     it("handles missing credentials gracefully", function() {
       let dispatch = Sinon.spy();
       let Svcs = getSvcs({});
-      let spy1 = sandbox.spy(Svcs.Api, "getLoginInfo");
+      let spy1 = sandbox.spy(Svcs.Api, "getLoginInfoWithRetry");
       let spy2 = sandbox.spy(Svcs.Api, "setLogin")
       let spy3 = sandbox.spy(Svcs.Nav, "go");
 
@@ -84,7 +84,7 @@ describe("Login", function() {
     it("dispatches login info", function(done) {
       let dispatch = Sinon.spy();
       let Svcs = getSvcs();
-      let dfd = stubApi(Svcs, "getLoginInfo");
+      let dfd = stubApi(Svcs, "getLoginInfoWithRetry");
 
       // Type doesn't matter here
       let fakeData: any = { x: 1, y: 2 };
@@ -105,7 +105,7 @@ describe("Login", function() {
     function(done) {
       let dispatch = Sinon.spy();
       let Svcs = getSvcs();
-      let dfd = stubApi(Svcs, "getLoginInfo");
+      let dfd = stubApi(Svcs, "getLoginInfoWithRetry");
       let spy = sandbox.spy(Svcs.Analytics, "identify");
 
       // Type doesn't matter here
@@ -130,7 +130,7 @@ describe("Login", function() {
           as_admin: true
         }
       });
-      let dfd = stubApi(Svcs, "getLoginInfo");
+      let dfd = stubApi(Svcs, "getLoginInfoWithRetry");
       let spy = sandbox.spy(Svcs.Analytics, "identify");
 
       // Type doesn't matter here
@@ -144,52 +144,10 @@ describe("Login", function() {
       dfd.resolve(fakeData);
     });
 
-    it("adjusts offset using clock value from server if headers are invalid",
-    function(done) {
-      let dispatch = Sinon.spy();
-      let Svcs = getSvcs();
-      let setOffset = sandbox.spy(Svcs.Api, "setOffset");
-      let dfd1 = stubApi(Svcs, "getLoginInfo");
-      let dfd2 = stubApi(Svcs, "clock");
-
-      // Type doesn't matter here
-      let fakeData: any = { x: 1, y: 2 };
-
-      Login.init(dispatch, Conf, Svcs).then((x) => {
-        expect(x).to.deep.equal(fakeData);
-        expectCalledWith(dispatch, {
-          type: "LOGIN",
-          info: fakeData,
-          asAdmin: false
-        });
-        expect(setOffset.called).to.be.true;
-      }).then(done, done);
-
-      // Reject with invalid auth headers
-      dfd1.reject(new AjaxError({
-        method: "GET",
-        url: "/api/login/uid/info",
-        reqBody: "",
-        code: 401,
-        respBody: JSON.stringify({
-          http_status_code: 401,
-          error_message: "Doesn't matter",
-          error_details: "Invalid_authentication_headers"
-        })
-      }));
-      let dfd3 = stubApi(Svcs, "getLoginInfo");
-
-      // Resolve clock
-      dfd2.resolve({ timestamp: "2016-11-01T00:00:00.000-08:00" });
-
-      // Resolve second dfd
-      dfd3.resolve(fakeData);
-    });
-
     it("handles invalid logins gracefully", function(done) {
       let dispatch = Sinon.spy();
       let Svcs = getSvcs();
-      let dfd = stubApi(Svcs, "getLoginInfo");
+      let dfd = stubApi(Svcs, "getLoginInfoWithRetry");
       let spy = sandbox.spy(Svcs.Nav, "go");
 
       Login.init(dispatch, Conf, Svcs).then(() => {

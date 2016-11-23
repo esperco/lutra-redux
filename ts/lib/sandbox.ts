@@ -1,6 +1,6 @@
 /*
   Wrapper around Sinon's test sandbox -- this sandbox should auto-restore
-  after each test, so use it instead of Sinon directly when mocking 
+  after each test, so use it instead of Sinon directly when mocking
   things that might persist between tests.
 */
 import * as _ from "lodash";
@@ -36,10 +36,9 @@ export function stub(path: string|string[], newObj: any) {
     lastParent = lastParent[name] = lastParent[name] || {};
   });
 
-  // Actual sandbox or stubbing
-  if (lastParent[child]) {
-    sandbox.stub(lastParent, child, newObj);
-  } else {
+  // Make sure object exists before stubbing
+  if (! lastParent[child]) {
     lastParent[child] = newObj;
   }
+  return sandbox.stub(lastParent, child, newObj);
 }

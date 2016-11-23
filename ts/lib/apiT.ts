@@ -24,11 +24,11 @@ export type ErrorDetails = Variant;
 
 /*
   One of the possible values for ErrorDetails,
-  tagged "unauthorized_team_member"
+  tagged "Login_required"
 */
-export interface UnauthorizedTeamMember {
-  unauthorized_uid: uid;
-  unauthorized_email: email;
+export interface LoginRequired {
+  uid: uid;
+  email: email;
 }
 
 interface ListResponse<T> {

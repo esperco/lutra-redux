@@ -120,6 +120,11 @@ function logErrToRaven(error: Error, details?: any) {
   }
 }
 
+// Treat unhandledrejections as errors
+window.addEventListener("unhandledrejection", function (event: any) {
+  error(event.reason);
+});
+
 /* Throws an error if something failed */
 export function assert(x: boolean, message: string = "Assertion failed.") {
   if (x !== true) {

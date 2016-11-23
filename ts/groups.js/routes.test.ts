@@ -3,7 +3,10 @@ import apiFake from "../fakes/api-fake";
 import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { sandbox } from "../lib/sandbox";
+import * as Groups from "../handlers/groups";
+import initState from "./init-state";
 import * as Routes from "./routes";
+import * as Log from "../lib/log";
 
 describe("Routes", function() {
   function getSvcs() {
@@ -13,38 +16,100 @@ describe("Routes", function() {
     };
   }
 
+  function getDeps() {
+    let ret = {
+      dispatch: sandbox.spy(),
+      state: initState(),
+      Svcs: getSvcs(),
+    };
+
+    // Incomplete login response -- but good enough for tests
+    let loginResponse: any = {
+      groups: ["group-id-123"]
+    };
+    ret.state.login = loginResponse;
+
+    return ret;
+  }
+
   describe("eventList", function() {
-    it("should return a GroupEvents state", function() {
+    it("should dispatch a GroupEvents state", function() {
       let { cb } = Routes.eventList;
-      let svcs = getSvcs();
-      let s = cb({groupId: "group-id-123"}, {}, svcs);
-      expect(s).to.deep.equal({ page: "GroupEvents" });
+      let deps = getDeps();
+      cb({groupId: "group-id-123"}, {}, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "ROUTE",
+        route: { page: "GroupEvents", groupId: "group-id-123" }
+      });
     });
 
     it("should call analytics for GroupEvents", function() {
       let { cb } = Routes.eventList;
-      let svcs = getSvcs();
-      let spy = sandbox.spy(svcs.Analytics, "page");
-      cb({groupId: "group-id-123"}, {}, svcs);
+      let deps = getDeps();
+      let spy = sandbox.spy(deps.Svcs.Analytics, "page");
+      cb({groupId: "group-id-123"}, {}, deps);
       expectCalledWith(spy, ["GroupEvents", {
         groupId: "group-id-123"
       }]);
+    });
+
+    it("should call fetch for Groups", function() {
+      let { cb } = Routes.eventList;
+      let deps = getDeps();
+      let spy = sandbox.spy(Groups, "fetch");
+      cb({groupId: "group-id-123"}, {}, deps);
+      expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
+    });
+
+    it("should re-route to first group if bad group id", function() {
+      let { cb } = Routes.eventList;
+      let deps = getDeps();
+      let spy = sandbox.spy(Groups, "fetch");
+      cb({groupId: "group-id-456"}, {}, deps);
+
+      // Group 456 doesn't exist, go to 123 instead
+      expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "ROUTE",
+        route: { page: "GroupEvents", groupId: "group-id-123" }
+      });
+    });
+
+    it("should route to not found if no groups in state", function() {
+      let { cb } = Routes.eventList;
+      let deps = getDeps();
+      if (deps.state.login) { deps.state.login.groups = []; }
+
+      let fetchSpy = sandbox.spy(Groups, "fetch");
+      let logSpy = sandbox.spy(Log, "e");
+      cb({groupId: "group-id-456"}, {}, deps);
+
+      // Don't call fetch, go to not found page
+      expect(fetchSpy.called).to.be.false;
+      expect(logSpy.called).to.be.true;
+      expectCalledWith(deps.dispatch, {
+        type: "ROUTE",
+        route: { page: "NotFound" }
+      });
     });
   });
 
   describe("setup", function() {
     it("should return an setup state", function() {
       let { cb } = Routes.setup;
-      let svcs = getSvcs();
-      let s = cb({}, {}, svcs);
-      expect(s).to.deep.equal({ page: "Setup" });
+      let deps = getDeps();
+      cb({}, {}, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "ROUTE",
+        route: { page: "Setup" }
+      })
     });
 
     it("should call analytics for Setup", function() {
       let { cb } = Routes.setup;
-      let svcs = getSvcs();
-      let spy = sandbox.spy(svcs.Analytics, "page");
-      cb({}, {}, svcs);
+      let deps = getDeps();
+      let spy = sandbox.spy(deps.Svcs.Analytics, "page");
+      cb({}, {}, deps);
       expectCalledWith(spy, "GroupSetup");
     });
   })

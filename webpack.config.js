@@ -17,6 +17,7 @@ var config = {
   entry: {
     groups: "./groups.js",
     "groups-vendor": [
+      './js/promise-fetch',
       'crypto-js/sha1',
       'jquery',
       'lodash',

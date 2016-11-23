@@ -37,9 +37,9 @@ export function errorReducer<S extends ErrorMsgState>(
   // Add error to list
   if (action.type === "ADD_ERROR") {
     // If error exists already, replace. Else, append.
-    let index = _.findIndex(errors || [], action.details ? 
-      (e) => (e.details && action.details && 
-              e.details.tag === action.details.tag) : 
+    let index = _.findIndex(errors || [], action.details ?
+      (e) => (e.details && action.details &&
+              e.details.tag === action.details.tag) :
       (e) => (!e.details && e.code === action.code));
 
     let value = action.details ?
@@ -54,11 +54,11 @@ export function errorReducer<S extends ErrorMsgState>(
 
   // Remove error
   else {
-    errors = _.filter(errors, (e) => _.isString(action.value) ? 
+    errors = _.filter(errors, (e) => _.isString(action.value) ?
       !e.details || e.details.tag !== action.value :
       !!e.details || e.code !== action.value
     );
-  }  
+  }
 
   state.errors = errors;
   return state;
@@ -68,11 +68,14 @@ export function errorReducer<S extends ErrorMsgState>(
 export function errorHandler(
   dispatch: (a: ErrorAction) => any
 ) {
-  return function(err: AjaxError) {
-    dispatch({
+  return function(id: string, err: Error) {
+    dispatch(err instanceof AjaxError ? {
       type: "ADD_ERROR",
       code: err.code,
       details: err.details
+    } : {
+      type: "ADD_ERROR",
+      code: 999 // Unknown error
     });
   }
 }
