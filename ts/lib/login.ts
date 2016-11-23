@@ -7,10 +7,8 @@ import { LocalStoreSvc } from "./local-store";
 import { AnalyticsSvc } from "./analytics";
 import { ApiSvc } from "./api";
 import { NavSvc } from "./routing";
-import * as moment from "moment";
 import * as ApiT from "./apiT";
 import * as _ from "lodash";
-import * as $ from "jquery";
 
 const storedLoginKey = "login";
 
@@ -69,20 +67,7 @@ export function init(
     });
 
     var asAdmin = !!credentials.as_admin;
-    return Api.getLoginInfo()
-
-      // Fix offset based on clock result if invalid headers and try again
-      .then((info) => info, (err) => {
-        if (err.details &&
-            err.details.tag === "Invalid_authentication_headers") {
-          err.handled = true;
-          return Api.clock().then((v) => {
-            Api.setOffset(moment(v.timestamp).diff(moment(), 'seconds'));
-            return Api.getLoginInfo();
-          });
-        }
-        throw err;
-      })
+    return Api.getLoginInfoWithRetry()
 
       // Success => identify, dispatch info
       .then((info) => {
@@ -100,6 +85,6 @@ export function init(
   }
 
   Nav.go(Conf.loginRedirect);
-  return $.Deferred<ApiT.LoginResponse>().reject().promise();
+  return new Promise(function() {}); // Never resolves -- waiting for redirect
 }
 

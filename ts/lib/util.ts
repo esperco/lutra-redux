@@ -1,4 +1,4 @@
-import * as $ from "jquery";
+import * as _ from "lodash";
 
 // Return a random alphanumeric string
 export function randomString() {
@@ -112,15 +112,54 @@ export function escapeBrackets(s: string) {
   });
 }
 
-// Typed version of $.when.apply($, array)
-export function when<T>(deferreds: (T | JQueryPromise<T>)[])
-  : JQueryPromise<T[]>
-{
-  return $.when.apply($, deferreds).then(
+// Removes undefined values from plain object
+export function compactObject<T extends Object>(o: T): T {
+  var clone: any = _.clone(o);
+  _.each(clone, function(v, k) {
+    if(_.isUndefined(v) && _.isString(k)) {
+      delete clone[k];
+    }
+  });
+  return clone;
+}
 
-    // Convert ..args to args (typing ...args is annoying)
-    function(...args: T[]) { return args; }
-  )
+// Make a deferred object compatible with ES6 promises -- almost a drop-in
+// replacement for JQueryDeferred
+export class Deferred<T> {
+  _promise: Promise<T>;
+  _resolve: (value?: T | Thenable<T> | undefined) => void;
+  _reject: (error?: Error) => void;
+  state: "pending"|"resolved"|"rejected";
+
+  constructor() {
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+    this.state = "pending";
+  }
+
+  promise(): Promise<T> {
+    return this._promise;
+  }
+
+  resolve(value?: T | Thenable<T> | undefined): void {
+    if (this.state === "pending") {
+      this._resolve(value);
+      this.state = "resolved";
+    } else {
+      throw new Error("Already " + this.state);
+    }
+  }
+
+  reject(error?: Error): void {
+    if (this.state === "pending") {
+      this._reject(error);
+      this.state = "rejected";
+    } else {
+      throw new Error("Already " + this.state);
+    }
+  }
 }
 
 /*
@@ -128,16 +167,12 @@ export function when<T>(deferreds: (T | JQueryPromise<T>)[])
   by time t, promise will reject.
 */
 export function timeoutP(t: number) {
-  let dfd = $.Deferred<void>();
-  setTimeout(function() {
-    if (dfd.state() === "pending") { dfd.reject(); }
-  }, t);
+  let dfd = new Deferred();
+  setTimeout(function() { dfd.reject(); }, t);
 
   return {
     promise: dfd.promise(),
-    cb: function() {
-      if (dfd.state() === "pending") { dfd.resolve(); }
-    }
+    cb: function() { dfd.resolve(); }
   };
 }
 

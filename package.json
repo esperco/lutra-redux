@@ -10,6 +10,7 @@
     "@types/chai": "^3.4.34",
     "@types/crypto-js": "^3.1.32",
     "@types/enzyme": "^2.5.37",
+    "@types/es6-promise": "0.0.32",
     "@types/jquery": "^2.0.33",
     "@types/lodash": "^4.14.38",
     "@types/mocha": "^2.2.32",
@@ -21,6 +22,7 @@
     "@types/react-dom": "^0.14.18",
     "@types/segment-analytics": "0.0.27",
     "@types/sinon": "^1.16.31",
+    "@types/whatwg-fetch": "0.0.32",
     "autoprefixer": "^6.3.7",
     "chai": "^3.5.0",
     "css-loader": "^0.23.1",
@@ -53,11 +55,13 @@
     "lodash": "^4.13.1",
     "moment": "^2.14.1",
     "page": "^1.7.1",
+    "promise-polyfill": "^6.0.2",
     "raven-js": "^3.8.0",
     "react": "^15.3.2",
     "react-addons-shallow-compare": "^15.3.2",
     "react-dom": "^15.3.2",
-    "redux": "^3.6.0"
+    "redux": "^3.6.0",
+    "whatwg-fetch": "^2.0.1"
   },
   "scripts": {
     "test": "mocha --recursive --reporter spec --bail --require test-helpers/init.ts --compilers ts:ts-node/register,tsx:ts-node/register ts/**/*.test.*"
