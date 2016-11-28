@@ -25,11 +25,9 @@ import Setup from "./Setup";
 
 // Store Types
 import { State, Action } from "./types";
-import * as Counter from "../states/counter";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Groups from "../states/groups";
-import * as Name from "../states/name";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
@@ -62,10 +60,6 @@ let store = createStore(
     switch (action.type) {
       case "LOGIN":
         return Login.loginReducer(state, action);
-      case "INCR":
-        return Counter.incrReducer(state, action);
-      case "NAME_CHANGE":
-        return Name.nameChangeReducer(state, action);
       case "ROUTE":
         return Routing.routeReducer(state, action);
       case "GROUP_DATA":
