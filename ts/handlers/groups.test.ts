@@ -1,4 +1,5 @@
 import * as Groups from "./groups";
+import * as _ from "lodash";
 import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { apiSvcFactory, stubApi } from "../fakes/api-fake";
@@ -89,6 +90,46 @@ describe("Groups handlers", function() {
 
         dfd.resolve(g);
       });
+    });
+  });
+
+  describe("renameGroup", function() {
+    function getDeps() {
+      return {
+        dispatch: sandbox.spy(),
+        state: _.extend(initState(), {
+          groupSummaries: { "id-1": makeGroup() }
+        }),
+        Svcs: apiSvcFactory()
+      };
+    }
+
+    it("dispatches a GROUP_DATA PUSH action", function() {
+      let deps = getDeps();
+      Groups.renameGroup("id-1", "New Group Name", deps);
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_DATA",
+        dataType: "PUSH",
+        groups: [_.extend({}, deps.state.groupSummaries["id-1"], {
+          group_name: "New Group Name"
+        })]
+      });
+    });
+
+    it("fires an API call to rename group", function() {
+      let deps = getDeps();
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "renameGroup");
+      Groups.renameGroup("id-1", "New Group Name", deps);
+      expectCalledWith(apiSpy, "id-1", "New Group Name");
+    });
+
+    it("should fire API call but not dispatch if no existing summary in state",
+    function() {
+      let deps = getDeps();
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "renameGroup");
+      Groups.renameGroup("id-2", "New Group Name", deps);
+      expect(deps.dispatch.called).to.be.false;
+      expectCalledWith(apiSpy, "id-2", "New Group Name");
     });
   });
 

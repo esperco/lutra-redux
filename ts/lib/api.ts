@@ -120,6 +120,23 @@ namespace Api {
       + `${string(groupid) + paramString}`;
     return JsonHttp.get(url);
   }
+
+  export function createGroup(uid: string, groupUpdate: ApiT.GroupUpdate):
+    Promise<ApiT.Group>
+  {
+    var url = prefix + "/api/group/create/" + myUid()
+      + "/" + string(uid);
+    return JsonHttp.post(url, groupUpdate);
+  }
+
+  export function renameGroup(groupid: string, groupName: string):
+    Promise<void>
+  {
+    var url = prefix + "/api/group/group-name/" + myUid()
+      + "/" + string(groupid)
+      + "/" + string(groupName);
+    return JsonHttp.put(url);
+  }
 }
 
 export interface ApiSvc {
