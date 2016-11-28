@@ -103,7 +103,7 @@ let getState: typeof store.getState = store.getState.bind(store);
 // Render view(s) hooked up to store
 store.subscribe(() => {
   let state = store.getState();
-  let props = { state, dispatch };
+  let props = { state, dispatch, Svcs };
 
   ReactDOM.render(
     <App {...props} >
@@ -117,11 +117,12 @@ store.subscribe(() => {
 function MainView(props: {
   state: State,
   dispatch: (a: Action) => Action;
+  Svcs: typeof Svcs
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
       case "GroupEvents":
-        return <GroupEvents {...props} />;
+        return <GroupEvents groupId={props.state.route.groupId} {...props} />;
       case "Setup":
         return <Setup {...props} />;
       case "NotFound":
