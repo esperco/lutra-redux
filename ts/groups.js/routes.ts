@@ -10,8 +10,8 @@ export interface EventListRoute { page: "GroupEvents", groupId: string };
 export const eventList = Paths.eventList.route<{
   dispatch: (action: Action) => any,
   state: State,
-  Svcs: AnalyticsSvc & ApiSvc
-}>(function(p, q, deps) {
+  Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc
+}>(function(p, deps) {
   deps.Svcs.Analytics.page(["GroupEvents", { groupId: p.groupId }]);
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupId) {
@@ -36,8 +36,8 @@ export interface SetupRoute { page: "Setup" };
 export const setup = Paths.setup.route<{
   dispatch: (action: Routing.RouteAction<SetupRoute>) => any,
   state: {},
-  Svcs: AnalyticsSvc
-}>(function(p, q, deps) {
+  Svcs: AnalyticsSvc & Routing.NavSvc
+}>(function(p, deps) {
   deps.Svcs.Analytics.page("GroupSetup");
   deps.dispatch({
     type: "ROUTE",
@@ -50,12 +50,18 @@ export type RouteTypes = EventListRoute|SetupRoute;
 export function init(
   dispatch: (a: Routing.RouteAction<RouteTypes>) => any,
   getState: () => State,
-  Svcs: AnalyticsSvc & ApiSvc
+  Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc
 ) {
-  Routing.init([
-    eventList,
-    setup
-  ], {
-    home: () => Paths.eventList.href({ groupId: "default" }, {}),
-  }, { dispatch, getState, Svcs });
+  Routing.init(
+    [ // Routes
+      eventList,
+      setup
+    ],
+
+    // Deps
+    () => ({ dispatch, state: getState(), Svcs }),
+
+    // Opts
+    { home: () => Paths.eventList.href({ groupId: "default" }) }
+  );
 }
