@@ -10,9 +10,8 @@ export interface EventListRoute { page: "GroupEvents", groupId: string };
 export const eventList = Paths.eventList.route<{
   dispatch: (action: Action) => any,
   state: State,
-  Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc
+  Svcs: ApiSvc
 }>(function(p, deps) {
-  deps.Svcs.Analytics.page(["GroupEvents", { groupId: p.groupId }]);
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupId) {
     Groups.fetch(groupId, { withLabels: true }, deps);
@@ -35,10 +34,7 @@ export const eventList = Paths.eventList.route<{
 export interface SetupRoute { page: "Setup" };
 export const setup = Paths.setup.route<{
   dispatch: (action: Routing.RouteAction<SetupRoute>) => any,
-  state: {},
-  Svcs: AnalyticsSvc & Routing.NavSvc
 }>(function(p, deps) {
-  deps.Svcs.Analytics.page("GroupSetup");
   deps.dispatch({
     type: "ROUTE",
     route: { page: "Setup" }

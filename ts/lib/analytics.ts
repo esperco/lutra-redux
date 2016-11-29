@@ -10,9 +10,6 @@ import { LoginResponse } from './apiT';
   or a two-tuple variant
 */
 export type Trackable = ""; // TBD
-export type Pageable =
-  ["GroupEvents", { groupId: string }]|   // groups#!/group-events
-  "GroupSetup"                            // groups#!/setup
 
 export namespace Analytics {
   // Track a separate event
@@ -31,17 +28,13 @@ export namespace Analytics {
     });
   }
 
-  // Track a page
-  export function page(event: Pageable) {
+  /*
+    Track a page -- no need to stronger typing here, just let router
+    do this for us
+  */
+  export function page(name: string, props: any) {
     if (disabled) return;
-    let name: string;
-    let props: any = { url: location.href }; // So hash is included
-    if (_.isArray(event)) {
-      name = event[0];
-      props = _.extend(props, event[1]);
-    } else {
-      name = event;
-    }
+    props.url = location.href; // So hash is included
     analytics.ready(function() {
       analytics.page(name, props);
     });

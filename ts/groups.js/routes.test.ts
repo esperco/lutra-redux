@@ -45,15 +45,6 @@ describe("Routes", function() {
       });
     });
 
-    it("should call analytics for GroupEvents", function() {
-      let deps = getDeps();
-      let spy = sandbox.spy(deps.Svcs.Analytics, "page");
-      Routes.eventList({ pathname, hash: "#!/event-list/group-id-123" }, deps);
-      expectCalledWith(spy, ["GroupEvents", {
-        groupId: "group-id-123"
-      }]);
-    });
-
     it("should call fetch for Groups", function() {
       let deps = getDeps();
       let spy = sandbox.spy(Groups, "fetch");
@@ -100,13 +91,6 @@ describe("Routes", function() {
         type: "ROUTE",
         route: { page: "Setup" }
       })
-    });
-
-    it("should call analytics for Setup", function() {
-      let deps = getDeps();
-      let spy = sandbox.spy(deps.Svcs.Analytics, "page");
-      Routes.setup({ pathname, hash: "#!/setup" }, deps);
-      expectCalledWith(spy, "GroupSetup");
     });
   })
 });

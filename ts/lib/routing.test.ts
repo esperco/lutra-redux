@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import { expect } from "chai";
 import { Path, init, Nav } from "./routing";
+import analyticsFake from "../fakes/analytics-fake";
 import { expectCalledWith } from "./expect-helpers";
 import * as Sinon from "sinon";
 import { stub as stubGlobal } from "./sandbox";
@@ -139,7 +140,7 @@ describe("Routing", function() {
         return {
           dispatch: Sinon.spy(),
           state: {},
-          Svcs: { Nav }
+          Svcs: _.extend({ Nav }, analyticsFake())
         };
       }
 
@@ -278,6 +279,25 @@ describe("Routing", function() {
         expect(spy.args[0][0]).deep.equals({
           arg: longStr
         });
+      });
+
+      it("calls page function in analytics service", function() {
+        let deps = getDeps();
+        let path = new Path({
+          base: "/b",
+          params: { arg: "" },
+          hash: ["match", ":arg"]
+        });
+        let route = path.route(() => null);
+
+        init([route], () => deps);
+
+        location.pathname = "/b";
+        location.hash = "#!/match/abc";
+        let spy = Sinon.spy(deps.Svcs.Analytics, "page");
+        onHashChange();
+
+        expectCalledWith(spy, "/b#!/match/:arg", { arg: "abc" });
       });
     });
   });

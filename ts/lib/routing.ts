@@ -3,6 +3,7 @@
 */
 import * as _ from 'lodash';
 import * as Log from './log';
+import { AnalyticsSvc } from "./analytics";
 import { randomString } from "./util";
 
 // Types of acceptable query or hash params
@@ -183,13 +184,13 @@ export class Path<P extends ParamMap> {
 
   // Returns a Route. Exists primary for ease of type-checking.
   route<D>(cb: (p: P, deps: D) => void): Route<P, D> {
-    return (l: LocationLite, deps: D) => {
+    return _.extend((l: LocationLite, deps: D) => {
       let params = this.test(l);
       if (params) {
         cb(params, deps);
       }
       return params;
-    };
+    }, { path: this });
   }
 }
 
@@ -198,8 +199,11 @@ export class Path<P extends ParamMap> {
   the form of a funciton that extracts params from location and takes some
   addtion dependencies. Returns true if successful.
 */
-type Route<P, D> = {
+type Route<P extends ParamMap, D> = {
   (l: LocationLite, deps: D): P|null;
+
+  // Reference back to original path
+  path: Path<P>;
 }
 
 /*
@@ -283,7 +287,7 @@ export function routeReducer<R, S extends RouteState<R>>(
 // Type of deps used for a Route (see below)
 type RouteDeps = {
   dispatch: (a: RouteAction<NotFoundRoute>) => any;
-  Svcs: NavSvc;
+  Svcs: NavSvc & AnalyticsSvc;
 }
 
 export function init<D extends RouteDeps>(
@@ -307,8 +311,20 @@ export function init<D extends RouteDeps>(
         return stored ? ("?" + stored) : all;
       });
 
-    let match = _.find(routes, (r) => r({ hash, pathname }, deps));
-    if (! match) {
+    let params: any;
+    let match = _.find(routes, (r) => {
+      params = r({ hash, pathname }, deps);
+      return !!params;
+    });
+
+    if (match) {
+      // Analytics
+      let path = match.path;
+      let name = path.opts.base + "#!/" + path.opts.hash.join("/");
+      deps.Svcs.Analytics.page(name, params);
+    }
+
+    else {
       // Check for empty or "home"
       if ((location.hash.match(/^[#!\/]*(.*?)[\/]*$/) || ["", ""])[1] === ""
           && opts.home) {
