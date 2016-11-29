@@ -16,25 +16,28 @@ var prodLike = (NODE_ENV !== 'development');
 var config = {
   entry: {
     groups: "./groups.js",
-    "groups-vendor": [
+    vendor: [
       './js/promise-fetch',
       'crypto-js/sha1',
       'jquery',
       'lodash',
       'react',
-      'react-dom'
+      'react-dom',
+
+      // Single generic CSS vendor file
+      "./less/vendor.less"
     ],
 
-    // Single generic CSS vendor file
-    vendor: "./less/vendor.less"
+    // Playground / Style-guide
+    guide: "./guide.js"
   },
+
   output: {
     path: path.join(__dirname, "pub"),
     publicPath: "/",
     filename: "js/[name]--" + (prodLike ? "[chunkhash]" : "dev") + ".js",
     chunkFilename: "js/[name]--" + (prodLike ? "[chunkhash]" : "dev") + ".js"
   },
-
 
   // Enable sourcemaps for debugging webpack's output.
   devtool: "source-map",
@@ -124,7 +127,7 @@ var config = {
       "css/[name]--" + (prodLike ? "[contenthash]" : "dev") + ".css",
       { allChunks: true }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: "groups-vendor",
+      name: "vendor",
       filename: "js/[name]--" + (prodLike ? "[chunkhash]" : "dev") + ".js"
     }),
     new PathRewriterPlugin()
