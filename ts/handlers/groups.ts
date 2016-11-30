@@ -1,8 +1,9 @@
 import * as _ from "lodash";
+import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
 import { LoginState } from "../lib/login";
 import { GroupState, GroupDataAction } from "../states/groups";
-import { ok } from "../states/data-status";
+import { ok, ready } from "../states/data-status";
 import { compactObject as compact } from "../lib/util";
 
 /*
@@ -61,4 +62,47 @@ export function fetch(groupid: string, opts: {
       });
   }
   return Promise.resolve(undefined);
+}
+
+// Rename a group
+export function renameGroup(groupId: string, name: string, deps: {
+  dispatch: (a: GroupDataAction) => any;
+  state: GroupState;
+  Svcs: ApiSvc;
+}) {
+  if (! name) return Promise.reject(new Error("Invalid name"));
+  let summary = deps.state.groupSummaries[groupId];
+  if (ready(summary)) {
+    let newSummary = _.clone(summary);
+    newSummary.group_name = name;
+    deps.dispatch({
+      type: "GROUP_DATA",
+      dataType: "PUSH",
+      groups: [newSummary]
+    });
+  }
+  return deps.Svcs.Api.renameGroup(groupId, name);
+}
+
+// Fetch group names after logging in
+export function initData(info: ApiT.LoginResponse, deps: {
+  dispatch: (a: GroupDataAction) => any;
+  Svcs: ApiSvc;
+}) {
+  deps.dispatch({
+    type: "GROUP_DATA",
+    dataType: "FETCH_START",
+    groupIds: info.groups,
+  });
+
+  return deps.Svcs.Api.getGroupsByUid(info.uid, {})
+    .catch((err) => ({ items: [] as ApiT.Group[] }))
+    .then((groupList) => {
+      deps.dispatch({
+        type: "GROUP_DATA",
+        dataType: "FETCH_END",
+        groupIds: info.groups,
+        groups: groupList.items
+      });
+    });
 }

@@ -10,7 +10,7 @@ export interface EventListRoute { page: "GroupEvents", groupId: string };
 export const eventList = Paths.eventList.route<{
   dispatch: (action: Action) => any,
   state: State,
-  Svcs: AnalyticsSvc & ApiSvc,
+  Svcs: AnalyticsSvc & ApiSvc
 }>(function(p, q, deps) {
   deps.Svcs.Analytics.page(["GroupEvents", { groupId: p.groupId }]);
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);

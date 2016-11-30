@@ -86,6 +86,25 @@ namespace Api {
     });
   }
 
+  // Fetch all groups for user
+  export function getGroupsByUid(uid: string, opts: {
+      withMembers?: boolean,
+      withLabels?: boolean
+    }): Promise<ApiT.GroupList>
+  {
+    var query = opts.withMembers || opts.withLabels ? "?" : "";
+    var membersParam = opts.withMembers ? "members=true" : "";
+    var labelsParam = opts.withLabels ? "labels=true" : "";
+    var paramString = query + (opts.withMembers && opts.withLabels ?
+                               membersParam + "&" + labelsParam :
+                               membersParam + labelsParam);
+    var url = prefix + "/api/group/user/" + myUid()
+      + "/" + string(uid)
+      + paramString;
+    return JsonHttp.get(url);
+  }
+
+  // Fetch group details
   export function getGroupDetails(groupid: string, opts: {
       withMembers?: boolean,
       withLabels?: boolean
@@ -100,6 +119,23 @@ namespace Api {
     var url = `${prefix}/api/group/details/${myUid()}/`
       + `${string(groupid) + paramString}`;
     return JsonHttp.get(url);
+  }
+
+  export function createGroup(uid: string, groupUpdate: ApiT.GroupUpdate):
+    Promise<ApiT.Group>
+  {
+    var url = prefix + "/api/group/create/" + myUid()
+      + "/" + string(uid);
+    return JsonHttp.post(url, groupUpdate);
+  }
+
+  export function renameGroup(groupid: string, groupName: string):
+    Promise<void>
+  {
+    var url = prefix + "/api/group/group-name/" + myUid()
+      + "/" + string(groupid)
+      + "/" + string(groupName);
+    return JsonHttp.put(url);
   }
 }
 

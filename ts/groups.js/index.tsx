@@ -25,15 +25,16 @@ import Setup from "./Setup";
 
 // Store Types
 import { State, Action } from "./types";
-import * as Counter from "../states/counter";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Groups from "../states/groups";
-import * as Name from "../states/name";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
 import initState from "./init-state";
+
+// Handlers
+import { initData as initGroupsData } from "../handlers/groups";
 
 // Check for redux dev tools extension
 declare var devToolsExtension: any;
@@ -59,10 +60,6 @@ let store = createStore(
     switch (action.type) {
       case "LOGIN":
         return Login.loginReducer(state, action);
-      case "INCR":
-        return Counter.incrReducer(state, action);
-      case "NAME_CHANGE":
-        return Name.nameChangeReducer(state, action);
       case "ROUTE":
         return Routing.routeReducer(state, action);
       case "GROUP_DATA":
@@ -100,7 +97,7 @@ let getState: typeof store.getState = store.getState.bind(store);
 // Render view(s) hooked up to store
 store.subscribe(() => {
   let state = store.getState();
-  let props = { state, dispatch };
+  let props = { state, dispatch, Svcs };
 
   ReactDOM.render(
     <App {...props} >
@@ -114,11 +111,12 @@ store.subscribe(() => {
 function MainView(props: {
   state: State,
   dispatch: (a: Action) => Action;
+  Svcs: typeof Svcs
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
       case "GroupEvents":
-        return <GroupEvents {...props} />;
+        return <GroupEvents groupId={props.state.route.groupId} {...props} />;
       case "Setup":
         return <Setup {...props} />;
       case "NotFound":
@@ -147,4 +145,7 @@ Login.init(dispatch, Conf, Svcs).then((info) => {
 
   // This starts the router
   Routes.init(dispatch, getState, Svcs);
+
+  // Load groups data
+  initGroupsData(info, { dispatch, Svcs });
 });

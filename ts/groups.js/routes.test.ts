@@ -3,10 +3,10 @@ import apiFake from "../fakes/api-fake";
 import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { sandbox } from "../lib/sandbox";
+import { stubLogs } from "../fakes/stubs";
 import * as Groups from "../handlers/groups";
 import initState from "./init-state";
 import * as Routes from "./routes";
-import * as Log from "../lib/log";
 
 describe("Routes", function() {
   function getSvcs() {
@@ -81,12 +81,12 @@ describe("Routes", function() {
       if (deps.state.login) { deps.state.login.groups = []; }
 
       let fetchSpy = sandbox.spy(Groups, "fetch");
-      let logSpy = sandbox.spy(Log, "e");
+      let logSpies = stubLogs();
       cb({groupId: "group-id-456"}, {}, deps);
 
       // Don't call fetch, go to not found page
       expect(fetchSpy.called).to.be.false;
-      expect(logSpy.called).to.be.true;
+      expect(logSpies.error.called).to.be.true;
       expectCalledWith(deps.dispatch, {
         type: "ROUTE",
         route: { page: "NotFound" }

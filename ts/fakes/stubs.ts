@@ -14,10 +14,10 @@ export function stubLogs() {
   };
 
   // Get aliases too
-  sandbox.stub(Log, "d", ret.debug);
-  sandbox.stub(Log, "i", ret.info);
-  sandbox.stub(Log, "w", ret.warn);
-  sandbox.stub(Log, "e", ret.error);
+  sandbox.stub(Log, "d", (...args: any[]) => ret.debug(...args));
+  sandbox.stub(Log, "i", (...args: any[]) => ret.info(...args));
+  sandbox.stub(Log, "w", (...args: any[]) => ret.warn(...args));
+  sandbox.stub(Log, "e", (...args: any[]) => ret.error(...args));
 
   return ret;
 }
