@@ -1,0 +1,227 @@
+/*
+  Basic spacing for elements
+*/
+
+/* Spacing  tweaks, resets for common elements */
+
+// Ref: http://alistapart.com/article/axiomatic-css-and-lobotomized-owls
+* + * {
+  margin-top: @padding-base;
+}
+
+p, ul {
+  margin: 0;
+  * + & {
+    margin-top: @padding-base;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 @padding-base;
+
+  // Extra space only if following something else
+  * + & {
+    margin-top: @padding-lg;
+  }
+}
+
+ul {
+  list-style: square;
+  padding-left: 2em;
+}
+
+* + section {
+  margin-top: @padding-lg;
+}
+
+
+/* Container / Wrapper Elements */
+
+.container {
+  max-width: @max-container-width;
+  padding: 0 @padding-base;
+  margin: @padding-lg auto @padding-xl;
+}
+
+
+// Flexbox list of elements spaced evenly apart
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+
+  > * {
+    /*
+      By default, this spaces all the children out evenly. Modify flex-grow
+      to control relative size of elements. Using 1000 as base so we don't
+      have to mess with decimals too much.
+    */
+    flex: 1000 1000 1em;
+    margin: @padding-base / 2;
+    min-width: @min-container-width;
+  }
+
+  // If content width should determine flex spacing
+  &.auto > * {
+    flex-basis: auto;
+  }
+
+  // Correct for extra padding introduced by child elements
+  margin: -@padding-base / 2;
+  * + & {
+    margin-top: @padding-base / 2;
+  }
+}
+
+* + section.flex {
+  margin-top: @padding-lg - (@padding-base / 2);
+}
+
+
+/* For use with specific full-screen layouts */
+
+// Expand to fill relative space
+.expand {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+
+/*
+  Used for a basic layout with a fixed header (or headers) at the top. We
+  assume that the last element in a header layout is expandable and everything
+  else is fixed.
+*/
+.rowbar-layout {
+  .expand;
+
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+
+  // By default, elements are fixed
+  > * {
+    flex: 0 0 auto;
+    max-height: 100vh;
+    position: relative;
+    margin: 0;
+    padding: @padding-base;
+  }
+
+  // But content expands
+  > .content {
+    flex: 1000 1000 auto;
+    overflow: auto;
+  }
+}
+
+/*
+  Used for a basic sidebar layout that's responsive on mobile. Can be nested
+  inside .rowbar-layout.
+
+  Should use with .expand to set width / height.
+*/
+.sidebar-layout {
+  .expand;
+
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  overflow: hidden;
+
+  > * {
+    flex: 1000 1000 auto;
+    position: relative;
+    min-width: @min-container-width;
+    max-width: 100vw;
+    overflow: auto;
+    margin: 0;
+    padding: @padding-base;
+    transition: margin 0.6s ease-in-out;
+  }
+
+  // Main content resizes, tries to fill full width
+  > .content {
+    flex: 1000 1000 100vw;
+
+    @media screen and (max-width: @screen-xs-max) {
+      min-width: 100vw;
+    }
+  }
+
+  // But sidebars are static
+  > .sidebar {
+    width: @sidebar-width;
+    flex: 0 0 auto;
+  }
+
+  // Left sidebar visible
+  &.shift-left {
+    > .sidebar:first-child {
+      margin-left: 0;
+    }
+  }
+
+  // Right sidebar visible
+  &.shift-right {
+    > .sidebar:last-child {
+      margin-right: 0
+    }
+  }
+
+  // Else, full screen
+  > .sidebar:first-child { // Hide left sidebar
+    margin-left: -@sidebar-width;
+
+    // Double on mobile to center things
+    @media screen and (max-width: @screen-xs-max) {
+      margin-left: -2 * @sidebar-width;
+    }
+  }
+
+  > .sidebar:last-child { // Hide right sidebar
+    margin-right: -@sidebar-width;
+
+    @media screen and (max-width: @screen-xs-max) {
+      margin-right: -2 * @sidebar-width;
+    }
+  }
+
+  @media screen and (max-width: @screen-xs-max) {
+    // Special behavior if missing left sidebar
+    & > .content:first-child {
+      margin-left: -@sidebar-width;
+    }
+
+    // Special behavior if missing right sidebar
+    & > .content:last-child {
+      margin-right: -@sidebar-width;
+    }
+  }
+
+  // Apply panel class directly to sidebar to prevent stacking padding
+  .sidebar.panel {
+    border-width: 0;
+    border-radius: 0;
+    box-shadow: none;
+
+    &:first-child { // Left
+      border-right-width: 1px;
+    }
+
+    &:last-child { // Right
+      border-left-width: 1px;
+    }
+  }
+
+  &.shift-left > .sidebar-panel:first-child {
+    box-shadow: @right-box-shadow;
+  }
+
+  &.shift-right > .sidebar-panel:last-child {
+    box-shadow: @left-box-shadow;
+  }
+}

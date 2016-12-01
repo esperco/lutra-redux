@@ -1,0 +1,148 @@
+/*
+  Colors
+
+  So we don't have to remember hex codes -- but outside of the variables
+  file, we should define styles semantically rather than by a specific color
+  -- e.g. the primary button style should use the main brand color, not
+  purple.
+*/
+@blue: #0080ce;
+@gray-bg: #fcfcfc;
+@gray-lighter: #f1f2f2;
+@gray-light: #d1d3d4;
+@gray: #a7a9ac;
+@gray-dark: #58595b;
+@gray-darker: #221122; // Kind of purplish actually
+@green: #2bb673;
+@green_hover: #1e9b5c;
+@off-black: #333333;
+@off-white: #fefefe;
+@orange: #f7941e;
+@purple: #a25cc6;
+@purple-muted: #785988;
+@purple-gradient: #a464c6;
+@purple-light: #8c42ad;
+@purple-dark: #463c4c;
+@red: #d9534f;
+
+/* Brand colors are generally bold or dark colors to contrast with white */
+@brand-primary:           @purple;
+@brand-bg:                @purple-muted;
+@brand-contrast:          @off-white; // Contrast with bg
+@brand-gradient:          linear-gradient(to bottom, @brand-bg 50%,
+                                          @purple-gradient 100%);
+// Modal colors
+@success:           @green;
+@info:              @blue;
+@warning:           @orange;
+@danger:            @red;
+
+/*
+  Shade colors. @shade-bg is an absolute gray background that is still light
+  enough to work with most foreground elements.
+
+  @shade-rel is intended to be used as a relative gray and should be slightly
+  transparent to allow it to work on @shade-bg backgrounds.
+*/
+@shade-bg:          @gray-lighter;
+@shade-rel:         fadeout(@off-black, 75%);
+@shade-rel-dark:    fadeout(@off-black, 50%);
+@shade-rel-light:   fadeout(@off-black, 90%);
+
+// Basic scaffolding colors
+@body-bg:           @gray-bg;
+@panel-bg:          @off-white;
+@text-color:        @off-black;
+@text-header:       @gray-dark;
+@text-highlight:    @text-color;
+@text-highlight-bg: @shade-rel-light;
+@text-muted:        @shade-rel-dark;
+@text-muted-hover:  @gray-dark;
+@link-color:        @purple;
+@link-hover-color:  darken(@link-color, 15%);
+@link-hover-decoration: underline;
+
+
+
+// Element colors
+@border-color: @gray-light;
+
+// Custom shadowing
+@default-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1); // Down right
+@up-box-shadow: 0px -1px 1px rgba(0, 0, 0, 0.1);     // Up
+@down-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);    // Down
+@left-box-shadow: -1px 0px 1px rgba(0, 0, 0, 0.1);   // Left
+@right-box-shadow: 1px 0px 1px rgba(0, 0, 0, 0.1);   // Right
+@plus-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+
+
+/*
+  Spacing and padding
+*/
+@padding-small: 0.5rem;
+@padding-base: 1rem;
+@padding-lg: 2rem;
+@padding-xl: 3rem;
+@border-radius-base: 4px;
+@border-radius-small: 2px;
+@input-height-base: 2rem; // For buttons and inputs
+
+// Min and max of a single "column" or container element
+@max-container-width: 800px;
+@min-container-width: 200px;
+
+// Used for dropdowns, desktop only (mobile defaults to full-ish screen)
+@min-popup-width: 290px;
+@max-popup-width: 400px;
+
+// Modal default width (also constrained by min/max container width above)
+// Default to full screen on modal
+@default-modal-width: 60vw;
+
+// Specific layout dimensions
+@navbar-height: 3rem;
+@sidebar-width: 290px;
+
+// Z-indexing
+@zindex-message:           50;   // Hovering content like status indicators
+@zindex-navbar:            1000; // So headers and footers sit above content
+@zindex-overlay:           1100; // Dropdowns, modals, etc.
+
+/*
+  Typography
+
+  Font, line-height, and color for body text, headings, and more. USe system
+  fonts when possible.
+*/
+@font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                          Roboto, "Helvetica Neue", Arial, sans-serif;
+@font-family-serif:      Georgia, "Times New Roman", Times, serif;
+@font-family-monospace:  Menlo, Monaco, Consolas, "Liberation Mono",
+                         "Courier New", monospace;
+@font-family-base:       @font-family-sans-serif;
+
+// Base font size is 1rem (by definition)
+@font-size-large:        1.25rem;
+@font-size-small:        0.85rem;
+
+
+/*
+  Media queries breakpoints
+
+  Define the breakpoints at which your layout will change,
+  adapting to different screen sizes.
+*/
+
+// Small screen / tablet
+@screen-sm-min:              768px;
+
+// Medium screen / desktop
+@screen-md-min:              992px;
+
+// Large screen / wide desktop
+@screen-lg-min:              1200px;
+
+// So media queries don't overlap when required, provide a maximum
+@screen-xs-max:              480px;
+@screen-sm-max:              (@screen-md-min - 1);
+@screen-md-max:              (@screen-lg-min - 1);

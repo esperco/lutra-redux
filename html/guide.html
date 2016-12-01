@@ -5,11 +5,389 @@
 <head>
   <meta charset="utf-8">
   <title>Style Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="[[css/vendor--*.css]]" rel="stylesheet" />
   <link href="[[css/guide--*.css]]" rel="stylesheet" />
   <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
 </head>
 <body>
-  Hello
+  <div class="container">
+    <h1>Esper Living Style Guide</h1>
+
+    <div class="flex">
+      <div style="flex-grow: 5000">
+        <p>
+          This is the Esper (CSS) style guide. It serves as playground to mess
+          around with CSS and as an example of "best practices" as we currently
+          understand them. Inspect this using the Chrome inspector to see
+          what's going on. We're not very strict about styling at the moment
+          though. That might change if we ever get a full-time designer.
+
+        <p>
+          We currently target IE10+. That means you can use stuff like
+          Flexbox.
+        </p>
+
+        <p>
+          As far as general principles go, less is more. It's better to
+          overload semantic selectors like <code>&lt;input&gt;</code> and
+          <code>&lt;button&gt;</code> than use an abundance of classes.
+        </p>
+      </div>
+      <div style="flex-grow: 3000">
+        <div class="panel">
+          <h3>Recommended Reading</h3>
+          <ul>
+            <li><a href="http://alistapart.com/article/axiomatic-css-and-lobotomized-owls">
+              Axiomatic CSS and Lobotomized Owls
+            </a></li>
+            <li><a href="http://www.heydonworks.com/article/on-writing-less-damn-code">
+              Writing Less Damn Code
+            </a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <section class="flex">
+      <div>
+        <h2>Layout</h2>
+        <p>
+          By default, all elements following another relement get a little
+          tiny bit of margin to space things out.
+        </p>
+        <p>
+          <code>.container</code> constrains the width of very wide
+          elements.
+        </p>
+        <p>
+          <code>.flex</code> applies some simple flexbox defaults and can
+          be used to create responsive columns.
+        </p>
+        <p>
+          <a href="#sidebar-and-header">
+            See sidebar and header layout helpers.
+          </a>
+        </p>
+      </div>
+
+      <section>
+        <div class="panel">
+          <h3>Panels</h3>
+          <p>
+            <code>.panel</code> can be used to create a simple box around
+            some content.
+          </p>
+
+          <div class="panel">
+            <h4>Nested Panels</h4>
+            <p>
+              Panels can also be nested. When nested, panel margins do not
+              stack and instead resemble tiles.
+            </p>
+          </div>
+
+          <div class="panel">
+            This is another nested panel.
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section id="sidebar-and-header" class="view">
+      <div class="rowbar-layout">
+        <div class="banner">
+          <span>Banner. Look at me!</span>
+          <button class="banner-toggle close">&times;</button>
+        </div>
+        <header>
+          <h3>Header</h3>
+        </header>
+        <div class="content">
+          <div id="sidebar-layout" class="sidebar-layout">
+            <div id="left-sidebar" class="sidebar panel">
+              <h3>Left Sidebar</h3>
+              <div class="panel">
+                <a class="sidebar-none-link">Close sidebar</a>
+              </div>
+            </div>
+            <div id="content" class="content">
+              <h2>Main Content</h2>
+              <div class="panel"><div class="flex">
+                <div>
+                  <a class="banner-toggle">Toggle banner</a><br />
+                  <a class="header-toggle">Toggle header</a><br />
+                  <a class="footer-toggle">Toggle footer</a>
+                </div>
+                <div>
+                  <a class="sidebar-left-link">Open left sidebar</a><br />
+                  <a class="sidebar-right-link">Open right sidebar</a>
+                </div>
+              </div></div>
+            </div>
+            <div id="right-sidebar" class="sidebar panel">
+              <h3>Right Sidebar</h3>
+              <div class="panel">
+                <a class="sidebar-none-link">Close sidebar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer>
+          Some footer content.
+        </footer>
+      </div>
+      <a class="back-link" href="#"></a>
+    </section>
+
+    <section class="flex">
+      <div style="flex-grow: 2000">
+        <h2>Navigation</h2>
+        <p>
+          Combine <code>&lt;header&gt;</code> and <code>&lt;nav&gt;</code>
+          elements for navigation headers.
+        </p>
+        <header><nav>
+          <a href="#">Link 1</a>
+          <a class="active" href="#">Link 2 (Active)</a>
+          <a href="#">Link 3</a>
+          <a href="#">Link 4</a>
+        </nav></header>
+      </div>
+
+      <div style="flex-grow: 1000">
+        <div class="panel">
+          <h3>Panel Nav</h3>
+          <nav>
+            <a href="#">This is a link</a>
+            <a href="#">This is another link</a>
+            <a class="active" href="#">This is the active link</a>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex">
+      <div style="flex-grow: 2000">
+        <h2>Buttons<h2>
+        <div class="flex auto">
+          <button>Default</button>
+          <button class="primary">Primary</button>
+          <button class="primary" disabled>Disabled</button>
+          <input type="submit" value="Submit" />
+          <button class="success">Success</button>
+          <button class="warning">Warning</button>
+          <button class="danger">
+            <span>Danger</span>
+            <div class="description">
+              Blows Up All The Things
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div style="flex-grow: 1000">
+        <div class="panel">
+          <h3>Panel Buttons</h3>
+          <p>
+            Use <code>.panel</code> and <code>.menu</code> together to style
+            buttons in a list (e.g. for a dropdown)
+          </p>
+          <div class="panel menu">
+            <button>Default</button>
+            <button class="primary">Primary</button>
+            <button class="primary" disabled>Disabled</button>
+            <input type="submit" value="Submit" />
+            <button class="success">Success</button>
+            <button class="warning">
+              <span class="icon-label">
+                <i class="fa fa-warning"></i>
+                <span>Warning</span>
+              </span>
+              <div class="description">
+                Some additional description of what's going on with this
+                button can follow the label.
+              </div>
+            </button>
+            <button class="danger">
+              <span class="icon-label">
+                <i class="fa fa-trash"></i>
+                <span>Delete</span>
+              </span>
+              <div class="description">
+                Danger! Don't press this button unless you mean it.
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex">
+      <div>
+        <h2>Alerts</h2>
+        <p>Use alerts to draw the user's attention to a message.</p>
+        <div class="alert info">Here's some info.</div>
+        <div class="alert success">Congrats! You've succeeded!</div>
+        <div class="alert warning">
+          Warning! Something is amiss!
+        </div>
+        <div class="alert danger">Danger! Red alert!</div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h3>Alerts in Panels</h3>
+          <div class="alert info">Here's some info.</div>
+          <div class="alert success">Congrats! You've succeeded!</div>
+          <div class="alert warning">Warning! Something is amiss!</div>
+          <div class="alert danger">Danger! Red alert!</div>
+           <p>Lorem ipsum dolor sit amet</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex">
+      <div style="flex-grow: 2000">
+        <h2>Form Text Elements</h2>
+        <p>
+          <code>.form-row</code> horizontally aligns labels and text. It
+          degrades gracefully on mobile displays.
+        </p>
+        <div class="form-row">
+          <label for="textarea">Textarea</label>
+          <textarea id="textarea">Some text</textarea>
+        </div>
+        <div class="form-row">
+          <label for="input">Text</label>
+          <input id="input" type="text" />
+        </div>
+        <div class="form-row">
+          <label for="password">Password</label>
+          <input id="password" type="password" />
+        </div>
+        <div class="form-row">
+          <label for="search">Search</label>
+          <input id="search" type="search" />
+        </div>
+      </div>
+
+      <div style="flex-grow: 1000">
+        <div class="panel">
+          <h3>Panel Forms</h3>
+          <p>
+            Some elements change appearance when used inside panels.
+          </p>
+          <div class="panel">
+            <label for="textarea">Textarea</label>
+            <textarea id="textarea">Some text</textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex">
+      <div>
+        <h2>Progress Bars</h2>
+        <progress value="0.25"></progress>
+        <p>
+          Use the standard <code>&lt;progress&gt;</code> element to
+          create a progress bar.
+        </p>
+      </div>
+
+      <div>
+        <div class="panel">
+          <header>
+            <h3>Panel Progress</h3>
+          </header>
+          <progress value="0.33"></progress>
+          <div class="content">
+            Some content to space things out.
+          </div>
+          <progress value="0.33"></progress>
+          <footer>
+            Panel Footer
+          </footer>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex">
+      <section>
+        <h2>Spinners</h2>
+        <p>Use spinners to show loading status.</p>
+
+        <p>
+          <code>span.spinner</code> is used to render an inline spinner:
+        </p><p>
+          <span class="spinner"></span><span>Loading</span>
+        </p>
+
+        <p>
+          <code>div.spinner</code> is used to render a block-level spinner:
+        </p>
+        <div class="spinner"></div>
+      </section>
+
+      <section>
+        <h2>Placeholders</h2>
+        <p>
+          Sometimes in lieu of a spinner we want to show some placeholder
+          markers to indicate that this is where some text <em>will</em> go
+          once it's finished loading.
+        </p>
+        <p>
+          Inline placeholder: <span class="placeholder"></span>
+        </p>
+        <p>
+          Block placeholders stacked together to create the appearance of a
+          paragraph:
+        </p>
+        <div>
+          <div class="placeholder"></div>
+          <div class="placeholder"></div>
+          <div class="placeholder"></div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <footer><div class="container">
+    <h2>Footer</h2>
+    <div class="flex">
+      <div>
+        <h3>Subheading 1</h3>
+        <nav>
+          <a href="#">Link 1</a>
+          <a href="#">Link 2</a>
+          <a href="#">Link 3</a>
+          <a href="#">Link 4</a>
+        </nav>
+      </div>
+
+      <div>
+        <h3>Subheading 2</h3>
+        <nav>
+          <a href="#">Link 1</a>
+          <a href="#">Link 2</a>
+          <a href="#">Link 3</a>
+          <a href="#">Link 4</a>
+        </nav>
+      </div>
+
+      <div>
+        <h3>Subheading 3</h3>
+        <nav>
+          <a href="#">Link 1</a>
+          <a href="#">Link 2</a>
+          <a href="#">Link 3</a>
+        </nav>
+      </div>
+    </div>
+  </div></footer>
+
+  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
+  <script type="text/javascript" src="[[js/guide--*.js]]"></script>
 </body>
 </html>

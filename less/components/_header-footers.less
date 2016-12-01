@@ -1,0 +1,96 @@
+/*
+  Fixed one-line header, footers, and banners
+*/
+@banner-height: @navbar-height;
+
+header, .banner, footer {
+  display: flex;
+  background: @panel-bg;
+  align-items: center;
+
+  padding: 0 @padding-base;
+  .rowbar-layout > & {
+    padding: 0 @padding-base;
+  }
+
+  // By default, expand all children
+  > * {
+    flex: 1000 1000 auto;
+  }
+
+  // Expand these items relatively slowly
+  > nav, > button, > a, > input[type=submit] {
+    flex: 1 0 auto;
+    min-width: @input-height-base;
+  }
+
+  // Reset default margin behavior in _layout
+  h1, h2, h3, h4, h5, h6, * + * { margin: 0; }
+
+  transition: height 0.3s ease-in-out;
+  &.hide {
+    height: 0;
+    overflow: hidden;
+    border: 0;
+    box-shadow: none;
+  }
+
+  button:first-child {
+    margin-left: -@padding-small;
+  }
+
+  button:last-child {
+    margin-right: -@padding-small;
+  }
+}
+
+header {
+  height: @navbar-height;
+  border-bottom: 1px solid @border-color;
+  box-shadow: @default-box-shadow;
+}
+
+footer {
+  height: @navbar-height;
+  border-top: 1px solid @border-color;
+  box-shadow: @up-box-shadow;
+}
+
+.banner {
+  height: @banner-height;
+  background: @brand-bg;
+  color: @brand-contrast;
+  font-size: @font-size-large;
+  font-weight: bold;
+
+  button {
+    font-size: @font-size-large;
+    color: @brand-contrast;
+
+    &:hover, &:focus {
+      color: @text-color;
+    }
+  }
+}
+
+
+/*
+  Undo some footer formatting for "root-level" footers (e.g. if they follow
+  a container).
+*/
+.container + footer {
+  .shade;
+
+  height: auto;
+  display: block;
+  padding: @padding-base @padding-base @padding-xl;
+  box-shadow: none;
+  border: 0;
+
+  * + * { margin-top: @padding-small; }
+
+  nav a {
+    display: block;
+    text-transform: none;
+  }
+}

@@ -1,0 +1,52 @@
+/*
+  Styling for HTML5 <progress> element.
+
+  May be helpful to look at
+  https://github.com/twbs/bootstrap/blob/v4-dev/scss/_progress.scss
+  if things aren't working.
+*/
+progress {
+  display: block;
+  width: 100%;
+  height: 1rem;
+  border-radius: @border-radius-base;
+  overflow: hidden; // Force rounded corners
+}
+
+progress[value] {
+  appearance: none; // Reset
+  border: 0;        // Reset
+}
+
+/*
+  No standard way of styling actual bar component of brogress bar yet.
+  So manually add vendor prefixes.
+
+  NB: Although similar declarations, we can't combine vendor prefixes
+  because of silly CSS rules.
+*/
+.progress-bg() {
+  background-color: @shade-rel-light;
+  box-shadow: @default-box-shadow inset;
+}
+progress[value] {
+  .progress-bg();
+}
+progress[value]::-webkit-progress-bar {
+  .progress-bg();
+}
+
+.progress-fill() {
+  background-color: @brand-bg;
+  border: 0;
+  transition: width 0.6s ease-in-out;
+}
+progress[value]::-ms-fill {
+  .progress-fill;
+}
+progress[value]::-moz-progress-bar {
+  .progress-fill;
+}
+progress[value]::-webkit-progress-value {
+  .progress-fill;
+}
