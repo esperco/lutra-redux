@@ -10,7 +10,7 @@ interface State {}
 class Loading extends React.Component<Props, State> {
   render() {
     return <div>
-      Loading &hellip;
+      <div className="spinner" />
     </div>
   }
 }

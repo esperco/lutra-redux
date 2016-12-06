@@ -10,8 +10,11 @@ class DataStatus extends React.Component<DataState, {}> {
       return null;
     }
 
-    return <div>
-      { _.some(apiCalls) ? Saving : Loading }
+    return <div className="data-status">
+      <span className="spinner" />
+      <span>
+        { _.some(apiCalls) ? Saving : Loading }
+      </span>
     </div>;
   }
 }

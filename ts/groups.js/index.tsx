@@ -101,7 +101,9 @@ store.subscribe(() => {
 
   ReactDOM.render(
     <App {...props} >
-      <MainView {...props} />
+      <div className="content">
+        <MainView {...props} />
+      </div>
     </App>,
     document.getElementById("main")
   );

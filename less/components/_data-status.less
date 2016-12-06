@@ -1,0 +1,28 @@
+/*
+  Data Status - Takes the form of a toast message attached to bottom
+  of screen on mobile, lower left corner on desktop.
+
+  We assume .data-status is inside a .rowbar-layout
+*/
+
+.data-status {
+  background: @off-black;
+  color: @brand-contrast;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: @padding-small @padding-base;
+
+  span.spinner + span, div.spanner + span {
+    color: @brand-contrast;
+  }
+
+  // Desktop float
+  @media screen and (min-width: @screen-sm-min) {
+    position: fixed;
+    bottom: @padding-base;
+    left: @padding-base;
+    border-radius: @border-radius-base;
+    box-shadow: @default-box-shadow;
+  }
+}

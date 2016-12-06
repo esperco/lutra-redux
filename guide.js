@@ -42,3 +42,6 @@ $(document).ready(function() {
     $("#sidebar-layout").removeClass("shift-right");
   });
 });
+
+// TypeScript (for React components)
+require("./ts/guide.js/index.tsx");

@@ -1,0 +1,56 @@
+/*
+  Styling for pseudo-checkbox
+*/
+@radio-dot-scale: 0.7;
+
+label.radio-item {
+  // Unset some values set in _forms.less
+  font-weight: normal;
+  font-size: inherit;
+
+  // Hide real radio button -- sort of, can't display: none because we want it
+  // to be focusable
+  input[type=radio] {
+    position: absolute; // Get it out of the flow
+    opacity: 0;
+  }
+
+  // Simulate browser outline on pseudo-radio when real one is focused
+  input[type=radio]:focus + .pseudo-radio {
+    outline: 1px dotted #212121;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
+
+  // Style psuedo radio button
+  .pseudo-radio {
+    margin-top: 0;
+    display: inline-block;
+    line-height: 1em;
+    height: 1em;
+    width:1em;
+    margin-right: @padding-small;
+    background: @shade-rel;
+    box-shadow: @default-box-shadow;
+    border-radius: 100%;
+    text-align: center;
+
+    > span { // The dot in the middle
+      border-radius: 100%;
+      display: inline-block;
+      height: 1em;
+      width: 1em;
+      transform: scale(@radio-dot-scale);
+      background: @text-color;
+      transition: opacity 0.2s ease-in-out;
+      opacity: 0;
+    }
+  }
+
+  input[type=radio]:checked + .pseudo-radio > span {
+    opacity: 1;
+  }
+
+  input[type=radio]:checked + .pseudo-radio ~ span {
+    font-weight: bold;
+  }
+}

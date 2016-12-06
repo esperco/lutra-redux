@@ -1,0 +1,35 @@
+@import "./_alerts";
+
+// Error message groups styling
+.error-messages {
+  .alert.danger;
+  font-size: @font-size-small;
+  border-radius: 0;
+  display: block;
+  max-height: 30vh;
+  overflow: auto;
+
+  * + * {
+    margin-top: 0;
+  }
+
+  .error {
+    display: flex;
+    align-items: center;
+
+    > span {
+      flex-grow: 1;
+      display: block;
+      margin: @padding-small 0;
+    }
+
+    > button:last-child {
+      margin-right: -@padding-small;
+    }
+  }
+
+  // Contact info message
+  > *:last-child {
+    padding: @padding-small 0;
+  }
+}

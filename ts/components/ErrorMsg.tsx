@@ -3,6 +3,7 @@
 */
 import * as React from "react";
 import * as _ from "lodash";
+import Icon from "./Icon";
 import { ErrorDetails } from "../lib/errors";
 import { getText, ContactText } from "../text/error-text";
 
@@ -26,10 +27,9 @@ class ErrorMsg extends React.Component<Props, State> {
           <span>
             { getText(err.code, err.details) }
           </span>
-          <span className="action"
-                onClick={() => this.props.onDismiss(err.code, err.details)}>
-            <i className="fa fa-fw fa-close" />
-          </span>
+          <button onClick={() => this.props.onDismiss(err.code, err.details)}>
+            <Icon type="dismiss" />
+          </button>
         </div>
       ) }
       <div className="contact-info">

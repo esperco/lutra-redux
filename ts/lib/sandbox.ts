@@ -42,3 +42,17 @@ export function stub(path: string|string[], newObj: any) {
   }
   return sandbox.stub(lastParent, child, newObj);
 }
+
+export function spyWithCallback(obj: any, method: string, cbs: {
+  pre?: () => void;
+  post?: () => void;
+} = {}) {
+  let orig: Function = obj[method];
+  let newFn = function(this: any) {
+    cbs.pre && cbs.pre();
+    let ret = orig.apply(this, arguments);
+    cbs.post && cbs.post();
+    return ret;
+  }
+  return sandbox.stub(obj, method, newFn);
+}

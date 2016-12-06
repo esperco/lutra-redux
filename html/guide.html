@@ -287,6 +287,63 @@
     </section>
 
     <section class="flex">
+      <div style="flex-grow: 2000">
+        <h2>Form Selectors</h2>
+        <span class="tag">Requires React component</span>
+        <p>
+          Styling checkboxes and radio buttons are tricker, so we use custom
+          React components for this.
+        </p>
+        <div id="selector-demo"></div>
+      </div>
+
+      <div style="flex-grow: 1000">
+        <div class="panel">
+          <h3>Panel Selectors</h3>
+          <p>
+            Like other form elements, selectors can change behavior when used
+            in panels.
+          </p>
+          <div id="selector-panel-demo" class="panel"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex">
+      <section>
+        <h2>Dropdowns</h2>
+        <span class="tag">Requires React component</span>
+        <p>
+          Dropdowns are actually a special case of a modal for us. To make
+          dropdowns responsive on mobile, only one
+          <code>&lt;Dropdown&gt;</code> component at a time is visible.
+          On desktop, dropdowns will position themselves up, down, left, right,
+          or center automatically based on relative screen positioning.
+        </p>
+        <div id="dropdown-demo"></div>
+      </section>
+
+      <section>
+        <h2>Modals</h2>
+        <span class="tag">Requires React component</span>
+        <p>
+          Only one <code>&lt;Modal&gt;</code> component at a time is visible.
+        </p>
+        <div id="modal-demo"></div>
+      </section>
+
+      <section>
+        <h2>Tooltips</h2>
+        <span class="tag">Requires React component</span>
+        <p>
+          Wrap other components with <code>&lt;Tooltip&gt;</code> to add
+          tooltips on hover.
+        </p>
+        <div id="tooltip-demo"></div>
+      </section>
+    </section>
+
+    <section class="flex">
       <div>
         <h2>Progress Bars</h2>
         <progress value="0.25"></progress>

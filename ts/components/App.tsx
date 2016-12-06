@@ -18,18 +18,17 @@ interface State {}
 
 class App extends React.Component<Props, State> {
   render() {
-    return <div>
-      <div className="content">
-        { this.props.children }
-      </div>
-      <DataStatus { ...this.props.state } />
+    return <div className="rowbar-layout">
       <ErrorMsg
+        className="error-messages"
         errors={this.props.state.errors}
         onDismiss={(code, detail) => this.props.dispatch({
           type: "RM_ERROR",
           value: detail ? detail.tag : code
         })}
       />
+      { this.props.children }
+      <DataStatus { ...this.props.state } />
     </div>
   }
 }
