@@ -21,7 +21,6 @@ var config = {
       'crypto-js/sha1',
       'jquery',
       'lodash',
-      'page',
       'react',
       'react-dom'
     ],

@@ -4,7 +4,8 @@ function navFakeFactory() {
   let svc: NavSvc = {
     Nav: {
       queryHashes: {},
-      go: function(path: string) {}
+      go: function(path: string) {},
+      reset: function() {}
     }
   };
   return svc;
