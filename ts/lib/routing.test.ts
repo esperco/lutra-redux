@@ -12,9 +12,9 @@ describe("Routing", function() {
       base: "/b",
       params: {
         bool: false as boolean,
-        intArray: [1, 2],
-        int: 0,
-        strArray: ["", ""]
+        intArray: [1, 2] as number[],
+        int: 0 as number,
+        strArray: ["", ""] as string[]
       },
       hash: ["path", ":bool", ":intArray"]
     });

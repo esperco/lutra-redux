@@ -3,7 +3,7 @@
 */
 import * as _ from "lodash";
 import { ErrorDetails } from "../lib/errors";
-import { AjaxError } from "../lib/json-http";
+import { isAjaxError } from "../lib/json-http";
 
 export interface ErrorMsgState {
   errors?: {
@@ -69,7 +69,7 @@ export function errorHandler(
   dispatch: (a: ErrorAction) => any
 ) {
   return function(id: string, err: Error) {
-    dispatch(err instanceof AjaxError ? {
+    dispatch(isAjaxError(err) ? {
       type: "ADD_ERROR",
       code: err.code,
       details: err.details

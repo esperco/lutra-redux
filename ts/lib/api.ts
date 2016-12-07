@@ -1,4 +1,4 @@
-import { AjaxError, default as JsonHttp } from "./json-http";
+import { isAjaxError, default as JsonHttp } from "./json-http";
 import * as ApiT from "./apiT";
 import * as Log from "./log";
 import * as moment from "moment";
@@ -75,7 +75,7 @@ namespace Api {
   export function getLoginInfoWithRetry(): Promise<ApiT.LoginResponse> {
     var url = prefix + "/api/login/" + myUid() + "/info";
     return JsonHttp.get(url, (err) => {
-      if (err instanceof AjaxError && err.details &&
+      if (isAjaxError(err) && err.details &&
           err.details.tag === "Invalid_authentication_headers") {
         return clock().then((v) => {
           setOffset(moment(v.timestamp).diff(moment(), 'seconds'));
