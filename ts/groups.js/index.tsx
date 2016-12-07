@@ -130,7 +130,7 @@ function MainView(props: {
 /* Redux-Dependent Initialization  */
 
 // Sets API prefixes -- needs dispatch for error handling
-Api.init(_.extend({
+Api.init(_.extend<typeof Conf>({
   startHandler: DataStatus.dataStartHandler(dispatch),
   successHandler: DataStatus.dataEndHandler(dispatch),
   errorHandler: function(id: string, err: Error) {
