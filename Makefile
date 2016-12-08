@@ -15,7 +15,7 @@ build: clean
 	webpack
 
 watch:
-	webpack-dev-server --content-base pub/ --port 5000 --host 0.0.0.0 --inline
+	webpack-dev-server --content-base pub/ --port 5001 --host 0.0.0.0 --inline
 
 test:
 	mocha --recursive --reporter spec --bail \

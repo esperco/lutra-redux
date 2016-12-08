@@ -17,6 +17,15 @@ export class AjaxError extends Error {
   // Additional info populated if error is instance of ApiT.ClientError
   details?: Errors.ErrorDetails;
 
+  /*
+    instanceof AjaxError may not work. See
+    https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes
+      #extending-built-ins-like-error-array-and-map-may-no-longer-work
+
+    So let's check for this attribute instead.
+  */
+  _isAjaxError: boolean;
+
   constructor({method, url, reqBody, code, respBody} : {
     method: string;
     url: string;
@@ -30,6 +39,7 @@ export class AjaxError extends Error {
     this.reqBody = reqBody;
     this.code = code;
     this.respBody = respBody;
+    this._isAjaxError = true;
 
     try {
       var parsedJson: ApiT.ClientError = JSON.parse(this.respBody);
@@ -40,6 +50,11 @@ export class AjaxError extends Error {
     } catch (err) { /* Ignore - not JSON response */ }
   }
 }
+
+export function isAjaxError(e: Error): e is AjaxError {
+  return e && !!(e as any)._isAjaxError;
+}
+
 
 /*
   Normally the whole point of promises is to avoid callbacks, but JsonHttp
@@ -160,9 +175,9 @@ namespace JsonHttp {
     promise.then(
       (respBody) => successHandler(id),
       (err: Error) => {
-        if (err instanceof AjaxError && err.code === 0) {
+        if (isAjaxError(err) && err.code === 0) {
           Log.w(`Ignored error`, err)
-        } else if (err instanceof AjaxError) {
+        } else if (isAjaxError(err)) {
           // Fire default error handler + log
           let errorMsg = err.details ? err.details.tag : err.respBody;
           Log.e(`${err.code} ${errorMsg}`, err);
@@ -297,7 +312,7 @@ namespace JsonHttp {
     }).then(
       ({ respBody }) => JSON.parse(respBody),
       (err) => {
-        if (errCb && err instanceof AjaxError) {
+        if (errCb && isAjaxError(err)) {
           return errCb(err);
         }
         throw err;

@@ -34,7 +34,7 @@ describe("Routes", function() {
     return ret;
   }
 
-  let pathname = "/groups.html";
+  let pathname = "/groups";
   describe("eventList", function() {
     it("should dispatch a GroupEvents state", function() {
       let deps = getDeps();
