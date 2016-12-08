@@ -2,7 +2,7 @@ import * as Paths from "./paths";
 import { expect } from "chai";
 
 describe("Group paths", function() {
-  let pathname = "/groups.html";
+  let pathname = "/groups";
   it("has eventList path", function() {
     expect(Paths.eventList.test({
       pathname, hash: "#!/event-list/myGroupId"

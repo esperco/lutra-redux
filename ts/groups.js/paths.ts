@@ -1,6 +1,6 @@
 import { Path } from "../lib/routing";
 
-const base = "/groups.html";
+const base = "/groups";
 
 export const eventList = new Path({
   base,
