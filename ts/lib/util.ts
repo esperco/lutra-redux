@@ -123,6 +123,27 @@ export function compactObject<T extends Object>(o: T): T {
   return clone;
 }
 
+// Makes a boolean record out of a string list
+export function makeRecord(keys: string[]): Record<string, true> {
+  let r: Record<string, true> = {};
+  _.each(keys, (k) => {
+    r[k] = true;
+  });
+  return r;
+}
+
+// Inverse of make record -- returns string list of records
+export function recordToList(r: Record<string, boolean>): string[] {
+  let ret: string[] = [];
+  _.each(r, (v, k) => {
+    if (k && v) {
+      ret.push(k);
+    }
+  });
+  return ret;
+}
+
+
 // Make a deferred object compatible with ES6 promises -- almost a drop-in
 // replacement for JQueryDeferred
 export class Deferred<T> {
