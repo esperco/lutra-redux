@@ -38,10 +38,19 @@ describe("Routes", function() {
   describe("eventList", function() {
     it("should dispatch a GroupEvents state", function() {
       let deps = getDeps();
-      Routes.eventList({ pathname, hash: "#!/event-list/group-id-123" }, deps);
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?showFilters=1&eventId=abc"
+      }, deps);
       expectCalledWith(deps.dispatch, {
         type: "ROUTE",
-        route: { page: "GroupEvents", groupId: "group-id-123" }
+        route: {
+          page: "GroupEvents",
+          groupId: "group-id-123",
+          showFilters: true,
+          eventId: "abc",
+          labels: { all: true }
+        }
       });
     });
 
@@ -61,7 +70,11 @@ describe("Routes", function() {
       expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
       expectCalledWith(deps.dispatch, {
         type: "ROUTE",
-        route: { page: "GroupEvents", groupId: "group-id-123" }
+        route: {
+          page: "GroupEvents",
+          groupId: "group-id-123",
+          labels: { all: true }
+        }
       });
     });
 

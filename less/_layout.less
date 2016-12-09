@@ -89,6 +89,9 @@ ul {
   overflow-y: auto;
 }
 
+// Generic class for denoting main content in layouts
+.content { position: relative; }
+
 
 /*
   Used for a basic layout with a fixed header (or headers) at the top. We
@@ -150,6 +153,11 @@ ul {
     @media screen and (max-width: @screen-xs-max) {
       min-width: 100vw;
     }
+
+    // Hide backdrop (make visible on mobile)
+    > .backdrop {
+      display: none;
+    }
   }
 
   // But sidebars are static
@@ -169,6 +177,15 @@ ul {
   &.shift-right {
     > .sidebar:last-child {
       margin-right: 0
+    }
+  }
+
+  // Backdrop visible on mobile
+  &.shift-left, &.shift-right {
+    > .content > .backdrop {
+      @media screen and (max-width: @screen-xs-max) {
+        display: block;
+      }
     }
   }
 

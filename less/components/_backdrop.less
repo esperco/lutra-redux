@@ -16,5 +16,14 @@
   right: 0;
   bottom: 0;
   top: 0;
+  margin: 0;
   z-index: @zindex-overlay;
+}
+
+/*
+  Backdrop inside a content element is intended to be relative to that
+  element, so use absolute instead of fixed.
+*/
+.content > .backdrop {
+  position: absolute;
 }

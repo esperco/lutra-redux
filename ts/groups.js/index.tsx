@@ -126,7 +126,7 @@ function MainView(props: {
   if (props.state.route) {
     switch(props.state.route.page) {
       case "GroupEvents":
-        return <GroupEvents groupId={props.state.route.groupId} {...props} />;
+        return <GroupEvents {...props} {...props.state.route} />;
       case "Setup":
         return <Setup {...props} />;
       case "NotFound":

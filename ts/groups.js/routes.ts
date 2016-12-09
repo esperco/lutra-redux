@@ -3,10 +3,18 @@ import * as Routing from "../lib/routing";
 import { Action, State } from "./types";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
+import * as ASN from "../lib/asn";
 import * as Groups from "../handlers/groups"
 import * as Log from "../lib/log";
+import { compactObject } from "../lib/util";
 
-export interface EventListRoute { page: "GroupEvents", groupId: string };
+export interface EventListRoute {
+  page: "GroupEvents";
+  groupId: string;
+  showFilters?: boolean;
+  eventId?: string;
+  labels: ASN.AllSomeNone;
+};
 export const eventList = Paths.eventList.route<{
   dispatch: (action: Action) => any,
   state: State,
@@ -17,10 +25,13 @@ export const eventList = Paths.eventList.route<{
     Groups.fetch(groupId, { withLabels: true }, deps);
     deps.dispatch({
       type: "ROUTE",
-      route: {
-        page: "GroupEvents",
-        groupId: groupId
-      }
+      route: compactObject({
+        page: "GroupEvents" as "GroupEvents",
+        groupId: groupId,
+        showFilters: p.showFilters,
+        eventId: p.eventId || undefined,
+        labels: p.labels || { all: true }
+      })
     });
   } else {
     Log.e("Missing groupId", p.groupId);
@@ -58,6 +69,10 @@ export function init(
     () => ({ dispatch, state: getState(), Svcs }),
 
     // Opts
-    { home: () => Paths.eventList.href({ groupId: "default" }) }
+    { home: () => Paths.eventList.href({
+      groupId: "default",
+      showFilters: false,
+      eventId: ""
+    }) }
   );
 }
