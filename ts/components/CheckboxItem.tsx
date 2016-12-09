@@ -30,6 +30,8 @@ export class CheckboxItem extends React.Component<Props, {}> {
     inputProps.onChange = this.handleChange;
     if (typeof this.props.checked === "undefined") {
       inputProps.defaultChecked = this.props.defaultChecked || false;
+    } else {
+      inputProps.checked = this.props.checked;
     }
 
     let labelProps = _.clone(this.props.labelProps || {});
