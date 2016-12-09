@@ -1,10 +1,12 @@
-import { Path } from "../lib/routing";
+import { Path, StringParam } from "../lib/routing";
 
 const base = "/groups";
 
 export const eventList = new Path({
   base,
-  params: {groupId: "" as string},
+  params: {
+    groupId: StringParam,
+  },
   hash: ["event-list", ":groupId"]
 });
 

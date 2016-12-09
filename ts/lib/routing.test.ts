@@ -1,6 +1,10 @@
 import * as _ from "lodash";
 import { expect } from "chai";
-import { Path, init, Nav } from "./routing";
+import {
+  Path, init, Nav,
+  StringParam, NumberParam, BooleanParam,
+  StringArrayParam, NumberArrayParam
+} from "./routing";
 import analyticsFake from "../fakes/analytics-fake";
 import { expectCalledWith } from "./expect-helpers";
 import * as Sinon from "sinon";
@@ -11,10 +15,12 @@ describe("Routing", function() {
     let path = new Path({
       base: "/b",
       params: {
-        bool: false as boolean,
-        intArray: [1, 2] as number[],
-        int: 0 as number,
-        strArray: ["", ""] as string[]
+        bool: BooleanParam,
+        intArray: NumberArrayParam,
+        int: NumberParam,
+      },
+      optParams: {
+        strArray: StringArrayParam
       },
       hash: ["path", ":bool", ":intArray"]
     });
@@ -50,22 +56,21 @@ describe("Routing", function() {
         })).to.be.null;
       });
 
-      it("returns null if hash params are missing", function() {
+      it("returns null if required params are missing", function() {
         expect(path.test({
           pathname: "/b",
           hash: "#!/path/0?int=123&strArray=x%3D1,y%3D2&intArray=1,2"
         })).to.be.null;
       });
 
-      it("uses defaults if querystring params are missing", function() {
+      it("doesn't return null if only optParams are missing", function() {
         expect(path.test({
           pathname: "/b",
-          hash: "#!/path/0/1,2"
+          hash: "#!/path/0/1,2?int=123"
         })).to.deep.equal({
           bool: false,
           intArray: [1, 2],
-          int: 0,
-          strArray: ["", ""]
+          int: 123
         });
       });
     });
@@ -74,7 +79,7 @@ describe("Routing", function() {
       let path = new Path({
         base: "/b",
         params: {
-          first: "", second: ""
+          first: StringParam, second: StringParam
         },
         hash: ["path", ":first", ":second"]
       });
@@ -167,7 +172,7 @@ describe("Routing", function() {
 
         let path1 = new Path({
           base: "/b",
-          params: { arg: "" },
+          params: { arg: StringParam },
           hash: ["noMatch", ":arg"]
         });
         let spy1 = Sinon.spy();
@@ -175,7 +180,7 @@ describe("Routing", function() {
 
         let path2 = new Path({
           base: "/b",
-          params: { arg: "" },
+          params: { arg: StringParam },
           hash: ["match", ":arg"]
         });
         let spy2 = Sinon.spy();
@@ -183,7 +188,7 @@ describe("Routing", function() {
 
         let path3 = new Path({
           base: "/b",
-          params: { arg: "" },
+          params: { arg: StringParam },
           hash: ["match", ":arg"]
         });
         let spy3 = Sinon.spy();
@@ -202,7 +207,7 @@ describe("Routing", function() {
         let deps = getDeps();
         let path = new Path({
           base: "/b",
-          params: { arg: "" },
+          params: { arg: StringParam },
           hash: ["noMatch", ":arg"]
         });
         let route = path.route(function() {});
@@ -244,7 +249,7 @@ describe("Routing", function() {
         let deps = getDeps();
         let path = new Path({
           base: "/b",
-          params: { arg: "" },
+          params: { arg: StringParam },
           hash: ["match", ":arg"]
         });
         let spy = Sinon.spy();
@@ -260,7 +265,7 @@ describe("Routing", function() {
         let deps = getDeps();
         let path = new Path({
           base: "/b",
-          params: { arg: "" },
+          params: { arg: StringParam },
           hash: ["path"]
         });
         let spy = Sinon.spy();
@@ -285,7 +290,7 @@ describe("Routing", function() {
         let deps = getDeps();
         let path = new Path({
           base: "/b",
-          params: { arg: "" },
+          params: { arg: StringParam },
           hash: ["match", ":arg"]
         });
         let route = path.route(() => null);
