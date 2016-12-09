@@ -16,19 +16,27 @@
 */
 
 import * as React from "react";
-import * as _ from "lodash";
+import * as Text from "../text/common";
 
 /*
   Icon names should be semantic. We can map these to appropriate classes
   for font-awesome or other libraries as appropriate.
 */
 type IconType =
-  "cancel"
+  "accounts"
+  |"cancel"
   |"close"
+  |"contact"
   |"dismiss"
   |"edit"
+  |"filters"
   |"help"
-  |"save";
+  |"home"
+  |"logout"
+  |"privacy"
+  |"save"
+  |"settings"
+  |"terms";
 
 interface Props {
   type: IconType;
@@ -37,37 +45,82 @@ interface Props {
 
 function getClassForIcon(icon: IconType): string {
   switch(icon) {
+    case "accounts":
+      return "fa-users";
     case "cancel":
       return "fa-close";
     case "close":
       return "fa-close";
+    case "contact":
+      return "fa-envelope";
     case "dismiss":
       return "fa-close";
     case "edit":
       return "fa-pencil";
+    case "filters":
+      return "fa-bars";
     case "help":
       return "fa-question-circle";
+    case "home":
+      return "fa-home"
+    case "logout":
+      return "fa-sign-out";
+    case "privacy":
+      return "fa-lock";
     case "save":
       return "fa-check";
+    case "settings":
+      return "fa-cog";
+    case "terms":
+      return "fa-legal"
   }
 }
 
-/*
-  Default screen reader label only.
-  TODO: Move label text to ../text somewhere.
-*/
+// Default screen reader label only.
 function getLabelForIcon(icon: IconType): string {
-  return _.capitalize(icon);
+  switch(icon) {
+    case "accounts":
+      return Text.Accounts;
+    case "cancel":
+      return Text.Cancel;
+    case "close":
+      return Text.Close;
+    case "contact":
+      return Text.Contact;
+    case "dismiss":
+      return Text.Dismiss;
+    case "edit":
+      return Text.Edit;
+    case "filters":
+      return Text.Filters;
+    case "help":
+      return Text.Help;
+    case "home":
+      return Text.Home;
+    case "logout":
+      return Text.Logout;
+    case "privacy":
+      return Text.Privacy;
+    case "save":
+      return Text.Save;
+    case "settings":
+      return Text.Settings;
+    case "terms":
+      return Text.Terms;
+  }
 }
 
 /*
   NB: An icon's label will be hidden as appropriate using CSS and
 */
 function Icon({ type, children }: Props) {
-  return <span className="icon-label">
+  let hasChildren = React.Children.count(children || []) > 0;
+  let classes = "icon-label";
+  if (! hasChildren) { classes += " no-text"; }
+  return <span className={classes}>
     <i className={"fa " + getClassForIcon(type)} />
     {
-      React.Children.count(children || []) > 0 ?
+      hasChildren ?
       <span>{ children }</span> :
       <span className="sr-only">{ getLabelForIcon(type) }</span>
     }

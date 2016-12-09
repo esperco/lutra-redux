@@ -6,6 +6,7 @@ declare module "config" {
     production: boolean;
     apiPrefix: string;
     loginRedirect: string;
+    logoutRedirect: string;
     esperVersion?: string;
     logLevel: number; // => minmum level to log
     logTag?: string;

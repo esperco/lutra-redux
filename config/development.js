@@ -5,6 +5,7 @@ module.exports = {
   apiPrefix: window.location.protocol + "//" + window.location.hostname,
 
   loginRedirect: window.location.origin + "/login",
+  logoutRedirect: window.location.orgin + "/login?logout=1",
 
   esperVersion: "lutra-redux",
   logLevel: 0,

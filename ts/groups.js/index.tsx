@@ -21,10 +21,11 @@ import App from "../components/App";
 import NotFound from "../components/NotFound";
 import Loading from "../components/Loading";
 import GroupEvents from "./GroupEvents";
+import GroupHeader from "./GroupHeader";
 import Setup from "./Setup";
 
 // Store Types
-import { State, Action } from "./types";
+import { LoggedInState, State, Action } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Groups from "../states/groups";
@@ -96,11 +97,18 @@ let getState: typeof store.getState = store.getState.bind(store);
 
 // Render view(s) hooked up to store
 store.subscribe(() => {
-  let state = store.getState();
-  let props = { state, dispatch, Svcs };
+  let gotState = store.getState();
+
+  // Wait until logged in to render
+  if (! gotState.login) {
+    return;
+  }
+  let state = gotState as LoggedInState;
+  let props = { state, dispatch, Svcs, Conf };
 
   ReactDOM.render(
     <App {...props} >
+      <GroupHeader {...props} />
       <div className="content">
         <MainView {...props} />
       </div>
