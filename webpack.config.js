@@ -1,9 +1,21 @@
-var ExtractTextPlugin = require('extract-text-webpack-plugin'),
+var CopyWebpackPlugin = require('copy-webpack-plugin'),
+    ExtractTextPlugin = require('extract-text-webpack-plugin'),
     PathRewriterPlugin = require('webpack-path-rewriter'),
     autoprefixer = require('autoprefixer'),
     path = require('path'),
     version = require('./version'),
     webpack = require('webpack');
+
+/*
+  Hack to make webpack dev server server up HTML for blank pages.
+  If this doesn't work for you, you may have to try reinstalling
+  the webpack-dev-server and/or webpack-dev-middleware NPM module
+  *after* installing the mime NPM module.
+
+  This helps ensure a singleton instance of mime that we can modify.
+*/
+var mime = require('mime');
+mime.default_type = "text/html";
 
 /*
   Are we in production mode? We also include staging (or any other non-
@@ -56,7 +68,7 @@ var config = {
     loaders: [
       { test: /\.html?$/,
         loader: PathRewriterPlugin.rewriteAndEmit({
-          name: "[path][name].html",
+          name: "[path][name]",
           context: "html",
           includeHash: true,
           loader: 'nunjucks-html?' + JSON.stringify({
@@ -111,6 +123,16 @@ var config = {
   },
 
   plugins: [
+    /*
+      Copies files from sibling lutra directory over so lutra can serve them.
+      This should not error even if context dir is missing though.
+    */
+    new CopyWebpackPlugin([{
+      context: "../lutra/esper.com/pub/",
+      from: "**/*",
+      to: ""
+    }]),
+
     new webpack.DefinePlugin({
       ENV: NODE_ENV,
 
