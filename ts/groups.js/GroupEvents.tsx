@@ -8,6 +8,7 @@ import { State, DispatchFn } from './types';
 import GroupNav from "./GroupNav";
 import DelayedInput from "../components/DelayedInput";
 import Icon from "../components/Icon";
+import PeriodSelector from "../components/PeriodSelector";
 import { eventList } from "./paths";
 import { renameGroup } from "../handlers/groups";
 import { ready } from "../states/data-status";
@@ -16,12 +17,17 @@ import { NavSvc } from "../lib/routing";
 import GroupLabelsSelector from "./GroupLabelsSelector";
 import * as LabelText from "../text/labels";
 import * as ASN from "../lib/asn";
+import { Period } from "../lib/period";
 
-class Props {
+class RouteProps {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
   labels: ASN.AllSomeNone;
+  period: Period;
+}
+
+class Props extends RouteProps {
   state: State;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
@@ -59,7 +65,10 @@ class GroupEvents extends React.Component<Props, {}> {
             <button onClick={() => Nav.go(this.toggleFiltersHref())}>
               <Icon type={this.props.showFilters ? "close" : "filters"} />
             </button>
-            <div />
+            <PeriodSelector
+              value={this.props.period}
+              onChange={(p) => Nav.go(this.updateHref({ period: p }))}
+            />
           </header>
 
           <div className="content">
@@ -85,10 +94,15 @@ class GroupEvents extends React.Component<Props, {}> {
 
   // Toggling filters is just a hashchange
   toggleFiltersHref() {
+    return this.updateHref({ showFilters: !this.props.showFilters });
+  }
+
+  // Path with new props
+  updateHref(updates: Partial<RouteProps>) {
+    let { groupId, showFilters, eventId, labels, period } = this.props;
     return eventList.href({
-      groupId: this.props.groupId,
-      showFilters: !this.props.showFilters,
-      labels: this.props.labels
+      groupId, showFilters, eventId, labels, period,
+      ...updates
     });
   }
 }

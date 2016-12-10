@@ -1,5 +1,6 @@
 import { Path, StringParam, BooleanParam } from "../lib/routing";
 import { AllSomeNoneParam } from "../lib/asn";
+import { PeriodParam } from "../lib/period";
 
 const base = "/groups";
 
@@ -11,7 +12,8 @@ export const eventList = new Path({
   optParams: {
     showFilters: BooleanParam,
     eventId: StringParam,
-    labels: AllSomeNoneParam
+    labels: AllSomeNoneParam,
+    period: PeriodParam
   },
   hash: ["event-list", ":groupId"]
 });

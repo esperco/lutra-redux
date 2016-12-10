@@ -1,9 +1,11 @@
+import * as moment from "moment";
 import * as Paths from "./paths";
 import * as Routing from "../lib/routing";
 import { Action, State } from "./types";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
 import * as ASN from "../lib/asn";
+import { Period, fromDates } from "../lib/period";
 import * as Groups from "../handlers/groups"
 import * as Log from "../lib/log";
 import { compactObject } from "../lib/util";
@@ -14,6 +16,7 @@ export interface EventListRoute {
   showFilters?: boolean;
   eventId?: string;
   labels: ASN.AllSomeNone;
+  period: Period;
 };
 export const eventList = Paths.eventList.route<{
   dispatch: (action: Action) => any,
@@ -22,7 +25,14 @@ export const eventList = Paths.eventList.route<{
 }>(function(p, deps) {
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupId) {
+    // Default period = 2 weeks
+    let period = p.period || fromDates("week",
+      new Date(),
+      moment(new Date()).add(1, 'week').toDate()
+    );
+
     Groups.fetch(groupId, { withLabels: true }, deps);
+
     deps.dispatch({
       type: "ROUTE",
       route: compactObject({
@@ -30,7 +40,8 @@ export const eventList = Paths.eventList.route<{
         groupId: groupId,
         showFilters: p.showFilters,
         eventId: p.eventId || undefined,
-        labels: p.labels || { all: true }
+        labels: p.labels || { all: true },
+        period
       })
     });
   } else {

@@ -40,6 +40,27 @@ describe("Routes", function() {
       let deps = getDeps();
       Routes.eventList({
         pathname,
+        hash: "#!/event-list/group-id-123?" +
+              "showFilters=1&eventId=abc&period=w,2400,2401"
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "ROUTE",
+        route: {
+          page: "GroupEvents",
+          groupId: "group-id-123",
+          showFilters: true,
+          eventId: "abc",
+          labels: { all: true },
+          period: { interval: 'week', start: 2400, end: 2401 }
+        }
+      });
+    });
+
+    it("should fetch a default two week period if none provided", () => {
+      sandbox.useFakeTimers(1480579200000); // 12/1/2016
+      let deps = getDeps();
+      Routes.eventList({
+        pathname,
         hash: "#!/event-list/group-id-123?showFilters=1&eventId=abc"
       }, deps);
       expectCalledWith(deps.dispatch, {
@@ -49,7 +70,8 @@ describe("Routes", function() {
           groupId: "group-id-123",
           showFilters: true,
           eventId: "abc",
-          labels: { all: true }
+          labels: { all: true },
+          period: { interval: 'week', start: 2448, end: 2449 }
         }
       });
     });
@@ -64,7 +86,9 @@ describe("Routes", function() {
     it("should re-route to first group if bad group id", function() {
       let deps = getDeps();
       let spy = sandbox.spy(Groups, "fetch");
-      Routes.eventList({ pathname, hash: "#!/event-list/group-id-456" }, deps);
+      Routes.eventList({ pathname,
+        hash: "#!/event-list/group-id-456?period=w,2400,2401"
+      }, deps);
 
       // Group 456 doesn't exist, go to 123 instead
       expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
@@ -73,7 +97,8 @@ describe("Routes", function() {
         route: {
           page: "GroupEvents",
           groupId: "group-id-123",
-          labels: { all: true }
+          labels: { all: true },
+          period: { interval: "week", start: 2400, end: 2401 }
         }
       });
     });
