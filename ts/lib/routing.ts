@@ -4,11 +4,11 @@
 import * as _ from 'lodash';
 import * as Log from './log';
 import { AnalyticsSvc } from "./analytics";
-import { randomString } from "./util";
+import { compactObject, randomString } from "./util";
 
 // A ParamType is a way of type-checking URL values
 export interface ParamType<T> {
-  clean: (val?: string) => T;
+  clean: (val?: string) => T|null;
   toStr: (val: T) => string;
 }
 
@@ -47,9 +47,17 @@ function makeArrayParam<T>(base: ParamType<T>): ParamType<T[]> {
   return {
     clean(val?: string) {
       if (val) {
-        return _.map(val.split(DefaultArraySeparator),
-          (v) => base.clean(v)
-        );
+        let ret: T[] = [];
+        let split = val.split(DefaultArraySeparator);
+        for (let i in split) {
+          let cleaned = base.clean(split[i]);
+          if (cleaned === null) {
+            return null;
+          } else {
+            ret.push(cleaned);
+          }
+        }
+        return ret;
       }
       return [];
     },
@@ -126,6 +134,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
     if (base[base.length - 1] === "/") { base = base.slice(0, -1); }
 
     // So we can delete stuff
+    p = compactObject(p);
     p = _.clone(p);
 
     let subPath = "/" + _.map(this.hash, (h) => {
@@ -199,7 +208,13 @@ export class Path<P extends ParamMap, O extends ParamMap> {
           Log.e("Unexpected param - " + key);
           return null;
         }
-        ret[key] = required[key].clean(actual);
+
+        let cleaned = required[key].clean(actual);
+        if (_.isUndefined(cleaned)) {
+          return null;
+        }
+
+        ret[key] = cleaned;
         delete required[key];
       }
 
@@ -216,8 +231,11 @@ export class Path<P extends ParamMap, O extends ParamMap> {
       key = decodeURIComponent(key);
       element = decodeURIComponent(element || "");
       if (required.hasOwnProperty(key)) {
-        ret[key] = required[key].clean(element);
-        delete required[key];
+        let cleaned = required[key].clean(element);
+        if (! _.isUndefined(cleaned)) {
+          ret[key] = cleaned;
+          delete required[key];
+        }
       } else if (optional.hasOwnProperty(key)) {
         ret[key] = optional[key].clean(element);
         delete optional[key];

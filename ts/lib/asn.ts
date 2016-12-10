@@ -97,7 +97,7 @@ const ASNSeparator = ",";
 export var AllSomeNoneParam: ParamType<AllSomeNone> = {
   clean(text: string) {
     let parts = text.split(ASNSeparator);
-    let some = StringArrayParam.clean(parts.slice(2).join(ASNSeparator));
+    let some = StringArrayParam.clean(parts.slice(2).join(ASNSeparator)) || [];
     return compactObject({
       all: BooleanParam.clean(parts[0]) || undefined,
       none: BooleanParam.clean(parts[1]) || undefined,
