@@ -1,0 +1,106 @@
+/*
+  Flexbox calendar styling
+*/
+.calendar {
+  * + * {
+    margin-top: 0;
+  }
+
+  .week, .week-headings {
+    display: flex;
+    height: @input-height-base;
+    align-items: center;
+
+    > * {
+      flex: 1 1 1em;
+      min-width: 1em;
+      text-align: center;
+    }
+  }
+
+  .week-headings {
+    background: @shade-bg;
+    font-weight: bold;
+  }
+
+  .day {
+    color: @text-muted;
+
+    &.in-month {
+      color: @text-color;
+
+      &:hover, &:focus {
+        color: @link-color;
+      }
+    }
+
+    &.today {
+      border: 1px solid @border-color;
+    }
+
+    &:hover, &:focus {
+      color: @link-color;
+    }
+  }
+}
+
+// Selector specific styling
+.calendar-selector {
+  header {
+    box-shadow: none;
+    border: 0;
+    background: transparent;
+
+    h1, h2, h3, h4, h5, h6 {
+      text-align: center;
+    }
+  }
+
+  * + .week {
+    margin-top: 2px;
+  }
+
+  button.day {
+    transition: none;
+  }
+
+  .day.active {
+    background: @text-highlight-bg;
+    color: @text-highlight;
+    border-radius: 0;
+
+    &.today { border: 0; }
+
+    &.start {
+      border-radius: @border-radius-small 0 0 @border-radius-small;
+    }
+
+    &.end {
+      border-radius: 0 @border-radius-small @border-radius-small 0;
+    }
+
+    &:hover, &:focus {
+      color: @link-color;
+    }
+  }
+}
+
+// Reset panel-specific CSS
+.panel, .dropdown-menu, .modal {
+  .calendar {
+    padding: 0;
+
+    div, header {
+      padding: 0;
+      margin: 0;
+    }
+
+    header {
+      padding: 0 @padding-base;
+    }
+
+    header + * {
+      border-top: 0;
+    }
+  }
+}
