@@ -1,0 +1,62 @@
+/*
+  Responsive Dropdown menus
+*/
+
+@import "./_backdrop";
+@import "./_panels";
+
+/*
+  Top, left, right, etc. should be set by JS -- this should correspond to
+  the positions of the anchor or dropdown trigger element
+*/
+.dropdown-wrapper {
+  position: absolute;
+}
+
+
+/* Style actual menu */
+.dropdown-menu {
+  .panel;
+
+  /*
+    Fixes weird issue with scrollbar on dropdowns where last item in panel has
+    a negative margin. Might be a rounding error?
+  */
+  padding-bottom: calc(@padding-base ~" + 1px");
+
+  // Desktop -> relative to wrapper (anchor)
+  @media screen and (min-width: @screen-sm-min) {
+    position: absolute;
+    min-width: @min-popup-width;
+    max-width: @max-popup-width;
+    top: 100%;   // By default, is below anchor
+    left: 0;     // By default, left-aligned
+    right: auto;
+
+    // Right aligned
+    .dropdown-wrapper.right > & {
+      left: auto;
+      right: 0;
+    }
+
+    // Centered
+    .dropdown-wrapper.center > & {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    // Dropup
+    .dropdown-wrapper.up > & {
+      top: auto;
+      bottom: 100%;
+    }
+  }
+
+  // Mobile -> full screen
+  @media screen and (max-width: @screen-xs-max) {
+    position: fixed;
+    top: @padding-base;
+    left: @padding-base;
+    right: @padding-base;
+  }
+}

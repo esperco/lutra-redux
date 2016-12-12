@@ -35,7 +35,7 @@ describe("<ErrorMsg />", () => {
       { code: 400, details: { tag: "Payment_required" }}
     ]} onDismiss={spy} />);
 
-    let action = wrapper.find(".error").find(".action");
+    let action = wrapper.find(".error").find("button");
     action.simulate('click');
     expectCalledWith(spy, 400, { tag: "Payment_required" });
   });

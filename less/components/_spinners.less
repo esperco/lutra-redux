@@ -1,0 +1,45 @@
+/*
+  A pulsating spinner
+*/
+@scaleout-base-size: @padding-xl;
+@spinner-color: @brand-primary;
+
+// Pulsing in and out
+@keyframes spinnerScaleout {
+  0% {
+    transform: scale(0.0);
+  } 100% {
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+// Block spinner
+div.spinner, span.spinner {
+  display: block;
+  position: relative;
+  background-color: @spinner-color;
+  border-radius: 100%;
+  animation: spinnerScaleout 1.0s ease-in-out 0s infinite;
+  height: @scaleout-base-size;
+  width: @scaleout-base-size;
+  margin: @padding-xl * 2 auto;
+}
+
+// Smaller inline spinner
+span.spinner {
+  height: 1em;
+  width: 1em;
+  margin: 0 @padding-small;
+  display: inline-block;
+  line-height: 1em;
+  vertical-align: middle;
+  margin-top: 0;
+  margin-bottom: 0;
+
+  // Pad following text
+  & + span {
+    padding-left: @padding-small;
+    color: @text-muted;
+  }
+}

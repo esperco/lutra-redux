@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <title>Esper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="[[css/vendor--*.css]]" rel="stylesheet" />
   <link href="[[css/groups--*.css]]" rel="stylesheet" />
   <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
 </head>
 <body>
   <div id="main">
-    <i class="fa fa-fw fa-circle-o-notch fa-spin"></i>
-    Loading &hellip;
+    <div className="spinner" />
   </div>
   {% include '_release.html' %}
   {% include '_segment.html' %}
   {% include '_raven.html' %}
-  <script type="text/javascript" src="[[js/groups-vendor--*.js]]"></script>
+  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
   <script type="text/javascript" src="[[js/groups--*.js]]"></script>
 </body>
 </html>

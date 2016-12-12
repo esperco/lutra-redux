@@ -1,0 +1,57 @@
+@nav-border-thickness: 3px;
+
+header nav {
+  display: flex;
+  max-width: calc(~"100% + " 2 * @padding-base);
+  overflow-x: auto;
+
+  &:first-child {
+    margin-left: -@padding-base;
+  }
+
+  &:last-child {
+    margin-right: -@padding-base;
+  }
+
+  a {
+    display: inline-block;
+    flex: 1000 1000 1em;
+    min-width: 1em;
+    text-align: center;
+    margin-top: 0;
+    height: @navbar-height;
+    line-height: @navbar-height;
+    padding: 0 @padding-small;
+    text-decoration: none;
+
+    &.active {
+      border-bottom: @nav-border-thickness solid @link-color;
+    }
+
+    &:hover, &:focus {
+      color: @text-highlight;
+      background: @text-highlight-bg;
+      border-bottom: @nav-border-thickness solid @link-color;
+      text-decoration: none;
+    }
+
+    &:after {
+      display: block;
+      content: " ";
+    }
+  }
+}
+
+nav {
+  a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+
+  }
+
+  .active {
+    font-weight: bold;
+  }
+}

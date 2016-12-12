@@ -1,0 +1,60 @@
+/*
+  Modal that takes over page -- recommend using in conjunction with .panel
+  and .header-footer-layout
+*/
+
+@import "./_backdrop";
+@import "./_panels";
+
+.modal {
+  .panel;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+
+  // By default, elements are fixed
+  > * {
+    flex: 0 0 auto;
+    max-height: 100vh;
+    position: relative;
+    margin: 0;
+  }
+}
+
+// Mobile => Full-screen
+@media screen and (max-width: @screen-xs-max) {
+  .modal-wrapper {
+    .expand;
+  }
+
+  .modal {
+    border-radius: 0;
+    height: 100%;
+
+    // Content expands to fill modal and keep it full screen
+    > .content {
+      flex: 1000 1000 auto;
+      overflow: auto;
+    }
+  }
+}
+
+// Tablet / Desktop => Lightbox
+@media screen and (min-width: @screen-sm-min) {
+  .modal-wrapper {
+    width: @default-modal-width;
+    min-width: @min-container-width;
+    max-width: @max-container-width;
+    margin: @padding-lg auto 0;
+  }
+
+  .modal {
+    max-height: calc(~"100vh - 2px - " (2 * @padding-lg + 2 * @padding-base));
+
+    // Content shrinks if larger than max
+    > .content {
+      flex: 0 1000 auto;
+      overflow: auto;
+    }
+  }
+}

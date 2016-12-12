@@ -1,0 +1,53 @@
+html, body {
+  font-family: @font-family-base;
+  color: @text-color;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: @text-header;
+}
+
+a {
+  color: @link-color;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: @link-hover-color;
+    text-decoration: @link-hover-decoration;
+  }
+}
+
+pre, code {
+  font-family: @font-family-monospace;
+  background: @shade-rel;
+}
+
+pre {
+  padding: @padding-base;
+  font-size: @font-size-small;
+  margin: inherit;
+}
+
+// Screenreader only text
+.sr-only {
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+// Fixed width icons + padding
+.icon-label {
+  i {
+    display: inline-block;
+    width: 1.25em;
+    text-align: center;
+  }
+
+  i + span {
+    margin-left: @padding-small;
+  }
+}

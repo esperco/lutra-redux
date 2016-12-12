@@ -1,0 +1,25 @@
+@tooltip-bg: rgba(0, 0, 0, 0.8);
+@tooltip-color: @brand-contrast;
+
+/*
+  NB: Ideally, we'd want position: absolute so tooltips track scrolling
+  elements. But for some reason, calling position: absolute at the root
+  level is equivalent to position: fixed (i.e. positions are relative to
+  window, not to the document as one would expect).
+
+  So using position: fixed to make this explicit-ish.
+*/
+.tooltip-wrapper {
+  position: fixed;
+  z-index: @zindex-overlay;
+}
+
+.tooltip {
+  display: block;
+  font-size: @font-size-small;
+  background: @tooltip-bg;
+  color: @tooltip-color;
+  padding: @padding-small;
+  border-radius: @border-radius-small;
+  max-width: @max-popup-width;
+}

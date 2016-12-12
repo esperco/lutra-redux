@@ -1,0 +1,130 @@
+/*
+  Panels are boxes to wrap our content with. This class also has special
+  meaning when used with sidebars defined in _layout.
+
+  The important things about panels is that they can be nested without
+  padding stacking. This also applies to certain elements like selectors
+  and textareas.
+
+  Certain elements (modals and dropdown-menus) are panel-like and build
+  upon the panel class.
+*/
+
+// Top-level panels are boxes
+.panel {
+  padding: @padding-base;
+  border-radius: @border-radius-base;
+  border: 1px solid @border-color;
+  box-shadow: @default-box-shadow;
+  background: @panel-bg;
+
+  // Nested panels (and certain other elements) don't stack
+  // (look like tiles instead)
+  .panel, header, footer, div, nav, section, .menu {
+    padding: @padding-base;
+    border-width: 0;
+    border-radius: 0;
+    margin: -@padding-base;
+    box-shadow: none;
+    background: transparent; // So rounded corners don't get cut off
+  }
+
+  .panel, div, nav, section, .menu {
+    + div, + nav, + section, + .menu {
+      margin-top: 0;
+      &.panel { margin-top: @padding-base; }
+    }
+  }
+
+  // Spacing between panels (also header and footer)
+  * + .panel, * + footer, * + header, header + * {
+    border-top-width: 1px;
+    border-style: solid;
+    border-color: @border-color;
+    margin-top: @padding-base;
+  }
+
+
+  /* Alerts - full width */
+
+  .alert {
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+
+  * + .alert {
+    margin-top: @padding-base;
+  }
+
+  /* Progress bars */
+
+  progress {
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    width: calc(~"100% + " (2 * @padding-base));
+    border-radius: 0;
+    height: 3px;
+  }
+
+  progress + *, progress + footer {
+    margin-top: 0;
+    border-top: 0;
+  }
+
+
+  /* Form elements */
+
+  textarea {
+    margin-left: calc(-@padding-base + ~" - 1px");
+    margin-right: calc(-@padding-base + ~" - 1px");
+    width: calc(~"100% + " (2 * @padding-base) + ~" + 2px");
+    border-radius: 0;
+    resize: vertical;
+  }
+
+
+  /* Selectors + nav links - stretch to edges */
+
+  .checkbox-item, .radio-item, nav > a {
+    display: block;
+    font-size: @font-size-small;
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    padding: @padding-small @padding-base;
+
+    &:hover, &:focus {
+      color: @text-highlight;
+      background: @text-highlight-bg;
+    }
+
+    + .checkbox-item, + .radio-item, + a {
+      margin-top: 0;
+    }
+
+    &:first-child {
+      margin-top: -@padding-small;
+    }
+
+    &:last-child {
+      margin-bottom: -@padding-small;
+    }
+  }
+
+
+  /* Button menus - style like selectors */
+  .menu, .panel.menu {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+
+    > :first-child {
+      margin-top: -@padding-small;
+    }
+
+    > :last-child {
+      margin-bottom: -@padding-small;
+    }
+  }
+}

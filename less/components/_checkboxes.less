@@ -1,0 +1,55 @@
+/*
+  Styling for pseudo-checkbox
+*/
+@checkmark-scale: 0.75;
+
+label.checkbox-item {
+  // Unset some values set in _forms.less
+  font-weight: normal;
+  font-size: inherit;
+
+  // Hide real checkbox -- sort of, can't display: none because we want it to
+  // be focusable
+  input[type=checkbox] {
+    position: absolute; // Get it out of the flow
+    opacity: 0;
+  }
+
+  // Simulate browser outline on pseudo-checkbox when real one is focused
+  input[type=checkbox]:focus + .pseudo-checkbox {
+    outline: 1px dotted #212121;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
+
+  // Style psuedo checkbox
+  .pseudo-checkbox {
+    margin-top: 0;
+    display: inline-block;
+    font-size: 1em;
+    line-height: 1em;
+    height: 1em;
+    width:1em;
+    margin-right: @padding-small;
+    background: @shade-rel;
+    border-radius: @border-radius-small;
+    box-shadow: @default-box-shadow;
+    text-align: center;
+  }
+
+  .pseudo-checkbox::before {
+    content: "\2714";
+    transition: opacity 0.12s ease-in-out;
+    opacity: 0;
+    display: inline-block;
+    transform: scale(@checkmark-scale);
+  }
+
+  input[type=checkbox]:checked + .pseudo-checkbox::before {
+    content: "\2714";
+    opacity: 1;
+  }
+
+  input[type=checkbox]:checked + .pseudo-checkbox ~ span {
+    font-weight: bold;
+  }
+}

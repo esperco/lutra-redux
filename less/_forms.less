@@ -1,0 +1,98 @@
+/*
+  Basic form elements
+
+  NB: Include before _buttons so _buttons can override input[type=submit]
+*/
+
+input, textarea {
+  font-size: @font-size-small;
+  border: 1px solid @border-color;
+  border-radius: @border-radius-base;
+  box-shadow: none;
+  min-width: @min-container-width - (@padding-base * 2);
+
+  &:focus, &:hover, &:active, &:active:hover, &:active:focus {
+    box-shadow: none;
+    border: 1px solid @link-color;
+  }
+}
+
+input {
+  display: inline-block;
+  height: @input-height-base;
+  line-height: @input-height-base;
+  vertical-align: middle;
+  padding: 0 @padding-base;
+}
+
+// Max width inputs on mobile
+@media screen and (max-width: @screen-xs-max) {
+  input, textarea { width: 100%; }
+}
+
+textarea {
+  min-height: 4rem;
+  padding: @padding-small @padding-base;
+}
+
+input[type=checkbox], input[type=radio], input[type=submit] {
+  min-width: 0;
+  cursor: pointer;
+  width: auto;
+}
+
+
+/*
+  By default, we assume form labels are arranged vertically with
+  with form inputs. Use .form-row to align horizontally.
+*/
+label {
+  font-size: @font-size-small;
+  font-weight: bold;
+  display: block;
+  cursor: pointer;
+}
+
+label + input, label + textarea, label + select {
+  margin-top: @padding-small;
+}
+
+@media screen and (min-width: @screen-sm-min) {
+  .form-row {
+    display: flex;
+
+    // Most elements should expand evenly
+    > * {
+      flex: 1000 1000 1em;
+      margin: @padding-base / 2;
+    }
+
+    // Action elements should expand comparatively slowly relative to others
+    > button, > a, > label, > input[type=submit] {
+      flex-basis: auto;
+      flex-grow: 1;
+      height: @input-height-base;
+      line-height: @input-height-base;
+      vertical-align: middle;
+      min-width: @input-height-base;
+    }
+
+    > label { // Tweak this to adjust "column" width
+      min-width: 6rem;
+    }
+
+    // Correct for extra padding introduced by child elements
+    margin: -@padding-base / 2;
+    * + & {
+      margin-top: @padding-base / 2;
+    }
+  }
+}
+
+// Odd ones out
+input[type=checkbox], input[type=radio] {
+  + label {
+    margin-bottom: 0;
+    display: inline-block;
+  }
+}

@@ -1,0 +1,36 @@
+/*
+  A gray block used to indicate placeholder test while something is loading
+*/
+@placeholder-bg: @gray;
+@placeholder-block-width: 80%;
+@placeholder-inline-width: 0.8 * @min-container-width;
+
+@keyframes placeholderShimmer{
+  0%{
+    opacity: 1.0;
+  }
+  100%{
+    opacity: 0.3;
+  }
+}
+
+.placeholder {
+  background: @placeholder-bg;
+  width: @placeholder-block-width;
+  height: @font-size-small;
+  animation: placeholderShimmer 1.0s ease-in-out 0s alternate infinite;
+}
+
+span.placeholder {
+  display: inline-block;
+  width: @placeholder-inline-width;
+  vertical-align: baseline;
+}
+
+// Last line is a little shorter so it resembles text
+div.placeholder + div.placeholder {
+  margin-top: @padding-small;
+  &:last-child {
+    width: 0.85 * @placeholder-block-width;
+  }
+}

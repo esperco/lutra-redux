@@ -1,0 +1,34 @@
+@import "./_variables";
+
+// For toggling full-screen-views
+.view {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  background: @body-bg;
+  overflow: auto;
+  z-index: 2000;
+
+  .back-link {
+    position: absolute;
+    margin: 0;
+    bottom: 0;
+    right: 0;
+    padding: @padding-base;
+    z-index: 10000;
+
+    &:before {
+      content: "Back";
+      font-size: @font-size-large;
+      font-weight: bold;
+    }
+  }
+}
+
+.view:target {
+  display: block;
+}

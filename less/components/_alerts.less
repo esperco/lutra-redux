@@ -1,0 +1,22 @@
+.alert-color-variant(@color) {
+  background: fadeout(@color, 90%);
+  color: @color;
+  border-radius: @border-radius-base;
+  padding: @padding-small @padding-base;
+}
+
+.alert.info {
+  .alert-color-variant(@info);
+}
+
+.alert.success {
+  .alert-color-variant(@success);
+}
+
+.alert.warning {
+  .alert-color-variant(@warning);
+}
+
+.alert.danger {
+  .alert-color-variant(@danger);
+}
