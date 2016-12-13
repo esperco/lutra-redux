@@ -187,6 +187,6 @@ describe("AllSomeNone", () => {
       let str = ASN.AllSomeNoneParam.toStr(val);
       expect(ASN.AllSomeNoneParam.clean(str)).to.deep.equal(val);
     });
-  })
+  });
 });
 

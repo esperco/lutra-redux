@@ -6,12 +6,15 @@ import * as moment from "moment";
 import { ParamType, NumberArrayParam } from "./routing";
 
 export type Interval = 'day'|'week'|'month'|'quarter';
-export interface Period {
-  interval: Interval;
+export interface Period<I extends Interval> {
+  interval: I;
   start: number;
   end: number; // For optional period ranges -- if not provided, this
                // should equal start
 }
+
+// Interval Period
+export type GenericPeriod = Period<Interval>;
 
 /*
   The "0" period for each interval is the period which contains the epoch.
@@ -24,9 +27,11 @@ export function index(date: Date, interval: Interval) {
   return moment(date).diff(epochForInterval, interval);
 }
 
-export function fromDates(start: Date, end: Date): Period;
-export function fromDates(interval: Interval, start: Date, end: Date): Period;
-export function fromDates(...args: any[]): Period
+export function fromDates(start: Date, end: Date): GenericPeriod;
+export function fromDates<I extends Interval>(
+  interval: I, start: Date, end: Date
+): Period<I>;
+export function fromDates(...args: any[]): GenericPeriod
 {
   let [interval, start, end] =
     args.length === 3 ? args :
@@ -43,15 +48,15 @@ export function guessInterval(start: Date, end: Date): Interval {
   let intervals: Interval[] = ['quarter', 'month', 'week'];
   for (let i in intervals) {
     let interval = intervals[i];
-    if (moment(end).clone().startOf(interval).isSame(start, 'day') &&
-        moment(start).clone().endOf(interval).isSame(end, 'day')) {
+    if (moment(end).clone().endOf(interval).isSame(end, 'day') &&
+        moment(start).clone().startOf(interval).isSame(start, 'day')) {
       return interval;
     }
   }
   return 'day';
 }
 
-export function bounds({interval, start, end}: Period): [Date, Date] {
+export function bounds({interval, start, end}: GenericPeriod): [Date, Date] {
   let epochForInterval = moment(Epoch).startOf(interval);
   return [
     epochForInterval.clone().add(start, interval).toDate(),
@@ -65,7 +70,7 @@ export function now(interval: Interval) {
 }
 
 // Increment period range -- keeps same difference between start and end
-export function add(p: Period, i: number): Period {
+export function add<I extends Interval>(p: Period<I>, i: number): Period<I> {
   let diff = p.end - p.start;
   let start = p.start + (diff + 1) * i;
   let end = start + diff;
@@ -84,8 +89,18 @@ export function datesFromBounds(start: Date, end: Date) {
   return ret;
 }
 
+// Convert period to period with days interval
+export function toDays(period: Period<any>): Period<'day'> {
+  let { interval, start, end } = period;
+  if (interval === "day") {
+    return { interval, start, end };
+  }
+  let [startDate, endDate] = bounds(period);
+  return fromDates("day", startDate, endDate);
+}
+
 // Converts single period to range version (adds some intervals)
-export function toRange(period: Period, maxDate?: Date): Period {
+export function toRange(period: GenericPeriod, maxDate?: Date): GenericPeriod {
   if (period.interval === "day") { // No day ranges allowed, make week
     let [start, end] = bounds(period);
     period = fromDates("week", start, end);
@@ -121,7 +136,7 @@ export function toRange(period: Period, maxDate?: Date): Period {
 }
 
 // Converts range period to single version (just uses the first interval)
-export function toSingle(period: Period): Period {
+export function toSingle<I extends Interval>(period: Period<I>): Period<I> {
   // Day period -> treat as "custom"
   if (period.interval === 'day') {
     return period;
@@ -138,8 +153,8 @@ export function toSingle(period: Period): Period {
 /* Routing Helpers */
 
 const PeriodSeparator = ",";
-export const PeriodParam: ParamType<Period> = {
-  clean(val?: string): Period|null {
+export const PeriodParam: ParamType<GenericPeriod> = {
+  clean(val?: string): GenericPeriod|null {
     if (val) {
       let parts = val.split(PeriodSeparator);
       let interval = cleanInterval(parts[0]);
@@ -149,7 +164,7 @@ export const PeriodParam: ParamType<Period> = {
         let [start, end] = indices;
         if (typeof end === "number" && !isNaN(end) &&
             typeof start === "number" && !isNaN(start) &&
-            end >= start) {
+            end >= start && end - start < Infinity) {
           return { interval, start, end };
         }
       }
@@ -157,7 +172,7 @@ export const PeriodParam: ParamType<Period> = {
     return null;
   },
 
-  toStr(period: Period): string {
+  toStr(period: GenericPeriod): string {
     return [
       period.interval[0], period.start.toString(), period.end.toString()
     ].join(PeriodSeparator);
