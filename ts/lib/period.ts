@@ -64,6 +64,11 @@ export function bounds({interval, start, end}: GenericPeriod): [Date, Date] {
   ];
 }
 
+export function dateForDay(index: number): Date {
+  let epochForInterval = moment(Epoch).clone().startOf('day');
+  return epochForInterval.add(index, 'day').toDate();
+}
+
 export function now(interval: Interval) {
   let d = new Date();
   return fromDates(interval, d, d);

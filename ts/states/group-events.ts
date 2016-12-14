@@ -27,10 +27,12 @@ export type EventsQueryState = Array<{
   [index: string]: StoreData<QueryResult>;
 }>;
 
+export type EventMap = StoreMap<ApiT.GenericCalendarEvent>;
+
 export interface EventsState {
   // groupId to another map
   groupEvents: {
-    [index: string]: StoreMap<ApiT.GenericCalendarEvent>;
+    [index: string]: EventMap;
   };
 
   // groupId to another map

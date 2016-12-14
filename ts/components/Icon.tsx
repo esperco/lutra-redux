@@ -36,6 +36,8 @@ export const IconMappings = {
   "next": "fa-chevron-right",
   "privacy": "fa-lock",
   "previous": "fa-chevron-left",
+  "refresh": "fa-refresh",
+  "repeat": "fa-refresh",
   "save": "fa-check",
   "settings": "fa-cog",
   "terms": "fa-legal"
@@ -64,6 +66,8 @@ function getLabelForIcon(icon: IconType): string {
     "next": Text.Next,
     "privacy": Text.Privacy,
     "previous": Text.Previous,
+    "refresh": Text.Refresh,
+    "repeat": Text.Repeat,
     "save": Text.Save,
     "settings": Text.Settings,
     "terms": Text.Terms

@@ -1,0 +1,26 @@
+/*
+  Styling for a list of events
+*/
+
+.event-list .event {
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: @padding-small;
+
+    @media screen and (min-width: @screen-sm-min) {
+      display: inline-block;
+      margin-right: @padding-small;
+    }
+  }
+
+  .no-title {
+    font-style: italic;
+    color: @text-muted;
+  }
+
+  .time {
+    font-size: @font-size-small;
+    color: @text-muted;
+    white-space: nowrap;
+    display: inline;
+  }
+}

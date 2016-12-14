@@ -5,15 +5,13 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { State, DispatchFn } from './types';
-import GroupNav from "./GroupNav";
-import DelayedInput from "../components/DelayedInput";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
 import { eventList } from "./paths";
-import { renameGroup } from "../handlers/groups";
 import { ready } from "../states/data-status";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
+import GroupEventsList from "./GroupEventsList";
 import GroupLabelsSelector from "./GroupLabelsSelector";
 import * as LabelText from "../text/labels";
 import * as ASN from "../lib/asn";
@@ -35,7 +33,6 @@ class Props extends RouteProps {
 
 class GroupEvents extends React.Component<Props, {}> {
   render() {
-    let summary = this.props.state.groupSummaries[this.props.groupId];
     let labels = this.props.state.groupLabels[this.props.groupId];
     let Nav = this.props.Svcs.Nav;
 
@@ -72,16 +69,9 @@ class GroupEvents extends React.Component<Props, {}> {
           </header>
 
           <div className="content">
-            <GroupNav />
-
-            { ready(summary) ?
-              <DelayedInput
-                value={summary.group_name}
-                onUpdate={(name) => name ?
-                  renameGroup(this.props.groupId, name, this.props) :
-                  null
-                }
-              /> : null }
+            <div className="container">
+              { this.renderEventDates() }
+            </div>
           </div>
         </div>
         <a className="backdrop" href={this.toggleFiltersHref()} />
@@ -90,6 +80,15 @@ class GroupEvents extends React.Component<Props, {}> {
       {/* Additional event info goes here (if applicable) */}
       <div className="sidebar panel" />
     </div>;
+  }
+
+  renderEventDates() {
+    let { groupId, state, period, labels } = this.props;
+    let queryState = state.groupEventQueries[groupId] || [];
+    let eventMap = state.groupEvents[groupId] || {};
+    let query = { labels };
+    let props = { period, query, queryState, eventMap };
+    return <GroupEventsList {...props} />;
   }
 
   // Toggling filters is just a hashchange
