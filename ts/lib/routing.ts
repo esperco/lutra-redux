@@ -210,7 +210,9 @@ export class Path<P extends ParamMap, O extends ParamMap> {
         }
 
         let cleaned = required[key].clean(actual);
-        if (_.isUndefined(cleaned)) {
+
+        // NB: Empty values OK. Null and undefined => cleaning failed.
+        if (_.isUndefined(cleaned) || _.isNull(cleaned)) {
           return null;
         }
 
@@ -232,7 +234,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
       element = decodeURIComponent(element || "");
       if (required.hasOwnProperty(key)) {
         let cleaned = required[key].clean(element);
-        if (! _.isUndefined(cleaned)) {
+        if (!_.isUndefined(cleaned) && !_.isNull(cleaned)) {
           ret[key] = cleaned;
           delete required[key];
         }

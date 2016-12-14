@@ -3,7 +3,7 @@
 */
 import { Path, StringParam } from "../lib/routing";
 
-let base = "/manage";
+const base = "/manage";
 
 export const Home = new Path({ base });
 
