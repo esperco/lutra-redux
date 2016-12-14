@@ -17,7 +17,6 @@
     flex: 0 0 auto;
     max-height: 100vh;
     position: relative;
-    margin: 0;
   }
 }
 
@@ -28,8 +27,13 @@
   }
 
   .modal {
+    border: 0;
     border-radius: 0;
     height: 100%;
+
+    // Override panel margins for mobile
+    margin-left: 0;
+    margin-right: 0;
 
     // Content expands to fill modal and keep it full screen
     > .content {

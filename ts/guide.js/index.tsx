@@ -136,7 +136,7 @@ class ModalDemo extends React.Component<{}, { open: boolean; }> {
     return <Modal header="Modal"
                   onClose={() => this.setState({ open: false })}>
       <div className="content">
-        Some modal content
+        <div>Some modal content</div>
       </div>
       <footer>
         Static modal footer

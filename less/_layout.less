@@ -17,7 +17,7 @@ p, ul {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin: 0 0 @padding-base;
+  margin: 0; // No margin bottom because of * + * selector.
 
   // Extra space only if following something else
   * + & {
@@ -37,12 +37,25 @@ ul {
 
 /* Container / Wrapper Elements */
 
+// Basic one-column container that keeps elements from getting too large
 .container {
   max-width: @max-container-width;
   padding: 0 @padding-base;
   margin: @padding-lg auto @padding-xl;
-}
 
+  .content > & {
+    margin-top: 0;
+    padding: 0;
+  }
+
+  // Full-width headers, footers on mobile
+  @media screen and (max-width: @screen-xs-max) {
+    header, footer {
+      margin-left: -@padding-base;
+      margin-right: -@padding-base;
+    }
+  }
+}
 
 // Flexbox list of elements spaced evenly apart
 .flex {
@@ -192,6 +205,7 @@ ul {
   // Else, full screen
   > .sidebar:first-child { // Hide left sidebar
     margin-left: -@sidebar-width;
+    margin-right: 0;
 
     // Double on mobile to center things
     @media screen and (max-width: @screen-xs-max) {
@@ -201,6 +215,7 @@ ul {
 
   > .sidebar:last-child { // Hide right sidebar
     margin-right: -@sidebar-width;
+    margin-left: 0;
 
     @media screen and (max-width: @screen-xs-max) {
       margin-right: -2 * @sidebar-width;
