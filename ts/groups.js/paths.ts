@@ -1,10 +1,20 @@
-import { Path } from "../lib/routing";
+import { Path, StringParam, BooleanParam } from "../lib/routing";
+import { AllSomeNoneParam } from "../lib/asn";
+import { PeriodParam } from "../lib/period";
 
 const base = "/groups";
 
 export const eventList = new Path({
   base,
-  params: {groupId: "" as string},
+  params: {
+    groupId: StringParam,
+  },
+  optParams: {
+    showFilters: BooleanParam,
+    eventId: StringParam,
+    labels: AllSomeNoneParam,
+    period: PeriodParam
+  },
   hash: ["event-list", ":groupId"]
 });
 

@@ -1,0 +1,19 @@
+header {
+  .period-selector {
+    display: flex;
+
+    > * {
+      flex: 0 1 auto;
+    }
+
+    > *:first-child { // Left button
+      flex: 1 1 auto;
+      text-align: right;
+    }
+
+    > *:last-child { // Right button
+      flex: 1 1 auto;
+      text-align: left;
+    }
+  }
+}

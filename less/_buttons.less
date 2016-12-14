@@ -172,3 +172,11 @@ button.warning {
 button.danger {
   .transparent-color-variant(@danger);
 }
+
+/* Icon buttons - shrink slightly */
+button {
+  .icon-label.no-text:only-child {
+    margin-left: -@padding-small;
+    margin-right: -@padding-small;
+  }
+}

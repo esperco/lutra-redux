@@ -1,5 +1,8 @@
 import { expect } from "chai";
-import { roundStr, deepFreeze, hexDecode, hexEncode } from "./util";
+import {
+  roundStr, deepFreeze, hexDecode, hexEncode,
+  compactObject, makeRecord, recordToList
+} from "./util";
 import { sandbox } from "./sandbox";
 
 describe("roundStr", function() {
@@ -52,5 +55,38 @@ describe("hexEncode / hexDecode", function() {
   it("should encode and decode each other", function() {
     var s = "Hello World";
     expect(hexDecode(hexEncode(s))).to.equal(s);
+  });
+});
+
+describe("compactObject", function() {
+  it("should remove undefined values but not other falsey values", function() {
+    expect(compactObject({
+      null: null,
+      undefined: undefined,
+      false: false,
+      zero: 0
+    })).to.deep.equal({
+      null: null,
+      false: false,
+      zero: 0
+    });
+  });
+});
+
+describe("makeRecord", function() {
+  it("should return a record map of a string list", function() {
+    expect(makeRecord(["a", "b"])).to.deep.equal({
+      a: true,
+      b: true
+    });
+  });
+});
+
+describe("recordToList", function() {
+  it("should add true values in a record in a string list", function() {
+    expect(recordToList({
+      a: true,
+      b: false
+    })).to.deep.equal(['a']);
   });
 });

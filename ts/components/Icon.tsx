@@ -16,58 +16,71 @@
 */
 
 import * as React from "react";
-import * as _ from "lodash";
+import * as Text from "../text/common";
 
 /*
   Icon names should be semantic. We can map these to appropriate classes
   for font-awesome or other libraries as appropriate.
 */
-type IconType =
-  "cancel"
-  |"close"
-  |"dismiss"
-  |"edit"
-  |"help"
-  |"save";
+export const IconMappings = {
+  "accounts": "fa-users",
+  "cancel": "fa-close",
+  "close": "fa-close",
+  "contact": "fa-envelope",
+  "dismiss": "fa-close",
+  "edit": "fa-pencil",
+  "filters": "fa-bars",
+  "help": "fa-question-circle",
+  "home": "fa-home",
+  "logout": "fa-sign-out",
+  "next": "fa-chevron-right",
+  "privacy": "fa-lock",
+  "previous": "fa-chevron-left",
+  "save": "fa-check",
+  "settings": "fa-cog",
+  "terms": "fa-legal"
+};
+
+export type IconType = keyof (typeof IconMappings);
 
 interface Props {
   type: IconType;
   children?: JSX.Element|JSX.Element[]|string;
 }
 
-function getClassForIcon(icon: IconType): string {
-  switch(icon) {
-    case "cancel":
-      return "fa-close";
-    case "close":
-      return "fa-close";
-    case "dismiss":
-      return "fa-close";
-    case "edit":
-      return "fa-pencil";
-    case "help":
-      return "fa-question-circle";
-    case "save":
-      return "fa-check";
-  }
-}
-
-/*
-  Default screen reader label only.
-  TODO: Move label text to ../text somewhere.
-*/
+// Default screen reader label only.
 function getLabelForIcon(icon: IconType): string {
-  return _.capitalize(icon);
+  return {
+    "accounts": Text.Accounts,
+    "cancel": Text.Cancel,
+    "close": Text.Close,
+    "contact": Text.Contact,
+    "dismiss": Text.Dismiss,
+    "edit": Text.Edit,
+    "filters": Text.Filters,
+    "help": Text.Help,
+    "home": Text.Home,
+    "logout": Text.Logout,
+    "next": Text.Next,
+    "privacy": Text.Privacy,
+    "previous": Text.Previous,
+    "save": Text.Save,
+    "settings": Text.Settings,
+    "terms": Text.Terms
+  }[icon];
 }
 
 /*
   NB: An icon's label will be hidden as appropriate using CSS and
 */
 function Icon({ type, children }: Props) {
-  return <span className="icon-label">
-    <i className={"fa " + getClassForIcon(type)} />
+  let hasChildren = React.Children.count(children || []) > 0;
+  let classes = "icon-label";
+  if (! hasChildren) { classes += " no-text"; }
+  return <span className={classes}>
+    <i className={"fa " + IconMappings[type]} />
     {
-      React.Children.count(children || []) > 0 ?
+      hasChildren ?
       <span>{ children }</span> :
       <span className="sr-only">{ getLabelForIcon(type) }</span>
     }

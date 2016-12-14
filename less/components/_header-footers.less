@@ -16,10 +16,13 @@ header, .banner, footer {
   // By default, expand all children
   > * {
     flex: 1000 1000 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  // Expand these items relatively slowly
-  > nav, > button, > a, > input[type=submit] {
+  // Expand these items relatively slowly, don't shrink
+  > h1, > nav, > button, > a, > input[type=submit] {
     flex: 1 0 auto;
     min-width: @input-height-base;
   }

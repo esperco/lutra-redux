@@ -61,11 +61,11 @@ describe("<GroupSelector />", () => {
     let link1 = wrapper.find('GroupLink').at(0);
     expect(link1.key()).to.equal("id-1");
     expect(link1.find('a').prop('href')).to.equal("/link/id-1");
-    expect(link1.find('.text-loading')).to.have.length(1);
+    expect(link1.find('.placeholder')).to.have.length(1);
 
     let link2 = wrapper.find('GroupLink').at(1);
     expect(link2.key()).to.equal("id-2");
     expect(link2.find('a').prop('href')).to.equal("/link/id-2");
-    expect(link1.find('.text-loading')).to.have.length(1);
+    expect(link1.find('.placeholder')).to.have.length(1);
   });
 });

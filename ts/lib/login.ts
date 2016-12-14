@@ -24,6 +24,10 @@ export interface LoginState {
   loggedInAsAdmin?: boolean;
 }
 
+export interface LoggedInState {
+  login: ApiT.LoginResponse;
+}
+
 export interface LoginAction {
   type: "LOGIN";
   info: ApiT.LoginResponse;
@@ -57,7 +61,7 @@ export function init(
   dispatch: (action: LoginAction) => LoginAction,
   Conf: { loginRedirect: string },
   Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc
-) {
+): Promise<ApiT.LoginResponse> {
   let credentials = getCredentials(Svcs);
   let { Analytics, Api, Nav } = Svcs;
   if (credentials) {

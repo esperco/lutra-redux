@@ -24,6 +24,8 @@ export interface State extends
   Login.LoginState,
   Routing.RouteState<Routes.RouteTypes> { };
 
+export type LoggedInState = State & Login.LoggedInState;
+
 // Typed dispatch function (Redux store)
 export interface DispatchFn {
   (a: Action): Action;

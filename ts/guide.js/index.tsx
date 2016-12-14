@@ -10,6 +10,7 @@ import RadioItem from "../components/RadioItem"
 import Dropdown from "../components/Dropdown";
 import Modal from "../components/Modal";
 import Tooltip from "../components/Tooltip";
+import { RangeSelector } from "../components/CalendarSelectors";
 
 // Selectors
 ReactDOM.render(<div className="flex">
@@ -157,3 +158,25 @@ ReactDOM.render(<div>
            "avoid clipping the borders of the window."}
   />
 </div>, $("#tooltip-demo").get(0));
+
+
+/* Calendars */
+class RangeSelectorDemo extends React.Component<{}, {
+  value?: [Date, Date];
+}> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {};
+  }
+
+  render() {
+    return <RangeSelector
+      value={this.state.value}
+      onChange={(value) => this.setState({ value })}
+    />;
+  }
+}
+
+ReactDOM.render(<div>
+  <RangeSelectorDemo />
+</div>, $("#range-selector-demo").get(0));
