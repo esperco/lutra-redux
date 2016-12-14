@@ -7,6 +7,7 @@ module.exports = {
   loginRedirect: window.location.origin + "/login",
   logoutRedirect: window.location.orgin + "/login?logout=1",
 
+  cacheDuration: 30 * 1000, // 30 sec
   esperVersion: "lutra-redux",
   logLevel: 0,
   logTag: "Esper"

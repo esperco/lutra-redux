@@ -6,6 +6,7 @@ import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
 import * as ASN from "../lib/asn";
 import { GenericPeriod, fromDates } from "../lib/period";
+import * as Events from "../handlers/group-events";
 import * as Groups from "../handlers/groups"
 import * as Log from "../lib/log";
 import { compactObject } from "../lib/util";
@@ -31,7 +32,15 @@ export const eventList = Paths.eventList.route<{
       moment(new Date()).add(1, 'week').toDate()
     );
 
+    // Default labels => all / true
+    let labels = p.labels || { all: true };
+
     Groups.fetch(groupId, { withLabels: true }, deps);
+    Events.fetchGroupEvents({
+      groupId,
+      period,
+      query: { labels }
+    }, deps);
 
     deps.dispatch({
       type: "ROUTE",
@@ -40,8 +49,7 @@ export const eventList = Paths.eventList.route<{
         groupId: groupId,
         showFilters: p.showFilters,
         eventId: p.eventId || undefined,
-        labels: p.labels || { all: true },
-        period
+        labels, period
       })
     });
   } else {

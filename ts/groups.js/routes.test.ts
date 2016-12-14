@@ -5,6 +5,7 @@ import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { sandbox } from "../lib/sandbox";
 import { stubLogs } from "../fakes/stubs";
+import * as Events from "../handlers/group-events";
 import * as Groups from "../handlers/groups";
 import initState from "./init-state";
 import * as Routes from "./routes";
@@ -56,7 +57,8 @@ describe("Routes", function() {
       });
     });
 
-    it("should fetch a default two week period if none provided", () => {
+    it("should fetch a default two week period if none provided " +
+       "and use all labels", () => {
       sandbox.useFakeTimers(1480579200000); // 12/1/2016
       let deps = getDeps();
       Routes.eventList({
@@ -81,6 +83,19 @@ describe("Routes", function() {
       let spy = sandbox.spy(Groups, "fetch");
       Routes.eventList({ pathname, hash: "#!/event-list/group-id-123" }, deps);
       expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
+    });
+
+    it("should call fetch for events", function() {
+      let deps = getDeps();
+      let spy = sandbox.spy(Events, "fetchGroupEvents");
+      Routes.eventList({ pathname,
+        hash: "#!/event-list/group-id-123?period=w,2400,2401&labels=1,0,"
+      }, deps);
+      expectCalledWith(spy, {
+        groupId: "group-id-123",
+        period: { interval: "week", start: 2400, end: 2401 },
+        query: { labels: { all: true }}
+      }, deps);
     });
 
     it("should re-route to first group if bad group id", function() {

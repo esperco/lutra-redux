@@ -3,6 +3,7 @@
 */
 
 import * as DataStatus from "../states/data-status";
+import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 import * as ErrorMsg from "../states/error-msg";
 import * as Login from "../lib/login";
@@ -11,6 +12,7 @@ import * as Routes from "./routes";
 
 export type Action =
   DataStatus.DataAction|
+  Events.EventsDataAction|
   Groups.GroupDataAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
@@ -19,6 +21,7 @@ export type Action =
 
 export interface State extends
   DataStatus.DataState,
+  Events.EventsState,
   Groups.GroupState,
   ErrorMsg.ErrorMsgState,
   Login.LoginState,

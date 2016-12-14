@@ -28,6 +28,7 @@ import Setup from "./Setup";
 import { LoggedInState, State, Action } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
+import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
@@ -65,6 +66,8 @@ let store = createStore(
         return Routing.routeReducer(state, action);
       case "GROUP_DATA":
         return Groups.groupDataReducer(state, action);
+      case "GROUP_EVENTS_DATA":
+        return Events.eventsDataReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);
