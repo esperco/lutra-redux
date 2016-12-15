@@ -10,18 +10,21 @@ import makeEvent from "../fakes/events-fake";
 import * as stringify from "json-stable-stringify";
 
 describe("Group Events handlers", function() {
+  function getDeps() {
+    return {
+      dispatch: sandbox.spy(),
+      state: initState(),
+      Svcs: apiSvcFactory(),
+      Conf: { cacheDuration: 30 * 1000 }
+    };
+  }
+
+  // Common vars
+  const groupId = "my-group-id";
+
   describe("fetchGroupEvents", function() {
-    function getDeps() {
-      return {
-        dispatch: sandbox.spy(),
-        state: initState(),
-        Svcs: apiSvcFactory(),
-        Conf: { cacheDuration: 30 * 1000 }
-      };
-    }
 
     // Common vars
-    const groupId = "my-group-id";
     const period = { interval: "week" as "week", start: 100, end: 101 };
     const { start: daysStart, end: daysEnd } = toDays(period);
     const query = { labels: { all: true } };
@@ -46,7 +49,7 @@ describe("Group Events handlers", function() {
 
       expectCalledWith(deps.dispatch, {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_START",
+        dataType: "FETCH_QUERY_START",
         groupId, period, query
       });
     });
@@ -63,7 +66,7 @@ describe("Group Events handlers", function() {
       });
     });
 
-    it("dispatches a FETCH_END on succesful return of data", (done) => {
+    it("dispatches a FETCH_QUERY_END on succesful return of data", (done) => {
       let e1 = makeEvent({ id: "e1" });
       let e2 = makeEvent({ id: "e2" });
 
@@ -73,7 +76,7 @@ describe("Group Events handlers", function() {
       fetchGroupEvents({ groupId, period, query }, deps).then(() => {
         expectCalledWith(deps.dispatch, {
           type: "GROUP_EVENTS_DATA",
-          dataType: "FETCH_END",
+          dataType: "FETCH_QUERY_END",
           groupId, period, query,
           events: [e1, e2]
         });
@@ -85,7 +88,7 @@ describe("Group Events handlers", function() {
       });
     });
 
-    it("dispatches a FETCH_FAIL on API call failure", (done) => {
+    it("dispatches a FETCH_QUERY_FAIL on API call failure", (done) => {
       let deps = getDeps();
       let dfd = stubApi(deps.Svcs, "postForGroupEvents");
 
@@ -93,7 +96,7 @@ describe("Group Events handlers", function() {
         () => {
           expectCalledWith(deps.dispatch, {
             type: "GROUP_EVENTS_DATA",
-            dataType: "FETCH_FAIL",
+            dataType: "FETCH_QUERY_FAIL",
             groupId, period, query
           });
         }
@@ -166,4 +169,23 @@ describe("Group Events handlers", function() {
       expect(apiSpy.called).to.be.true;
     });
   });
+
+  //
+  //
+  // describe("fetchByIds", () => {
+  //   // Common vars
+  //   const eventIds = ["e1", "e2"];
+  //   // const event1 = makeEvent({ id: "e1" });
+  //   // const event2 = makeEVent({ id: "e2" });
+
+  //   it("dispatches FETCH_IDS_START", () => {
+  //     let deps = getDeps();
+  //     fetchByIds({ groupId, eventIds }, deps);
+  //     expectCalledWith(deps.dispatch, {
+  //       type: "GROUP_EVENTS_DATA",
+  //       dataType: "FETCH_IDS_START",
+  //       groupId, eventIds
+  //     });
+  //   });
+  // });
 });

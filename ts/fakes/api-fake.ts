@@ -30,10 +30,9 @@ export function apiSvcFactory(): ApiSvc {
     }
   });
 
-  // Batch is a special case
+  // Batch is a special case -- execute function immediately
   newApi.batch = function batch(fn: () => any) {
-    fn();
-    return new Promise(() => {});
+    return new Promise((resolve) => resolve(fn()));
   }
 
   return { Api: newApi };

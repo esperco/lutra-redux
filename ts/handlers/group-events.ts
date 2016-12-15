@@ -19,7 +19,7 @@ export function fetchGroupEvents(props: {
   if (shouldUpdate(props, deps)) {
     deps.dispatch({
       type: "GROUP_EVENTS_DATA",
-      dataType: "FETCH_START",
+      dataType: "FETCH_QUERY_START",
       ...props
     });
 
@@ -42,7 +42,7 @@ export function fetchGroupEvents(props: {
 
         deps.dispatch({
           type: "GROUP_EVENTS_DATA",
-          dataType: "FETCH_END",
+          dataType: "FETCH_QUERY_END",
           events, ...props
         });
       },
@@ -51,7 +51,7 @@ export function fetchGroupEvents(props: {
       (err) => {
         deps.dispatch({
           type: "GROUP_EVENTS_DATA",
-          dataType: "FETCH_FAIL",
+          dataType: "FETCH_QUERY_FAIL",
           ...props
         });
       }
@@ -113,4 +113,19 @@ function shouldUpdate(props: {
     return false;
   }
   return true;
+}
+
+
+/* Fetch events by IDs */
+
+// TODO -- Need API endpoint for this though
+export function fetchByIds(props: {
+  groupId: string;
+  eventIds: string[];
+}, deps: {
+  dispatch: (a: EventsDataAction) => any;
+  state: EventsState;
+  Svcs: ApiSvc;
+}) {
+
 }
