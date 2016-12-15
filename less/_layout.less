@@ -175,8 +175,20 @@ ul {
 
   // But sidebars are static
   > .sidebar {
-    width: @sidebar-width;
+    width: @sidebar-width-lg;
     flex: 0 0 auto;
+
+    @media screen and (max-width: @screen-md-max) {
+      width: @sidebar-width-md;
+    }
+
+    @media screen and (max-width: @screen-sm-max) {
+      width: @sidebar-width-sm;
+    }
+
+    @media screen and (max-width: @screen-xs-max) {
+      width: @sidebar-width-xs;
+    }
   }
 
   // Left sidebar visible
@@ -204,33 +216,49 @@ ul {
 
   // Else, full screen
   > .sidebar:first-child { // Hide left sidebar
-    margin-left: -@sidebar-width;
+    margin-left: -@sidebar-width-lg;
     margin-right: 0;
+
+    @media screen and (max-width: @screen-md-max) {
+      margin-left: -@sidebar-width-md;
+    }
+
+    @media screen and (max-width: @screen-sm-max) {
+      margin-left: -@sidebar-width-sm;
+    }
 
     // Double on mobile to center things
     @media screen and (max-width: @screen-xs-max) {
-      margin-left: -2 * @sidebar-width;
+      margin-left: -2 * @sidebar-width-xs;
     }
   }
 
   > .sidebar:last-child { // Hide right sidebar
-    margin-right: -@sidebar-width;
+    margin-right: -@sidebar-width-lg;
     margin-left: 0;
 
+    @media screen and (max-width: @screen-md-max) {
+      margin-right: -@sidebar-width-md;
+    }
+
+    @media screen and (max-width: @screen-sm-max) {
+      margin-right: -@sidebar-width-sm;
+    }
+
     @media screen and (max-width: @screen-xs-max) {
-      margin-right: -2 * @sidebar-width;
+      margin-right: -2 * @sidebar-width-xs;
     }
   }
 
   @media screen and (max-width: @screen-xs-max) {
     // Special behavior if missing left sidebar
     & > .content:first-child {
-      margin-left: -@sidebar-width;
+      margin-left: -@sidebar-width-xs;
     }
 
     // Special behavior if missing right sidebar
     & > .content:last-child {
-      margin-right: -@sidebar-width;
+      margin-right: -@sidebar-width-xs;
     }
   }
 
