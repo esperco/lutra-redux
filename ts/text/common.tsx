@@ -11,6 +11,7 @@ export const Edit = "Edit";
 export const Filters = "Search and Filtering";
 export const Help = "Help";
 export const Home = "Home";
+export const Location = "Location";
 export const Logout = "Sign out";
 export const Next = "Next";
 export const Previous = "Previous";

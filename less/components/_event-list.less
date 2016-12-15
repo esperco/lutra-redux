@@ -1,11 +1,14 @@
 /*
   Styling for a list of events
 */
+@import "./_event-editor";
 
 .event-list .event {
-  h1, h2, h3, h4, h5, h6 {
-    margin-bottom: @padding-small;
+  * + * {
+    margin-top: @padding-small;
+  }
 
+  h1, h2, h3, h4, h5, h6 {
     @media screen and (min-width: @screen-sm-min) {
       display: inline-block;
       margin-right: @padding-small;
@@ -13,14 +16,14 @@
   }
 
   .no-title {
-    font-style: italic;
-    color: @text-muted;
+    .event-editor .no-title;
   }
 
   .time {
+    .event-editor .time;
+  }
+
+  .guests {
     font-size: @font-size-small;
-    color: @text-muted;
-    white-space: nowrap;
-    display: inline;
   }
 }

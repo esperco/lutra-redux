@@ -13,6 +13,7 @@ import * as EventText from "../text/events";
 
 interface ListProps {
   events: (StoreData<ApiT.GenericCalendarEvent>|undefined)[];
+  eventHrefFn ?: (ev: ApiT.GenericCalendarEvent) => string;
 }
 
 export class EventList extends React.Component<ListProps, {}> {
@@ -32,13 +33,17 @@ export class EventList extends React.Component<ListProps, {}> {
     if (ev === "FETCHING") {
       return <PlaceholderEvent key={index} />;
     }
-    return <EventDisplay key={ev.id} event={ev} />;
+    return <EventDisplay key={ev.id}
+      event={ev}
+      eventHref={this.props.eventHrefFn && this.props.eventHrefFn(ev)}
+    />;
   }
 }
 
 
 interface EventProps {
   event: ApiT.GenericCalendarEvent;
+  eventHref?: string;
 }
 
 export class EventDisplay extends React.Component<EventProps, {}> {
@@ -48,9 +53,14 @@ export class EventDisplay extends React.Component<EventProps, {}> {
 
   render() {
     let { event } = this.props;
+    let title = event.title ?
+      <span>{ event.title }</span> :
+      <span className="no-title">{ EventText.NoTitle }</span>;
+
     return <div className="event panel">
-      <h4>{
-        event.title || <span className="no-title">{ EventText.NoTitle }</span>
+      <h4>{ this.props.eventHref ?
+        <a href={this.props.eventHref}>{ title }</a> :
+        title
       }</h4>
 
       <div className="time">
@@ -68,6 +78,12 @@ export class EventDisplay extends React.Component<EventProps, {}> {
             title={EventText.Recurring}
           /> : null }
       </div>
+
+      { event.guests && event.guests.length ? <div className="guests">
+        { EventText.attendeeMsgShort(
+          _.map(event.guests, (g) => g.display_name || g.email)
+        ) }
+      </div> : null }
     </div>;
   }
 }

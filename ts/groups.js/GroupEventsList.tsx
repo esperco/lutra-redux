@@ -20,6 +20,7 @@ interface Props {
   query: Query;
   queryState: EventsQueryState;
   eventMap: EventMap;
+  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
 }
 
 export class GroupEventsList extends React.Component<Props, {}> {
@@ -45,6 +46,7 @@ interface DayProps {
   day: number; // Period day index
   result: StoreData<QueryResult>;
   eventMap: EventMap;
+  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
 }
 
 class QueryDay extends React.Component<DayProps, {}> {
@@ -68,7 +70,7 @@ class QueryDay extends React.Component<DayProps, {}> {
     if (_.isEmpty(calEvents)) return null;
 
     return <DayBox date={dateForDay(this.props.day)}>
-      <EventList events={calEvents} />
+      <EventList events={calEvents} eventHrefFn={this.props.eventHrefFn} />
     </DayBox>;
   }
 }

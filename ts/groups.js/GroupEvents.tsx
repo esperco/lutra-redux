@@ -7,6 +7,7 @@ import * as classNames from 'classnames';
 import { State, DispatchFn } from './types';
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
+import EventEditor from "../components/EventEditor";
 import { eventList } from "./paths";
 import { ready } from "../states/data-status";
 import { ApiSvc } from "../lib/api";
@@ -59,13 +60,24 @@ class GroupEvents extends React.Component<Props, {}> {
       <div className="content">
         <div className="rowbar-layout">
           <header>
+            {/* Toggle filters sidebar */}
             <button onClick={() => Nav.go(this.toggleFiltersHref())}>
               <Icon type={this.props.showFilters ? "close" : "filters"} />
             </button>
+
             <PeriodSelector
               value={this.props.period}
               onChange={(p) => Nav.go(this.updateHref({ period: p }))}
             />
+
+            { /* Close event */
+              !!this.props.eventId ?
+              <button onClick={() => Nav.go(this.updateHref({
+                eventId: undefined
+              }))}>
+                <Icon type="close" />
+              </button> : null
+            }
           </header>
 
           <div className="content">
@@ -74,11 +86,13 @@ class GroupEvents extends React.Component<Props, {}> {
             </div>
           </div>
         </div>
-        <a className="backdrop" href={this.toggleFiltersHref()} />
+        <a className="backdrop" href={this.backdropHref()} />
       </div>
 
       {/* Additional event info goes here (if applicable) */}
-      <div className="sidebar panel" />
+      <div className="sidebar panel">
+        { this.renderSingleEvent() }
+      </div>
     </div>;
   }
 
@@ -88,12 +102,35 @@ class GroupEvents extends React.Component<Props, {}> {
     let eventMap = state.groupEvents[groupId] || {};
     let query = { labels };
     let props = { period, query, queryState, eventMap };
-    return <GroupEventsList {...props} />;
+    return <GroupEventsList {...props}
+      eventHrefFn={(ev) => this.updateHref({
+        eventId: ev.id,
+        showFilters: false
+      })}
+    />;
+  }
+
+  renderSingleEvent() {
+    if (this.props.eventId) {
+      let eventMap = this.props.state.groupEvents[this.props.groupId] || {};
+      return <EventEditor event={eventMap[this.props.eventId]} />
+    }
+    return null; // No event
   }
 
   // Toggling filters is just a hashchange
   toggleFiltersHref() {
-    return this.updateHref({ showFilters: !this.props.showFilters });
+    return this.updateHref({
+      showFilters: !this.props.showFilters,
+      eventId: undefined
+    });
+  }
+
+  backdropHref() {
+    return this.updateHref({
+      showFilters: false,
+      eventId: undefined
+    });
   }
 
   // Path with new props
