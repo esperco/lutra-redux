@@ -146,3 +146,18 @@ export function colorForText(hexcolor: string) {
   var yiq = ((r*299)+(g*587)+(b*114))/1000;
   return (yiq >= 128) ? black : offWhite;
 }
+
+// Already assigned colors
+export type ColorMap = { [index: string]: string };
+
+// Get a color for a particular string and remember that color
+export function getColorForMap(key: string, colorMap: ColorMap): string {
+  // Return existing remembered color if applicable
+  if (! colorMap[key]) {
+    // Ignore lightest colors when randomly picking
+    let limit = Math.min(50, presets.length);
+    let color = presets[Math.floor(Math.random() * limit)];
+    colorMap[key] = color;
+  }
+  return colorMap[key];
+}

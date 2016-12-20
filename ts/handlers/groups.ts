@@ -1,8 +1,12 @@
 import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
+import { updateLabelList } from "../lib/event-labels";
 import { LoginState } from "../lib/login";
-import { GroupState, GroupDataAction } from "../states/groups";
+import { QueueMap } from "../lib/queue";
+import {
+  GroupState, GroupDataAction, GroupUpdateAction
+} from "../states/groups";
 import { ok, ready } from "../states/data-status";
 import { compactObject as compact } from "../lib/util";
 
@@ -64,24 +68,132 @@ export function fetch(groupid: string, opts: {
   return Promise.resolve(undefined);
 }
 
-// Rename a group
+
+/* Rename Groups */
+
+interface RenameUpdate {
+  name: string;
+  Svcs: ApiSvc;
+}
+
+// Use last name in queue for each group
+export const RenameQueue = new QueueMap<RenameUpdate>((groupId, q) => {
+  let { Svcs, name } = _.last(q);
+  return Svcs.Api.renameGroup(groupId, name).then(() => []);
+});
+
 export function renameGroup(groupId: string, name: string, deps: {
-  dispatch: (a: GroupDataAction) => any;
+  dispatch: (a: GroupUpdateAction) => any;
   state: GroupState;
   Svcs: ApiSvc;
 }) {
   if (! name) return Promise.reject(new Error("Invalid name"));
-  let summary = deps.state.groupSummaries[groupId];
-  if (ready(summary)) {
-    let newSummary = _.clone(summary);
-    newSummary.group_name = name;
-    deps.dispatch({
-      type: "GROUP_DATA",
-      dataType: "PUSH",
-      groups: [newSummary]
-    });
+  deps.dispatch({
+    type: "GROUP_UPDATE",
+    groupId,
+    summary: {
+      group_name: name
+    }
+  });
+  return RenameQueue.get(groupId).enqueue({ name, ...deps });
+}
+
+
+/* Update group labels */
+
+interface GroupLabelUpdate {
+  labels: ApiT.LabelInfo[];    // Label set to PUT
+
+  // Normalized list of new labels (so we know which colors to set)
+  newLabels: ApiT.LabelInfo[];
+
+  // Deps
+  Svcs: ApiSvc;
+}
+
+export function processGroupLabelUpdates(
+  groupId: string,
+  queue: GroupLabelUpdate[],
+) {
+  // Use Svcs from first item
+  let { Api } = queue[0].Svcs;
+
+  // Get all new labels
+  let newLabels: Record<string, boolean> = {};
+  _.each(queue,
+    (q) => _.each(q.newLabels,
+      (l) => newLabels[l.normalized] = true
+    )
+  );
+
+  // Since we're just putting all of our labels at once, just look to
+  // last item in queue
+  let last = queue[queue.length - 1];
+  if (last) {
+    let labels = last.labels;
+    return Api.putGroupLabels(groupId, {
+      labels: _.map(labels, (l) => l.original)
+    })
+
+    // Separate API call for colors (batch for effiency)
+    .then(() => Api.batch(() => Promise.all(
+      _(labels)
+        .filter((l) => newLabels[l.normalized])
+        .map((l) => Api.setGroupLabelColor(groupId, {
+          label: l.original,
+          color: l.color || "#999999"
+        }))
+        .value()
+    )))
+
+    // Clear queue
+    .then(() => []);
   }
-  return deps.Svcs.Api.renameGroup(groupId, name);
+
+  return Promise.resolve([]);
+}
+
+export const LabelQueues = new QueueMap(processGroupLabelUpdates);
+
+export function setGroupLabels(props: {
+  groupId: string,
+  addLabels?: ApiT.LabelInfo[];
+  rmLabels?: ApiT.LabelInfo[];
+}, deps: {
+    dispatch: (a: GroupUpdateAction) => any;
+    state: GroupState;
+    Svcs: ApiSvc;
+  }
+) {
+  // Figure out new label set to queue for API
+  let groupLabels = deps.state.groupLabels[props.groupId];
+  if (ready(groupLabels)) {
+    let labels = updateLabelList(groupLabels.group_labels, {
+      add: props.addLabels,
+      rm: props.rmLabels
+    });
+
+    // Make changes only if new labels
+    if (! _.isEqual(labels, groupLabels.group_labels)) {
+
+      // Update state
+      deps.dispatch({
+        type: "GROUP_UPDATE",
+        groupId: props.groupId,
+        labels: { group_labels: labels }
+      });
+
+      // Queue API call
+      let queue = LabelQueues.get(props.groupId);
+      return queue.enqueue({
+        labels,
+        newLabels: props.addLabels || [],
+        Svcs: deps.Svcs
+      });
+    }
+  }
+
+  return Promise.resolve<void>();
 }
 
 // Fetch group names after logging in
@@ -92,7 +204,7 @@ export function initData(info: ApiT.LoginResponse, deps: {
   deps.dispatch({
     type: "GROUP_DATA",
     dataType: "FETCH_START",
-    groupIds: info.groups,
+    groupIds: info.groups
   });
 
   return deps.Svcs.Api.getGroupsByUid(info.uid, {})

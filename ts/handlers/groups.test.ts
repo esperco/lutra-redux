@@ -1,10 +1,10 @@
 import * as Groups from "./groups";
-import * as _ from "lodash";
 import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
-import { apiSvcFactory, stubApi } from "../fakes/api-fake";
+import { apiSvcFactory, stubApi, stubApiPlus } from "../fakes/api-fake";
 import { makeGroup } from "../fakes/groups-fake";
 import { initState } from "../states/groups";
+import { newLabel, resetColors } from "../lib/event-labels";
 import { sandbox } from "../lib/sandbox";
 
 describe("Groups handlers", function() {
@@ -94,25 +94,25 @@ describe("Groups handlers", function() {
   });
 
   describe("renameGroup", function() {
+    afterEach(() => {
+      Groups.RenameQueue.reset();
+    });
+
     function getDeps() {
       return {
         dispatch: sandbox.spy(),
-        state: _.extend(initState(), {
-          groupSummaries: { "id-1": makeGroup() }
-        }),
+        state: initState(),
         Svcs: apiSvcFactory()
       };
     }
 
-    it("dispatches a GROUP_DATA PUSH action", function() {
+    it("dispatches a GROUP_UPDATE action", function() {
       let deps = getDeps();
       Groups.renameGroup("id-1", "New Group Name", deps);
       expectCalledWith(deps.dispatch, {
-        type: "GROUP_DATA",
-        dataType: "PUSH",
-        groups: [_.extend({}, deps.state.groupSummaries["id-1"], {
-          group_name: "New Group Name"
-        })]
+        type: "GROUP_UPDATE",
+        groupId: "id-1",
+        summary: { group_name: "New Group Name" }
       });
     });
 
@@ -122,14 +122,111 @@ describe("Groups handlers", function() {
       Groups.renameGroup("id-1", "New Group Name", deps);
       expectCalledWith(apiSpy, "id-1", "New Group Name");
     });
+  });
 
-    it("should fire API call but not dispatch if no existing summary in state",
-    function() {
+  describe("setGroupLabels", function() {
+    afterEach(() => {
+      Groups.LabelQueues.reset();
+      resetColors();
+    });
+
+    const label1 = newLabel("L1");
+    const label2 = newLabel("L2");
+
+    function getDeps() {
+      return {
+        dispatch: sandbox.spy(),
+        state: {
+          ...initState(),
+          groupLabels: {
+            "id-1": { group_labels: [label1] }
+          }
+        },
+        Svcs: apiSvcFactory()
+      };
+    }
+
+    it("dispatches a GROUP_UPDATE action", function() {
       let deps = getDeps();
-      let apiSpy = sandbox.spy(deps.Svcs.Api, "renameGroup");
-      Groups.renameGroup("id-2", "New Group Name", deps);
-      expect(deps.dispatch.called).to.be.false;
-      expectCalledWith(apiSpy, "id-2", "New Group Name");
+      Groups.setGroupLabels({
+        groupId: "id-1",
+        addLabels: [label2],
+        rmLabels: [label1]
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_UPDATE",
+        groupId: "id-1",
+        labels: { group_labels: [label2] }
+      });
+    });
+
+    it("fires an API call to set labels", () => {
+      let deps = getDeps();
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "putGroupLabels");
+      Groups.setGroupLabels({
+        groupId: "id-1",
+        addLabels: [label2],
+        rmLabels: [label1]
+      }, deps);
+      expectCalledWith(apiSpy, "id-1", {
+        labels: [label2.original]
+      });
+    });
+
+    it("fires an API call to set colors on new labels only", (done) => {
+      let deps = getDeps();
+      let { dfd: dfd1 } = stubApiPlus(deps.Svcs, "putGroupLabels");
+      let { dfd: dfd2, stub } = stubApiPlus(deps.Svcs, "setGroupLabelColor");
+      Groups.setGroupLabels({
+        groupId: "id-1",
+        addLabels: [label2]
+      }, deps).then(() => {
+        expect(stub.callCount).to.equal(1);
+        expectCalledWith(stub, "id-1", {
+          label: label2.original,
+          color: label2.color
+        });
+      }).then(done, done);
+      dfd1.resolve({});
+      dfd2.resolve({});
+    });
+
+    it("does not fire any API calls if labels are identical", (done) => {
+      let deps = getDeps();
+      let { dfd: dfd1, stub: stub1 } = stubApiPlus(
+        deps.Svcs, "putGroupLabels");
+      let { dfd: dfd2, stub: stub2 } = stubApiPlus(
+        deps.Svcs, "setGroupLabelColor");
+      Groups.setGroupLabels({
+        groupId: "id-1",
+        addLabels: [label1]
+      }, deps).then(() => {
+        expect(stub1.called).to.be.false;
+        expect(stub2.called).to.be.false;
+      }).then(done, done);
+      dfd1.resolve({});
+      dfd2.resolve({});
+    });
+
+    it("does fire an API call if label is changed", (done) => {
+      let deps = getDeps();
+      let { dfd: dfd1, stub: stub1 } = stubApiPlus(
+        deps.Svcs, "putGroupLabels");
+      let { dfd: dfd2, stub: stub2 } = stubApiPlus(
+        deps.Svcs, "setGroupLabelColor");
+      Groups.setGroupLabels({
+        groupId: "id-1",
+        addLabels: [{
+          ...label1,
+          original: label1.original + "!",
+          color: "#000"
+        }]
+      }, deps).then(() => {
+        expect(stub1.called).to.be.true;
+        expect(stub2.called).to.be.true;
+      }).then(done, done);
+      dfd1.resolve({});
+      dfd2.resolve({});
     });
   });
 

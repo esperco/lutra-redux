@@ -14,6 +14,7 @@ export type Action =
   DataStatus.DataAction|
   Events.EventsDataAction|
   Groups.GroupDataAction|
+  Groups.GroupUpdateAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|

@@ -14,12 +14,10 @@ describe("<GroupSelector />", () => {
     } as any;
     state.groupSummaries= {
       "id-1": {
-        groupid: "id-1",
         group_name: "Group 1",
         group_timezone: "America/Los_Angeles"
       },
       "id-2": {
-        groupid: "id-2",
         group_name: "Group 2",
         group_timezone: "America/Los_Angeles"
       }

@@ -86,6 +86,9 @@ namespace Api {
     });
   }
 
+
+  /* Groups */
+
   // Fetch all groups for user
   export function getGroupsByUid(uid: string, opts: {
       withMembers?: boolean,
@@ -104,7 +107,6 @@ namespace Api {
     return JsonHttp.get(url);
   }
 
-  // Fetch group details
   export function getGroupDetails(groupid: string, opts: {
       withMembers?: boolean,
       withLabels?: boolean
@@ -136,6 +138,23 @@ namespace Api {
       + "/" + string(groupid)
       + "/" + string(groupName);
     return JsonHttp.put(url);
+  }
+
+  export function putGroupLabels(
+    groupid: string,
+    labels: {labels: string[]}
+  ): Promise<void> {
+    var url = prefix + "/api/group/labels/" + myUid()
+      + "/" + string(groupid);
+    return JsonHttp.put(url, labels);
+  }
+
+  export function setGroupLabelColor(
+    groupid: string, req: ApiT.SetLabelColorRequest
+  ): Promise<ApiT.LabelInfo> {
+    var url = `${prefix}/api/group-label/set-color/${myUid()}`
+      + `/${string(groupid)}`;
+    return JsonHttp.post(url, req);
   }
 
 
