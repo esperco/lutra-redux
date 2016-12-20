@@ -1,0 +1,48 @@
+/*
+  Styling for a drill-down or edit view for an event
+*/
+.event-editor {
+  .no-title {
+    font-style: italic;
+    color: @text-muted;
+  }
+
+  .time {
+    font-size: @font-size-small;
+    color: @text-muted;
+    white-space: nowrap;
+    display: inline;
+  }
+
+  .location {
+    font-size: @font-size-small;
+    color: @text-muted;
+  }
+
+  .description {
+    font-size: @font-size-small;
+  }
+
+  .guest {
+    .name {
+      display: inline-block;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: normal;
+    }
+
+    .name + .status {
+      margin-top: 0;
+      display: block;
+      font-size: @font-size-small;
+      color: @text-muted;
+    }
+
+    &.declined .name {
+      color: @text-muted;
+      text-decoration: line-through;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+/*
+  Styling for a list of events
+*/
+@import "./_event-editor";
+
+.event-list .event {
+  * + * {
+    margin-top: @padding-small;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @media screen and (min-width: @screen-sm-min) {
+      display: inline-block;
+      margin-right: @padding-small;
+    }
+  }
+
+  .no-title {
+    .event-editor .no-title;
+  }
+
+  .time {
+    .event-editor .time;
+  }
+
+  .guests {
+    font-size: @font-size-small;
+  }
+}

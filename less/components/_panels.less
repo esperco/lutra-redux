@@ -20,56 +20,107 @@
 
   // Nested panels (and certain other elements) don't stack
   // (look like tiles instead)
-  .panel, header, footer, div, nav, section, .menu {
+  .panel, header, footer, nav, .menu, .content {
     padding: @padding-base;
     border-width: 0;
     border-radius: 0;
-    margin: -@padding-base;
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    margin-bottom: 0;
     box-shadow: none;
     background: transparent; // So rounded corners don't get cut off
-  }
 
-  .panel, div, nav, section, .menu {
-    + div, + nav, + section, + .menu {
+    &:first-child {
+      margin-top: -@padding-base;
+    }
+
+    &:last-child {
+      margin-bottom: -@padding-base;
+    }
+
+    /*
+      Override * + * selector. No margin-top necessary if following something
+      with padding
+    */
+    + * {
       margin-top: 0;
-      &.panel { margin-top: @padding-base; }
     }
   }
 
-  // Spacing between panels (also header and footer)
-  * + .panel, * + footer, * + header, header + * {
-    border-top-width: 1px;
-    border-style: solid;
-    border-color: @border-color;
-    margin-top: @padding-base;
+  /*
+    Override * + * selector. No margin-top necessary because these elements
+    have padding already.
+  */
+  * {
+    + nav, + .menu, + .content {
+      &:not(.panel) {
+        margin-top: 0;
+      }
+    }
   }
 
+  // These elements always have a border on top when following something
+  * {
+    + .panel, + footer, + header {
+      border-top: 1px solid @border-color;
+    }
+  }
 
-  /* Alerts - full width */
+  // These elements only have borders when following panel-like elements
+  header, .panel, nav, .menu {
+    + nav, + .menu {
+      border-top: 1px solid @border-color;
+    }
+  }
 
-  .alert {
-    margin-top: 0;
-    margin-bottom: 0;
+  // Underline headers
+  header + *, header + .content {
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    border-top: 1px solid @border-color;
+  }
+
+  // No horizontal padding on mobile for only some elements
+  @media screen and (max-width: @screen-xs-max) {
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    border-left: 0;
+    border-right: 0;
     border-radius: 0;
   }
 
-  * + .alert {
-    margin-top: @padding-base;
+  // Certain elements maintain full-width (but any vertical padding still
+  // stacks)
+  .alert, progress, .checkbox-item, .radio-item, nav > a, .menu {
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
   }
+
 
   /* Progress bars */
 
   progress {
-    margin-left: -@padding-base;
-    margin-right: -@padding-base;
     width: calc(~"100% + " (2 * @padding-base));
     border-radius: 0;
     height: 3px;
+
+    + * {
+      border-top: 0;
+    }
+
+    + .panel, + footer,  +header {
+      border-top: 0;
+      margin-top: 0;
+    }
   }
 
-  progress + *, progress + footer {
-    margin-top: 0;
-    border-top: 0;
+  *, .panel, footer, header {
+    + progress {
+      border: 0;
+    }
   }
 
 
@@ -89,8 +140,6 @@
   .checkbox-item, .radio-item, nav > a {
     display: block;
     font-size: @font-size-small;
-    margin-left: -@padding-base;
-    margin-right: -@padding-base;
     padding: @padding-small @padding-base;
 
     &:hover, &:focus {
@@ -113,11 +162,10 @@
 
 
   /* Button menus - style like selectors */
+
   .menu, .panel.menu {
     padding-left: 0;
     padding-right: 0;
-    margin-left: -@padding-base;
-    margin-right: -@padding-base;
 
     > :first-child {
       margin-top: -@padding-small;

@@ -1,0 +1,68 @@
+/*
+  For floating day on the right for an event list
+*/
+@day-box-date-width: 3.5rem;
+
+@media screen and (max-width: @screen-xs-max) {
+  .day-box .day-title {
+    display: block;
+    font-weight: bold;
+
+    .day-of-month {
+      margin-left: 0.5em;
+    }
+
+    .day-of-week { float: right; }
+
+    > span {
+      margin-top: 0;
+    }
+  }
+}
+
+@media screen and (min-width: @screen-sm-min) {
+  .day-box {
+    display: flex;
+
+    > .day-title {
+      display: inline-block;
+      width: @day-box-date-width;
+      flex: 0 0 auto;
+      text-align: center;
+      padding-top: @padding-small;
+
+      > span {
+        display: block;
+        margin-top: 0;
+      }
+
+      .month, .day-of-week {
+        font-size: @font-size-small;
+      }
+
+      .day-of-month {
+        font-weight: bold;
+        font-size: @font-size-large;
+      }
+    }
+
+    > .day-title + * {
+      display: inline-block;
+      flex: 1 1 auto;
+      margin-top: 0;
+      margin-left: @padding-base;
+    }
+  }
+}
+
+.day-box .day-title {
+  text-transform: uppercase;
+}
+
+.day-box.past .day-title {
+  color: @text-muted;
+}
+
+.day-box.today .day-title {
+  color: @info;
+}

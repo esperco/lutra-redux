@@ -25,13 +25,13 @@ describe("group-events / eventsDataReducer", () => {
     }
   }
 
-  describe("when handling FETCH_START", () => {
+  describe("when handling FETCH_QUERY_START", () => {
     it("sets FETCHING for each day of period", () => {
       let s = initState();
       let query = { labels: { all: true } };
       let s2 = eventsDataReducer(deepFreeze(s), {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_START",
+        dataType: "FETCH_QUERY_START",
         groupId: "my-group-id",
         period: { interval: "week", start: 100, end: 100 },
         query
@@ -66,7 +66,7 @@ describe("group-events / eventsDataReducer", () => {
 
       let s2 = eventsDataReducer(deepFreeze(s), {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_START",
+        dataType: "FETCH_QUERY_START",
         groupId: "my-group-id",
         period, query
       });
@@ -79,7 +79,7 @@ describe("group-events / eventsDataReducer", () => {
     });
   });
 
-  describe("when handling FETCH_END", () => {
+  describe("when handling FETCH_QUERY_END", () => {
     it("populates groupEventQueries with a list of eventIds for each day",
     () => {
       let now = new Date("2016-11-01");
@@ -106,7 +106,7 @@ describe("group-events / eventsDataReducer", () => {
       let query = { labels: { all: true } };
       let s2 = eventsDataReducer(deepFreeze(s), {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_END",
+        dataType: "FETCH_QUERY_END",
         groupId: "my-group-id",
         period, query,
         events: [e1, e2, e3]
@@ -172,7 +172,7 @@ describe("group-events / eventsDataReducer", () => {
 
       let s2 = eventsDataReducer(deepFreeze(s), {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_END",
+        dataType: "FETCH_QUERY_END",
         groupId: "my-group-id",
         period, query,
         events: [e1]
@@ -218,7 +218,7 @@ describe("group-events / eventsDataReducer", () => {
       let query = { labels: { all: true } };
       let s2 = eventsDataReducer(deepFreeze(s), {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_END",
+        dataType: "FETCH_QUERY_END",
         groupId: "my-group-id",
         period, query,
         events: [e1, e2]
@@ -230,7 +230,7 @@ describe("group-events / eventsDataReducer", () => {
     });
   });
 
-  describe("when handling FETCH_FAIL", () => {
+  describe("when handling FETCH_QUERY_FAIL", () => {
     it("marks groupEventQueries with FETCH_ERROR", () => {
       let s = initState();
       let period = fromDates("day",
@@ -240,7 +240,7 @@ describe("group-events / eventsDataReducer", () => {
       let query = { labels: { all: true } };
       let s2 = eventsDataReducer(deepFreeze(s), {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_FAIL",
+        dataType: "FETCH_QUERY_FAIL",
         groupId: "my-group-id",
         period, query
       });
@@ -276,7 +276,7 @@ describe("group-events / eventsDataReducer", () => {
 
       let s2 = eventsDataReducer(deepFreeze(s), {
         type: "GROUP_EVENTS_DATA",
-        dataType: "FETCH_FAIL",
+        dataType: "FETCH_QUERY_FAIL",
         groupId: "my-group-id",
         period, query
       });
@@ -367,6 +367,90 @@ describe("group-events / eventsDataReducer", () => {
       expect(
         (queryDays[period.end][queryKey1] as QueryResult).invalid
       ).to.be.true;
+    });
+  });
+
+  describe("when handling FETCH_IDS_START", () => {
+    it("sets FETCHING For given ids", () => {
+      let s = initState();
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_IDS_START",
+        groupId: "my-group-id",
+        eventIds: ["id1", "id2"]
+      });
+      expect(s2.groupEvents['my-group-id']["id1"]).to.equal("FETCHING");
+      expect(s2.groupEvents['my-group-id']["id2"]).to.equal("FETCHING");
+    });
+
+    it("replaces FETCH_ERROR but does not replace existing data with FETCHING",
+    () => {
+      let s = initState();
+      let e2 = makeEvent({ id: "id2" })
+      s.groupEvents['my-group-id'] = {
+        id1: "FETCH_ERROR",
+        id2: e2
+      };
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_IDS_START",
+        groupId: "my-group-id",
+        eventIds: ["id1", "id2"]
+      });
+      expect(s2.groupEvents['my-group-id']["id1"]).to.equal("FETCHING");
+      expect(s2.groupEvents['my-group-id']["id2"]).to.deep.equal(e2);
+    });
+  });
+
+  describe("when handling FETCH_IDS_END", () => {
+    it("replaces existing items with data", () => {
+      let s = initState();
+      let e1 = makeEvent({ id: "id1" });
+      let e2 = makeEvent({ id: "id2" });
+      let e3a = makeEvent({ id: "id3", title: "Old" });
+      let e3b = makeEvent({ id: "id3", title: "New" });
+      s.groupEvents['my-group-id'] = {
+        id1: "FETCHING",
+        id3: e3a
+      };
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_IDS_END",
+        groupId: "my-group-id",
+        eventIds: ["id1", "id2", "id3"],
+        events: [e1, e2, e3b]
+      });
+      expect(s2.groupEvents['my-group-id']["id1"]).to.deep.equal(e1);
+      expect(s2.groupEvents['my-group-id']["id2"]).to.deep.equal(e2);
+      expect(s2.groupEvents['my-group-id']["id3"]).to.deep.equal(e3b);
+    });
+
+    it("sets FETCH_ERROR for each event it was not able to fetch", () => {
+      let s = initState();
+      let e1 = makeEvent({ id: "id1" });
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_IDS_END",
+        groupId: "my-group-id",
+        eventIds: ["id1", "id2"],
+        events: [e1]
+      });
+      expect(s2.groupEvents['my-group-id']["id1"]).to.deep.equal(e1);
+      expect(s2.groupEvents['my-group-id']["id2"]).to.equal("FETCH_ERROR");
+    });
+
+    it("does not replace existing data with FETCH_ERROR", () => {
+      let s = initState();
+      let e1 = makeEvent({ id: "id1" });
+      s.groupEvents['my-group-id'] = { id1: e1 };
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_IDS_END",
+        groupId: "my-group-id",
+        eventIds: ["id1"],
+        events: []
+      });
+      expect(s2.groupEvents['my-group-id']["id1"]).to.deep.equal(e1);
     });
   });
 });

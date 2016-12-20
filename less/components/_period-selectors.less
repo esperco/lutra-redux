@@ -3,16 +3,19 @@ header {
     display: flex;
 
     > * {
-      flex: 0 1 auto;
+      flex: 1 1 auto;
+      min-width: 1em;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
     }
 
     > *:first-child { // Left button
-      flex: 1 1 auto;
+      flex: 1000 1000 auto;
       text-align: right;
     }
 
     > *:last-child { // Right button
-      flex: 1 1 auto;
+      flex: 1000 1000 auto;
       text-align: left;
     }
   }

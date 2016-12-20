@@ -27,24 +27,18 @@ export type EventsQueryState = Array<{
   [index: string]: StoreData<QueryResult>;
 }>;
 
+export type EventMap = StoreMap<ApiT.GenericCalendarEvent>;
+
 export interface EventsState {
   // groupId to another map
   groupEvents: {
-    [index: string]: StoreMap<ApiT.GenericCalendarEvent>;
+    [index: string]: EventMap;
   };
 
   // groupId to another map
   groupEventQueries: {
     [index: string]: EventsQueryState;
   };
-}
-
-export interface EventsFetchRequestAction {
-  type: "GROUP_EVENTS_DATA";
-  dataType: "FETCH_START";
-  groupId: string;
-  period: GenericPeriod;
-  query: Query;
 }
 
 export interface EventsPushAction {
@@ -54,27 +48,52 @@ export interface EventsPushAction {
   events: ApiT.GenericCalendarEvent[];
 }
 
-export interface EventsFetchResponseAction {
+export interface EventsFetchQueryRequestAction {
   type: "GROUP_EVENTS_DATA";
-  dataType: "FETCH_END";
+  dataType: "FETCH_QUERY_START";
+  groupId: string;
+  period: GenericPeriod;
+  query: Query;
+}
+
+export interface EventsFetchQueryResponseAction {
+  type: "GROUP_EVENTS_DATA";
+  dataType: "FETCH_QUERY_END";
   groupId: string;
   period: GenericPeriod;
   query: Query;
   events: ApiT.GenericCalendarEvent[];
 }
 
-export interface EventsFetchFailAction {
+export interface EventsFetchQueryFailAction {
   type: "GROUP_EVENTS_DATA";
-  dataType: "FETCH_FAIL";
+  dataType: "FETCH_QUERY_FAIL";
   groupId: string;
   period: GenericPeriod;
   query: Query;
 }
 
+export interface EventsFetchIdsRequestAction {
+  type: "GROUP_EVENTS_DATA";
+  dataType: "FETCH_IDS_START";
+  groupId: string;
+  eventIds: string[];
+}
+
+export interface EventsFetchIdsResponseAction {
+  type: "GROUP_EVENTS_DATA";
+  dataType: "FETCH_IDS_END";
+  groupId: string;
+  eventIds: string[];
+  events: ApiT.GenericCalendarEvent[];
+}
+
 export type EventsDataAction =
-  EventsFetchRequestAction|
-  EventsFetchResponseAction|
-  EventsFetchFailAction|
+  EventsFetchQueryRequestAction|
+  EventsFetchQueryResponseAction|
+  EventsFetchQueryFailAction|
+  EventsFetchIdsRequestAction|
+  EventsFetchIdsResponseAction|
   EventsPushAction;
 
 export function eventsDataReducer<S extends EventsState> (
@@ -93,14 +112,20 @@ export function eventsDataReducer<S extends EventsState> (
   };
 
   switch (action.dataType) {
-    case "FETCH_START":
-      reduceFetchRequest(queryDays(), action);
+    case "FETCH_QUERY_START":
+      reduceFetchQueryRequest(queryDays(), action);
       break;
-    case "FETCH_END":
-      reduceFetchResponse(queryDays(), eventMap(), action);
+    case "FETCH_QUERY_END":
+      reduceFetchQueryResponse(queryDays(), eventMap(), action);
       break;
-    case "FETCH_FAIL":
-      reduceFetchFail(queryDays(), action);
+    case "FETCH_QUERY_FAIL":
+      reduceFetchQueryFail(queryDays(), action);
+      break;
+    case "FETCH_IDS_START":
+      reduceFetchIdsRequest(eventMap(), action);
+      break;
+    case "FETCH_IDS_END":
+      reduceFetchIdsResponse(eventMap(), action);
       break;
     default: // PUSH
       reducePush(queryDays(), eventMap(), action);
@@ -111,8 +136,8 @@ export function eventsDataReducer<S extends EventsState> (
 
 /* Below functions mutate -- assume already cloned from above for below */
 
-function reduceFetchRequest(
-  queryDays: EventsQueryState, action: EventsFetchRequestAction
+function reduceFetchQueryRequest(
+  queryDays: EventsQueryState, action: EventsFetchQueryRequestAction
 ) {
   let days = toDays(action.period);
   let queryKey = stringify(action.query);
@@ -124,10 +149,10 @@ function reduceFetchRequest(
   }
 }
 
-function reduceFetchResponse(
+function reduceFetchQueryResponse(
   queryDays: EventsQueryState,
   eventMap: StoreMap<ApiT.GenericCalendarEvent>,
-  action: EventsFetchResponseAction
+  action: EventsFetchQueryResponseAction
 ) {
   // Create a list for each event - day combo
   let days = toDays(action.period);
@@ -162,9 +187,9 @@ function reduceFetchResponse(
   });
 }
 
-function reduceFetchFail(
+function reduceFetchQueryFail(
   queryDays: EventsQueryState,
-  action: EventsFetchFailAction
+  action: EventsFetchQueryFailAction
 ) {
   let days = toDays(action.period);
   let queryKey = stringify(action.query);
@@ -199,6 +224,34 @@ function reducePush(
 
     // Update actual event
     eventMap[event.id] = event;
+  });
+}
+
+function reduceFetchIdsRequest(
+  eventMap: StoreMap<ApiT.GenericCalendarEvent>,
+  action: EventsFetchIdsRequestAction
+) {
+  _.each(action.eventIds, (id) => {
+    if (! ok(eventMap[id])) {
+      eventMap[id] = "FETCHING";
+    }
+  });
+}
+
+function reduceFetchIdsResponse(
+  eventMap: StoreMap<ApiT.GenericCalendarEvent>,
+  action: EventsFetchIdsResponseAction
+) {
+  // Anything id in the list gets marked as error unless replaced by
+  // actual data
+  _.each(action.eventIds, (id) => {
+    if (! ready(eventMap[id])) {
+      eventMap[id] = "FETCH_ERROR";
+    }
+  });
+
+  _.each(action.events, (e) => {
+    eventMap[e.id] = e;
   });
 }
 
