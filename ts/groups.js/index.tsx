@@ -70,6 +70,8 @@ let store = createStore(
         return Groups.groupUpdateReducer(state, action);
       case "GROUP_EVENTS_DATA":
         return Events.eventsDataReducer(state, action);
+      case "GROUP_EVENTS_UPDATE":
+        return Events.eventsUpdateReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);

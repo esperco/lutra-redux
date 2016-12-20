@@ -13,6 +13,7 @@ import * as Routes from "./routes";
 export type Action =
   DataStatus.DataAction|
   Events.EventsDataAction|
+  Events.EventsUpdateAction|
   Groups.GroupDataAction|
   Groups.GroupUpdateAction|
   Login.LoginAction|

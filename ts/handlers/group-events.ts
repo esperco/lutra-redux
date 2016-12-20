@@ -1,9 +1,15 @@
 import * as ApiT from "../lib/apiT";
 import * as _ from "lodash";
+import { setGroupLabels } from "./groups";
 import { ApiSvc } from "../lib/api";
+import { getLabels, updateLabelList } from "../lib/event-labels";
 import { GenericPeriod, bounds, toDays } from "../lib/period";
+import { QueueMap } from "../lib/queue";
 import { ready, ok } from "../states/data-status";
-import { Query, EventsState, EventsDataAction } from "../states/group-events";
+import { GroupState, GroupUpdateAction } from "../states/groups";
+import {
+  Query, EventsState, EventsDataAction, EventsUpdateAction
+} from "../states/group-events";
 import * as stringify from "json-stable-stringify";
 
 export function fetchGroupEvents(props: {
@@ -128,4 +134,108 @@ export function fetchByIds(props: {
   Svcs: ApiSvc;
 }) {
 
+}
+
+
+/* Labeling */
+
+interface LabelRequest extends ApiT.LabelsSetPredictRequest {
+  Svcs: ApiSvc;
+}
+
+export function processLabelRequests(
+  groupId: string,
+  queue: LabelRequest[],
+) {
+  let Svcs = _.last(queue).Svcs;
+  let setLabels: { [id: string]: {
+    id: string;
+    labels?: string[];
+    attended?: boolean;
+  } } = {};
+  let predictLabels: string[] = [];
+
+  // Left to right, override previous results with new ones
+  _.each(queue, (q) => {
+    _.each(q.set_labels, (s) => {
+      setLabels[s.id] = { ...setLabels[s.id], ...s };
+    });
+    _.each(q.predict_labels, (id) => predictLabels.push(id));
+  });
+
+  return Svcs.Api.setPredictGroupLabels(groupId, {
+    set_labels: _.values(setLabels),
+    predict_labels: _.uniq(predictLabels)
+  }).then(() => []);
+}
+
+export const LabelQueues = new QueueMap<LabelRequest>(processLabelRequests);
+
+
+/*
+  Toggle a label for a given set of events. Adds to group label if applicable.
+*/
+export function setGroupEventLabels(props: {
+  groupId: string;
+  eventIds: string[];
+  label: ApiT.LabelInfo;
+  active: boolean;
+}, deps: {
+  dispatch: (a: EventsUpdateAction|GroupUpdateAction) => any;
+  state: EventsState & GroupState;
+  Svcs: ApiSvc;
+}) {
+  // Dispatch changes to store
+  deps.dispatch({
+    type: "GROUP_EVENTS_UPDATE",
+    groupId: props.groupId,
+    eventIds: props.eventIds,
+    addLabels: props.active ? [props.label] : [],
+    rmLabels: props.active ? [] : [props.label]
+  });
+
+  // For label API call
+  let request: ApiT.LabelsSetPredictRequest = {
+    set_labels: [],
+    predict_labels: []
+  };
+
+  // Apply label change to each event in list
+  _.each(props.eventIds, (id) => {
+    let event = (deps.state.groupEvents[props.groupId] || {})[id];
+    if (ready(event)) {
+
+      // Add or remove labels from each event
+      let labels = updateLabelList(getLabels(event), {
+        add: props.active ? [props.label] : [],
+        rm: props.active ? [] : [props.label]
+      });
+
+      // Set complete set of labels in request (this may clobber other
+      // requests but that's the nature of the API for now)
+      request.set_labels.push({
+        id: event.id,
+        labels: _.map(labels, (l) => l.original)
+      });
+    }
+  });
+
+  // Also need to set new group labels
+  var groupLabelPromise: Promise<any> = Promise.resolve();
+  if (props.active) {
+    groupLabelPromise = setGroupLabels({
+      groupId: props.groupId,
+      addLabels: [props.label]
+    }, deps);
+  }
+
+  // API queue
+  let queue = LabelQueues.get(props.groupId);
+
+  // Apply group labels first (actually a bug since we should be able to
+  // run these in parallel but whatever).
+  // TODO: Fix when API updated.
+  return groupLabelPromise.then(() => queue.enqueue({
+    ...request, Svcs: deps.Svcs
+  }));
 }

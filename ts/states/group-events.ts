@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
 import { AllSomeNone } from "../lib/asn";
+import { updateLabelList } from "../lib/event-labels";
 import { GenericPeriod, toDays, fromDates } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
 import * as stringify from "json-stable-stringify";
@@ -39,13 +40,6 @@ export interface EventsState {
   groupEventQueries: {
     [index: string]: EventsQueryState;
   };
-}
-
-export interface EventsPushAction {
-  type: "GROUP_EVENTS_DATA";
-  dataType: "PUSH";
-  groupId: string;
-  events: ApiT.GenericCalendarEvent[];
 }
 
 export interface EventsFetchQueryRequestAction {
@@ -93,8 +87,15 @@ export type EventsDataAction =
   EventsFetchQueryResponseAction|
   EventsFetchQueryFailAction|
   EventsFetchIdsRequestAction|
-  EventsFetchIdsResponseAction|
-  EventsPushAction;
+  EventsFetchIdsResponseAction;
+
+export interface EventsUpdateAction {
+  type: "GROUP_EVENTS_UPDATE";
+  groupId: string;
+  eventIds: string[];
+  addLabels?: ApiT.LabelInfo[];
+  rmLabels?: ApiT.LabelInfo[];
+}
 
 export function eventsDataReducer<S extends EventsState> (
   state: S, action: EventsDataAction
@@ -127,12 +128,91 @@ export function eventsDataReducer<S extends EventsState> (
     case "FETCH_IDS_END":
       reduceFetchIdsResponse(eventMap(), action);
       break;
-    default: // PUSH
-      reducePush(queryDays(), eventMap(), action);
   }
 
   return state;
 }
+
+export function eventsUpdateReducer<S extends EventsState>(
+  state: S, action: EventsUpdateAction
+): S {
+  let { groupId } = action;
+  let eventsMap = state.groupEvents[groupId] || {};
+  let queryDays = state.groupEventQueries[groupId] || [];
+
+  // These should both be partial but index signature on array type is weird
+  let eventsMapUpdate: Partial<EventMap> = {};
+  let queryDaysUpdate: EventsQueryState = [];
+
+  _.each(action.eventIds, (id) => {
+    let event = eventsMap[id];
+    if (ready(event)) {
+      eventsMapUpdate[event.id] = reduceEventUpdate(event, action);
+
+      /*
+        Mark each day touched by this event for query invalidation. Don't
+        actually invalidate just yet to avoid duplication if event days
+        overlap.
+      */
+      let period = fromDates("day",
+        moment(event.start).toDate(),
+        moment(event.end).toDate());
+
+      _.each(_.range(period.start, period.end + 1), (day) => {
+        queryDaysUpdate[day] = {};
+      });
+    }
+  });
+
+  // Actual invalidation of each query day
+  for (let i in queryDaysUpdate) {
+    queryDaysUpdate[i] = _.mapValues(queryDays[i],
+      (v, k) => ready(v) ? { ...v, invalid: true } : v
+    );
+  }
+
+  let update: Partial<EventsState> = {
+    groupEvents: {
+      ...state.groupEvents,
+      [groupId]: { ...eventsMap, ...eventsMapUpdate }
+    },
+
+    groupEventQueries: {
+      ...state.groupEventQueries,
+      [groupId]: mergeQueryStates(queryDays, queryDaysUpdate)
+    }
+  };
+  return _.extend({}, state, update);
+}
+
+// Update a single event based on action
+function reduceEventUpdate(
+  event: ApiT.GenericCalendarEvent,
+  action: EventsUpdateAction
+) {
+  // Labels
+  let labels = event.labels || [];
+  if (action.addLabels || action.rmLabels) {
+    labels = updateLabelList(labels, {
+      add: action.addLabels,
+      rm: action.rmLabels
+    });
+  }
+  return { ...event, labels };
+}
+
+// Merges group event query day arrays, returns a new state
+function mergeQueryStates(...states: EventsQueryState[]): EventsQueryState {
+  let ret: EventsQueryState = [];
+  _.each(states, (s) => {
+    // Use normal iterator because of sparesly populated array
+    for (let i in s) {
+      ret[i] = s[i];
+    }
+  });
+  return ret;
+}
+
 
 /* Below functions mutate -- assume already cloned from above for below */
 
@@ -199,32 +279,6 @@ function reduceFetchQueryFail(
       queryMap[queryKey] = "FETCH_ERROR";
     }
   }
-}
-
-function reducePush(
-  queryDays: EventsQueryState,
-  eventMap: StoreMap<ApiT.GenericCalendarEvent>,
-  action: EventsPushAction
-) {
-  _.each(action.events, (event) => {
-    // Invalidate queries on each day event touches
-    let period = fromDates("day",
-      moment(event.start).toDate(),
-      moment(event.end).toDate());
-
-    _.each(_.range(period.start, period.end + 1), (day) => {
-       let queryMap = queryDays[day] = _.clone(queryDays[day]) || {};
-       _.each(queryMap, (v, k) => {
-         if (k && ready(v)) {
-           v = queryMap[k] = _.clone(v);
-           v.invalid = true;
-         }
-       });
-    });
-
-    // Update actual event
-    eventMap[event.id] = event;
-  });
 }
 
 function reduceFetchIdsRequest(

@@ -1,30 +1,31 @@
 import * as _ from "lodash";
 import { expect } from "chai";
 import {
-  eventsDataReducer, initState, EventsState, QueryResult
+  eventsDataReducer, eventsUpdateReducer,
+  initState, EventsState, QueryResult
 } from "./group-events";
 import makeEvent from "../fakes/events-fake";
+import { newLabel, resetColors } from "../lib/event-labels";
 import { Period, fromDates } from "../lib/period";
 import { sandbox } from "../lib/sandbox";
 import { deepFreeze } from "../lib/util";
 import * as stringify from "json-stable-stringify";
 
-describe("group-events / eventsDataReducer", () => {
-
-  // Helper function to pre-populate state for each day in period (and one
-  // day before and after)
-  function prePop(
-    state: EventsState,
-    groupId: string,
-    period: Period<"day">
-  ) {
-    state.groupEventQueries[groupId] = state.groupEventQueries[groupId] || [];
-    state.groupEvents[groupId] = state.groupEvents[groupId] || {};
-    for (let i = period.start - 1; i <= period.end + 1; i++){
-      state.groupEventQueries[groupId][i] = {};
-    }
+// Helper function to pre-populate state for each day in period (and one
+// day before and after)
+function prePop(
+  state: EventsState,
+  groupId: string,
+  period: Period<"day">
+) {
+  state.groupEventQueries[groupId] = state.groupEventQueries[groupId] || [];
+  state.groupEvents[groupId] = state.groupEvents[groupId] || {};
+  for (let i = period.start - 1; i <= period.end + 1; i++) {
+    state.groupEventQueries[groupId][i] = {};
   }
+}
 
+describe("group-events / eventsDataReducer", () => {
   describe("when handling FETCH_QUERY_START", () => {
     it("sets FETCHING for each day of period", () => {
       let s = initState();
@@ -289,87 +290,6 @@ describe("group-events / eventsDataReducer", () => {
     });
   });
 
-  describe("when handling PUSH", () => {
-    it("replaces event data", () => {
-      let e1a = makeEvent({ id: "e1",
-        start: "2016-10-01T08:00:00.000",
-        end:   "2016-10-02T08:00:00.000",
-      });
-      let e1b = makeEvent({ id: "e1",
-        start: "2016-10-02T09:00:00.000",
-        end:   "2016-10-03T02:00:00.000",
-      });
-
-      let s = initState();
-      s.groupEvents["my-group-id"] = { "e1": e1a };
-
-      let s2 = eventsDataReducer(deepFreeze(s), {
-        type: "GROUP_EVENTS_DATA",
-        dataType: "PUSH",
-        groupId: "my-group-id",
-        events: [e1b]
-      });
-      expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal(e1b);
-    });
-
-    it("invalidates event queries", () => {
-      let s = initState();
-      let period = fromDates("day",
-        new Date("2016-10-01"),
-        new Date("2016-10-03")
-      );
-
-      let query1 = { labels: { all: true } };
-      let queryKey1 = stringify(query1);
-      let oldData1 = {
-        query: query1,
-        eventIds: ["test-1"],
-        updatedOn: new Date()
-      }
-
-      let query2 = { labels: { none: true } };
-      let queryKey2 = stringify(query1);
-      let oldData2 = {
-        query: query2,
-        eventIds: ["test-2"],
-        updatedOn: new Date()
-      }
-
-      prePop(s, "my-group-id", period);
-      let queryDays = s.groupEventQueries["my-group-id"];
-      queryDays[period.start][queryKey1] = _.clone(oldData1);
-      queryDays[period.start + 1][queryKey1] = _.clone(oldData1);
-      queryDays[period.start + 1][queryKey2] = _.clone(oldData2);
-      queryDays[period.end][queryKey1] = _.clone(oldData1);
-      queryDays[period.end + 1][queryKey1] = _.clone(oldData1);
-
-      let e1 = makeEvent({ id: "e1",
-        start: "2016-10-02T08:00:00.000",
-        end:   "2016-10-03T08:00:00.000",
-      });
-      let s2 = eventsDataReducer(deepFreeze(s), {
-        type: "GROUP_EVENTS_DATA",
-        dataType: "PUSH",
-        groupId: "my-group-id",
-        events: [e1]
-      });
-
-      queryDays = s2.groupEventQueries["my-group-id"];
-      expect(
-        (queryDays[period.start][queryKey1] as QueryResult).invalid
-      ).to.not.be.ok;
-      expect(
-        (queryDays[period.start + 1][queryKey1] as QueryResult).invalid
-      ).to.be.true;
-      expect(
-        (queryDays[period.start + 1][queryKey2] as QueryResult).invalid
-      ).to.be.true;
-      expect(
-        (queryDays[period.end][queryKey1] as QueryResult).invalid
-      ).to.be.true;
-    });
-  });
-
   describe("when handling FETCH_IDS_START", () => {
     it("sets FETCHING For given ids", () => {
       let s = initState();
@@ -452,5 +372,114 @@ describe("group-events / eventsDataReducer", () => {
       });
       expect(s2.groupEvents['my-group-id']["id1"]).to.deep.equal(e1);
     });
+  });
+});
+
+
+//////////
+
+describe("eventsUpdateReducer", () => {
+  beforeEach(() => {
+    resetColors();
+  });
+
+  // Constants for testing labels
+  const label1 = newLabel("Label 1");
+  const label2 = newLabel("Label 2");
+  const ev = makeEvent({ id: "e1",
+    labels: [label1]
+  });
+  const s1 = deepFreeze({
+    ...initState(),
+    groupEvents: { ["my-group-id"]: { "e1": ev } }
+  });
+
+  it("updates label data", () => {
+    let s2 = eventsUpdateReducer(s1, {
+      type: "GROUP_EVENTS_UPDATE",
+      groupId: "my-group-id",
+      eventIds: [ev.id],
+      addLabels: [label2],
+      rmLabels: [label1]
+    });
+    expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+      ...ev,
+      labels: [label2]
+    });
+  });
+
+  it("should not duplicate labels", () => {
+    let s2 = eventsUpdateReducer(s1, {
+      type: "GROUP_EVENTS_UPDATE",
+      groupId: "my-group-id",
+      eventIds: [ev.id],
+      addLabels: [label1, label2, label2]
+    });
+    expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+      ...ev,
+      labels: [label1, label2]
+    });
+  });
+
+  it("invalidates event queries", () => {
+    let s = initState();
+    let period = fromDates("day",
+      new Date("2016-10-01"),
+      new Date("2016-10-03")
+    );
+
+    let query1 = { labels: { all: true } };
+    let queryKey1 = stringify(query1);
+    let oldData1 = {
+      query: query1,
+      eventIds: ["test-1"],
+      updatedOn: new Date()
+    }
+
+    let query2 = { labels: { none: true } };
+    let queryKey2 = stringify(query1);
+    let oldData2 = {
+      query: query2,
+      eventIds: ["test-2"],
+      updatedOn: new Date()
+    }
+
+    let e1 = makeEvent({ id: "e1",
+      start: "2016-10-02T08:00:00.000",
+      end:   "2016-10-03T08:00:00.000",
+    });
+
+    prePop(s, "my-group-id", period);
+    s.groupEvents["my-group-id"]["e1"] = e1;
+    let queryDays = s.groupEventQueries["my-group-id"];
+    queryDays[period.start][queryKey1] = _.clone(oldData1);
+    queryDays[period.start + 1][queryKey1] = _.clone(oldData1);
+    queryDays[period.start + 1][queryKey2] = _.clone(oldData2);
+    queryDays[period.end][queryKey1] = _.clone(oldData1);
+    queryDays[period.end + 1][queryKey1] = _.clone(oldData1);
+
+    let s2 = eventsUpdateReducer(deepFreeze(s), {
+      type: "GROUP_EVENTS_UPDATE",
+      groupId: "my-group-id",
+      eventIds: [e1.id],
+      addLabels: [label1]
+    });
+
+    queryDays = s2.groupEventQueries["my-group-id"];
+    expect(
+      (queryDays[period.start][queryKey1] as QueryResult).invalid
+    ).to.not.be.ok;
+    expect(
+      (queryDays[period.start + 1][queryKey1] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.start + 1][queryKey2] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.end][queryKey1] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.end + 1][queryKey1] as QueryResult).invalid
+    ).to.not.be.ok;
   });
 });

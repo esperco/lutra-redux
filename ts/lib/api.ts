@@ -175,6 +175,18 @@ namespace Api {
             + "/" + string(groupId);
     return JsonHttp.postGet(url, q);
   }
+
+
+  /* Labeling */
+
+  export function setPredictGroupLabels(
+    groupId: string,
+    req: ApiT.LabelsSetPredictRequest
+  ) : Promise<ApiT.GenericCalendarEvents> {
+    var url = prefix + "/api/group/event/labels/set-predict/" + myUid()
+            + "/" + string(groupId);
+    return JsonHttp.post(url, req);
+  }
 }
 
 export interface ApiSvc {
