@@ -137,6 +137,25 @@ namespace Api {
       + "/" + string(groupName);
     return JsonHttp.put(url);
   }
+
+
+  /* Events */
+
+  export function postForTeamEvents(teamId: string, q: ApiT.CalendarRequest):
+    Promise<ApiT.GenericCalendarEventsCollection>
+  {
+    var url = prefix + "/api/ts/events-team/" + myUid()
+            + "/" + string(teamId);
+    return JsonHttp.postGet(url, q);
+  }
+
+  export function postForGroupEvents(groupId: string, q: ApiT.CalendarRequest):
+    Promise<ApiT.GenericCalendarEventsCollection>
+  {
+    var url = prefix + "/api/ts/events-group/" + myUid()
+            + "/" + string(groupId);
+    return JsonHttp.postGet(url, q);
+  }
 }
 
 export interface ApiSvc {

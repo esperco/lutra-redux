@@ -2,15 +2,15 @@
   A calendar range selector that lets us increment by fixed intervals
 */
 import * as React from "react";
-import { Period, fromDates, bounds, add } from "../lib/period";
+import { GenericPeriod, fromDates, bounds, add } from "../lib/period";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import { RangeSelector } from "./CalendarSelectors";
 import { fmtPeriod } from "../text/periods";
 
 interface Props {
-  value: Period;
-  onChange: (period: Period) => void;
+  value: GenericPeriod;
+  onChange: (period: GenericPeriod) => void;
 }
 
 export class PeriodSelector extends React.Component<Props, {}> {
@@ -51,7 +51,7 @@ export class PeriodSelector extends React.Component<Props, {}> {
     this.change(add(this.props.value, i));
   }
 
-  change(period: Period) {
+  change(period: GenericPeriod) {
     if (this._dropdown) {
       this._dropdown.close();
     }

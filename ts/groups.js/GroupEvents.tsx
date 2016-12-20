@@ -17,14 +17,14 @@ import { NavSvc } from "../lib/routing";
 import GroupLabelsSelector from "./GroupLabelsSelector";
 import * as LabelText from "../text/labels";
 import * as ASN from "../lib/asn";
-import { Period } from "../lib/period";
+import { GenericPeriod } from "../lib/period";
 
 class RouteProps {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
   labels: ASN.AllSomeNone;
-  period: Period;
+  period: GenericPeriod;
 }
 
 class Props extends RouteProps {

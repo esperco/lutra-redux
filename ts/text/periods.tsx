@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import * as moment from "moment";
-import { Interval, Period, bounds } from "../lib/period";
+import { Interval, GenericPeriod, bounds } from "../lib/period";
 
 // Period selector text
 export const Day = `Day`;
@@ -22,7 +22,7 @@ export function time(d: Date|moment.Moment|string) {
 }
 
 // Format a period as a single string
-export function fmtPeriod(p: Period, short=false) {
+export function fmtPeriod(p: GenericPeriod, short=false) {
   let [start, end] = bounds(p);
   let startText = fmtPeriodDate(p.interval, start, short);
   if (p.start === p.end && p.interval !== 'day') {
@@ -47,7 +47,7 @@ function fmtPeriodDate(interval: Interval, d: Date, short=false) {
 }
 
 // Format a period as a list of strings
-export function fmtPeriodList(period: Period, short=false) {
+export function fmtPeriodList(period: GenericPeriod, short=false) {
   let { interval, start, end } = period;
   let indices = _.range(start, end + 1);
   return _.map(indices,

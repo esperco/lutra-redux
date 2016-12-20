@@ -85,7 +85,7 @@ export type StoreMap<T> = {
   Helper for saying data is an acceptable state -- useful for 'should I
   fetch this data?
 */
-export function ok<T>(data: StoreData<T>|undefined) {
+export function ok<T>(data: StoreData<T>|undefined): data is T|"FETCHING" {
   return !_.isUndefined(data) && data !== "FETCH_ERROR";
 }
 

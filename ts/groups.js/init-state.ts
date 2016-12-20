@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import { State } from "./types";
 import * as DataStatus from "../states/data-status";
+import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 
 /*
@@ -10,5 +11,6 @@ import * as Groups from "../states/groups";
 export default function initState(): State {
   let state1 = DataStatus.initState();
   let state2 = _.extend(state1, Groups.initState());
-  return state2;
+  let state3 = _.extend(state2, Events.initState());
+  return state3;
 }
