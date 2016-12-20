@@ -633,28 +633,6 @@ export interface CalendarEventPalette {
   palette: CalendarEventColor[];
 }
 
-/** The status of a guest at some specific event. */
-export interface GuestStatus {
-  guest        : Guest;
-  availability : string; // "yes", "no" or "maybe"
-}
-
-export interface PossibleTime {
-  guests   : GuestStatus[];
-  event_id : string;
-}
-
-export interface GroupEvent {
-  guests : Guest[];
-  times  : PossibleTime[];
-}
-
-export interface GuestPreferences {
-  taskid: string;
-  email: string;
-  timezone?: string;
-}
-
 export interface Recurrence {
   rrule : Recur[];
   exdate : string[];
