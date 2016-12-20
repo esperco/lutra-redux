@@ -3,19 +3,19 @@ import * as _ from "lodash";
 import { setGroupLabels } from "./groups";
 import { ApiSvc } from "../lib/api";
 import { updateEventLabels } from "../lib/event-labels";
+import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
 import { GenericPeriod, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import {
-  Query, EventsState, EventsDataAction, EventsUpdateAction
+  EventsState, EventsDataAction, EventsUpdateAction
 } from "../states/group-events";
-import * as stringify from "json-stable-stringify";
 
 export function fetchGroupEvents(props: {
   groupId: string;
   period: GenericPeriod;
-  query: Query;
+  query: QueryFilter;
 }, deps: {
   dispatch: (a: EventsDataAction) => any;
   state: EventsState;
@@ -30,10 +30,8 @@ export function fetchGroupEvents(props: {
     });
 
     let [start, end] = bounds(props.period);
-    return deps.Svcs.Api.postForGroupEvents(props.groupId, {
-      window_start: start.toISOString(),
-      window_end: end.toISOString()
-    }).then(
+    let request = toAPI(start, end, props.query);
+    return deps.Svcs.Api.postForGroupEvents(props.groupId, request).then(
       (result) => {
         /*
           NB: We currently have to sort through each calendar result in
@@ -81,7 +79,7 @@ function sortFn(e1: ApiT.GenericCalendarEvent, e2: ApiT.GenericCalendarEvent) {
 function shouldUpdate(props: {
   groupId: string;
   period: GenericPeriod;
-  query: Query;
+  query: QueryFilter;
 }, deps: {
   state: EventsState;
   Conf?: { cacheDuration: number }

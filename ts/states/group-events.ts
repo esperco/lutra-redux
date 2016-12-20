@@ -1,23 +1,14 @@
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
-import { AllSomeNone } from "../lib/asn";
 import { updateEventLabels } from "../lib/event-labels";
+import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, fromDates } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
-import * as stringify from "json-stable-stringify";
-
-/*
-  A query for a list of events -- time period and groupId are omitted here
-  because we nest down from groupID to each day to the query itself.
-*/
-export interface Query {
-  labels: AllSomeNone;
-}
 
 // Stored query result
 export interface QueryResult {
-  query: Query;       // Original query
+  query: QueryFilter; // Original query
   eventIds: string[]; // The result
   updatedOn: Date;    // For timed invalidation purposes
   invalid?: boolean;  // For forced invalidation
@@ -47,7 +38,7 @@ export interface EventsFetchQueryRequestAction {
   dataType: "FETCH_QUERY_START";
   groupId: string;
   period: GenericPeriod;
-  query: Query;
+  query: QueryFilter;
 }
 
 export interface EventsFetchQueryResponseAction {
@@ -55,7 +46,7 @@ export interface EventsFetchQueryResponseAction {
   dataType: "FETCH_QUERY_END";
   groupId: string;
   period: GenericPeriod;
-  query: Query;
+  query: QueryFilter;
   events: ApiT.GenericCalendarEvent[];
 }
 
@@ -64,7 +55,7 @@ export interface EventsFetchQueryFailAction {
   dataType: "FETCH_QUERY_FAIL";
   groupId: string;
   period: GenericPeriod;
-  query: Query;
+  query: QueryFilter;
 }
 
 export interface EventsFetchIdsRequestAction {

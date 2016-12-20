@@ -13,7 +13,7 @@ import GroupEventsList from "./GroupEventsList";
 import GroupLabelsSelector from "./GroupLabelsSelector";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
-import * as ASN from "../lib/asn";
+import { QueryFilter } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
@@ -23,7 +23,7 @@ class RouteProps {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
-  labels: ASN.AllSomeNone;
+  query: QueryFilter;
   period: GenericPeriod;
 }
 
@@ -49,7 +49,7 @@ class GroupEvents extends React.Component<Props, {}> {
             <h4>{ LabelText.Labels }</h4>
             <GroupLabelsSelector
               labels={labels}
-              selected={this.props.labels}
+              selected={this.props.query.labels}
               onChange={(x) => { Nav.go(eventList.href({
                 ...this.props, labels: x
               }))} }
@@ -98,9 +98,8 @@ class GroupEvents extends React.Component<Props, {}> {
   }
 
   renderEventDates() {
-    let query = { labels: this.props.labels };
     return <GroupEventsList
-      {...this.props} query={query}
+      {...this.props}
       eventHrefFn={(ev) => this.updateHref({
         eventId: ev.id,
         showFilters: false
@@ -143,9 +142,10 @@ class GroupEvents extends React.Component<Props, {}> {
 
   // Path with new props
   updateHref(updates: Partial<RouteProps>) {
-    let { groupId, showFilters, eventId, labels, period } = this.props;
+    let { groupId, showFilters, eventId, period } = this.props;
     return eventList.href({
-      groupId, showFilters, eventId, labels, period,
+      groupId, showFilters, eventId, period,
+      ...this.props.query,
       ...updates
     });
   }

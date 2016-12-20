@@ -1,4 +1,7 @@
-import { Path, StringParam, BooleanParam } from "../lib/routing";
+import {
+  Path, StringParam, NumberParam,
+  StringArrayParam, BooleanParam
+} from "../lib/routing";
 import { AllSomeNoneParam } from "../lib/asn";
 import { PeriodParam } from "../lib/period";
 
@@ -13,6 +16,9 @@ export const eventList = new Path({
     showFilters: BooleanParam,
     eventId: StringParam,
     labels: AllSomeNoneParam,
+    contains: StringParam,
+    participants: StringArrayParam,
+    minCost: NumberParam,
     period: PeriodParam
   },
   hash: ["event-list", ":groupId"]

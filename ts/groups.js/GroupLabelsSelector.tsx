@@ -12,7 +12,7 @@ import * as LabelText from "../text/labels";
 
 export class GroupLabelsSelector extends React.Component<{
   labels: GroupLabels;
-  selected: ASN.AllSomeNone;
+  selected?: ASN.AllSomeNone;
   onChange: (selected: ASN.AllSomeNone) => void;
   delay?: number;
 }, {}> {

@@ -5,6 +5,7 @@ import { LabelQueues as GroupLabelQueues } from "./groups";
 import { expect } from "chai";
 import { ApiSvc } from "../lib/api";
 import { expectCalledWith } from "../lib/expect-helpers";
+import { stringify, toAPI } from "../lib/event-queries";
 import { bounds } from "../lib/period";
 import { apiSvcFactory,
   stubApi, stubApiPlus, stubApiRet
@@ -15,7 +16,6 @@ import { newLabel, resetColors } from "../lib/event-labels";
 import { toDays } from "../lib/period";
 import { sandbox } from "../lib/sandbox";
 import makeEvent from "../fakes/events-fake";
-import * as stringify from "json-stable-stringify";
 import * as Sinon from "sinon";
 
 describe("Group Events handlers", function() {
@@ -68,10 +68,7 @@ describe("Group Events handlers", function() {
       fetchGroupEvents({ groupId, period, query }, deps);
 
       let [start, end] = bounds(period);
-      expectCalledWith(apiSpy, groupId, {
-        window_start: start.toISOString(),
-        window_end: end.toISOString()
-      });
+      expectCalledWith(apiSpy, groupId, toAPI(start, end, query));
     });
 
     it("dispatches a FETCH_QUERY_END on succesful return of data", (done) => {

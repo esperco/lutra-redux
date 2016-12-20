@@ -19,7 +19,7 @@ interface Choice {
 }
 
 interface Props {
-  selected: ASN.AllSomeNone;
+  selected?: ASN.AllSomeNone;
   onChange: (x: ASN.AllSomeNone) => void;
   delay?: number;  // milliseconds
   className?: string;
@@ -34,19 +34,25 @@ interface State {
   selected: ASN.AllSomeNone;
 }
 
+// If no selected, assume it means this
+const DEFAULT_ASN: ASN.AllSomeNone = {
+  all: true,
+  none: true
+};
+
 export class DelayedASNSelector extends React.Component<Props, State> {
   _timeout: number;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      selected: this.props.selected
+      selected: this.props.selected || DEFAULT_ASN
     };
   }
 
   componentWillReceiveProps(nextProps: Props) {
     this.setState({
-      selected: nextProps.selected
+      selected: nextProps.selected || DEFAULT_ASN
     });
   }
 
