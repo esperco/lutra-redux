@@ -1,0 +1,34 @@
+@import "../_text";
+
+// List itself
+.label-list {
+  line-height: @input-height-small;
+
+  .tag > * {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  button {
+    height: @input-height-small;
+    line-height: @input-height-small;
+    padding: 0 @padding-small;
+
+    i {
+      line-height: @input-height-small;
+      vertical-align: middle;
+    }
+  }
+
+  // Button at end is for adding tags, hide text if tags showing
+  .tag + button i + span {
+    .sr-only;
+  }
+}
+
+// Dropdown menu (may not be child of .label-list)
+.label-list-menu {
+  button { // Add label button
+    text-transform: none;
+  }
+}

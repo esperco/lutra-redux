@@ -7,10 +7,13 @@ import fmtText from "../lib/fmt-text";
 import * as EventText from "../text/events";
 import { ok, StoreData } from "../states/data-status";
 import Icon from "./Icon";
+import LabelList from "./LabelList";
 import Tooltip from "./Tooltip";
 
 interface Props {
   event: StoreData<ApiT.GenericCalendarEvent>|undefined;
+  labels: ApiT.LabelInfo[];
+  onChange: (x: ApiT.LabelInfo, active: boolean) => void;
 }
 
 export class EventEditor extends React.Component<Props, {}> {
@@ -61,6 +64,12 @@ export class EventEditor extends React.Component<Props, {}> {
         <div className="description">
           { fmtText(event.description) }
         </div> : null }
+
+      <LabelList
+        labels={this.props.labels}
+        events={[event]}
+        onChange={(ids, label, active) => this.props.onChange(label, active)}
+      />
 
       <GuestList guests={event.guests} />
     </div>

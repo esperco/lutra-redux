@@ -7,14 +7,15 @@
   margin: 0;
   padding: 0 @padding-small;
   font-size: @font-size-small;
-  height: @font-size-large;
-  line-height: @font-size-large;
+  height: @input-height-small;
+  line-height: @input-height-small;
   vertical-align: middle;
   border-radius: @border-radius-small;
   background: @brand-bg;
   color: @brand-contrast;
+  margin-right: @padding-small;
+}
 
-  + .tag {
-    margin-left: @padding-base;
-  }
+.tag + .tag {
+  margin-top: 0;
 }

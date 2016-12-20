@@ -91,7 +91,7 @@
 
   // Certain elements maintain full-width (but any vertical padding still
   // stacks)
-  .alert, progress, .checkbox-item, .radio-item, nav > a, .menu {
+  .alert, progress, .checkbox-item, .radio-item, nav > a, .menu, .menu button {
     margin-left: -@padding-base;
     margin-right: -@padding-base;
     border-radius: 0;
@@ -142,7 +142,7 @@
     font-size: @font-size-small;
     padding: @padding-small @padding-base;
 
-    &:hover, &:focus {
+    &:hover, &:focus, &.active {
       color: @text-highlight;
       background: @text-highlight-bg;
     }
@@ -163,9 +163,14 @@
 
   /* Button menus - style like selectors */
 
-  .menu, .panel.menu {
-    padding-left: 0;
-    padding-right: 0;
+  .menu {
+    * + * {
+      margin-top: 0;
+    }
+
+    button {
+      width: calc(~"100% + " 2 * @padding-base);
+    }
 
     > :first-child {
       margin-top: -@padding-small;
