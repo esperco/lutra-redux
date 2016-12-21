@@ -2,7 +2,7 @@ import * as ApiT from "../lib/apiT";
 import * as _ from "lodash";
 import { setGroupLabels } from "./groups";
 import { ApiSvc } from "../lib/api";
-import { getLabels, updateLabelList } from "../lib/event-labels";
+import { updateEventLabels } from "../lib/event-labels";
 import { GenericPeriod, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { ready, ok } from "../states/data-status";
@@ -139,7 +139,17 @@ export function fetchByIds(props: {
 
 /* Labeling */
 
-interface LabelRequest extends ApiT.LabelsSetPredictRequest {
+interface LabelRequest {
+  setLabels: {
+    id: string;
+    labels?: string[];
+    hashtags?: {
+      hashtag: string;    // Original
+      approved: boolean;
+    }[];
+    attended?: boolean;
+  }[];
+  predictLabels: string[];
   Svcs: ApiSvc;
 }
 
@@ -148,6 +158,10 @@ export function processLabelRequests(
   queue: LabelRequest[],
 ) {
   let Svcs = _.last(queue).Svcs;
+  let setHashtags: { [id: string]: {
+    hashtag: string;    // Original
+    approved: boolean;
+  }[] } = {}
   let setLabels: { [id: string]: {
     id: string;
     labels?: string[];
@@ -157,16 +171,44 @@ export function processLabelRequests(
 
   // Left to right, override previous results with new ones
   _.each(queue, (q) => {
-    _.each(q.set_labels, (s) => {
-      setLabels[s.id] = { ...setLabels[s.id], ...s };
+    _.each(q.setLabels, (s) => {
+      if (s.hashtags) {
+        setHashtags[s.id] = s.hashtags;
+      }
+      if (s.labels) {
+        setLabels[s.id] = {
+          ...setLabels[s.id],
+          id: s.id,
+          labels: s.labels
+        };
+      }
+      if (! _.isUndefined(s.attended)) {
+        setLabels[s.id] = {
+          ...setLabels[s.id],
+          id: s.id,
+          attended: s.attended
+        };
+      }
     });
-    _.each(q.predict_labels, (id) => predictLabels.push(id));
+    _.each(q.predictLabels, (id) => predictLabels.push(id));
   });
 
-  return Svcs.Api.setPredictGroupLabels(groupId, {
+  /*
+    API calls -- first hashtags, then labels, then clear queue.
+    TODO: Ideally, we'd like to combine hashtag conf and label setting in one
+    API call but that isn't available yet.
+  */
+  return Svcs.Api.batch(() => Promise.all(
+    _.map(setHashtags,
+      (h, eventId: string) => Svcs.Api.updateGroupHashtagStates(
+        groupId, eventId, {
+          hashtag_states: h
+        })
+    )
+  )).then(() => Svcs.Api.setPredictGroupLabels(groupId, {
     set_labels: _.values(setLabels),
     predict_labels: _.uniq(predictLabels)
-  }).then(() => []);
+  })).then(() => []);
 }
 
 export const LabelQueues = new QueueMap<LabelRequest>(processLabelRequests);
@@ -195,10 +237,14 @@ export function setGroupEventLabels(props: {
   });
 
   // For label API call
-  let request: ApiT.LabelsSetPredictRequest = {
-    set_labels: [],
-    predict_labels: []
+  let request: LabelRequest = {
+    setLabels: [],
+    predictLabels: [],
+    Svcs: deps.Svcs
   };
+
+  // Track if label actually updates for any event (vs. hashtag)
+  var hashtagOnly = true;
 
   // Apply label change to each event in list
   _.each(props.eventIds, (id) => {
@@ -206,23 +252,33 @@ export function setGroupEventLabels(props: {
     if (ready(event)) {
 
       // Add or remove labels from each event
-      let labels = updateLabelList(getLabels(event), {
+      let { hashtags, labels } = updateEventLabels(event, {
         add: props.active ? [props.label] : [],
         rm: props.active ? [] : [props.label]
       });
 
+      // Flag if this is a hashtag (hashtag-only updates don't trigger
+      // group label API call)
+      let isHashtag = !!_.find(event.hashtags,
+        (h) => !h.label && h.hashtag.normalized === props.label.normalized);
+      hashtagOnly = hashtagOnly && isHashtag;
+
       // Set complete set of labels in request (this may clobber other
       // requests but that's the nature of the API for now)
-      request.set_labels.push({
+      request.setLabels.push({
         id: event.id,
-        labels: _.map(labels, (l) => l.original)
+        labels: _.map(labels, (l) => l.original),
+        hashtags: _.map(hashtags, (h) => ({
+          hashtag: h.hashtag.original,
+          approved: h.approved !== false // Implicit approval
+        }))
       });
     }
   });
 
-  // Also need to set new group labels
+  // Also need to set new group labels (but not for hashtags)
   var groupLabelPromise: Promise<any> = Promise.resolve();
-  if (props.active) {
+  if (props.active && !hashtagOnly) {
     groupLabelPromise = setGroupLabels({
       groupId: props.groupId,
       addLabels: [props.label]
@@ -235,7 +291,5 @@ export function setGroupEventLabels(props: {
   // Apply group labels first (actually a bug since we should be able to
   // run these in parallel but whatever).
   // TODO: Fix when API updated.
-  return groupLabelPromise.then(() => queue.enqueue({
-    ...request, Svcs: deps.Svcs
-  }));
+  return groupLabelPromise.then(() => queue.enqueue(request));
 }

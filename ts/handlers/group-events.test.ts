@@ -3,9 +3,12 @@ import {
 } from "./group-events";
 import { LabelQueues as GroupLabelQueues } from "./groups";
 import { expect } from "chai";
+import { ApiSvc } from "../lib/api";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { bounds } from "../lib/period";
-import { apiSvcFactory, stubApi, stubApiPlus } from "../fakes/api-fake";
+import { apiSvcFactory,
+  stubApi, stubApiPlus, stubApiRet
+} from "../fakes/api-fake";
 import { initState as initGroupState } from "../states/groups"
 import { initState, EventsState, QueryResult } from "../states/group-events";
 import { newLabel, resetColors } from "../lib/event-labels";
@@ -13,6 +16,7 @@ import { toDays } from "../lib/period";
 import { sandbox } from "../lib/sandbox";
 import makeEvent from "../fakes/events-fake";
 import * as stringify from "json-stable-stringify";
+import * as Sinon from "sinon";
 
 describe("Group Events handlers", function() {
   // Common vars
@@ -210,6 +214,11 @@ describe("Group Events handlers", function() {
                 id: "e2",
                 labels: [label2]
               }),
+              e3: makeEvent({
+                id: "e3",
+                labels: [label2],
+                hashtags: [{ hashtag }]
+              })
             }
           }
         },
@@ -218,9 +227,10 @@ describe("Group Events handlers", function() {
     }
 
     // Common vars
-    const eventIds = ["e1", "e2"];
+    const eventIds = ["e1", "e2"]; // Ignore e3 (hashtag test only)
     const label1 = newLabel("L1");
     const label2 = newLabel("L2");
+    const hashtag = newLabel("#Hashtag");
 
     afterEach(() => {
       LabelQueues.reset();
@@ -264,8 +274,56 @@ describe("Group Events handlers", function() {
       });
     });
 
+    it("makes API call to update hashtags", (done) => {
+      let deps = getDeps();
+      let { stub, promise } = stubApiPlus(
+        deps.Svcs,
+        "updateGroupHashtagStates"
+      );
+      setGroupEventLabels({
+        groupId,
+        eventIds: ["e3"],
+        label: hashtag,
+        active: true
+      }, deps);
+      promise.then(() => {
+        expectCalledWith(stub, groupId, "e3", {
+          hashtag_states: [{
+            hashtag: hashtag.original,
+            approved: true
+          }]
+        });
+      }).then(done, done);
+    });
+
+    it("confirms hashtags implicitly", (done) => {
+      let deps = getDeps();
+      let { stub, promise } = stubApiPlus(
+        deps.Svcs,
+        "updateGroupHashtagStates"
+      );
+      setGroupEventLabels({
+        groupId,
+        eventIds: ["e3"],
+        label: label1,
+        active: true
+      }, deps);
+
+      // Even though hashtag is not the label, it gets confirmed anyway
+      // by virtue of just being on event
+      promise.then(() => {
+        expectCalledWith(stub, groupId, "e3", {
+          hashtag_states: [{
+            hashtag: hashtag.original,
+            approved: true
+          }]
+        });
+      }).then(done, done);
+    });
+
     it("makes API call to set event labels", (done) => {
       let deps = getDeps();
+      stubApiRet(deps.Svcs, "updateGroupHashtagStates");
       let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
       setGroupEventLabels({
         groupId,
@@ -329,109 +387,173 @@ describe("Group Events handlers", function() {
   });
 
   describe("processLabelRequests", () => {
-    it("includes last set of labels for each event id in API call", () => {
-      let Svcs = apiSvcFactory();
-      let apiSpy = sandbox.spy(Svcs.Api, "setPredictGroupLabels");
+    var Svcs: ApiSvc;
+    var hashtagStub: Sinon.SinonStub;
+    var labelStub: Sinon.SinonStub;
+    beforeEach(() => {
+      Svcs = apiSvcFactory();
+      hashtagStub = stubApiRet(Svcs, "updateGroupHashtagStates");
+      labelStub = stubApiRet(Svcs, "setPredictGroupLabels");
+    });
+
+    it("includes last set of labels for each event id in API call", (done) => {
       processLabelRequests("group-id", [{
-        set_labels: [{
+        setLabels: [{
           id: "e1",
           labels: ["L1"]
         }, {
           id: "e2",
           labels: ["L1"]
         }],
-        predict_labels: [],
+        predictLabels: [],
         Svcs
       }, {
-        set_labels: [{
+        setLabels: [{
           id: "e1",
           labels: ["L2", "L3"]
         }],
-        predict_labels: [],
+        predictLabels: [],
         Svcs
-      }]);
-      expectCalledWith(apiSpy, "group-id", {
-        set_labels: [{
+      }]).then(() => {
+        expectCalledWith(labelStub, "group-id", {
+          set_labels: [{
+            id: "e1",
+            labels: ["L2", "L3"]
+          }, {
+            id: "e2",
+            labels: ["L1"]
+          }],
+          predict_labels: []
+        });
+      }).then(done, done);
+    });
+
+    it("merges attend and label requests", (done) => {
+      processLabelRequests("group-id", [{
+        setLabels: [{
           id: "e1",
-          labels: ["L2", "L3"]
+          labels: ["L1"],
+          attended: true
+        }],
+        predictLabels: [],
+        Svcs
+      }, {
+        setLabels: [{
+          id: "e1",
+          attended: false
+        }],
+        predictLabels: [],
+        Svcs
+      }]).then(() => {
+        expectCalledWith(labelStub, "group-id", {
+          set_labels: [{
+            id: "e1",
+            labels: ["L1"],
+            attended: false
+          }],
+          predict_labels: []
+        });
+      }).then(done, done);
+    });
+
+    it("merges hashtags and labels", (done) => {
+      processLabelRequests("group-id", [{
+        setLabels: [{
+          id: "e1",
+          labels: ["L1"],
+          hashtags: [{
+            hashtag: "#hash1",
+            approved: false
+          }, {
+            hashtag: "#hash2",
+            approved: false
+          }]
+        }],
+        predictLabels: [],
+        Svcs
+      }, {
+        setLabels: [{
+          id: "e1",
+          hashtags: [{
+            hashtag: "#hash1",
+            approved: true
+          }, {
+            hashtag: "#hash2",
+            approved: false
+          }]
         }, {
           id: "e2",
-          labels: ["L1"]
+          hashtags: [{
+            hashtag: "#hash1",
+            approved: true
+          }]
         }],
-        predict_labels: []
-      });
+        predictLabels: [],
+        Svcs
+      }]).then(() => {
+        expectCalledWith(hashtagStub, "group-id", "e1", {
+          hashtag_states: [{
+            hashtag: "#hash1",
+            approved: true
+          }, {
+            hashtag: "#hash2",
+            approved: false
+          }]
+        });
+
+        expectCalledWith(hashtagStub, "group-id", "e2", {
+          hashtag_states: [{
+            hashtag: "#hash1",
+            approved: true
+          }]
+        });
+
+        expectCalledWith(labelStub, "group-id", {
+          set_labels: [{
+            id: "e1",
+            labels: ["L1"]
+          }],
+          predict_labels: []
+        });
+      }).then(done, done);
     });
 
-    it("merges attend and label requests", () => {
-      let Svcs = apiSvcFactory();
-      let apiSpy = sandbox.spy(Svcs.Api, "setPredictGroupLabels");
+    it("merges predict_labels field", (done) => {
       processLabelRequests("group-id", [{
-        set_labels: [{
+        setLabels: [{
           id: "e1",
           labels: ["L1"],
           attended: true
         }],
-        predict_labels: [],
+        predictLabels: ["e2", "e3"],
         Svcs
       }, {
-        set_labels: [{
-          id: "e1",
-          attended: false
-        }],
-        predict_labels: [],
+        setLabels: [],
+        predictLabels: ["e3", "e4"],
         Svcs
-      }]);
-      expectCalledWith(apiSpy, "group-id", {
-        set_labels: [{
-          id: "e1",
-          labels: ["L1"],
-          attended: false
-        }],
-        predict_labels: []
-      });
-    });
-
-    it("merges predict_labels field", () => {
-      let Svcs = apiSvcFactory();
-      let apiSpy = sandbox.spy(Svcs.Api, "setPredictGroupLabels");
-      processLabelRequests("group-id", [{
-        set_labels: [{
-          id: "e1",
-          labels: ["L1"],
-          attended: true
-        }],
-        predict_labels: ["e2", "e3"],
-        Svcs
-      }, {
-        set_labels: [],
-        predict_labels: ["e3", "e4"],
-        Svcs
-      }]);
-      expectCalledWith(apiSpy, "group-id", {
-        set_labels: [{
-          id: "e1",
-          labels: ["L1"],
-          attended: true
-        }],
-        predict_labels: ["e2", "e3", "e4"]
-      });
+      }]).then(() => {
+        expectCalledWith(labelStub, "group-id", {
+          set_labels: [{
+            id: "e1",
+            labels: ["L1"],
+            attended: true
+          }],
+          predict_labels: ["e2", "e3", "e4"]
+        });
+      }).then(done, done);
     });
 
     it("returns empty list", (done) => {
-      let Svcs = apiSvcFactory();
-      let { dfd } = stubApiPlus(Svcs, "setPredictGroupLabels");
       processLabelRequests("group-id", [{
-        set_labels: [{
+        setLabels: [{
           id: "e1",
           labels: ["L1"]
         }],
-        predict_labels: [],
+        predictLabels: [],
         Svcs
       }]).then((x) => {
         expect(x).to.deep.equal([]);
       }).then(done, done);
-
-      dfd.resolve({});
     });
   });
 });

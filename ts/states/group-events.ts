@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
 import { AllSomeNone } from "../lib/asn";
-import { updateLabelList } from "../lib/event-labels";
+import { updateEventLabels } from "../lib/event-labels";
 import { GenericPeriod, toDays, fromDates } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
 import * as stringify from "json-stable-stringify";
@@ -192,13 +192,16 @@ function reduceEventUpdate(
 ) {
   // Labels
   let labels = event.labels || [];
+  let hashtags = event.hashtags || [];
   if (action.addLabels || action.rmLabels) {
-    labels = updateLabelList(labels, {
+    let update = updateEventLabels(event, {
       add: action.addLabels,
       rm: action.rmLabels
     });
+    labels = update.labels;
+    hashtags = update.hashtags;
   }
-  return { ...event, labels };
+  return { ...event, labels, hashtags };
 }
 
 // Merges group event query day arrays, returns a new state

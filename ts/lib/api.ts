@@ -187,6 +187,14 @@ namespace Api {
             + "/" + string(groupId);
     return JsonHttp.post(url, req);
   }
+
+  export function updateGroupHashtagStates(groupId: string, eventId: string,
+    hashtagRequest: ApiT.HashtagRequest): Promise<void>
+  {
+    var url = `${prefix}/api/group/event/hashtags/${myUid()}`
+            + `/${string(groupId)}/${string(eventId)}`;
+    return JsonHttp.post(url, hashtagRequest);
+  }
 }
 
 export interface ApiSvc {

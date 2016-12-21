@@ -25,6 +25,14 @@ export function stubApiPlus(svc: ApiSvc, name: string) {
   return { dfd, stub, promise: cbDfd.promise() };
 }
 
+export function stubApiRet(svc: ApiSvc, name: string, val?: any) {
+  let Api: any = svc.Api;
+  let stub = Sinon.stub(Api, name, function() {
+    return Promise.resolve(val);
+  });
+  return stub;
+}
+
 // Factory function that spits out a fake API service for testing
 export function apiSvcFactory(): ApiSvc {
   // Iterate over each function and (with some exceptions) replace with one

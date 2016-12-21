@@ -386,8 +386,12 @@ describe("eventsUpdateReducer", () => {
   // Constants for testing labels
   const label1 = newLabel("Label 1");
   const label2 = newLabel("Label 2");
+  const hashtagState = {
+    hashtag: { original: "#Hashtag", normalized: "#hashtag" }
+  };
   const ev = makeEvent({ id: "e1",
-    labels: [label1]
+    labels: [label1],
+    hashtags: [hashtagState]
   });
   const s1 = deepFreeze({
     ...initState(),
@@ -418,6 +422,25 @@ describe("eventsUpdateReducer", () => {
     expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
       ...ev,
       labels: [label1, label2]
+    });
+  });
+
+  it("confirms hashtags matching labels", () => {
+    let s2 = eventsUpdateReducer(s1, {
+      type: "GROUP_EVENTS_UPDATE",
+      groupId: "my-group-id",
+      eventIds: [ev.id],
+      addLabels: [{
+        ...hashtagState.hashtag,
+        color: "#123456"
+      }]
+    });
+    expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+      ...ev,
+      hashtags: [{
+        ...hashtagState,
+        approved: true
+      }]
     });
   });
 

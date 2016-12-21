@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import { expect } from "chai";
+import { expectDeepIncludes } from "./expect-helpers";
 import * as EventLabels from "./event-labels";
 import makeEvent from "../fakes/events-fake";
 
@@ -119,17 +120,28 @@ describe("Event label helpers", () => {
       }))).to.deep.equal([label1]);
     });
 
-    it("includes user-chosen labels over everything else", () => {
-      expect(EventLabels.getLabels(makeEvent({
+    it("includes a union of user-chosen labels and hashtags", () => {
+      let labels = EventLabels.getLabels(makeEvent({
         predicted_labels: [{
           label: label1,
           score: 0.8
         }],
         hashtags: [{
           hashtag: hashtag1,
+        }, {
+          hashtag: hashtag2,
+          label: label3
         }],
         labels: [label2]
-      }))).to.deep.equal([label2]);
+      }));
+
+      expect(labels).to.have.length(3);
+      expectDeepIncludes(labels, label2);
+      expectDeepIncludes(labels, label3);
+
+      let hashtag = _.find(labels,
+        (l) => l.normalized === hashtag1.normalized);
+      expect(hashtag && hashtag.original).to.equal(hashtag1.original);
     });
   });
 
@@ -203,6 +215,92 @@ describe("Event label helpers", () => {
         rm: [label1]
       });
       expect(original).to.deep.equal([label1]);
+    });
+  });
+
+  describe("updateEventLabels", () => {
+    let event = makeEvent({
+      labels: [label1],
+      hashtags: [{
+        hashtag: hashtag1
+      }, {
+        hashtag: hashtag2,
+        label: label2
+      }]
+    });
+
+    it("adds labels", () => {
+      expect(EventLabels.updateEventLabels(event, {
+        add: [label3]
+      })).to.deep.equal({
+        labels: [label1, label3],
+        hashtags: event.hashtags
+      });
+    });
+
+    it("removes labels", () => {
+      expect(EventLabels.updateEventLabels(event, {
+        rm: [label1]
+      })).to.deep.equal({
+        labels: [],
+        hashtags: event.hashtags
+      });
+    });
+
+    it("approves hashtags", () => {
+      expect(EventLabels.updateEventLabels(event, {
+        add: [hashtag1]
+      })).to.deep.equal({
+        labels: event.labels,
+          hashtags: [{
+          hashtag: hashtag1,
+          approved: true
+        }, {
+          hashtag: hashtag2,
+          label: label2
+        }]
+      });
+
+      expect(EventLabels.updateEventLabels(event, {
+        add: [label2]
+      })).to.deep.equal({
+        labels: event.labels,
+          hashtags: [{
+          hashtag: hashtag1
+        }, {
+          hashtag: hashtag2,
+          label: label2,
+          approved: true
+        }]
+      });
+    });
+
+    it("disapproves hashtags", () => {
+      expect(EventLabels.updateEventLabels(event, {
+        rm: [hashtag1]
+      })).to.deep.equal({
+        labels: event.labels,
+          hashtags: [{
+          hashtag: hashtag1,
+          approved: false
+        }, {
+          hashtag: hashtag2,
+          label: label2
+        }]
+      });
+
+      expect(EventLabels.updateEventLabels(event, {
+        rm: [label2]
+      })).to.deep.equal({
+        labels: event.labels,
+          hashtags: [{
+          hashtag: hashtag1
+        }, {
+          hashtag: hashtag2,
+          label: label2,
+          approved: false
+        }]
+      });
     });
   });
 });
