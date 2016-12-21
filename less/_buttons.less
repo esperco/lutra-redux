@@ -88,14 +88,14 @@ div.menu {
     border-radius: 0;
     text-align: left;
 
-    &:hover, &:focus {
+    &:hover, &:focus, &.active {
       color: @text-highlight;
       background: @text-highlight-bg;
       box-shadow: none;
       transform: none;
     }
 
-    &:active, &:hover:active, &:focus:active {
+    &:active, &:hover:active, &:focus:active, &.active:active {
       background: darken(@text-highlight-bg, 5%);
     }
 
@@ -132,7 +132,7 @@ div.menu {
     }
   }
 
-  &:hover, &:focus {
+  &:hover, &:focus, &.active {
     background: lighten(@color, 15%);
     transform: translateY(-1px);
   }
@@ -147,7 +147,7 @@ div.menu {
     }
   }
 
-  &:active, &:hover:active, &:focus:active {
+  &:active, &:hover:active, &:focus:active, &.active:active {
     background: darken(@color, 10%);
     box-shadow: none;
 

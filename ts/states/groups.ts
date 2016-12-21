@@ -1,24 +1,21 @@
 import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
-import { ok, StoreMap } from "./data-status";
+import { ok, ready, StoreMap } from "./data-status";
 
 /*
   Groups have optional group labels and member data -- store these separately
   for ease of checking what data is available and not
 */
 export interface GroupSummary {
-  groupid: string;
   group_name: string;
   group_timezone: string;
 }
 
 export interface GroupLabels {
-  groupid: string;
   group_labels: ApiT.LabelInfo[];
 }
 
 export interface GroupMembers {
-  groupid: string;
   group_member_role: ApiT.GroupRole;
   group_teams: ApiT.GroupMember[];
   group_individuals: ApiT.GroupIndividual[];
@@ -38,12 +35,6 @@ export interface GroupFetchRequestAction {
   withLabels?: boolean;
 }
 
-export interface GroupPushAction {
-  type: "GROUP_DATA";
-  dataType: "PUSH";
-  groups: ApiT.Group[];
-}
-
 export interface GroupFetchResponseAction {
   type: "GROUP_DATA";
   dataType: "FETCH_END";
@@ -55,8 +46,15 @@ export interface GroupFetchResponseAction {
 
 export type GroupDataAction =
   GroupFetchRequestAction|
-  GroupFetchResponseAction|
-  GroupPushAction;
+  GroupFetchResponseAction;
+
+export interface GroupUpdateAction {
+  type: "GROUP_UPDATE";
+  groupId: string;
+  summary?: Partial<GroupSummary>;
+  labels?: Partial<GroupLabels>;
+  members?: Partial<GroupMembers>;
+}
 
 export function groupDataReducer<S extends GroupState> (
   state: S, action: GroupDataAction
@@ -100,21 +98,24 @@ export function groupDataReducer<S extends GroupState> (
 
     _.each(action.groups, (g) => {
       groupSummaries[g.groupid] = {
-        groupid: g.groupid,
         group_name: g.group_name,
         group_timezone: g.group_timezone
       };
 
       if (g.group_labels) {
         groupLabels[g.groupid] = {
-          groupid: g.groupid,
-          group_labels: g.group_labels
+          /*
+            NB -- this sort shouldn't be required if order is preserved
+            when PUT to server, but that doesn't always seem to work.
+
+            TODO: Fix if server API changes.
+          */
+          group_labels: _.sortBy(g.group_labels, (l) => l.normalized)
         };
       }
 
       if (g.group_individuals && g.group_member_role && g.group_teams) {
         groupMembers[g.groupid] = {
-          groupid: g.groupid,
           group_member_role: g.group_member_role,
           group_teams: g.group_teams,
           group_individuals: g.group_individuals
@@ -124,6 +125,44 @@ export function groupDataReducer<S extends GroupState> (
   }
 
   return state;
+}
+
+export function groupUpdateReducer<S extends GroupState> (
+  state: S, action: GroupUpdateAction
+): S {
+  let { groupId } = action;
+  let update: Partial<GroupState> = {};
+  if (action.summary) {
+    let current = state.groupSummaries[groupId];
+    if (ready(current)) {
+      update.groupSummaries = {
+        ...state.groupSummaries,
+        [groupId]: { ...current, ...action.summary }
+      };
+    }
+  }
+
+  if (action.labels) {
+    let current = state.groupLabels[groupId];
+    if (ready(current)) {
+      update.groupLabels = {
+        ...state.groupLabels,
+        [groupId]: { ...current, ...action.labels }
+      };
+    }
+  }
+
+  if (action.members) {
+    let current = state.groupMembers[groupId];
+    if (ready(current)) {
+      update.groupMembers = {
+        ...state.groupMembers,
+        [groupId]: { ...current, ...action.members }
+      };
+    }
+  }
+
+  return _.extend({}, state, update);
 }
 
 export function initState(): GroupState {

@@ -24,6 +24,7 @@ import * as Text from "../text/common";
 */
 export const IconMappings = {
   "accounts": "fa-users",
+  "add": "fa-plus",
   "cancel": "fa-close",
   "close": "fa-close",
   "contact": "fa-envelope",
@@ -38,6 +39,7 @@ export const IconMappings = {
   "privacy": "fa-lock",
   "previous": "fa-chevron-left",
   "refresh": "fa-refresh",
+  "remove": "fa-close",
   "repeat": "fa-refresh",
   "save": "fa-check",
   "settings": "fa-cog",
@@ -52,9 +54,10 @@ interface Props {
 }
 
 // Default screen reader label only.
-function getLabelForIcon(icon: IconType): string {
+function getTextForIcon(icon: IconType): string {
   return {
     "accounts": Text.Accounts,
+    "add": Text.Add,
     "cancel": Text.Cancel,
     "close": Text.Close,
     "contact": Text.Contact,
@@ -69,6 +72,7 @@ function getLabelForIcon(icon: IconType): string {
     "privacy": Text.Privacy,
     "previous": Text.Previous,
     "refresh": Text.Refresh,
+    "remove": Text.Remove,
     "repeat": Text.Repeat,
     "save": Text.Save,
     "settings": Text.Settings,
@@ -88,7 +92,7 @@ function Icon({ type, children }: Props) {
     {
       hasChildren ?
       <span>{ children }</span> :
-      <span className="sr-only">{ getLabelForIcon(type) }</span>
+      <span className="sr-only">{ getTextForIcon(type) }</span>
     }
   </span>;
 }

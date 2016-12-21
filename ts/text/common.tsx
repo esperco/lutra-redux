@@ -3,6 +3,7 @@
 */
 
 export const Accounts = "Accounts";
+export const Add = "Add";
 export const Cancel = "Cancel";
 export const Close = "Close";
 export const Contact = "Contact Us";
@@ -16,6 +17,7 @@ export const Logout = "Sign out";
 export const Next = "Next";
 export const Previous = "Previous";
 export const Privacy = "Privacy Policy";
+export const Remove = "Remove";
 export const Refresh = "Refresh";
 export const Repeat = "Repeat";
 export const Save = "Save";

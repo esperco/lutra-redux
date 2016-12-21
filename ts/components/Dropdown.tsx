@@ -22,9 +22,10 @@ import FocusTrap from "./FocusTrap";
 import Overlay from "./Overlay";
 import * as classNames from "classnames";
 import * as Log from "../lib/log";
+import { randomString } from "../lib/util";
 import * as $ from "jquery";
 
-const DROPDOWN_CONTAINER_ID = "esper-dropdown";
+const OVERLAY_PREFIX = "esper-dropdown-";
 
 interface Props {
   toggle: JSX.Element;
@@ -39,10 +40,12 @@ interface State {
 }
 
 export class Dropdown extends React.Component<Props, State> {
+  _id: string;
   _wrapper: HTMLElement;
 
   constructor(props: Props) {
     super(props);
+    this._id = OVERLAY_PREFIX + randomString();
     this.state = {
       open: false
     };
@@ -55,7 +58,7 @@ export class Dropdown extends React.Component<Props, State> {
     });
 
     return <Overlay
-      id={DROPDOWN_CONTAINER_ID}
+      id={this._id}
       inline={toggle}
       append={this.state.open ? this.getAppend() : undefined}
     />;

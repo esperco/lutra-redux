@@ -18,6 +18,15 @@
 .dropdown-menu {
   .panel;
 
+  // Specific styling for certain elements
+  input {
+    width: 100%;
+  }
+
+  input[type=checkbox], input[type=radio], input[type=submit] {
+    width: inherit;
+  }
+
   /*
     Fixes weird issue with scrollbar on dropdowns where last item in panel has
     a negative margin. Might be a rounding error?

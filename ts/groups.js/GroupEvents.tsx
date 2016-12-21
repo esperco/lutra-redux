@@ -4,19 +4,20 @@
 
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { eventList } from "./paths";
 import { State, DispatchFn } from './types';
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
 import EventEditor from "../components/EventEditor";
-import { eventList } from "./paths";
-import { ready } from "../states/data-status";
-import { ApiSvc } from "../lib/api";
-import { NavSvc } from "../lib/routing";
 import GroupEventsList from "./GroupEventsList";
 import GroupLabelsSelector from "./GroupLabelsSelector";
-import * as LabelText from "../text/labels";
+import * as Events from "../handlers/group-events";
+import { ApiSvc } from "../lib/api";
 import * as ASN from "../lib/asn";
 import { GenericPeriod } from "../lib/period";
+import { NavSvc } from "../lib/routing";
+import { ready } from "../states/data-status";
+import * as LabelText from "../text/labels";
 
 class RouteProps {
   groupId: string;
@@ -97,12 +98,9 @@ class GroupEvents extends React.Component<Props, {}> {
   }
 
   renderEventDates() {
-    let { groupId, state, period, labels } = this.props;
-    let queryState = state.groupEventQueries[groupId] || [];
-    let eventMap = state.groupEvents[groupId] || {};
-    let query = { labels };
-    let props = { period, query, queryState, eventMap };
-    return <GroupEventsList {...props}
+    let query = { labels: this.props.labels };
+    return <GroupEventsList
+      {...this.props} query={query}
       eventHrefFn={(ev) => this.updateHref({
         eventId: ev.id,
         showFilters: false
@@ -113,7 +111,17 @@ class GroupEvents extends React.Component<Props, {}> {
   renderSingleEvent() {
     if (this.props.eventId) {
       let eventMap = this.props.state.groupEvents[this.props.groupId] || {};
-      return <EventEditor event={eventMap[this.props.eventId]} />
+      let group = this.props.state.groupLabels[this.props.groupId];
+      let labels = ready(group) ? group.group_labels : [];
+      return <EventEditor
+        event={eventMap[this.props.eventId]}
+        labels={labels}
+        onChange={(label, active) => Events.setGroupEventLabels({
+          groupId: this.props.groupId,
+          eventIds: this.props.eventId ? [this.props.eventId] : [],
+          label, active
+        }, this.props)}
+      />
     }
     return null; // No event
   }

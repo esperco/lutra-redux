@@ -6,14 +6,24 @@ import * as moment from "moment";
 import * as React from "react";
 import * as ApiT from "../lib/apiT";
 import Icon from "../components/Icon";
+import LabelList from "../components/LabelList";
 import Tooltip from "../components/Tooltip";
 // import * as classNames from "classnames";
 import { ok, StoreData } from "../states/data-status";
 import * as EventText from "../text/events";
 
-interface ListProps {
+interface SharedProps {
+  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  labels?: ApiT.LabelInfo[];
+  onChange?: (
+    eventIds: string[],
+    x: ApiT.LabelInfo,
+    active: boolean
+  ) => void;
+}
+
+interface ListProps extends SharedProps {
   events: (StoreData<ApiT.GenericCalendarEvent>|undefined)[];
-  eventHrefFn ?: (ev: ApiT.GenericCalendarEvent) => string;
 }
 
 export class EventList extends React.Component<ListProps, {}> {
@@ -33,17 +43,14 @@ export class EventList extends React.Component<ListProps, {}> {
     if (ev === "FETCHING") {
       return <PlaceholderEvent key={index} />;
     }
-    return <EventDisplay key={ev.id}
-      event={ev}
-      eventHref={this.props.eventHrefFn && this.props.eventHrefFn(ev)}
+    return <EventDisplay key={ev.id} event={ev}
+      { ...this.props }
     />;
   }
 }
 
-
-interface EventProps {
+interface EventProps extends SharedProps {
   event: ApiT.GenericCalendarEvent;
-  eventHref?: string;
 }
 
 export class EventDisplay extends React.Component<EventProps, {}> {
@@ -58,8 +65,8 @@ export class EventDisplay extends React.Component<EventProps, {}> {
       <span className="no-title">{ EventText.NoTitle }</span>;
 
     return <div className="event panel">
-      <h4>{ this.props.eventHref ?
-        <a href={this.props.eventHref}>{ title }</a> :
+      <h4>{ this.props.eventHrefFn ?
+        <a href={this.props.eventHrefFn(event)}>{ title }</a> :
         title
       }</h4>
 
@@ -84,6 +91,12 @@ export class EventDisplay extends React.Component<EventProps, {}> {
           _.map(event.guests, (g) => g.display_name || g.email)
         ) }
       </div> : null }
+
+      <LabelList
+        labels={this.props.labels || []}
+        events={[event]}
+        onChange={this.props.onChange}
+      />
     </div>;
   }
 }

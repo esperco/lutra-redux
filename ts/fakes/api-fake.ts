@@ -5,16 +5,32 @@
 import * as _ from "lodash";
 import { default as Api, ApiSvc } from "../lib/api";
 import { Deferred } from "../lib/util";
+import * as Sinon from "sinon";
 
 // Stubs an API call. Returns a deferred object you can resolve to trigger
 // some promise-dependent action
 export function stubApi(svc: ApiSvc, name: string) {
+  return stubApiPlus(svc, name).dfd;
+}
+
+// Same as stubApi above, but also returns the Sinon stub
+export function stubApiPlus(svc: ApiSvc, name: string) {
   let Api: any = svc.Api;
-  let dfd = new Deferred();
-  Api[name] = function() {
+  let dfd = new Deferred();   // Passed to user to control when call resolves
+  let cbDfd = new Deferred(); //
+  let stub = Sinon.stub(Api, name, function() {
+    if (cbDfd.state === "pending") cbDfd.resolve();
     return dfd.promise();
-  }
-  return dfd;
+  });
+  return { dfd, stub, promise: cbDfd.promise() };
+}
+
+export function stubApiRet(svc: ApiSvc, name: string, val?: any) {
+  let Api: any = svc.Api;
+  let stub = Sinon.stub(Api, name, function() {
+    return Promise.resolve(val);
+  });
+  return stub;
 }
 
 // Factory function that spits out a fake API service for testing

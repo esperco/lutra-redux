@@ -3,56 +3,78 @@
   queries to be efficient about React updates
 */
 import * as _ from "lodash";
-// import * as moment from "moment";
 import * as React from "react";
 import * as stringify from "json-stable-stringify";
+import { State, DispatchFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList from "../components/EventList";
+import * as Events from "../handlers/group-events";
+import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { GenericPeriod, toDays, dateForDay } from "../lib/period";
-import { StoreData } from "../states/data-status";
-import {
-  Query, EventsQueryState, EventMap, QueryResult
-} from "../states/group-events";
+import { ready, StoreData } from "../states/data-status";
+import { GroupLabels } from "../states/groups";
+import { Query, EventMap, QueryResult } from "../states/group-events";
 
 interface Props {
+  groupId: string;
   period: GenericPeriod;
   query: Query;
-  queryState: EventsQueryState;
-  eventMap: EventMap;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  state: State;
+  dispatch: DispatchFn;
+  Svcs: ApiSvc;
 }
 
 export class GroupEventsList extends React.Component<Props, {}> {
   render() {
-    let { start, end } = toDays(this.props.period);
-    let queryDays = this.props.queryState.slice(start, end + 1);
-    let queryKey = stringify(this.props.query);
+    let { groupId, state, period, query } = this.props;
+    let groupLabels = state.groupLabels[groupId];
+    let queryState = state.groupEventQueries[groupId] || [];
+    let eventMap = state.groupEvents[groupId] || {};
+
+    let { start, end } = toDays(period);
+    let queryDays = queryState.slice(start, end + 1);
+    let queryKey = stringify(query);
 
     return <div>
       { _.map(queryDays, (d, i) =>
-        <QueryDay
-          key={i} {...this.props}
-          day={start + i}
-          result={d[queryKey]}
+        <QueryDay key={i} day={start + i} result={d[queryKey]}
+          eventMap={eventMap}
+          groupLabels={groupLabels}
+          eventHrefFn={this.props.eventHrefFn}
+          onChange={this.onChange}
         />
       ) }
     </div>;
+  }
+
+  onChange = (eventIds: string[], label: ApiT.LabelInfo, active: boolean) => {
+    Events.setGroupEventLabels({
+      groupId: this.props.groupId,
+      eventIds, label, active
+    }, this.props)
   }
 }
 
 
 interface DayProps {
   day: number; // Period day index
+  groupLabels: StoreData<GroupLabels>|undefined;
   result: StoreData<QueryResult>;
   eventMap: EventMap;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  onChange: (
+    eventIds: string[],
+    x: ApiT.LabelInfo,
+    active: boolean
+  ) => void;
 }
 
 class QueryDay extends React.Component<DayProps, {}> {
   /*
     Note that we omit eventMap because any update to eventMap should
-    also invalidate a queryState;
+    also invalidate the relevant queryState;
   */
   shouldComponentUpdate(nextProps: DayProps) {
     return nextProps.result !== this.props.result;
@@ -70,7 +92,12 @@ class QueryDay extends React.Component<DayProps, {}> {
     if (_.isEmpty(calEvents)) return null;
 
     return <DayBox date={dateForDay(this.props.day)}>
-      <EventList events={calEvents} eventHrefFn={this.props.eventHrefFn} />
+      <EventList events={calEvents}
+        eventHrefFn={this.props.eventHrefFn}
+        labels={ ready(this.props.groupLabels) ?
+          this.props.groupLabels.group_labels : [] }
+        onChange={this.props.onChange}
+      />
     </DayBox>;
   }
 }

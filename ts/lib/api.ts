@@ -86,6 +86,9 @@ namespace Api {
     });
   }
 
+
+  /* Groups */
+
   // Fetch all groups for user
   export function getGroupsByUid(uid: string, opts: {
       withMembers?: boolean,
@@ -104,7 +107,6 @@ namespace Api {
     return JsonHttp.get(url);
   }
 
-  // Fetch group details
   export function getGroupDetails(groupid: string, opts: {
       withMembers?: boolean,
       withLabels?: boolean
@@ -138,6 +140,23 @@ namespace Api {
     return JsonHttp.put(url);
   }
 
+  export function putGroupLabels(
+    groupid: string,
+    labels: {labels: string[]}
+  ): Promise<void> {
+    var url = prefix + "/api/group/labels/" + myUid()
+      + "/" + string(groupid);
+    return JsonHttp.put(url, labels);
+  }
+
+  export function setGroupLabelColor(
+    groupid: string, req: ApiT.SetLabelColorRequest
+  ): Promise<ApiT.LabelInfo> {
+    var url = `${prefix}/api/group-label/set-color/${myUid()}`
+      + `/${string(groupid)}`;
+    return JsonHttp.post(url, req);
+  }
+
 
   /* Events */
 
@@ -155,6 +174,26 @@ namespace Api {
     var url = prefix + "/api/ts/events-group/" + myUid()
             + "/" + string(groupId);
     return JsonHttp.postGet(url, q);
+  }
+
+
+  /* Labeling */
+
+  export function setPredictGroupLabels(
+    groupId: string,
+    req: ApiT.LabelsSetPredictRequest
+  ) : Promise<ApiT.GenericCalendarEvents> {
+    var url = prefix + "/api/group/event/labels/set-predict/" + myUid()
+            + "/" + string(groupId);
+    return JsonHttp.post(url, req);
+  }
+
+  export function updateGroupHashtagStates(groupId: string, eventId: string,
+    hashtagRequest: ApiT.HashtagRequest): Promise<void>
+  {
+    var url = `${prefix}/api/group/event/hashtags/${myUid()}`
+            + `/${string(groupId)}/${string(eventId)}`;
+    return JsonHttp.post(url, hashtagRequest);
   }
 }
 

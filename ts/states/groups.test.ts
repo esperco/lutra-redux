@@ -6,12 +6,10 @@ import makeGroup from "../fakes/groups-fake";
 
 // Some group data for testing
 const groupSummary1 = {
-  groupid: "id-1",
   group_name: "Group 1",
   group_timezone: "America/Los_Angeles"
 };
 const groupLabels1 = {
-  groupid: "id-1",
   group_labels: [{
     original: "Label",
     normalized: "label",
@@ -19,7 +17,6 @@ const groupLabels1 = {
   }]
 };
 const groupMembers1 = {
-  groupid: "id-1",
   group_individuals: [{
     uid: "uid",
     role: "Owner" as ApiT.GroupRole,
@@ -123,51 +120,12 @@ describe("groupDataReducer", function() {
     });
   });
 
-  describe("when handling PUSH", function() {
-    it("populates store with group label data if available", function() {
-      let s1 = Groups.initState();
-      let g1 = makeGroup(_.extend({}, groupLabels1, groupSummary1));
-      let s2 = Groups.groupDataReducer(s1, {
-        type: "GROUP_DATA",
-        dataType: "PUSH",
-        groups: [g1]
-      });
-      expect(s2).to.deep.equal({
-        groupSummaries: {
-          "id-1": groupSummary1
-        },
-        groupLabels: {
-          "id-1": groupLabels1
-        },
-        groupMembers: {}
-      });
-    });
-
-    it("populates store with group member data if available", function() {
-      let s1 = Groups.initState();
-      let g1 = makeGroup(_.extend({}, groupMembers1, groupSummary1));
-      let s2 = Groups.groupDataReducer(s1, {
-        type: "GROUP_DATA",
-        dataType: "PUSH",
-        groups: [g1]
-      });
-      expect(s2).to.deep.equal({
-        groupSummaries: {
-          "id-1": groupSummary1
-        },
-        groupLabels: {},
-        groupMembers: {
-          "id-1": groupMembers1
-        }
-      });
-    });
-  });
-
   describe("when handling FETCH_END", function() {
     it("populates store with group data", function() {
       let s1 = Groups.initState();
-      let g1 = makeGroup(_.extend({},
-        groupMembers1, groupSummary1, groupLabels1));
+      let g1 = makeGroup(_.extend({
+        groupid: "id-1"
+      }, groupMembers1, groupSummary1, groupLabels1));
       let s2 = Groups.groupDataReducer(s1, {
         type: "GROUP_DATA",
         dataType: "FETCH_END",
@@ -190,7 +148,7 @@ describe("groupDataReducer", function() {
     it("marks group labels data as FETCH_ERROR if id provided but data missing",
     function() {
       let s1 = Groups.initState();
-      let g1 = makeGroup(_.extend({},
+      let g1 = makeGroup(_.extend({ groupid: "id-1" },
         groupMembers1, groupSummary1, groupLabels1));
       let s2 = Groups.groupDataReducer(s1, {
         type: "GROUP_DATA",
@@ -214,7 +172,7 @@ describe("groupDataReducer", function() {
        "but data missing",
     function() {
       let s1 = Groups.initState();
-      let g1 = makeGroup(_.extend({},
+      let g1 = makeGroup(_.extend({ groupid: "id-1" },
         groupMembers1, groupSummary1, groupLabels1));
       let s2 = Groups.groupDataReducer(s1, {
         type: "GROUP_DATA",
@@ -235,3 +193,115 @@ describe("groupDataReducer", function() {
     });
   });
 });
+
+describe("groupUpdateReducer", () => {
+  it("updates summary data in store", function() {
+    let s1 = {
+      ...Groups.initState(),
+      groupSummaries: {
+        "id-1": groupSummary1
+      }
+    };
+    let s2 = Groups.groupUpdateReducer(s1, {
+      type: "GROUP_UPDATE",
+      groupId: "id-1",
+      summary: {
+        group_name: "New Group Name"
+      }
+    });
+
+    expect(s2).to.deep.equal({
+      groupSummaries: {
+        "id-1": {
+          ...groupSummary1,
+          group_name: "New Group Name"
+        }
+      },
+      groupLabels: {},
+      groupMembers: {}
+    });
+  });
+
+  it("does nothing if data is not ready when updating", function() {
+    let s1 = {
+      ...Groups.initState(),
+      groupSummaries: {
+        "id-1": "FETCHING" as "FETCHING"
+      }
+    };
+    let s2 = Groups.groupUpdateReducer(s1, {
+      type: "GROUP_UPDATE",
+      groupId: "id-1",
+      summary: {
+        group_name: "New Group Name"
+      }
+    });
+
+    expect(s2).to.deep.equal({
+      groupSummaries: {
+        "id-1": "FETCHING"
+      },
+      groupLabels: {},
+      groupMembers: {}
+    });
+  });
+
+  it("updates label data in store", function() {
+    let s1 = {
+      ...Groups.initState(),
+      groupLabels: {
+        "id-1": groupLabels1
+      }
+    };
+
+    let newLabels = {
+      group_labels: [{
+        original: "New Label",
+        normalized: "new label",
+        color: "#CCEEFF"
+      }]
+    };
+    let s2 = Groups.groupUpdateReducer(s1, {
+      type: "GROUP_UPDATE",
+      groupId: "id-1",
+      labels: newLabels
+    });
+
+    expect(s2).to.deep.equal({
+      groupSummaries: {},
+      groupLabels: {
+        "id-1": newLabels
+      },
+      groupMembers: {}
+    });
+  });
+
+  it("updates member data in store", function() {
+    let s1 = {
+      ...Groups.initState(),
+      groupMembers: {
+        "id-1": groupMembers1
+      }
+    };
+
+    let newMembers = {
+      ...groupMembers1,
+      group_teams: [{
+        teamid: "team1"
+      }]
+    };
+    let s2 = Groups.groupUpdateReducer(s1, {
+      type: "GROUP_UPDATE",
+      groupId: "id-1",
+      members: newMembers
+    });
+
+    expect(s2).to.deep.equal({
+      groupSummaries: {},
+      groupLabels: {},
+      groupMembers: {
+        "id-1": newMembers
+      }
+    });
+  });
+})

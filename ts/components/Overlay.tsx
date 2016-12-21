@@ -74,12 +74,12 @@ export class Overlay extends React.Component<Props, {}> {
     inside it.
   */
   renderOverlay() {
-    var container = $("#" + this.props.id);
-    if (!container || !container.length) {
-      container = $('<div>').attr("id", this.props.id);
-      $('body').append(container);
-    }
     if (this.props.append) {
+      let container = $("#" + this.props.id);
+      if (!container || !container.length) {
+        container = $('<div>').attr("id", this.props.id);
+        $('body').append(container);
+      }
       ReactDOM.render(this.props.append, container.get(0));
     } else {
       this.clearOverlay();
