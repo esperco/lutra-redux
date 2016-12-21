@@ -112,6 +112,8 @@ export interface TeamOption {
 
 export type GroupList = ListResponse<Group>;
 
+export type GroupEventCommentList = ListResponse<GroupEventComment>;
+
 export type GroupLabels = ListResponse<string>;
 
 export type GroupRole = "Member"|"Manager"|"Owner";
@@ -140,6 +142,17 @@ export interface GroupIndividual {
   role: GroupRole;
   email?: string;
   invite_sent?: string;
+}
+
+export interface GroupEventComment {
+  id: string;
+  author: string;
+  upvoted_users: string[];
+  text: string;
+}
+
+export interface PostComment {
+  body: string;
 }
 
 export interface Customer {
@@ -270,6 +283,7 @@ export interface GenericCalendarEvent {
   labels?: LabelInfo[];
   predicted_attended?: number;         // Floating score
   predicted_labels?: PredictedLabel[]; // Sorted by score desc
+  comments: GroupEventComment[];
   hashtags: HashtagState[];
   feedback?: EventFeedback;
   location?: string;
