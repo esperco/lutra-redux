@@ -7,7 +7,8 @@ import * as React from "react";
 // Default delay before triggering callback
 const DEFAULT_DELAY = 500;
 
-interface Props {
+export interface Props {
+  id?: string;
   className?: string;
 
   placeholder?: string;
@@ -37,7 +38,7 @@ export class DelayedInput extends React.Component<Props, State> {
   }
 
   render() {
-    return <input type="text"
+    return <input type="text" id={this.props.id}
       className={this.props.className}
       placeholder={this.props.placeholder}
       value={this.state.value || ""}

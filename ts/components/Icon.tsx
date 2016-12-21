@@ -26,6 +26,7 @@ export const IconMappings = {
   "accounts": "fa-users",
   "add": "fa-plus",
   "cancel": "fa-close",
+  "clear": "fa-close",
   "close": "fa-close",
   "contact": "fa-envelope",
   "dismiss": "fa-close",
@@ -42,6 +43,7 @@ export const IconMappings = {
   "remove": "fa-close",
   "repeat": "fa-refresh",
   "save": "fa-check",
+  "search": "fa-search",
   "settings": "fa-cog",
   "terms": "fa-legal"
 };
@@ -59,6 +61,7 @@ function getTextForIcon(icon: IconType): string {
     "accounts": Text.Accounts,
     "add": Text.Add,
     "cancel": Text.Cancel,
+    "clear": Text.Clear,
     "close": Text.Close,
     "contact": Text.Contact,
     "dismiss": Text.Dismiss,
@@ -75,6 +78,7 @@ function getTextForIcon(icon: IconType): string {
     "remove": Text.Remove,
     "repeat": Text.Repeat,
     "save": Text.Save,
+    "search": Text.Search,
     "settings": Text.Settings,
     "terms": Text.Terms
   }[icon];

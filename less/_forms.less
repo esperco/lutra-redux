@@ -57,34 +57,39 @@ label + input, label + textarea, label + select {
   margin-top: @padding-small;
 }
 
+.input-row {
+  display: flex;
+
+  // Most elements should expand evenly
+  > * {
+    flex: 1000 1000 1em;
+    margin: @padding-base / 2;
+  }
+
+  // Action elements and icons should expand comparatively slowly relative
+  // to others
+  > .icon-label > button, > a, > label, > input[type=submit] {
+    flex-basis: auto;
+    flex-grow: 1;
+    height: @input-height-base;
+    line-height: @input-height-base;
+    vertical-align: middle;
+    min-width: 0;
+  }
+
+  // Correct for extra padding introduced by child elements
+  margin: -@padding-base / 2;
+  * + & {
+    margin-top: @padding-base / 2;
+  }
+}
+
 @media screen and (min-width: @screen-sm-min) {
   .form-row {
-    display: flex;
-
-    // Most elements should expand evenly
-    > * {
-      flex: 1000 1000 1em;
-      margin: @padding-base / 2;
-    }
-
-    // Action elements should expand comparatively slowly relative to others
-    > button, > a, > label, > input[type=submit] {
-      flex-basis: auto;
-      flex-grow: 1;
-      height: @input-height-base;
-      line-height: @input-height-base;
-      vertical-align: middle;
-      min-width: @input-height-base;
-    }
+    .input-row;
 
     > label { // Tweak this to adjust "column" width
       min-width: 6rem;
-    }
-
-    // Correct for extra padding introduced by child elements
-    margin: -@padding-base / 2;
-    * + & {
-      margin-top: @padding-base / 2;
     }
   }
 }
@@ -94,5 +99,40 @@ input[type=checkbox], input[type=radio] {
   + label {
     margin-bottom: 0;
     display: inline-block;
+  }
+}
+
+// For positioning a button or icon inside an input
+.has-left-icon, .has-right-icon {
+  position: relative;
+}
+
+.has-left-icon {
+  > input {
+    padding-left: @input-height-base;
+  }
+
+  > button:first-child, .icon-label:first-child {
+    position: absolute;
+    left: 0;
+    width: @input-height-base;
+    padding: 0;
+
+    > .icon-label.no-text:only-child { margin: 0; }
+  }
+}
+
+.has-right-icon {
+  > input {
+    padding-right: @input-height-base;
+  }
+
+  > button:last-child, .icon-label:last-child {
+    position: absolute;
+    right: 0;
+    width: @input-height-base;
+    padding: 0;
+
+    > .icon-label.no-text:only-child { margin: 0; }
   }
 }
