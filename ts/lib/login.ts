@@ -58,7 +58,7 @@ export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
 
 // Returns a promise for when login process is done -- dispatches to store
 export function init(
-  dispatch: (action: LoginAction) => LoginAction,
+  dispatch: (action: LoginAction) => any,
   Conf: { loginRedirect: string },
   Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc
 ): Promise<ApiT.LoginResponse> {

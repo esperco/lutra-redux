@@ -6,6 +6,26 @@ var _req = require.context("./assets", true, /.*$/);
 // JS vendor files to stick in global scope
 window.jQuery = window.$ = window.JQuery = require("jquery");
 
+// Web worker
+if (window.Worker) {
+  /*
+    Require as web worker.
+
+    Note that pending https://github.com/webpack/worker-loader/pull/29/files,
+    the name attribute is ignored and we get a "main.worker" instead. This is
+    fine for now, but if we
+  */
+  var Worker = require("worker-loader?name=groups!./ts/groups.js/worker.ts");
+  window.GroupWorker = new Worker;
+} else {
+  // No web-worker. Unsupported browser.
+  let update = confirm(
+    "Esper requires a modern browser to function properly. Please " +
+    "update your browser before continuing."
+  );
+  if (update) location.href = "https://outdatedbrowser.com/";
+}
+
 // Typescript entry point
 require("./ts/groups.js/index.tsx");
 

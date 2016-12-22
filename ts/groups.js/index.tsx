@@ -10,11 +10,11 @@ import * as Conf from "config";
 import * as _ from "lodash";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { createStore, compose } from "redux";
 import * as Log from "../lib/log";
 import Analytics from "../lib/analytics";
 import Api from "../lib/api";
 import LocalStore from "../lib/local-store";
+import { store, dispatch as oldDispatch, getState } from "./store";
 
 // Components
 import App from "../components/App";
@@ -25,25 +25,20 @@ import GroupHeader from "./GroupHeader";
 import Setup from "./Setup";
 
 // Store Types
-import { LoggedInState, State, Action } from "./types";
+import { LoggedInState, State, Action, PostTaskFn, DispatchFn } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
-import * as Events from "../states/group-events";
-import * as Groups from "../states/groups";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
-import initState from "./init-state";
 
 // Handlers
 import { initData as initGroupsData } from "../handlers/groups";
 
-// Check for redux dev tools extension
-declare var devToolsExtension: any;
 
-
-/* Helper initialization */
-
+/*
+  Helper initialization
+*/
 let Svcs = {
   Analytics, Api, LocalStore,
   Nav: Routing.Nav
@@ -54,53 +49,40 @@ Log.init(_.extend({
 }, Conf));
 
 
-/* Redux Store Initialization */
+/*
+  Worker initialization.
+*/
+declare var GroupWorker: Worker; // Defined in groups.js
+const postTask: PostTaskFn = function(task) {
+  if (typeof GroupWorker !== "undefined") {
+    GroupWorker.postMessage(task);
+  }
+}
 
-let store = createStore(
-  // Reducers
-  function(state: State, action: Action) {
-    switch (action.type) {
-      case "LOGIN":
-        return Login.loginReducer(state, action);
-      case "ROUTE":
-        return Routing.routeReducer(state, action);
-      case "GROUP_DATA":
-        return Groups.groupDataReducer(state, action);
-      case "GROUP_UPDATE":
-        return Groups.groupUpdateReducer(state, action);
-      case "GROUP_EVENTS_DATA":
-        return Events.eventsDataReducer(state, action);
-      case "GROUP_EVENTS_UPDATE":
-        return Events.eventsUpdateReducer(state, action);
-      case "DATA_START":
-      case "DATA_END":
-        return DataStatus.dataReducer(state, action);
-      case "ADD_ERROR":
-      case "RM_ERROR":
-        return ErrorMsg.errorReducer(state, action);
-      default:
-        // Ignore actions that start with @@ (these are built-in Redux
-        // actions) but log any other weird ones
-        if (action && !(action.type && _.startsWith(action.type, "@@"))) {
-          Log.e("Unknown action type", action);
-        }
+// Wrap dispatch function to also post to worker.
+let dispatch: DispatchFn = function(a) {
+  let ret = oldDispatch(a);
+  postTask({
+    type: "UPDATE_STORE",
+    dispatch: a
+  });
+  return ret;
+}
+
+/*
+  Listen to worker for actions to update store. Note that since dispatch is
+  wrapped, this means the worker's store is also updated by this dispatch.
+  It's a little inefficient but simplifies keeping the stores in sync.
+*/
+if (typeof GroupWorker !== "undefined") {
+  GroupWorker.addEventListener("message", (e) => {
+    let action: Action|undefined = e.data;
+    if (action && action.type) {
+      dispatch(action);
     }
-    return state;
-  },
+  });
+}
 
-  // Initial state
-  initState(),
-
-  // Hook up to extension (if applicable)
-  compose(typeof devToolsExtension === "undefined" ?
-   (f: any) => f : devToolsExtension()));
-
-
-/* Hook up main view to store */
-
-// Bound dispatch and getState functions
-let dispatch: typeof store.dispatch = store.dispatch.bind(store);
-let getState: typeof store.getState = store.getState.bind(store);
 
 // Render view(s) hooked up to store
 store.subscribe(() => {

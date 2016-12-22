@@ -11,6 +11,7 @@ declare module "config" {
     esperVersion?: string;
     logLevel: number; // => minmum level to log
     logTag?: string;
+    ravenUrl?: string;
   };
   export = config;
 }

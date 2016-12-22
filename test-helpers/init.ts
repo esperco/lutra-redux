@@ -27,6 +27,7 @@ function createDOM() {
   var jsdom = require('jsdom').jsdom;
   (<any> global).document = jsdom(baseDOM);
   (<any> global).window = (<any> document).defaultView;
+  (<any> global).self = window;
   (<any> global).navigator = {
     userAgent: 'node.js'
   } as any;
