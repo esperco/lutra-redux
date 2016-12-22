@@ -6,20 +6,18 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { eventList } from "./paths";
 import { State, DispatchFn } from './types';
-import SearchInput from "../components/SearchInput";
+import delay from "../components/DelayedControl";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
 import EventEditor from "../components/EventEditor";
 import GroupEventsList from "./GroupEventsList";
-import GroupLabelsSelector from "./GroupLabelsSelector";
+import GroupFiltersSelector from "./GroupFiltersSelector";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
-import { QueryFilter, reduce } from "../lib/event-queries";
+import { QueryFilter } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
-import * as EventText from "../text/events";
-import * as LabelText from "../text/labels";
 
 class RouteProps {
   groupId: string;
@@ -37,33 +35,24 @@ class Props extends RouteProps {
 
 class GroupEvents extends React.Component<Props, {}> {
   render() {
-    let labels = this.props.state.groupLabels[this.props.groupId];
-
     return <div className={classNames("sidebar-layout", {
       "shift-left": this.props.showFilters && !this.props.eventId,
       "shift-right": !!this.props.eventId
     })}>
-      {/* Filters Sidebar */}
-      <div className="sidebar panel">
-        <div className="panel">
-          <SearchInput
-            id="group-events-search"
-            value={this.props.query.contains || ""}
-            placeholder={EventText.FilterEvents}
-            onUpdate={(val) => this.update({contains: val})}
-          />
-        </div>
 
-        { ready(labels) ?
-          <div className="panel">
-            <h4>{ LabelText.Labels }</h4>
-            <GroupLabelsSelector
-              labels={labels}
-              selected={this.props.query.labels}
-              onChange={(x) => this.update({ labels: x })}
+      {/* Filters Sidebar -- delayed URL update */}
+      { delay({
+          value: this.props.query,
+          onChange: (query) => this.update({ query }),
+          component: ({ value, onChange }) =>
+            <GroupFiltersSelector
+              className="sidebar panel"
+              groupId={this.props.groupId}
+              state={this.props.state}
+              query={value}
+              onChange={onChange}
             />
-          </div> : null }
-      </div>
+        }) }
 
       {/* Main Content Area */}
       <div className="content">
@@ -149,16 +138,15 @@ class GroupEvents extends React.Component<Props, {}> {
   }
 
   // Path with new props
-  updateHref(updates: Partial<RouteProps>|Partial<QueryFilter>) {
+  updateHref(updates: Partial<RouteProps>) {
     let { groupId, showFilters, eventId, period } = this.props;
-    let query = reduce(this.props.query);
+    let query = updates.query || this.props.query;
     return eventList.href({
-      groupId, showFilters, eventId, period,
-      ...query, ...updates
+      groupId, showFilters, eventId, period, ...query, ...updates
     });
   }
 
-  update(updates: Partial<RouteProps>|Partial<QueryFilter>) {
+  update(updates: Partial<RouteProps>) {
     this.props.Svcs.Nav.go(this.updateHref(updates));
   }
 }
