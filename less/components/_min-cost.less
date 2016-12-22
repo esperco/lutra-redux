@@ -1,0 +1,51 @@
+.min-cost-selector {
+  display: flex;
+  font-size: @font-size-small;
+
+  > * + * {
+    margin-top: 0;
+  }
+
+  > * {
+    flex: 1 1 1em;
+    height: @input-height-base;
+    line-height: @input-height-base;
+    vertical-align: middle;
+    color: @text-muted;
+    text-align: left;
+    padding-left: @padding-small;
+  }
+
+  /* Creates an effect where hovering over one item highlights all after */
+
+  > .active, > .active ~ * {
+    font-weight: bold;
+    color: @link-color;
+  }
+
+  &:hover {
+    > .active, > .active ~ * {
+      font-weight: normal;
+      color: @text-muted;
+    }
+
+    > :hover, > .active:hover, > :hover ~ *, .active:hover ~ * {
+      font-weight: bold;
+      color: @link-color;
+    }
+  }
+
+  label.radio-item .pseudo-radio, label.checkbox-item .pseudo-checkbox {
+    display: none;
+  }
+
+  input:focus ~ span {
+    outline: 1px dotted #212121;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
+}
+
+.panel .min-cost-selector {
+  margin-top: -@padding-small;
+  margin-bottom: -@padding-small;
+}

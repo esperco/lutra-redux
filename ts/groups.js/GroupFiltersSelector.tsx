@@ -4,6 +4,7 @@
 import * as React from 'react';
 import SearchInput from "../components/SearchInput";
 import GroupLabelsSelector from "./GroupLabelsSelector";
+import MinCostSelector from "./MinCostSelector";
 import { QueryFilter, reduce } from "../lib/event-queries";
 import { State as StoreState } from "./types";
 import { ready } from "../states/data-status";
@@ -27,7 +28,14 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
           id="group-events-search"
           value={this.props.query.contains || ""}
           placeholder={EventText.FilterEvents}
-          onChange={(val) => this.update({contains: val})}
+          onChange={(contains) => this.update({ contains })}
+        />
+      </div>
+
+      <div className="panel">
+        <MinCostSelector
+          value={this.props.query.minCost}
+          onChange={(minCost) => this.update({ minCost })}
         />
       </div>
 
@@ -37,7 +45,7 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
           <GroupLabelsSelector
             labels={labels}
             selected={this.props.query.labels}
-            onChange={(x) => this.update({ labels: x })}
+            onChange={(labels) => this.update({ labels })}
           />
         </div> : null }
     </div>;
