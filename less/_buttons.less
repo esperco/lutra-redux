@@ -2,6 +2,7 @@
   Button styling that lets us use them semantically and not overload anchors
   and spans.
 */
+@import "./components/_menus";
 
 button, input[type=submit] {
   display: inline-block;
@@ -80,24 +81,7 @@ input[type=submit] {
 */
 div.menu {
   button, input[type=submit] {
-    display: block;
-    width: 100%;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    border-radius: 0;
-    text-align: left;
-
-    &:hover, &:focus, &.active {
-      color: @text-highlight;
-      background: @text-highlight-bg;
-      box-shadow: none;
-      transform: none;
-    }
-
-    &:active, &:hover:active, &:focus:active, &.active:active {
-      background: darken(@text-highlight-bg, 5%);
-    }
+    .menu-item();
 
     &[disabled] {
       color: @text-muted;
@@ -107,10 +91,6 @@ div.menu {
         color: @text-muted;
         background: transparent;
       }
-    }
-
-    + button, + input[type=submit] {
-      margin-top: 0;
     }
 
     .description {
@@ -132,7 +112,7 @@ div.menu {
     }
   }
 
-  &:hover, &:focus, &.active {
+  &:hover, &.active {
     background: lighten(@color, 15%);
     transform: translateY(-1px);
   }
@@ -141,13 +121,13 @@ div.menu {
     background: @shade-rel;
     color: @text-muted;
 
-    &:hover, &:focus {
+    &:hover {
       background: @shade-rel;
       transform: none;
     }
   }
 
-  &:active, &:hover:active, &:focus:active, &.active:active {
+  &:active, &:hover:active, &.active:active {
     background: darken(@color, 10%);
     box-shadow: none;
 

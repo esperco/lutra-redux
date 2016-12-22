@@ -27,42 +27,33 @@ interface Props {
 }
 
 // If no selected, assume it means this
-const DEFAULT_ASN: ASN.AllSomeNone = {
-  all: true,
-  none: true
-};
+const DEFAULT_ASN: ASN.AllSomeNone = { all: true };
 
-export class DelayedASNSelector extends React.Component<Props, {}> {
+export class ASNSelector extends React.Component<Props, {}> {
   render() {
     let selected = this.props.selected || DEFAULT_ASN;
-    return <div className={this.props.className}>
-      { this.props.allText ? <div>
-        <CheckboxItem key="all"
-          checked={!!selected.all}
-          onChange={(v) => this.update({ all: v })}>
-          { this.props.allText }
-        </CheckboxItem>
-      </div> : null }
+    return <div className={this.props.className || "menu"}>
+      { this.props.allText ? <CheckboxItem key="all"
+        checked={!!selected.all}
+        onChange={(v) => this.update({ all: v })}>
+        { this.props.allText }
+      </CheckboxItem> : null }
 
-      <div>
-        { _.map(this.props.choices, (choice) =>
-          <CheckboxItem key={"choice-" + choice.id}
-            checked={ASN.isSelected(selected, choice.id)}
-            onChange={(v) => this.toggle(choice.id, v)}
-            background={choice.color}
-            color={choice.color ? colorForText(choice.color) : undefined}>
-            { choice.displayAs }
-          </CheckboxItem>
-        ) }
-      </div>
-
-       { this.props.noneText ? <div>
-        <CheckboxItem key="none"
-          checked={!!selected.none}
-          onChange={(v) => this.update({ none: v })}>
-          { this.props.noneText }
+      { _.map(this.props.choices, (choice) =>
+        <CheckboxItem key={"choice-" + choice.id}
+          checked={ASN.isSelected(selected, choice.id)}
+          onChange={(v) => this.toggle(choice.id, v)}
+          background={choice.color}
+          color={choice.color ? colorForText(choice.color) : undefined}>
+          { choice.displayAs }
         </CheckboxItem>
-      </div> : null }
+      ) }
+
+      { this.props.noneText ? <CheckboxItem key="none"
+        checked={!!selected.none}
+        onChange={(v) => this.update({ none: v })}>
+        { this.props.noneText }
+      </CheckboxItem> : null }
     </div>;
   }
 
@@ -82,4 +73,4 @@ export class DelayedASNSelector extends React.Component<Props, {}> {
   }
 }
 
-export default DelayedASNSelector;
+export default ASNSelector;

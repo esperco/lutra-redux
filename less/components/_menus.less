@@ -1,0 +1,36 @@
+/*
+  Use menus to stack buttons, selectors, etc. in a compact vertical form
+*/
+
+.menu-item() {
+  display: block;
+  min-width: 100%;
+  background: transparent;
+  font-size: @font-size-small;
+  padding: @padding-small @padding-base;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  text-align: left;
+
+  + * {
+    margin-top: 0;
+  }
+
+  &:hover, &.active {
+    color: @text-highlight;
+    background: @text-highlight-bg;
+    box-shadow: none;
+    transform: none;
+  }
+
+  &:active, &:hover:active, &.active:active {
+    background: darken(@text-highlight-bg, 5%);
+  }
+}
+
+.menu {
+  > *, > label, > .checkbox.item, > .radio-item {
+    .menu-item;
+  }
+}

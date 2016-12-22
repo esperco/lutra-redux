@@ -44,7 +44,7 @@ ReactDOM.render(<div className="flex">
 </div>, $("#selector-demo").get(0));
 
 ReactDOM.render(<div>
-  <div className="panel">
+  <div className="panel"><div className="menu">
     <CheckboxItem onChange={(v) => console.log("Checkbox is " + v)}>
       Basic Checkbox
     </CheckboxItem>
@@ -54,9 +54,9 @@ ReactDOM.render(<div>
     >
       Colorful Checkbox
     </CheckboxItem>
-  </div>
+  </div></div>
 
-  <div className="panel">
+  <div className="panel"><div className="menu">
     <RadioItem name="radio-panel-test"
       onChange={(v) => console.log("Radio 1 is " + v)}
     >
@@ -68,7 +68,7 @@ ReactDOM.render(<div>
     >
       Colorful Radio Button
     </RadioItem>
-  </div>
+  </div></div>
 </div>, $("#selector-panel-demo").get(0));
 
 
@@ -99,18 +99,20 @@ ReactDOM.render(<div>
 
     menu={<div className="dropdown-menu">
       <h4>Dropdown menu options</h4>
-      <CheckboxItem onChange={(v) => console.log("Checkbox 1 is " + v)}>
-        Checkbox 1
-      </CheckboxItem>
-      <CheckboxItem onChange={(v) => console.log("Checkbox 2 is " + v)}>
-        Checkbox 2
-      </CheckboxItem>
-      <CheckboxItem onChange={(v) => console.log("Checkbox 3 is " + v)}>
-        Checkbox 3
-      </CheckboxItem>
-      <CheckboxItem onChange={(v) => console.log("Checkbox 4 is " + v)}>
-        Checkbox 4
-      </CheckboxItem>
+      <div className="menu">
+        <CheckboxItem onChange={(v) => console.log("Checkbox 1 is " + v)}>
+          Checkbox 1
+        </CheckboxItem>
+        <CheckboxItem onChange={(v) => console.log("Checkbox 2 is " + v)}>
+          Checkbox 2
+        </CheckboxItem>
+        <CheckboxItem onChange={(v) => console.log("Checkbox 3 is " + v)}>
+          Checkbox 3
+        </CheckboxItem>
+        <CheckboxItem onChange={(v) => console.log("Checkbox 4 is " + v)}>
+          Checkbox 4
+        </CheckboxItem>
+      </div>
     </div>}
   />
 </div>, $("#dropdown-demo").get(0));
