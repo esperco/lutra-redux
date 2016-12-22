@@ -87,6 +87,11 @@ export class EventDisplay extends React.Component<EventProps, {}> {
       </div>
 
       { event.guests && event.guests.length ? <div className="guests">
+        { event.merged && event.merged.cost ?
+          <span className={"cost cost-" + event.merged.cost }>
+            { _.repeat("$", event.merged.cost) }
+          </span> : null }
+
         { EventText.attendeeMsgShort(
           _.map(event.guests, (g) => g.display_name || g.email)
         ) }

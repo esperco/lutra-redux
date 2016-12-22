@@ -244,6 +244,20 @@ export interface HashtagRequest {
   hashtag_states: HashtagRequestItem[];
 }
 
+export interface MergedEventSource {
+  eventid: string;
+  recurring_event_id?: string;
+  calid: string;
+  teamid: string;
+}
+
+export interface MergedEventExtra {
+  sources: MergedEventSource[];
+  avg_rating?: number;
+  number_of_ratings: number;
+  cost: number; // 1 - 5
+}
+
 export interface GenericCalendarEvent {
   id: string;
   calendar_id: string;
@@ -264,6 +278,7 @@ export interface GenericCalendarEvent {
   transparent: boolean;
   recurrence?: Recurrence;
   recurring_event_id?: string;
+  merged?: MergedEventExtra;
 }
 
 export interface GenericCalendarEvents {
