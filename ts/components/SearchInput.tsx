@@ -3,7 +3,7 @@
 */
 
 import * as React from "react";
-import { default as DelayedInput, Props } from "./DelayedInput";
+import { default as TextInput, Props } from "./TextInput";
 import Icon from "./Icon";
 import { randomString } from "../lib/util";
 
@@ -16,9 +16,9 @@ export class SearchInput extends React.Component<Props, {}> {
       </label>
 
       <div className="has-right-icon">
-        <DelayedInput {...this.props} id={id} />
+        <TextInput {...this.props} id={id} />
         { this.props.value ? <button className="clear-input"
-                onClick={() => this.props.onUpdate("")}>
+                onClick={() => this.props.onChange("")}>
           <Icon type="clear" />
         </button> : null }
       </div>

@@ -9,9 +9,6 @@ import * as ASN from "../lib/asn";
 import CheckboxItem from "../components/CheckboxItem";
 import { colorForText } from "../lib/colors";
 
-// Default delay before triggering callback
-const DEFAULT_DELAY = 1000; // milliseconds
-
 interface Choice {
   id: string;
   displayAs: string|JSX.Element;
@@ -21,7 +18,6 @@ interface Choice {
 interface Props {
   selected?: ASN.AllSomeNone;
   onChange: (x: ASN.AllSomeNone) => void;
-  delay?: number;  // milliseconds
   className?: string;
 
   // If allText or noneText are not specified, those options do not appear
@@ -30,37 +26,19 @@ interface Props {
   choices: Choice[];
 }
 
-interface State {
-  selected: ASN.AllSomeNone;
-}
-
 // If no selected, assume it means this
 const DEFAULT_ASN: ASN.AllSomeNone = {
   all: true,
   none: true
 };
 
-export class DelayedASNSelector extends React.Component<Props, State> {
-  _timeout: number;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      selected: this.props.selected || DEFAULT_ASN
-    };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    this.setState({
-      selected: nextProps.selected || DEFAULT_ASN
-    });
-  }
-
+export class DelayedASNSelector extends React.Component<Props, {}> {
   render() {
+    let selected = this.props.selected || DEFAULT_ASN;
     return <div className={this.props.className}>
       { this.props.allText ? <div>
         <CheckboxItem key="all"
-          checked={!!this.state.selected.all}
+          checked={!!selected.all}
           onChange={(v) => this.update({ all: v })}>
           { this.props.allText }
         </CheckboxItem>
@@ -69,7 +47,7 @@ export class DelayedASNSelector extends React.Component<Props, State> {
       <div>
         { _.map(this.props.choices, (choice) =>
           <CheckboxItem key={"choice-" + choice.id}
-            checked={ASN.isSelected(this.state.selected, choice.id)}
+            checked={ASN.isSelected(selected, choice.id)}
             onChange={(v) => this.toggle(choice.id, v)}
             background={choice.color}
             color={choice.color ? colorForText(choice.color) : undefined}>
@@ -80,7 +58,7 @@ export class DelayedASNSelector extends React.Component<Props, State> {
 
        { this.props.noneText ? <div>
         <CheckboxItem key="none"
-          checked={!!this.state.selected.none}
+          checked={!!selected.none}
           onChange={(v) => this.update({ none: v })}>
           { this.props.noneText }
         </CheckboxItem>
@@ -96,22 +74,11 @@ export class DelayedASNSelector extends React.Component<Props, State> {
 
   update(delta: ASN.AllSomeNone) {
     let selected = ASN.update(
-      this.state.selected,
+      this.props.selected || DEFAULT_ASN,
       delta,
       _.map(this.props.choices, (c) => c.id)
     );
-    this.setState({ selected });
-    this.setTimeout();
-  }
-
-  setTimeout() {
-    clearTimeout(this._timeout);
-    this._timeout = setTimeout(() => {
-      // Update only if different
-      if (! _.isEqual(this.state.selected, this.props.selected)) {
-        this.props.onChange(this.state.selected);
-      }
-    }, _.isNumber(this.props.delay) ? this.props.delay : DEFAULT_DELAY);
+    this.props.onChange(selected);
   }
 }
 

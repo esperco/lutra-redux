@@ -4,7 +4,7 @@
 
 import * as _ from "lodash";
 import * as React from "react";
-import DelayedASNSelector from "../components/DelayedASNSelector";
+import ASNSelector from "../components/ASNSelector";
 import { GroupLabels } from "../states/groups";
 import * as ASN from "../lib/asn";
 import * as CommonText from "../text/common";
@@ -14,7 +14,6 @@ export class GroupLabelsSelector extends React.Component<{
   labels: GroupLabels;
   selected?: ASN.AllSomeNone;
   onChange: (selected: ASN.AllSomeNone) => void;
-  delay?: number;
 }, {}> {
   render() {
     let choices = _.map(this.props.labels.group_labels, (l) => ({
@@ -22,8 +21,7 @@ export class GroupLabelsSelector extends React.Component<{
       displayAs: l.original,
       color: l.color
     }));
-    return <DelayedASNSelector
-      delay={this.props.delay}
+    return <ASNSelector
       selected={this.props.selected}
       allText={CommonText.SelectAll}
       choices={choices}
