@@ -9,6 +9,7 @@ import * as Log from "../lib/log";
 import { State, Action } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
+import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 import * as Login from "../lib/login";
@@ -35,6 +36,9 @@ export const store = createStore(
         return Events.eventsDataReducer(state, action);
       case "GROUP_EVENTS_UPDATE":
         return Events.eventsUpdateReducer(state, action);
+      case "GROUP_CALC_START":
+      case "GROUP_CALC_END":
+        return Calcs.calcReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);

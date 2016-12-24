@@ -143,7 +143,7 @@ Login.init(dispatch, Conf, Svcs).then((info) => {
   // Things that should be initialized after login go here
 
   // This starts the router
-  Routes.init(dispatch, getState, Svcs);
+  Routes.init({ dispatch, getState, Svcs, postTask });
 
   // Load groups data
   initGroupsData(info, { dispatch, Svcs });

@@ -1,7 +1,9 @@
 /*
   Common app text
 */
+import * as React from 'react';
 
+// Icons
 export const Accounts = "Accounts";
 export const Add = "Add";
 export const Cancel = "Cancel";
@@ -27,4 +29,8 @@ export const Search = "Search";
 export const Settings = "Settings";
 export const Terms = "Terms of Use";
 
+// UX
+export const Calculating = <span className="calculating">
+  Crunching numbers &hellip;
+</span>;
 export const SelectAll = "Select All";

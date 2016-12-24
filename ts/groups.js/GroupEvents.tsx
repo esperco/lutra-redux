@@ -10,6 +10,7 @@ import delay from "../components/DelayedControl";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
 import EventEditor from "../components/EventEditor";
+import GroupCalcDisplay from "./GroupCalcDisplay";
 import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
 import * as Events from "../handlers/group-events";
@@ -18,6 +19,7 @@ import { QueryFilter } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
+import { calcKey } from "../states/group-calcs";
 
 class RouteProps {
   groupId: string;
@@ -80,6 +82,7 @@ class GroupEvents extends React.Component<Props, {}> {
 
           <div className="content">
             <div className="container">
+              { this.renderCalcDisplay() }
               { this.renderEventDates() }
             </div>
           </div>
@@ -92,6 +95,12 @@ class GroupEvents extends React.Component<Props, {}> {
         { this.renderSingleEvent() }
       </div>
     </div>;
+  }
+
+  renderCalcDisplay() {
+    let key = calcKey(this.props.period, this.props.query);
+    let results = (this.props.state.groupCalcs[this.props.groupId] || {})[key];
+    return <GroupCalcDisplay results={results} />;
   }
 
   renderEventDates() {

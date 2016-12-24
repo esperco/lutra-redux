@@ -207,6 +207,28 @@ function mergeQueryStates(...states: EventsQueryState[]): EventsQueryState {
   return ret;
 }
 
+// Helper function to make query states for testing -- optionally merge w/
+// existing state
+export function makeQueryState(
+  period: GenericPeriod,
+  query: QueryFilter,
+  eventIds: string[],
+  addTo?: EventsQueryState)
+{
+  addTo = addTo || [];
+  let { start, end } = toDays(period);
+  let queryKey = stringify(query);
+  for (let i = start; i <= end; i++) {
+    let queryMap = addTo[i] = _.clone(addTo[i]) || {};
+    queryMap[queryKey] = {
+      query,
+      eventIds,
+      updatedOn: new Date()
+    };
+  }
+  return addTo;
+}
+
 
 /* Below functions mutate -- assume already cloned from above for below */
 

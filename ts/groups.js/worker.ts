@@ -6,8 +6,9 @@
 import * as _ from 'lodash';
 import * as Conf from "config";
 import * as Log from "../lib/log";
-import { dispatch } from "./store";
+import { dispatch, getState } from "./store";
 import { Action, Task } from "./types";
+import { handleGroupQueryCalc } from "../tasks/group-query-calc";
 
 /*
   Helper initialization
@@ -37,6 +38,8 @@ function handleTask(task: Task): Action|void {
     case "UPDATE_STORE":
       dispatch(task.dispatch);
       break;
+    case "GROUP_QUERY_CALC":
+      return handleGroupQueryCalc(task, getState());
     default:
       Log.e("Unknown task type", task);
   }

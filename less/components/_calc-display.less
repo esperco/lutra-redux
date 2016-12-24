@@ -1,0 +1,35 @@
+.calc-display {
+  display: flex;
+
+  > * + * {
+    margin-top: 0;
+  }
+
+  > * {
+    flex: 1 1 1em;
+    min-width: 4rem;
+    text-align: center;
+  }
+
+  .value {
+    font-weight: bold;
+    font-size: @font-size-large;
+    display: block;
+    color: @text-header;
+
+    .decimal {
+      font-size: 1rem;
+    }
+  }
+
+  .unit {
+    color: @text-muted;
+    font-size: @font-size-small;
+    text-transform: uppercase;
+  }
+
+  .calculating {
+    padding: @padding-small;
+    color: @text-muted;
+  }
+}
