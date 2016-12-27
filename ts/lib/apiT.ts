@@ -244,6 +244,20 @@ export interface HashtagRequest {
   hashtag_states: HashtagRequestItem[];
 }
 
+export interface MergedEventSource {
+  eventid: string;
+  recurring_event_id?: string;
+  calid: string;
+  teamid: string;
+}
+
+export interface MergedEventExtra {
+  sources: MergedEventSource[];
+  avg_rating?: number;
+  number_of_ratings: number;
+  cost: number; // 1 - 5
+}
+
 export interface GenericCalendarEvent {
   id: string;
   calendar_id: string;
@@ -264,6 +278,7 @@ export interface GenericCalendarEvent {
   transparent: boolean;
   recurrence?: Recurrence;
   recurring_event_id?: string;
+  merged?: MergedEventExtra;
 }
 
 export interface GenericCalendarEvents {
@@ -450,9 +465,43 @@ export interface GeneralPrefs extends GeneralPrefsOpts {
   current_timezone: string;
 }
 
+/*
+  Models the label_query type in Wolverine.
+
+  We can't accurately model this here since TypeScript doesn't allow
+  recursive type aliases at this time. See
+  https://github.com/Microsoft/TypeScript/issues/6230.
+
+  So let's model queries in the following forms:
+  * Label X or NOT Label X
+  * (and (or ...) (or ....))
+  * (or (and ...) (and ...))
+
+  In theory, all queries should be reduceable to one of these forms.
+  And at any rate, we probably don't want to build a UI that lets users
+  create arbitrarily compelx queries anyway.
+*/
+type UnitLabelQuery = ["Label", string]|"No_label";
+type BaseLabelQuery = UnitLabelQuery|["Not", UnitLabelQuery];
+type OrLabelQuery   = ["Or", (BaseLabelQuery|["And", BaseLabelQuery[]])[]];
+type AndLabelQuery  = ["And", (BaseLabelQuery|["Or", BaseLabelQuery[]])[]];
+export type LabelQuery = BaseLabelQuery|OrLabelQuery|AndLabelQuery;
+
 export interface CalendarRequest {
   window_start: string; // timestamp
   window_end: string; // timestamp
+
+  // Event labels must match this query
+  labels?: LabelQuery;
+
+  // Title or description must match this query (Nylas - title only)
+  contains?: string;
+
+  // Participants must have one of these names or email addresses
+  participants?: string[];
+
+  // 1-5 minimum cost per event
+  min_cost?: number;
 }
 
 export interface CalendarStatsRequest {

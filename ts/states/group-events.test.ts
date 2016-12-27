@@ -6,10 +6,10 @@ import {
 } from "./group-events";
 import makeEvent from "../fakes/events-fake";
 import { newLabel, resetColors } from "../lib/event-labels";
+import { stringify } from "../lib/event-queries";
 import { Period, fromDates } from "../lib/period";
 import { sandbox } from "../lib/sandbox";
 import { deepFreeze } from "../lib/util";
-import * as stringify from "json-stable-stringify";
 
 // Helper function to pre-populate state for each day in period (and one
 // day before and after)

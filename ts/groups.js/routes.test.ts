@@ -51,7 +51,7 @@ describe("Routes", function() {
           groupId: "group-id-123",
           showFilters: true,
           eventId: "abc",
-          labels: { all: true },
+          query: {},
           period: { interval: 'week', start: 2400, end: 2401 }
         }
       });
@@ -72,7 +72,7 @@ describe("Routes", function() {
           groupId: "group-id-123",
           showFilters: true,
           eventId: "abc",
-          labels: { all: true },
+          query: {},
           period: { interval: 'week', start: 2448, end: 2449 }
         }
       });
@@ -85,16 +85,16 @@ describe("Routes", function() {
       expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
     });
 
-    it("should call fetch for events", function() {
+    it("should call fetch with query vals", function() {
       let deps = getDeps();
       let spy = sandbox.spy(Events, "fetchGroupEvents");
       Routes.eventList({ pathname,
-        hash: "#!/event-list/group-id-123?period=w,2400,2401&labels=1,0,"
+        hash: "#!/event-list/group-id-123?period=w,2400,2401&labels=0,1,"
       }, deps);
       expectCalledWith(spy, {
         groupId: "group-id-123",
         period: { interval: "week", start: 2400, end: 2401 },
-        query: { labels: { all: true }}
+        query: { labels: { none: true }}
       }, deps);
     });
 
@@ -112,8 +112,8 @@ describe("Routes", function() {
         route: {
           page: "GroupEvents",
           groupId: "group-id-123",
-          labels: { all: true },
-          period: { interval: "week", start: 2400, end: 2401 }
+          period: { interval: "week", start: 2400, end: 2401 },
+          query: {}
         }
       });
     });

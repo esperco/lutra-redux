@@ -1,6 +1,7 @@
 export const NoTitle = "Untitled Event";
 export const NotFound = "Event Not Found";
 export const Recurring = "Recurring Event";
+export const FilterEvents = "Filter by Keyword";
 
 export const Attendees = "Guests";
 export function attendeeStatus(

@@ -9,6 +9,7 @@
   Certain elements (modals and dropdown-menus) are panel-like and build
   upon the panel class.
 */
+@import "./_menus";
 
 // Top-level panels are boxes
 .panel {
@@ -66,13 +67,6 @@
     }
   }
 
-  // These elements only have borders when following panel-like elements
-  header, .panel, nav, .menu {
-    + nav, + .menu {
-      border-top: 1px solid @border-color;
-    }
-  }
-
   // Underline headers
   header + *, header + .content {
     margin-left: -@padding-base;
@@ -91,7 +85,7 @@
 
   // Certain elements maintain full-width (but any vertical padding still
   // stacks)
-  .alert, progress, .checkbox-item, .radio-item, nav > a, .menu, .menu button {
+  .alert, progress, nav, .menu {
     margin-left: -@padding-base;
     margin-right: -@padding-base;
     border-radius: 0;
@@ -134,41 +128,29 @@
     resize: vertical;
   }
 
+  // Specific styling for certain elements
+  input {
+    width: 100%;
+  }
 
-  /* Selectors + nav links - stretch to edges */
-
-  .checkbox-item, .radio-item, nav > a {
-    display: block;
-    font-size: @font-size-small;
-    padding: @padding-small @padding-base;
-
-    &:hover, &:focus, &.active {
-      color: @text-highlight;
-      background: @text-highlight-bg;
-    }
-
-    + .checkbox-item, + .radio-item, + a {
-      margin-top: 0;
-    }
-
-    &:first-child {
-      margin-top: -@padding-small;
-    }
-
-    &:last-child {
-      margin-bottom: -@padding-small;
-    }
+  input[type=checkbox], input[type=radio], input[type=submit] {
+    width: inherit;
   }
 
 
-  /* Button menus - style like selectors */
+  /* Selectors + nav links + button menus - stretch to edges */
 
-  .menu {
-    * + * {
-      margin-top: 0;
+  nav > a { .menu-item; }
+
+  .menu, nav {
+    > * {
+      margin-left: -@padding-base;
+      margin-right: -@padding-base;
     }
 
-    button {
+    > button, input[type=submit] {
+      padding-top: 0;
+      padding-bottom: 0;
       width: calc(~"100% + " 2 * @padding-base);
     }
 

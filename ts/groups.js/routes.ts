@@ -4,7 +4,7 @@ import * as Routing from "../lib/routing";
 import { Action, State } from "./types";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
-import * as ASN from "../lib/asn";
+import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod, fromDates } from "../lib/period";
 import * as Events from "../handlers/group-events";
 import * as Groups from "../handlers/groups"
@@ -16,7 +16,7 @@ export interface EventListRoute {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
-  labels: ASN.AllSomeNone;
+  query: QueryFilter;
   period: GenericPeriod;
 };
 export const eventList = Paths.eventList.route<{
@@ -35,11 +35,18 @@ export const eventList = Paths.eventList.route<{
     // Default labels => all / true
     let labels = p.labels || { all: true };
 
+    let query: QueryFilter = reduce({
+      labels,
+      contains: p.contains,
+      participants: p.participants,
+      minCost: p.minCost
+    });
+
     Groups.fetch(groupId, { withLabels: true }, deps);
     Events.fetchGroupEvents({
       groupId,
       period,
-      query: { labels }
+      query
     }, deps);
 
     deps.dispatch({
@@ -49,7 +56,7 @@ export const eventList = Paths.eventList.route<{
         groupId: groupId,
         showFilters: p.showFilters,
         eventId: p.eventId || undefined,
-        labels, period
+        query, period
       })
     });
   } else {

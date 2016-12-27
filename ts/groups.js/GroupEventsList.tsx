@@ -4,22 +4,22 @@
 */
 import * as _ from "lodash";
 import * as React from "react";
-import * as stringify from "json-stable-stringify";
 import { State, DispatchFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList from "../components/EventList";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
+import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, dateForDay } from "../lib/period";
 import { ready, StoreData } from "../states/data-status";
 import { GroupLabels } from "../states/groups";
-import { Query, EventMap, QueryResult } from "../states/group-events";
+import { EventMap, QueryResult } from "../states/group-events";
 
 interface Props {
   groupId: string;
   period: GenericPeriod;
-  query: Query;
+  query: QueryFilter;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   state: State;
   dispatch: DispatchFn;
