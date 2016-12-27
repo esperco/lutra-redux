@@ -2,11 +2,15 @@ import * as React from 'react';
 import { roundStr } from '../lib/util';
 
 export const NoTitle = "Untitled Event";
+export const NoComment = "There are no comments for this event yet.";
 export const NotFound = "Event Not Found";
 export const Recurring = "Recurring Event";
 export const FilterEvents = "Filter by Keyword";
+export const CommentPlaceholder = "Post a comment about this event";
+export const DefaultUsername = "Esper User";
 
 export const Attendees = "Guests";
+export const Comments = "Comments";
 export function attendeeStatus(
   status: "Needs_action"|"Declined"|"Tentative"|"Accepted"
 ) {

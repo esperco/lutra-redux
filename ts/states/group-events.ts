@@ -5,6 +5,7 @@ import { updateEventLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, fromDates } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
+import { LoginState } from "../lib/login";
 
 // Stored query result
 export interface QueryResult {
@@ -80,12 +81,31 @@ export type EventsDataAction =
   EventsFetchIdsRequestAction|
   EventsFetchIdsResponseAction;
 
+export type EventCommentAction =
+  EventCommentPostAction|
+  EventCommentDeleteAction;
+
 export interface EventsUpdateAction {
   type: "GROUP_EVENTS_UPDATE";
   groupId: string;
   eventIds: string[];
   addLabels?: ApiT.LabelInfo[];
   rmLabels?: ApiT.LabelInfo[];
+}
+
+export interface EventCommentPostAction {
+  type: "GROUP_EVENT_COMMENT_POST";
+  commentId: string;
+  eventId: string;
+  groupId: string;
+  text: string;
+}
+
+export interface EventCommentDeleteAction {
+  type: "GROUP_EVENT_COMMENT_DELETE";
+  commentId: string;
+  eventId: string;
+  groupId: string;
 }
 
 export function eventsDataReducer<S extends EventsState> (
@@ -173,6 +193,58 @@ export function eventsUpdateReducer<S extends EventsState>(
       [groupId]: mergeQueryStates(queryDays, queryDaysUpdate)
     }
   };
+  return _.extend({}, state, update);
+}
+
+export function eventCommentPostReducer<S extends EventsState & LoginState>(
+  state: S, action: EventCommentPostAction
+): S {
+  let { commentId, groupId, eventId, text } = action;
+  let eventsMap = state.groupEvents[groupId] || {};
+  let login = state.login;
+  let eventsMapUpdate: Partial<EventMap> = {};
+  let event = eventsMap[eventId];
+
+  if (ready(event) && ready(login)) {
+    let comments = _.concat(event.comments, {
+      id: commentId,
+      author: login.uid,
+      upvoted_users: [],
+      text: text
+    });
+    eventsMapUpdate[eventId] = { ...event, comments };
+  }
+
+
+  let update: Partial<EventsState> = {
+    groupEvents: {
+      ...state.groupEvents,
+      [groupId]: { ...eventsMap, ...eventsMapUpdate }
+    }
+  };
+  return _.extend({}, state, update);
+}
+
+export function eventCommentDeleteReducer<S extends EventsState>(
+  state: S, action: EventCommentDeleteAction
+): S {
+  let { commentId, eventId, groupId } = action;
+  let eventsMap = state.groupEvents[groupId] || {};
+  let eventsMapUpdate: Partial<EventMap> = {};
+  let event = eventsMap[eventId];
+
+  if (ready(event)) {
+    let comments = _.reject(event.comments, (c) => c.id === commentId);
+    eventsMapUpdate[eventId] = { ...event, comments };
+  }
+
+  let update: Partial<EventsState> = {
+    groupEvents: {
+      ...state.groupEvents,
+      [groupId]: { ...eventsMap, ...eventsMapUpdate }
+    }
+  }
+
   return _.extend({}, state, update);
 }
 

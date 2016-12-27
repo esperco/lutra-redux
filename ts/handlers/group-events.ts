@@ -9,7 +9,7 @@ import { QueueMap } from "../lib/queue";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import {
-  EventsState, EventsDataAction, EventsUpdateAction
+  EventsState, EventCommentAction, EventsDataAction, EventsUpdateAction
 } from "../states/group-events";
 
 export function fetchGroupEvents(props: {
@@ -107,8 +107,8 @@ function shouldUpdate(props: {
         }
 
         if (Conf && _.isNumber(Conf.cacheDuration) &&
-            queryData.updatedOn.getTime() + Conf.cacheDuration
-              < (new Date()).getTime()
+            queryData.updatedOn.getTime() + Conf.cacheDuration <
+              (new Date()).getTime()
         ) {
           return true;
         }
@@ -290,4 +290,44 @@ export function setGroupEventLabels(props: {
   // run these in parallel but whatever).
   // TODO: Fix when API updated.
   return groupLabelPromise.then(() => queue.enqueue(request));
+}
+
+export function postGroupEventComment(props: {
+  groupId: string;
+  eventId: string;
+  text: string;
+}, deps: {
+  dispatch: (a: EventCommentAction) => any;
+  Svcs: ApiSvc;
+}) {
+  let { groupId, eventId, text } = props;
+  let { dispatch, Svcs } = deps;
+
+  return Svcs.Api.postGroupEventComment(groupId, eventId, { body: text })
+    .then((comment) =>
+      dispatch({
+        type: "GROUP_EVENT_COMMENT_POST",
+        commentId: comment.id,
+        ...props
+      })
+    );
+}
+
+export function deleteGroupEventComment(props: {
+  groupId: string;
+  eventId: string;
+  commentId: string;
+}, deps: {
+  dispatch: (a: EventCommentAction) => any;
+  Svcs: ApiSvc;
+}) {
+  let { groupId, commentId } = props;
+  let { dispatch, Svcs } = deps;
+
+  dispatch({
+    type: "GROUP_EVENT_COMMENT_DELETE",
+    ...props
+  });
+
+  return Svcs.Api.deleteGroupEventComment(groupId, commentId);
 }

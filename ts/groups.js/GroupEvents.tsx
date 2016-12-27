@@ -116,16 +116,33 @@ class GroupEvents extends React.Component<Props, {}> {
   renderSingleEvent() {
     if (this.props.eventId) {
       let eventMap = this.props.state.groupEvents[this.props.groupId] || {};
+      let members = this.props.state.groupMembers[this.props.groupId];
       let group = this.props.state.groupLabels[this.props.groupId];
       let labels = ready(group) ? group.group_labels : [];
       return <EventEditor
         event={eventMap[this.props.eventId]}
+        members={members}
         labels={labels}
+        loginDetails={this.props.state.login}
         onChange={(label, active) => Events.setGroupEventLabels({
           groupId: this.props.groupId,
           eventIds: this.props.eventId ? [this.props.eventId] : [],
           label, active
         }, this.props)}
+        onCommentPost={(eventId, text) =>
+          Events.postGroupEventComment({
+            groupId: this.props.groupId,
+            eventId,
+            text
+          }, {...this.props})
+        }
+        onCommentDelete={(eventId, commentId) =>
+          Events.deleteGroupEventComment({
+            groupId: this.props.groupId,
+            eventId,
+            commentId
+          }, {...this.props})
+        }
       />
     }
     return null; // No event
