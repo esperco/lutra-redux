@@ -14,7 +14,7 @@ import { handleGroupQueryCalc } from "../tasks/group-query-calc";
   Helper initialization
 */
 Log.init(_.extend({
-  logTrace: Conf.production,
+  logTrace: Conf.production
 }, Conf));
 
 /*
