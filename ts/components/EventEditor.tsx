@@ -5,15 +5,20 @@ import * as classNames from "classnames";
 import * as ApiT from "../lib/apiT";
 import fmtText from "../lib/fmt-text";
 import * as EventText from "../text/events";
-import { ok, StoreData } from "../states/data-status";
+import { ok, ready, StoreData } from "../states/data-status";
+import { GroupMembers } from "../states/groups";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
 import Tooltip from "./Tooltip";
 
 interface Props {
   event: StoreData<ApiT.GenericCalendarEvent>|undefined;
+  members: StoreData<GroupMembers>|undefined;
   labels: ApiT.LabelInfo[];
+  loginDetails: ApiT.LoginResponse|undefined;
   onChange: (x: ApiT.LabelInfo, active: boolean) => void;
+  onCommentPost: (eventId: string, text: string) => Promise<any>;
+  onCommentDelete: (eventId: string, commentId: string) => void;
 }
 
 export class EventEditor extends React.Component<Props, {}> {
@@ -72,6 +77,13 @@ export class EventEditor extends React.Component<Props, {}> {
       />
 
       <GuestList guests={event.guests} />
+
+      <CommentList eventId={event.id}
+                   comments={event.comments}
+                   members={this.props.members}
+                   loginDetails={this.props.loginDetails}
+                   onCommentPost={this.props.onCommentPost}
+                   onCommentDelete={this.props.onCommentDelete} />
     </div>
   }
 }
@@ -105,6 +117,96 @@ export class GuestList extends React.Component<{
         { EventText.attendeeStatus(guest.response) }
       </span>
     </div>;
+  }
+}
+
+interface CommentProps {
+  eventId: string;
+  comments: ApiT.GroupEventComment[];
+  members: StoreData<GroupMembers>|undefined;
+  loginDetails: ApiT.LoginResponse|undefined;
+  onCommentPost: (eventId: string, text: string) => Promise<any>;
+  onCommentDelete: (eventId: string, commentId: string) => void;
+}
+
+export class CommentList extends React.Component<CommentProps, {
+  pushing: boolean;
+}> {
+  _textarea: HTMLTextAreaElement;
+
+  constructor(props: CommentProps) {
+    super(props);
+
+    this.state = {
+      pushing: false
+    };
+  }
+
+  componentWillReceiveProps() {
+    this.setState({
+      pushing: false
+    });
+  }
+
+  render() {
+    return <div>
+      <h4>{ EventText.Comments }</h4>
+      <div className="comment-section">
+        { _.isEmpty(this.props.comments) ?
+          EventText.NoComment :
+          _.map(this.props.comments, (c, i) => this.renderComment(c, i))
+        }
+      <textarea placeholder={ EventText.CommentPlaceholder }
+                ref={(c) => this._textarea = c}
+                disabled={this.state.pushing} />
+        <button className="primary" onClick={(e) => this.validateInput(e)}>
+          Submit
+        </button>
+      </div>
+    </div>;
+  }
+
+  validateInput(e: React.MouseEvent<HTMLButtonElement>) {
+    let text = this._textarea.value;
+    if (!text || _.isEmpty(text) || this.state.pushing) return;
+
+    this.props.onCommentPost(this.props.eventId, text).then(
+      () => this._textarea.value = "");
+
+    this.setState({
+      pushing: true
+    });
+  }
+
+  renderComment(comment: ApiT.GroupEventComment, index: number) {
+    let showDelete = ready(this.props.loginDetails)
+      && (this.props.loginDetails.is_admin ||
+          this.props.loginDetails.uid === comment.author);
+
+    return <div key={comment.id || `comment-${index}`}>
+      { showDelete ?
+        <button className="comment-delete" onClick={
+          () => this.props.onCommentDelete(this.props.eventId, comment.id)
+        }>
+          <Icon type="remove" />
+        </button> : null
+      }
+      <h5>{ this.getAuthorName(comment.author) }</h5>
+      { comment.text }
+    </div>;
+  }
+
+  getAuthorName(uid: string) {
+    if (!ready(this.props.members)) return EventText.DefaultUsername;
+
+    let { group_individuals, group_teams } = this.props.members;
+    let gim = _.find(group_individuals, (i) => i.uid === uid);
+    if (!gim) return EventText.DefaultUsername;
+
+    let team = _.find(group_teams, (t) => t.email === gim.email);
+    if (!team) return gim.email;
+
+    return team.name;
   }
 }
 

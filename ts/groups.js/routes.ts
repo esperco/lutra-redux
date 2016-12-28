@@ -47,7 +47,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     });
 
     let props = { groupId, period, query };
-    let p1 = Groups.fetch(groupId, { withLabels: true }, deps);
+    let p1 = Groups.fetch(groupId, { withLabels: true, withMembers: true }, deps);
     let p2 = Events.fetchGroupEvents(props, deps);
     Calcs.startGroupCalc(props, {
       ...deps,

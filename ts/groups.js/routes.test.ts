@@ -84,7 +84,8 @@ describe("Routes", function() {
       let deps = getDeps();
       let spy = sandbox.spy(Groups, "fetch");
       Routes.eventList({ pathname, hash: "#!/event-list/group-id-123" }, deps);
-      expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
+      expectCalledWith(spy, "group-id-123",
+        { withLabels: true, withMembers: true }, deps);
     });
 
     it("should call fetch with query vals", function() {
@@ -121,7 +122,8 @@ describe("Routes", function() {
       }, deps);
 
       // Group 456 doesn't exist, go to 123 instead
-      expectCalledWith(spy, "group-id-123", { withLabels: true }, deps);
+      expectCalledWith(spy, "group-id-123",
+        { withLabels: true, withMembers: true }, deps);
       expectCalledWith(deps.dispatch, {
         type: "ROUTE",
         route: {

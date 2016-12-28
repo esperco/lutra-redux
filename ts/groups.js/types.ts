@@ -23,6 +23,7 @@ export type Action =
   DataStatus.DataAction|
   Events.EventsDataAction|
   Events.EventsUpdateAction|
+  Events.EventCommentAction|
   Groups.GroupDataAction|
   Groups.GroupUpdateAction|
   Login.LoginAction|

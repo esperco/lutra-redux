@@ -13,6 +13,7 @@ export function makeGenericCalendarEvent(
     all_day: false,
     hashtags: [],
     guests: [],
+    comments: [],
     transparent: false,
     description_messageids: []
   };
