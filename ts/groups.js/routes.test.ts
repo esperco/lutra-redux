@@ -5,6 +5,7 @@ import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { sandbox } from "../lib/sandbox";
 import { stubLogs } from "../fakes/stubs";
+import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/group-events";
 import * as Groups from "../handlers/groups";
 import initState from "./init-state";
@@ -24,6 +25,7 @@ describe("Routes", function() {
       dispatch: sandbox.spy(),
       state: initState(),
       Svcs: getSvcs(),
+      postTask: sandbox.spy()
     };
 
     // Incomplete login response -- but good enough for tests
@@ -96,6 +98,19 @@ describe("Routes", function() {
         period: { interval: "week", start: 2400, end: 2401 },
         query: { labels: { none: true }}
       }, deps);
+    });
+
+    it("should start a calc task", function() {
+      let deps = getDeps();
+      let spy = sandbox.spy(Calcs, "startGroupCalc");
+      Routes.eventList({ pathname,
+        hash: "#!/event-list/group-id-123?period=w,2400,2401&labels=0,1,"
+      }, deps);
+      expect(spy.getCall(0).args[0]).to.deep.equal({
+        groupId: "group-id-123",
+        period: { interval: "week", start: 2400, end: 2401 },
+        query: { labels: { none: true }}
+      });
     });
 
     it("should re-route to first group if bad group id", function() {

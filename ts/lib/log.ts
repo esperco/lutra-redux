@@ -1,6 +1,9 @@
 /*
   Logging helpers
 */
+import * as Raven from 'raven-js';
+import { init as initRaven } from './raven';
+var ravenClient: (typeof Raven)|undefined;
 
 /*
   Change this tag to distinguish between different scripts
@@ -14,8 +17,8 @@ var tag = "Esper";
 var trace = false;
 
 // Shims
-if (! window.console) {
-  (<any> window).console = <any>{ log: function () {} };
+if (! self.console) {
+  (<any> self).console = <any>{ log: function () {} };
 }
 console.trace  = console.trace || console.log;
 console.info   = console.info || console.log;
@@ -28,14 +31,18 @@ export enum Level { DEBUG = 1, INFO, WARN, ERROR, BOOM };
 export var level: Level = Level.DEBUG; // Default
 
 // Can change level here
-export function init({ logLevel, logTag, logTrace } : {
+export function init({ logLevel, logTag, logTrace, ravenUrl } : {
   logLevel?: Level;
   logTag?: string;
   logTrace?: boolean;
+  ravenUrl?: string;
 }) {
   level = typeof logLevel === "number" ? logLevel : level;
   tag = typeof logTag === "string" ? logTag : tag;
   trace = typeof logTrace === "boolean" ? logTrace : trace;
+  if (ravenUrl && !ravenClient) {
+    ravenClient = initRaven(ravenUrl);
+  }
 }
 
 // Helper function to add stuff to logging
@@ -50,7 +57,7 @@ function logBase(consoleFunc: (...a: any[]) => void,
   args.unshift(prefix ? tag + " " + prefix : tag);
 
   if (consoleFunc !== console.error && trace && console.trace) {
-    if (window.hasOwnProperty("chrome")) {
+    if (self.navigator.userAgent.indexOf("Chrome") >= 0) {
       // Chrome's console.trace actually shows message in trace, so replace
       // consoleFunc with trace
       consoleFunc = console.trace;
@@ -106,22 +113,22 @@ export function logToRaven(error: string|Error, details?: any) {
 // Logs error with optional details
 function logErrToRaven(error: Error, details?: any) {
   /*
-    Sanity check since Raven isn't deployed on all front-end stuff or
-    may be unavailable
+    Sanity check since Raven isn't loaded in dev. We load Raven into
+    global scope in another module to control dependency issues.
   */
-  if ((<any> window).Raven) {
+  if (ravenClient) {
     if (details) {
-      Raven.captureException(error, {
+      ravenClient.captureException(error, {
         extra: details
       });
     } else {
-      Raven.captureException(error);
+      ravenClient.captureException(error);
     }
   }
 }
 
 // Treat unhandledrejections as errors
-window.addEventListener("unhandledrejection", function (event: any) {
+self.addEventListener("unhandledrejection", function (event: any) {
   error(event.reason);
 });
 

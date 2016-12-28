@@ -24,6 +24,7 @@ mime.default_type = "text/html";
 */
 var NODE_ENV = process.env.NODE_ENV || 'development';
 var prodLike = (NODE_ENV !== 'development');
+var VERSION = version();
 
 var config = {
   entry: {
@@ -77,7 +78,7 @@ var config = {
             // Nunjucks / Jinja context
             context: {
               PRODUCTION: prodLike,
-              VERSION: version()
+              VERSION: VERSION
             }
           })
         })
@@ -134,7 +135,8 @@ var config = {
     }]),
 
     new webpack.DefinePlugin({
-      ENV: NODE_ENV,
+      ENV: JSON.stringify(NODE_ENV),
+      ESPER_VERSION: JSON.stringify(VERSION),
 
       /*
         Need to treat prod-like as "production" here because some libs
@@ -163,6 +165,15 @@ var config = {
 
   devServer: {
     historyApiFallback: true
+  },
+
+  worker: {
+    output: {
+      filename: "js/[name].worker--" +
+        (prodLike ? "[chunkhash]" : "dev") + ".js",
+      chunkFilename: "js/[name].worker--" +
+        (prodLike ? "[chunkhash]" : "dev") + ".js"
+    }
   }
 };
 
