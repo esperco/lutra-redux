@@ -78,6 +78,22 @@ export function init(
         dispatch({ type: "LOGIN", info, asAdmin });
         if (asAdmin) { Analytics.disabled = true; }
         else { Analytics.identify(info); }
+
+        // Intercom -> pass settings manually in case Segment is blocked. Wait
+        // 10 seconds so as not to interfere with normal Segment loading process
+        if (!info.is_sandbox_user && !info.is_admin) {
+          setTimeout(() => {
+            (<any> window).intercomSettings =
+              (<any> window).intercomSettings || {};
+            (<any> window).intercomSettings.user_id = info.uid;
+            (<any> window).intercomSettings.user_hash = info.uid_hash;
+            (<any> window).intercomSettings.email = info.email;
+            if ((<any> window).Intercom) { // Make sure intercom is loaded
+              (<any> window).Intercom("update",
+                (<any> window).intercomSettings);
+            }
+          }, 10000);
+        }
         return info;
       },
 
