@@ -4,6 +4,10 @@
 import * as _ from "lodash";
 import * as ApiT from "./apiT";
 import { ColorMap, getColorForMap } from "./colors";
+import { ChoiceSet } from "../lib/util";
+
+// ChoiceSet specific to labels
+export class LabelSet extends ChoiceSet<ApiT.LabelInfo> {}
 
 const PREDICTED_LABEL_PERCENT_CUTOFF = 0.5;
 
@@ -15,15 +19,17 @@ export function getLabelCounts(
   baseLabels: ApiT.LabelInfo[],
   events: ApiT.GenericCalendarEvent[]
 ): {
-  labels: ApiT.LabelInfo[];
+  labels: LabelSet;
+  selected: LabelSet;
   counts: Record<string, number>; // Normalized => count
 } {
   // Map for faster lookup. Ret preserves order.
   let counts: {[norm: string]: number} = {};
-  let labels = _.clone(baseLabels);
+  let labels = new LabelSet(baseLabels);
+  let selected = new LabelSet([]);
 
   // Prepopulate with base group or team labels
-  _.each(labels, (l) => {
+  labels.forEach((l) => {
     counts[l.normalized] = 0;
   });
 
@@ -31,43 +37,38 @@ export function getLabelCounts(
   _.each(events, (ev) => {
     let eventLabels = getLabels(ev);
     _.each(eventLabels, (l) => {
-
-      // Exists, increment
-      if (_.isNumber(counts[l.normalized])) {
-        counts[l.normalized] += 1;
-      }
-
-      // Else, new label
-      else {
-        counts[l.normalized] = 1;
-        labels.push(l);
-      }
+      counts[l.normalized] = (counts[l.normalized] || 0) + 1;
+      labels.push(l);
+      selected.push(l);
     });
   });
 
-  return { labels, counts };
+  return { labels, selected, counts };
 }
 
 /*
-  Like label counts except (instead of counts) we get a true/false/"some"
-  value for whether labels are applicable on the given events
+  Returns three OrderedSets -- one with all the labels, one with labels
+  that are selected in any event, and one with partially selected labels
+  (labels selected in at least one event but not all the events)
 */
-export function getLabelSelections(
+export function getLabelPartials(
   baseLabels: ApiT.LabelInfo[],
   events: ApiT.GenericCalendarEvent[]
 ): {
-  labels: ApiT.LabelInfo[];
-  selections: Record<string, boolean|"some">; // Normalized to value
+  labels: LabelSet;
+  selected: LabelSet;
+  partial: LabelSet;
 } {
-  let { labels, counts } = getLabelCounts(baseLabels, events);
+  let { labels, selected, counts } = getLabelCounts(baseLabels, events);
+  let partial = new LabelSet(
+    selected.filter((k) => counts[k.normalized] < events.length)
+  );
+
   return {
     labels,
-    selections: _.mapValues(counts, (v) => {
-      if (v === 0) return false;
-      if (v === events.length) return true;
-      return "some";
-    })
-  }
+    selected,
+    partial
+  };
 }
 
 /*
@@ -123,18 +124,17 @@ export function resetColors() {
 
 /* Label Filtering */
 
-export function filterLabels<T extends ApiT.LabelInfo>(
-  labels: T[], filter: string
-): T[] {
+export function filter<T extends ApiT.LabelInfo>(
+  label: T, filter: string
+): boolean {
   filter = normalize(filter);
-  return _.filter(labels, (l) => _.includes(l.normalized, filter));
+  return _.includes(label.normalized, filter);
 }
-
 export function match<T extends ApiT.LabelInfo>(
-  labels: T[], filter: string
-): T|undefined {
+  label: T, filter: string
+): boolean {
   filter = normalize(filter);
-  return _.find(labels, (l) => l.normalized === filter);
+  return label.normalized === filter;
 }
 
 // Normalize label -- should match server ideally

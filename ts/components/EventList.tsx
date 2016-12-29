@@ -15,7 +15,7 @@ import * as EventText from "../text/events";
 interface SharedProps {
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   labels?: ApiT.LabelInfo[];
-  onChange?: (
+  onChange: (
     eventIds: string[],
     x: ApiT.LabelInfo,
     active: boolean

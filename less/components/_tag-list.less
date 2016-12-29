@@ -1,16 +1,29 @@
 @import "../_text";
 
 // List itself
-.label-list {
+.tag-list {
   line-height: @input-height-small;
 
   .tag {
     margin-top: 0;
+    background: @shade-bg;
+    color: @text-color;
+    position: relative;
+    padding-right: @input-height-small;
+
+    button:last-child {
+      position: absolute;
+      top: 0;
+      right: @padding-small / 2;
+    }
   }
 
   .tag > * {
     display: inline-block;
     vertical-align: top;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   button {
@@ -22,6 +35,16 @@
       line-height: @input-height-small;
       vertical-align: middle;
     }
+
+    &:only-child {
+      width: 100%;
+      text-align: left;
+
+      * + .icon-label:last-child {
+        margin-top: 0;
+        float: right;
+      }
+    }
   }
 
   // Button at end is for adding tags, hide text if tags showing
@@ -31,7 +54,7 @@
 }
 
 // Dropdown menu (may not be child of .label-list)
-.label-list-menu {
+.tag-list-menu {
   button { // Add label button
     text-transform: none;
   }
