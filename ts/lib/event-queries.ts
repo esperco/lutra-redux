@@ -9,12 +9,14 @@ import { compactObject } from "./util";
 
 const DEFAULT_LABELS: AllSomeNone = { all: true, none: true };
 
-export interface QueryFilter {
-  labels?: AllSomeNone;
-  contains?: string;            // Event title or description
-  participant?: string[];      // Name or email (empty = select all)
-  minCost?: number;             // 1-5
+export interface QueryFilterExpanded {
+  labels: AllSomeNone;
+  contains: string;            // Event title or description
+  participant: string[];      // Name or email (empty = select all)
+  minCost: number;             // 1-5
 }
+
+export type QueryFilter = Partial<QueryFilterExpanded>;
 
 // Normalizes QueryFilter to remove default options
 export function reduce(q: QueryFilter): QueryFilter {
@@ -25,6 +27,17 @@ export function reduce(q: QueryFilter): QueryFilter {
     minCost: (q.minCost || 1) > 1 ? q.minCost : undefined
   });
 }
+
+// Expands QueryFilter to include defualt options
+export function expand(q: QueryFilter): QueryFilterExpanded {
+  return {
+    labels: q.labels || DEFAULT_LABELS,
+    contains: q.contains || "",
+    participant: q.participant || [],
+    minCost: q.minCost || 1
+  };
+}
+
 
 // Stringify for use as a key in a map
 export function stringify(q: QueryFilter): string {

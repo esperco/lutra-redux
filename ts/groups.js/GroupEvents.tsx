@@ -46,13 +46,14 @@ class GroupEvents extends React.Component<Props, {}> {
       { delay({
           value: this.props.query,
           onChange: (query) => this.update({ query }),
-          component: ({ value, onChange }) =>
+          component: ({ value, onChange, onSubmit }) =>
             <GroupFiltersSelector
               className="sidebar panel"
               groupId={this.props.groupId}
               state={this.props.state}
               query={value}
               onChange={onChange}
+              onSubmit={onSubmit}
             />
         }) }
 
