@@ -3,6 +3,9 @@
 # Put Node bins in path
 export PATH := node_modules/.bin:$(PATH)
 
+# Can override what we're testing
+TEST_TARGET=ts/**/*.test.*
+
 default: build
 
 setup:
@@ -28,7 +31,7 @@ test:
 	mocha --recursive --reporter spec --bail \
   --require test-helpers/init.ts \
   --compilers ts:ts-node/register,tsx:ts-node/register \
-  ts/**/*.test.*
+	$(TEST_TARGET)
 
 prod:
 	NODE_ENV=production $(MAKE) build
