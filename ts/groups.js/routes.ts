@@ -39,7 +39,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     let query: QueryFilter = reduce({
       labels: p.labels,
       contains: p.contains,
-      participants: p.participants,
+      participant: p.participant,
       minCost: p.minCost
     });
 

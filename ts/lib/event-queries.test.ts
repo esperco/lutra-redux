@@ -17,7 +17,7 @@ describe("Event Queries", () => {
       let s1 = Queries.stringify({
         labels: undefined,
         contains: undefined,
-        participants: undefined,
+        participant: undefined,
         minCost: undefined
       });
       let s2 = Queries.stringify({});
@@ -114,11 +114,11 @@ describe("Event Queries", () => {
     it("includes participants, if any", () => {
       expect(Queries.toAPI(start, end, {
         labels: { all: true, none: true },
-        participants: ["Bob", "ann@example.com"]
+        participant: ["Bob", "ann@example.com"]
       })).to.deep.equal({
         window_start: "2016-11-01T00:00:00.000Z",
         window_end: "2016-11-02T00:00:00.000Z",
-        participants: ["Bob", "ann@example.com"]
+        participant: ["Bob", "ann@example.com"]
       });
     });
   });
