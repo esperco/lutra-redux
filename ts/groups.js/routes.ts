@@ -36,18 +36,16 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
       moment(new Date()).add(1, 'week').toDate()
     );
 
-    // Default labels => all / true
-    let labels = p.labels || { all: true };
-
     let query: QueryFilter = reduce({
-      labels,
+      labels: p.labels,
       contains: p.contains,
       participants: p.participants,
       minCost: p.minCost
     });
 
     let props = { groupId, period, query };
-    let p1 = Groups.fetch(groupId, { withLabels: true, withMembers: true }, deps);
+    let p1 = Groups.fetch(groupId,
+      { withLabels: true, withMembers: true }, deps);
     let p2 = Events.fetchGroupEvents(props, deps);
     Calcs.startGroupCalc(props, {
       ...deps,

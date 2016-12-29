@@ -7,7 +7,7 @@ import * as ApiT from "./apiT";
 import { AllSomeNone } from "./asn";
 import { compactObject } from "./util";
 
-const DEFAULT_LABELS: AllSomeNone = { all: true };
+const DEFAULT_LABELS: AllSomeNone = { all: true, none: true };
 
 export interface QueryFilter {
   labels?: AllSomeNone;

@@ -38,9 +38,10 @@ describe("Event Queries", () => {
       expect(s1).to.equal(s3);
     });
 
-    it("treats label undefined and fetch both all labels as the same", () => {
+    it("treats label undefined and fetch both all and one labels as the same",
+    () => {
       let s1 = Queries.stringify({
-        labels: { all: true }
+        labels: { all: true, none: true }
       });
       let s2 = Queries.stringify({});
       expect(s1).to.equal(s2);
