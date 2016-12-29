@@ -58,13 +58,18 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
 
   submit = () => {
     clearTimeout(this._timeout);
-    this.props.onChange(this.state.value);
+
+    // Wrap in RAF so any changes called synchronously with submit can
+    // update state
+    window.requestAnimationFrame(
+      () => this.props.onChange(this.state.value)
+    );
   }
 
   setTimeout() {
     clearTimeout(this._timeout);
     this._timeout = setTimeout(
-      this.submit,
+      () => this.props.onChange(this.state.value),
       _.isNumber(this.props.delay) ? this.props.delay : DEFAULT_DELAY
     );
   }
