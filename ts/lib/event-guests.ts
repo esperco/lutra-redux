@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import { validateEmailAddress, OrderedSet } from "../lib/util";
+import { GroupMembers } from "../states/groups";
 
 export type Guest = {
   displayName?: string;
@@ -31,6 +32,21 @@ export function newGuest(str: string): Guest {
       displayName: str
     };
   }
+}
+
+// Generate a guest list from group data
+export function guestSetFromGroupMembers(members: GroupMembers): GuestSet {
+  let ret = new GuestSet([]);
+  _.each(members.group_individuals, (gim) => gim.email ? ret.push({
+    email: gim.email
+  }) : null);
+
+  _.each(members.group_teams, (team) => team.email ? ret.push({
+    email: team.email,
+    displayName: team.name
+  }) : null);
+
+  return ret;
 }
 
 export function filter(guest: Guest, filter: string): boolean {

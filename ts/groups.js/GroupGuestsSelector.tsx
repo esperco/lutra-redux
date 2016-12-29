@@ -33,7 +33,7 @@ function toGuest(c: Choice|string, guestSet: GuestSet): Guest {
 
 
 export class GroupGuestsSelector extends React.Component<{
-  guests: Guest[];
+  guests: GuestSet;
   selected: string[];
   onChange: (selected: string[]) => void;
   onSubmit?: () => void;
@@ -41,7 +41,7 @@ export class GroupGuestsSelector extends React.Component<{
   _tagList: TagList;
 
   render() {
-    let allGuests = new GuestSet(this.props.guests);
+    let allGuests = this.props.guests.clone();
     let choices = new ChoiceSet(allGuests.map(toChoice));
 
     let selected = new ChoiceSet<Choice>([]);

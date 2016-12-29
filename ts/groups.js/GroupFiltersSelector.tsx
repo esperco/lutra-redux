@@ -6,6 +6,7 @@ import SearchInput from "../components/SearchInput";
 import GroupGuestsSelector from "./GroupGuestsSelector";
 import GroupLabelsSelector from "./GroupLabelsSelector";
 import MinCostSelector from "./MinCostSelector";
+import { guestSetFromGroupMembers, GuestSet } from "../lib/event-guests"
 import { QueryFilter, reduce, expand } from "../lib/event-queries";
 import { State as StoreState } from "./types";
 import { ready } from "../states/data-status";
@@ -26,6 +27,10 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
     let groupLabels = this.props.state.groupLabels[this.props.groupId];
     let labels = ready(groupLabels) ? groupLabels.group_labels : [];
     let expanded = expand(this.props.query);
+
+    let groupMembers = this.props.state.groupMembers[this.props.groupId];
+    let guests = ready(groupMembers) ?
+      guestSetFromGroupMembers(groupMembers) : new GuestSet([]);
 
     return <div className={this.props.className}>
       <div className="panel">
@@ -58,7 +63,7 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
       <div className="panel">
         <h4>{ EventText.Attendees }</h4>
         <GroupGuestsSelector
-          guests={[]}
+          guests={guests}
           selected={expanded.participant}
           onChange={(participant) => this.update({ participant })}
           onSubmit={this.props.onSubmit}

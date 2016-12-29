@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { shallow } from 'enzyme';
 import * as Sinon from 'sinon';
 import TagList from "../components/TagList";
-import { normalize } from "../lib/event-guests";
+import { normalize, GuestSet } from "../lib/event-guests";
 import { expectCalledWith } from "../lib/expect-helpers";
 import GroupGuestsSelector from './GroupGuestsSelector';
 
@@ -51,7 +51,7 @@ describe("<GroupLabelsSelector />", () => {
     onChangeSpy = Sinon.spy();
     onSubmitSpy = Sinon.spy();
     return shallow(<GroupGuestsSelector
-      guests={[guest1, guest2, guest3]}
+      guests={new GuestSet([guest1, guest2, guest3])}
       selected={selected}
       onChange={onChangeSpy}
       onSubmit={onSubmitSpy}
