@@ -124,16 +124,6 @@ var config = {
   },
 
   plugins: [
-    /*
-      Copies files from sibling lutra directory over so lutra can serve them.
-      This should not error even if context dir is missing though.
-    */
-    new CopyWebpackPlugin([{
-      context: "../lutra/esper.com/pub/",
-      from: "**/*",
-      to: ""
-    }]),
-
     new webpack.DefinePlugin({
       ENV: JSON.stringify(NODE_ENV),
       ESPER_VERSION: JSON.stringify(VERSION),
@@ -176,6 +166,21 @@ var config = {
     }
   }
 };
+
+if (! prodLike) {
+  /*
+    Copies files from sibling lutra directory over so lutra can serve them.
+    This should not error even if context dir is missing though. Only do
+    this for dev (deploy prod lutra via lutra's own makefile)
+  */
+  config.plugins.push(
+    new CopyWebpackPlugin([{
+      context: "../lutra/esper.com/pub/",
+      from: "**/*",
+      to: ""
+    }])
+  );
+}
 
 if (prodLike) {
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
