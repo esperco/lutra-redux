@@ -5,7 +5,8 @@ function navFakeFactory() {
     Nav: {
       queryHashes: {},
       go: function(path: string) {},
-      reset: function() {}
+      reset: function() {},
+      refresh: function() {}
     }
   };
   return svc;

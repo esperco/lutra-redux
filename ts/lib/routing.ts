@@ -319,6 +319,10 @@ export namespace Nav {
     // Else, update entire path
     location.href = path;
   }
+
+  export function refresh() {
+    window.dispatchEvent(new HashChangeEvent("hashchange"))
+  }
 }
 
 // Service type for code relying on this

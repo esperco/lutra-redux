@@ -6,10 +6,12 @@ import { updateEventLabels } from "../lib/event-labels";
 import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
 import { GenericPeriod, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
+import { NavSvc } from "../lib/routing";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import {
-  EventsState, EventCommentAction, EventsDataAction, EventsUpdateAction
+  EventsState, EventCommentAction, EventsDataAction, EventsUpdateAction,
+  EventsInvalidatePeriodAction
 } from "../states/group-events";
 
 export function fetchGroupEvents(props: {
@@ -330,4 +332,19 @@ export function deleteGroupEventComment(props: {
   });
 
   return Svcs.Api.deleteGroupEventComment(groupId, commentId);
+}
+
+// Refresh current view with a given set of periods
+export function refresh(props: {
+  groupId: string,
+  period: GenericPeriod
+}, deps: {
+  dispatch: (a: EventsInvalidatePeriodAction) => any;
+  Svcs: NavSvc;
+}) {
+  deps.dispatch({
+    type: "GROUP_EVENTS_INVALIDATE_PERIOD",
+    ...props
+  });
+  deps.Svcs.Nav.refresh();
 }

@@ -70,6 +70,11 @@ class GroupEvents extends React.Component<Props, {}> {
               value={this.props.period}
               onChange={(p) => this.update({ period: p })}
             />
+
+            { /* Refresh event list */ }
+            <button onClick={this.refresh}>
+              <Icon type="refresh" />
+            </button>
           </header>
 
           <div className="content">
@@ -172,6 +177,11 @@ class GroupEvents extends React.Component<Props, {}> {
 
   update(updates: Partial<RouteProps>) {
     this.props.Svcs.Nav.go(this.updateHref(updates));
+  }
+
+  refresh = () => {
+    let { groupId, period } = this.props;
+    Events.refresh({ groupId, period }, this.props);
   }
 }
 
