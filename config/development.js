@@ -5,7 +5,7 @@ module.exports = {
   apiPrefix: location.protocol + "//" + location.hostname,
 
   loginRedirect: location.origin + "/login",
-  logoutRedirect: location.orgin + "/login?logout=1",
+  logoutRedirect: location.origin + "/login?logout=1",
 
   cacheDuration: 30 * 1000, // 30 sec
   esperVersion: "lutra-redux",
