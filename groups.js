@@ -21,7 +21,7 @@ if (window.Worker) {
   window.GroupWorker = new Worker;
 } else {
   // No web-worker. Unsupported browser.
-  let update = confirm(
+  var update = confirm(
     "Esper requires a modern browser to function properly. Please " +
     "update your browser before continuing."
   );
