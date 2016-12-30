@@ -222,7 +222,7 @@ export class OrderedSet<T> {
 
   // Returns a normal list (no sparse values)
   toList(): T[] {
-    return _.filter(this.list, (l) => !_.isUndefined(l)) as T[];
+    return _.filter(this.list, (l) => !_.isUndefined(l));
   }
 
   // Returns sparse list with possible undefined values
@@ -230,23 +230,23 @@ export class OrderedSet<T> {
     return this.list;
   }
 
-  has(item: T) {
+  has(item: T): boolean {
     let key = this._keyFn(item);
     return this.hasKey(key);
   }
 
-  hasKey(key: string) {
+  hasKey(key: string): boolean {
     return typeof this.hash[key] === "number"
   }
 
   // Returns item as it appears in list (may differ from original depending
   // keyFn)
-  get(item: T) {
+  get(item: T): T {
     let key = this._keyFn(item);
     return this.getByKey(key);
   }
 
-  getByKey(key: string) {
+  getByKey(key: string): T {
     return this.list[this.hash[key]];
   }
 
@@ -277,7 +277,7 @@ export class OrderedSet<T> {
   }
 
   // Add item to end of list (if new) -- or replace existing one if key
-  push(...items: T[]) {
+  push(...items: T[]): void {
     _.each(items, (item) => {
       let key = this._keyFn(item);
       let index = this.hash[key];
@@ -290,7 +290,7 @@ export class OrderedSet<T> {
   }
 
   // Removes item (if any)
-  pull(...items: T[]) {
+  pull(...items: T[]): void {
     _.each(items, (item) => {
       if (this.has(item)) {
         let key = this._keyFn(item);
@@ -302,21 +302,21 @@ export class OrderedSet<T> {
   }
 
   // Like push, but returns new set
-  with(...items: T[]) {
+  with(...items: T[]): this {
     let ret = this.clone();
     ret.push(...items);
     return ret;
   }
 
   // Like pull, but returns new set
-  without(...items: T[]) {
+  without(...items: T[]): this {
     let ret = this.clone();
     ret.pull(...items);
     return ret;
   }
 
   // Creates a copy of this OrderedSet
-  clone() {
+  clone(): this {
     let ret = _.clone(this);
     ret.hash = _.clone(this.hash);
     ret.list = _.clone(this.list);
