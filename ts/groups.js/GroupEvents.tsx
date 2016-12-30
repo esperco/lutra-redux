@@ -15,7 +15,7 @@ import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
-import { QueryFilter } from "../lib/event-queries";
+import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
@@ -167,7 +167,7 @@ class GroupEvents extends React.Component<Props, {}> {
   // Path with new props
   updateHref(updates: Partial<RouteProps>) {
     let { groupId, showFilters, eventId, period } = this.props;
-    let query = updates.query || this.props.query;
+    let query = reduce(updates.query || this.props.query);
     return eventList.href({
       groupId, showFilters, eventId, period, ...query, ...updates
     });

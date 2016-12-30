@@ -7,7 +7,7 @@ import GroupGuestsSelector from "./GroupGuestsSelector";
 import GroupLabelsSelector from "./GroupLabelsSelector";
 import MinCostSelector from "./MinCostSelector";
 import { guestSetFromGroupMembers, GuestSet } from "../lib/event-guests"
-import { QueryFilter, reduce, expand } from "../lib/event-queries";
+import { QueryFilter, expand } from "../lib/event-queries";
 import { State as StoreState } from "./types";
 import { ready } from "../states/data-status";
 import * as EventText from "../text/events";
@@ -73,7 +73,7 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
   }
 
   update(x: Partial<QueryFilter>) {
-    let query = reduce({ ...this.props.query, ...x });
+    let query = { ...this.props.query, ...x };
     this.props.onChange(query);
   }
 }
