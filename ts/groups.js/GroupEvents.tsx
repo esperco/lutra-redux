@@ -70,15 +70,6 @@ class GroupEvents extends React.Component<Props, {}> {
               value={this.props.period}
               onChange={(p) => this.update({ period: p })}
             />
-
-            { /* Close event */
-              !!this.props.eventId ?
-              <button onClick={() => this.update({
-                eventId: undefined
-              })}>
-                <Icon type="close" />
-              </button> : null
-            }
           </header>
 
           <div className="content">
@@ -93,6 +84,12 @@ class GroupEvents extends React.Component<Props, {}> {
 
       {/* Additional event info goes here (if applicable) */}
       <div className="sidebar panel">
+        <button className="close-btn" onClick={() => this.update({
+          eventId: undefined
+        })}>
+          <Icon type="close" />
+        </button>
+
         { this.renderSingleEvent() }
       </div>
     </div>;

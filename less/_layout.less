@@ -189,6 +189,13 @@ ul {
     @media screen and (max-width: @screen-xs-max) {
       width: @sidebar-width-xs;
     }
+
+    // Close button
+    .close-btn {
+      float: right;
+
+      + * { margin-top: 0; }
+    }
   }
 
   // Left sidebar visible
@@ -274,6 +281,12 @@ ul {
 
     &:last-child { // Right
       border-left-width: 1px;
+    }
+
+    .close-btn {
+      position: relative;
+      top: -@padding-small;
+      right: -@padding-small;
     }
   }
 
