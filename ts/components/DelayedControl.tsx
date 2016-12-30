@@ -33,14 +33,18 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
     this.state = { value: props.value };
   }
 
+  /*
+    Update state based on new props only if no timeout is pending. Otherwise,
+    we might clobber user input that hasn't posted yet.
+  */
   componentWillReceiveProps(newProps: Props<T>) {
-    if (! _.isUndefined(this._timeout)) {
+    if (_.isUndefined(this._timeout)) {
       this.setState({ value: newProps.value });
     }
   }
 
   componentWillUnmount(){
-    clearTimeout(this._timeout);
+    this.clearTimeout();
   }
 
   render() {
@@ -57,7 +61,7 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
   }
 
   submit = () => {
-    clearTimeout(this._timeout);
+    this.clearTimeout();
 
     // Wrap in RAF so any changes called synchronously with submit can
     // update state
@@ -67,11 +71,20 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
   }
 
   setTimeout() {
+    this.clearTimeout();
+    this._timeout = setTimeout(() => {
+      this.clearTimeout();
+      this.props.onChange(this.state.value);
+    }, _.isNumber(this.props.delay) ? this.props.delay : DEFAULT_DELAY);
+  }
+
+  /*
+    Need to delete _timeout as well so presence of _timeout variable accurately
+    tells us whether a timeout is pending -- see componentWillReceiveProps
+  */
+  clearTimeout() {
     clearTimeout(this._timeout);
-    this._timeout = setTimeout(
-      () => this.props.onChange(this.state.value),
-      _.isNumber(this.props.delay) ? this.props.delay : DEFAULT_DELAY
-    );
+    delete this._timeout;
   }
 }
 
