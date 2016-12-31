@@ -278,7 +278,8 @@ export function eventCommentPostReducer<S extends EventsState & LoginState>(
       id: commentId,
       author: login.uid,
       upvoted_users: [],
-      text: text
+      text: text,
+      created: (new Date()).toISOString()
     });
     eventsMapUpdate[eventId] = { ...event, comments };
   }

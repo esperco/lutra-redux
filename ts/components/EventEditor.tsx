@@ -149,19 +149,25 @@ export class CommentList extends React.Component<CommentProps, {
   }
 
   render() {
-    return <div>
+    return <div className="panel">
       <h4>{ EventText.Comments }</h4>
       <div className="comment-section">
-        { _.isEmpty(this.props.comments) ?
-          EventText.NoComment :
+        <div>{ _.isEmpty(this.props.comments) ?
+          <div className="no-content">{ EventText.NoComment }</div> :
           _.map(this.props.comments, (c, i) => this.renderComment(c, i))
-        }
-      <textarea placeholder={ EventText.CommentPlaceholder }
-                ref={(c) => this._textarea = c}
-                disabled={this.state.pushing} />
-        <button className="primary" onClick={(e) => this.validateInput(e)}>
-          Submit
-        </button>
+        }</div>
+
+        <div>
+          <textarea placeholder={ EventText.CommentPlaceholder }
+                    ref={(c) => this._textarea = c}
+                    disabled={this.state.pushing} />
+        </div>
+
+        <div>
+          <button className="primary" onClick={(e) => this.validateInput(e)}>
+            Submit
+          </button>
+        </div>
       </div>
     </div>;
   }
@@ -183,7 +189,7 @@ export class CommentList extends React.Component<CommentProps, {
       && (this.props.loginDetails.is_admin ||
           this.props.loginDetails.uid === comment.author);
 
-    return <div key={comment.id || `comment-${index}`}>
+    return <div key={comment.id || `comment-${index}`} className="comment">
       { showDelete ?
         <button className="comment-delete" onClick={
           () => this.props.onCommentDelete(this.props.eventId, comment.id)
@@ -192,7 +198,8 @@ export class CommentList extends React.Component<CommentProps, {
         </button> : null
       }
       <h5>{ this.getAuthorName(comment.author) }</h5>
-      { comment.text }
+      <div className="time">{ moment(comment.created).fromNow() }</div>
+      { fmtText(comment.text) }
     </div>;
   }
 

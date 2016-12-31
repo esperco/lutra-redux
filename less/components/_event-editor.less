@@ -10,23 +10,27 @@
   }
 
   .comment-section {
-    border: 1px solid @border-color;
-    padding: @padding-base;
-    color: @text-muted;
-    background-color: @gray-bg;
-
-    textarea {
-      margin: 10px 0 0;
-      width: 100%;
-    }
-
-    h5 {
-      margin-top: 0;
-    }
+    button.primary { float: right; }
   }
 
   .comment-delete {
     float: right;
+    position: relative;
+    top: -@padding-small;
+  }
+
+  .comment {
+    font-size: 0.9em;
+
+    h5 {
+      margin-top: 0;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .time + * {
+      margin-top: @padding-small;
+    }
   }
 
   .time {

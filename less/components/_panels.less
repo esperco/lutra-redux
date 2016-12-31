@@ -121,9 +121,11 @@
   /* Form elements */
 
   textarea {
-    margin-left: calc(-@padding-base + ~" - 1px");
-    margin-right: calc(-@padding-base + ~" - 1px");
-    width: calc(~"100% + " (2 * @padding-base) + ~" + 2px");
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    width: calc(~"100% + " (2 * @padding-base));
+    border-left: 0;
+    border-right: 0;
     border-radius: 0;
     resize: vertical;
   }
