@@ -512,7 +512,7 @@ export interface CalendarRequest {
   contains?: string;
 
   // Participants must have one of these names or email addresses
-  participants?: string[];
+  participant?: string[];
 
   // 1-5 minimum cost per event
   min_cost?: number;

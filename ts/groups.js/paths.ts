@@ -17,7 +17,7 @@ export const eventList = new Path({
     eventId: StringParam,
     labels: AllSomeNoneParam,
     contains: StringParam,
-    participants: StringArrayParam,
+    participant: StringArrayParam,
     minCost: NumberParam,
     period: PeriodParam
   },

@@ -65,3 +65,15 @@
     border-radius: @border-radius-base;
   }
 }
+
+/*
+  Add top border to certain panel-like objects when following panel.
+  Adding above seems to mess with the LESS mixin of .panel for some reason.
+*/
+.dropdown-menu {
+  .panel, .menu, nav {
+    + .menu, + nav {
+      border-top: 1px solid @border-color;
+    }
+  }
+}

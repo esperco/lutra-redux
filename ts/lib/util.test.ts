@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import {
   roundStr, deepFreeze, hexDecode, hexEncode,
-  compactObject, makeRecord, recordToList
+  compactObject, makeRecord, recordToList,
+  OrderedSet
 } from "./util";
 import { sandbox } from "./sandbox";
 
@@ -88,5 +89,96 @@ describe("recordToList", function() {
       a: true,
       b: false
     })).to.deep.equal(['a']);
+  });
+});
+
+describe("OrderedSet", function() {
+  describe("push", () => {
+    it("appends new items to the end", () => {
+      let o = new OrderedSet([1,2,3])
+      o.push(4);
+      expect(o.toList()).to.deep.equal([1, 2, 3, 4]);
+    });
+
+    it("does not add existing items", () => {
+      let o = new OrderedSet([1,2,3])
+      o.push(2);
+      expect(o.toList()).to.deep.equal([1, 2, 3]);
+    });
+
+    it("replaces existing items with custom keys", () => {
+      let o = new OrderedSet([
+        {id: "A", val: 0}, {id: "B", val: 0}, {id: "C", val: 0}
+      ], (x) => x.id);
+      o.push({id: "B", val: 1});
+      expect(o.toList()).to.deep.equal([
+        {id: "A", val: 0}, {id: "B", val: 1}, {id: "C", val: 0}
+      ]);
+    });
+  });
+
+  describe("pull", () => {
+    it("removes matching items by key", () => {
+      let o = new OrderedSet([
+        {id: "A", val: 0}, {id: "B", val: 0}, {id: "C", val: 0}
+      ], (x) => x.id);
+      o.pull({id: "B", val: 1});
+      expect(o.toList()).to.deep.equal([
+        {id: "A", val: 0}, {id: "C", val: 0}
+      ]);
+    });
+
+    it("does not choke if items missing", () => {
+      let o = new OrderedSet([
+        {id: "A", val: 0}, {id: "B", val: 0}, {id: "C", val: 0}
+      ], (x) => x.id);
+      o.pull({id: "X", val: 0});
+      expect(o.toList()).to.deep.equal([
+        {id: "A", val: 0}, {id: "B", val: 0}, {id: "C", val: 0}
+      ]);
+    });
+  });
+
+  describe("map", () => {
+    it("maps all defined values to new ones", () => {
+      let o = new OrderedSet([0, 1, 2, 3]);
+      o.pull(2);
+      expect(o.map((n) => n * 2)).to.deep.equal([0, 2, 6]);
+    });
+  });
+
+  describe("forEach", () => {
+    it("invokes callback for each defined value", () => {
+      let o = new OrderedSet([0, 1, 2, 3]);
+      let ret: number[] = [];
+      o.pull(2);
+      o.forEach((n) => ret.push(n * 2));
+      expect(ret).to.deep.equal([0, 2, 6]);
+    });
+  });
+
+  describe("filter", () => {
+    it("removes all values for which filter returns false", () => {
+      let o = new OrderedSet([0, 1, 2, 3]);
+      expect(o.filter((n) => n % 2 !== 0)).to.deep.equal([1, 3]);
+    });
+  });
+
+  describe("with", () => {
+    it("adds items without mutating original", () => {
+      let o1 = new OrderedSet([0, 1, 2, 3]);
+      let o2 = o1.with(4, 5);
+      expect(o1.toList()).to.deep.equal([0, 1, 2, 3]);
+      expect(o2.toList()).to.deep.equal([0, 1, 2, 3, 4, 5]);
+    });
+  });
+
+  describe("without", () => {
+    it("removes items without mutating original", () => {
+      let o1 = new OrderedSet([0, 1, 2, 3]);
+      let o2 = o1.without(0, 1);
+      expect(o1.toList()).to.deep.equal([0, 1, 2, 3]);
+      expect(o2.toList()).to.deep.equal([2, 3]);
+    });
   });
 });

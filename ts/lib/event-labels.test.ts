@@ -35,7 +35,19 @@ describe("Event label helpers", () => {
         makeEvent({ id: "e1", labels: [label2, label3] }),
         makeEvent({ id: "e2", labels: [label3, label4] })
       ]);
-      expect(labels).to.deep.equal([label1, label2, label3, label4]);
+      expect(labels.toList()).to.deep.equal(
+        [label1, label2, label3, label4]
+      );
+    });
+
+    it("returns a list of selected labels (attached to any event)", () => {
+      let { selected } = EventLabels.getLabelCounts([label1, label2], [
+        makeEvent({ id: "e1", labels: [label2, label3] }),
+        makeEvent({ id: "e2", labels: [label3, label4] })
+      ]);
+      expect(selected.toList()).to.deep.equal(
+        [label2, label3, label4]
+      );
     });
 
     it("includes predicted labels on events", () => {
@@ -50,22 +62,17 @@ describe("Event label helpers", () => {
         [label2.normalized]: 0,
         [label3.normalized]: 1
       });
-      expect(labels).to.deep.equal([label1, label2, label3]);
+      expect(labels.toList()).to.deep.equal([label1, label2, label3]);
     });
   });
 
-  describe("getLabelSelections", () => {
-    it("returns counts in true/false/some form", () => {
-      let { selections } = EventLabels.getLabelSelections([label1, label2], [
+  describe("getLabelPartials", () => {
+    it("returns labels that are partially selected", () => {
+      let { partial } = EventLabels.getLabelPartials([label1, label2], [
         makeEvent({ id: "e1", labels: [label2, label3] }),
         makeEvent({ id: "e2", labels: [label3, label4] })
       ]);
-      expect(selections).to.deep.equal({
-        [label1.normalized]: false,
-        [label2.normalized]: "some",
-        [label3.normalized]: true,
-        [label4.normalized]: "some"
-      });
+      expect(partial.toList()).to.deep.equal([label2, label4]);
     });
   });
 
@@ -145,24 +152,20 @@ describe("Event label helpers", () => {
     });
   });
 
-  describe("filterLabels", () => {
+  describe("filter", () => {
     it("matches any normalized substring of label", () => {
-      expect(EventLabels.filterLabels([label1, label2], "ABe"))
-        .to.deep.equal([label1, label2])
-      expect(EventLabels.filterLabels([label1, label2], "2"))
-        .to.deep.equal([label2])
+      expect(EventLabels.filter(label1, "ABe")).to.be.true;
+      expect(EventLabels.filter(label1, "3")).to.be.false;
     });
   });
 
   describe("match", () => {
-    it("returns a label if its normalized form matches exactly", () => {
-      expect(EventLabels.match([label1, label2], "lABEl 2"))
-        .to.deep.equal(label2);
+    it("returns true if its normalized form matches exactly", () => {
+      expect(EventLabels.match(label2, "lABEl 2")).to.be.true;
     });
 
-    it("returns undefined otherwise", () => {
-       expect(EventLabels.match([label1, label2], "a"))
-        .to.be.undefined;
+    it("returns false otherwise", () => {
+      expect(EventLabels.match(label2, "ABe")).to.be.false;
     });
   });
 

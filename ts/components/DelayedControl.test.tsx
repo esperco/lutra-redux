@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import * as React from 'react';
 import { expect } from "chai";
 import { shallow } from 'enzyme';
+import { stubRAF } from "../fakes/stubs";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stub as stubGlobal } from '../lib/sandbox';
 import * as Sinon from "sinon";
@@ -17,6 +18,7 @@ describe("delay", () => {
   }[] = [];
   var setTimeoutStub: Sinon.SinonStub;
   var clearTimeoutStub: Sinon.SinonStub;
+  var rAFStub: Sinon.SinonStub;
 
   beforeEach(() => {
     timeouts = [];
@@ -34,6 +36,8 @@ describe("delay", () => {
         t.cleared = true;
       }
     });
+
+    rAFStub = stubRAF();
   });
 
   function getInput(onChange = (x: string) => null, delayNum?: number) {
@@ -52,12 +56,24 @@ describe("delay", () => {
     expect(input.prop('value')).to.equal('Init');
   });
 
-  it("updates input value when component value changes", () => {
+  it("updates input value when prop value changes", () => {
     let wrapper = shallow(getInput());
     wrapper.setProps({ value: "New" } as any);
+    wrapper.update();
     let input = wrapper.find(TextInput);
-    expect(input).to.have.length(1);
-    expect(input.prop('value')).to.equal('Init');
+    expect(input.prop('value')).to.equal('New');
+  });
+
+  it("does not update input value when prop value changes if pending timeout",
+  () => {
+    let wrapper = shallow(getInput());
+    let input = wrapper.find(TextInput);
+    input.prop('onChange')("User text");
+
+    wrapper.setProps({ value: "New" } as any);
+    wrapper.update();
+    input = wrapper.find(TextInput);
+    expect(input.prop('value')).to.equal('User text');
   });
 
   it("fires callback when onSubmit received", () => {
@@ -65,6 +81,8 @@ describe("delay", () => {
     let wrapper = shallow(getInput(spy));
     let input = wrapper.find(TextInput);
     input.prop('onSubmit')();
+    expect(rAFStub.called).to.be.true;
+    rAFStub.getCall(0).args[0]();
     expectCalledWith(spy, "Init");
   });
 

@@ -7,24 +7,37 @@ import * as ApiT from "./apiT";
 import { AllSomeNone } from "./asn";
 import { compactObject } from "./util";
 
-const DEFAULT_LABELS: AllSomeNone = { all: true };
+const DEFAULT_LABELS: AllSomeNone = { all: true, none: true };
 
-export interface QueryFilter {
-  labels?: AllSomeNone;
-  contains?: string;       // Event title or description
-  participants?: string[]; // Name or email
-  minCost?: number;        // 1-5
+export interface QueryFilterExpanded {
+  labels: AllSomeNone;
+  contains: string;            // Event title or description
+  participant: string[];      // Name or email (empty = select all)
+  minCost: number;             // 1-5
 }
+
+export type QueryFilter = Partial<QueryFilterExpanded>;
 
 // Normalizes QueryFilter to remove default options
 export function reduce(q: QueryFilter): QueryFilter {
   return compactObject({
-    ...q,
     labels: _.isEqual(q.labels, DEFAULT_LABELS) ? undefined : q.labels,
     contains: (q.contains && q.contains.trim()) || undefined,
+    participant: _.isEmpty(q.participant) ? undefined : q.participant,
     minCost: (q.minCost || 1) > 1 ? q.minCost : undefined
   });
 }
+
+// Expands QueryFilter to include defualt options
+export function expand(q: QueryFilter): QueryFilterExpanded {
+  return {
+    labels: q.labels || DEFAULT_LABELS,
+    contains: q.contains || "",
+    participant: q.participant || [],
+    minCost: q.minCost || 1
+  };
+}
+
 
 // Stringify for use as a key in a map
 export function stringify(q: QueryFilter): string {
@@ -38,12 +51,13 @@ export function toAPI(start: Date, end: Date, q?: QueryFilter)
   q = reduce(q || {});
 
   // These props can be copied to ret more or less eactly
-  let { contains, minCost: min_cost, participants } = q;
+  let { contains, minCost: min_cost } = q;
+  let participant = q.participant || undefined;
 
   let ret: ApiT.CalendarRequest = {
     window_start: start.toISOString(),
     window_end: end.toISOString(),
-    contains, min_cost, participants
+    contains, min_cost, participant
   };
 
   // Labels need special formatting

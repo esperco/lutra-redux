@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import * as stringify from "json-stable-stringify";
 
 // Return a random alphanumeric string
 export function randomString() {
@@ -197,3 +198,141 @@ export function timeoutP(t: number) {
   };
 }
 
+
+/*
+  Wrapper around a string list that adds hash for faster lookup for items.
+  Assumes items are unique.
+*/
+export class OrderedSet<T> {
+  // Map from value to index
+  hash: Record<string, number>;
+
+  // Ordered values -- may be sparse (i.e. no guarantee value exists for any
+  // n such that n < list.length)
+  list: T[]
+
+  _keyFn: (t: T) => string;
+
+  constructor(lst: T[], keyFn: (t: T) => string = stringify) {
+    this.hash = {};
+    this.list = [];
+    this._keyFn = keyFn;
+    _.each(lst, (l) => this.push(l));
+  }
+
+  // Returns a normal list (no sparse values)
+  toList(): T[] {
+    return _.filter(this.list, (l) => !_.isUndefined(l));
+  }
+
+  // Returns sparse list with possible undefined values
+  toSparseList(): (T|undefined)[] {
+    return this.list;
+  }
+
+  has(item: T): boolean {
+    let key = this._keyFn(item);
+    return this.hasKey(key);
+  }
+
+  hasKey(key: string): boolean {
+    return typeof this.hash[key] === "number"
+  }
+
+  // Returns item as it appears in list (may differ from original depending
+  // keyFn)
+  get(item: T): T {
+    let key = this._keyFn(item);
+    return this.getByKey(key);
+  }
+
+  getByKey(key: string): T {
+    return this.list[this.hash[key]];
+  }
+
+  /*
+    For each and map functions that skips undefined values in our
+    sparsely populated list
+  */
+  forEach(cb: (t: T) => void): void {
+    this.map(cb);
+  }
+
+  filter(predicate: (t: T) => boolean): T[] {
+    let ret: T[] = [];
+    for (let i in this.list) {
+      if (predicate(this.list[i])) {
+        ret.push(this.list[i]);
+      }
+    }
+    return ret;
+  }
+
+  map<U>(cb: (t: T) => U): U[] {
+    let ret: U[] = [];
+    for (let i in this.list) {
+      ret.push(cb(this.list[i]));
+    }
+    return ret;
+  }
+
+  // Add item to end of list (if new) -- or replace existing one if key
+  push(...items: T[]): void {
+    _.each(items, (item) => {
+      let key = this._keyFn(item);
+      let index = this.hash[key];
+      if (typeof index !== "number") {
+        index = this.list.length;
+        this.hash[key] = index;
+      }
+      this.list[index] = item;
+    });
+  }
+
+  // Removes item (if any)
+  pull(...items: T[]): void {
+    _.each(items, (item) => {
+      if (this.has(item)) {
+        let key = this._keyFn(item);
+        let index = this.hash[key];
+        delete this.list[index];
+        delete this.hash[key];
+      }
+    });
+  }
+
+  // Like push, but returns new set
+  with(...items: T[]): this {
+    let ret = this.clone();
+    ret.push(...items);
+    return ret;
+  }
+
+  // Like pull, but returns new set
+  without(...items: T[]): this {
+    let ret = this.clone();
+    ret.pull(...items);
+    return ret;
+  }
+
+  // Creates a copy of this OrderedSet
+  clone(): this {
+    let ret = _.clone(this);
+    ret.hash = _.clone(this.hash);
+    ret.list = _.clone(this.list);
+    return ret;
+  }
+}
+
+/*
+  Subclass of OrderedSet for things with a normalized field
+*/
+interface Choice {
+  normalized: string;
+}
+
+export class ChoiceSet<T extends Choice> extends OrderedSet<T> {
+  constructor(lst: T[]) {
+    super(lst, (l) => l.normalized);
+  }
+}
