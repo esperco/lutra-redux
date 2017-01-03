@@ -22,7 +22,7 @@ header, .banner, footer {
   }
 
   // Expand these items relatively slowly, don't shrink
-  > h1, > nav, > button, > a, > input[type=submit] {
+  > h1, > nav, > button, > a, > input[type=submit], > .btn-set {
     flex: 1 0 auto;
     min-width: @input-height-base;
   }
@@ -30,7 +30,9 @@ header, .banner, footer {
   // Reset default margin behavior in _layout
   h1, h2, h3, h4, h5, h6, * + * { margin: 0; }
 
-  transition: height 0.3s ease-in-out;
+  transition: height 0.3s ease-in-out,
+              border 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out;
   &.hide {
     height: 0;
     overflow: hidden;
@@ -38,11 +40,11 @@ header, .banner, footer {
     box-shadow: none;
   }
 
-  button:first-child {
+  > button:first-child, > .btn-set:first-child {
     margin-left: -@padding-small;
   }
 
-  button:last-child {
+  > button:last-child, > .btn-set:last-child {
     margin-right: -@padding-small;
   }
 }

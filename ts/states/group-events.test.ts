@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import { expect } from "chai";
 import {
-  eventsDataReducer, eventsUpdateReducer,
+  eventsDataReducer, eventsUpdateReducer, invalidatePeriodReducer,
   initState, EventsState, QueryResult
 } from "./group-events";
 import makeEvent from "../fakes/events-fake";
@@ -503,6 +503,119 @@ describe("eventsUpdateReducer", () => {
     ).to.be.true;
     expect(
       (queryDays[period.end + 1][queryKey1] as QueryResult).invalid
+    ).to.not.be.ok;
+  });
+});
+
+
+////////
+
+describe("invalidateQueryReducer", () => {
+  // Setup
+
+  it("invalidates each query on each day that has an event overlapping " +
+     "period", () => {
+    /*
+      Test setup:
+
+      We three query results spread over four days:
+
+      t = -1 (period.start - 1)
+        * query1 => [e1]
+
+      t = 0 (period.start)
+        * query1 => [e1]
+
+      t = 1 (period.end)
+        * query1 => [e1]
+        * query2a => [e2]
+
+      t = 2 (period.end + 1)
+        * query2a => [e2]
+
+      t = 3 (period.end + 2)
+        * query2b = [other]
+
+      We're invalidating the period for t in [0, 1]. However, because
+      e1 (in query1) starts in t = -1 and because e2 (in query2a) continues
+      over to t = 2, we should also invalidate t = -1 and t = 2.
+
+      t = 3 should be left alone.
+    */
+
+    let s = initState();
+    let period = fromDates("day",
+      new Date("2016-10-01"),
+      new Date("2016-10-02")
+    );
+
+    let e1 = makeEvent({ id: "e1",
+      start: "2016-09-30T08:00:00.000",
+      end:   "2016-10-02T08:00:00.000",
+    });
+    let e2 = makeEvent({ id: "e2",
+      start: "2016-10-02T07:00:00.000",
+      end:   "2016-10-03T08:00:00.000",
+    });
+
+    let query1 = { labels: { all: true } };
+    let queryKey1 = stringify(query1);
+    let oldData1 = {
+      query: query1,
+      eventIds: ["e1"],
+      updatedOn: new Date()
+    }
+
+    let query2 = { labels: { none: true } };
+    let queryKey2 = stringify(query1);
+    let oldData2a = {
+      query: query2,
+      eventIds: ["e2"],
+      updatedOn: new Date()
+    };
+    let oldData2b = {
+      query: query2,
+      eventIds: ["other"],
+      updatedOn: new Date()
+    }
+
+    prePop(s, "my-group-id",
+      { ...period, start: period.start - 1, end: period.end + 2 });
+    s.groupEvents["my-group-id"]["e1"] = e1;
+    s.groupEvents["my-group-id"]["e2"] = e2;
+    let queryDays = s.groupEventQueries["my-group-id"];
+    queryDays[period.start - 1][queryKey1] = _.clone(oldData1);
+    queryDays[period.start][queryKey1] = _.clone(oldData1);
+    queryDays[period.end][queryKey1] = _.clone(oldData1);
+    queryDays[period.end][queryKey2] = _.clone(oldData2a);
+    queryDays[period.end + 1][queryKey2] = _.clone(oldData2a);
+    queryDays[period.end + 2][queryKey2] = _.clone(oldData2b);
+
+    let s2 = invalidatePeriodReducer(deepFreeze(s), {
+      type: "GROUP_EVENTS_INVALIDATE_PERIOD",
+      groupId: "my-group-id",
+      period
+    });
+
+    // Should only invalidate inside period
+    queryDays = s2.groupEventQueries["my-group-id"];
+    expect(
+      (queryDays[period.start - 1][queryKey1] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.start][queryKey1] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.end][queryKey1] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.end][queryKey2] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.end + 1][queryKey2] as QueryResult).invalid
+    ).to.be.true;
+    expect(
+      (queryDays[period.end + 2][queryKey2] as QueryResult).invalid
     ).to.not.be.ok;
   });
 });

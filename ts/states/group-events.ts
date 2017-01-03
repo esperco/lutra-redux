@@ -3,7 +3,7 @@ import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
 import { updateEventLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
-import { GenericPeriod, toDays, fromDates } from "../lib/period";
+import { GenericPeriod, toDays, fromDates, index } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
 import { LoginState } from "../lib/login";
 
@@ -81,9 +81,11 @@ export type EventsDataAction =
   EventsFetchIdsRequestAction|
   EventsFetchIdsResponseAction;
 
-export type EventCommentAction =
-  EventCommentPostAction|
-  EventCommentDeleteAction;
+export interface EventsInvalidatePeriodAction {
+  type: "GROUP_EVENTS_INVALIDATE_PERIOD";
+  groupId: string;
+  period: GenericPeriod;
+}
 
 export interface EventsUpdateAction {
   type: "GROUP_EVENTS_UPDATE";
@@ -107,6 +109,10 @@ export interface EventCommentDeleteAction {
   eventId: string;
   groupId: string;
 }
+
+export type EventCommentAction =
+  EventCommentPostAction|
+  EventCommentDeleteAction;
 
 export function eventsDataReducer<S extends EventsState> (
   state: S, action: EventsDataAction
@@ -149,11 +155,8 @@ export function eventsUpdateReducer<S extends EventsState>(
 ): S {
   let { groupId } = action;
   let eventsMap = state.groupEvents[groupId] || {};
-  let queryDays = state.groupEventQueries[groupId] || [];
-
-  // These should both be partial but index signature on array type is weird
   let eventsMapUpdate: Partial<EventMap> = {};
-  let queryDaysUpdate: EventsQueryState = [];
+  let daysToUpdateMap: { [index: number]: true } = {};
 
   _.each(action.eventIds, (id) => {
     let event = eventsMap[id];
@@ -170,30 +173,95 @@ export function eventsUpdateReducer<S extends EventsState>(
         moment(event.end).toDate());
 
       _.each(_.range(period.start, period.end + 1), (day) => {
-        queryDaysUpdate[day] = {};
+        daysToUpdateMap[day] = true;
       });
     }
   });
 
-  // Actual invalidation of each query day
-  for (let i in queryDaysUpdate) {
-    queryDaysUpdate[i] = _.mapValues(queryDays[i],
-      (v, k) => ready(v) ? { ...v, invalid: true } : v
-    );
-  }
-
+  let daysToUpdate = _(daysToUpdateMap).keys().map((n) => parseInt(n)).value();
   let update: Partial<EventsState> = {
     groupEvents: {
       ...state.groupEvents,
       [groupId]: { ...eventsMap, ...eventsMapUpdate }
     },
 
+    // Actual invalidation happens here
+    ...invalidateDays(state, action.groupId, daysToUpdate)
+  };
+  return _.extend({}, state, update);
+}
+
+export function invalidatePeriodReducer<S extends EventsState>(
+  state: S, action: EventsInvalidatePeriodAction
+): S {
+  let { groupId } = action;
+  let { start, end } = toDays(action.period);
+
+  /*
+    Get earliest event on start day (if any) and latest event on end day
+    (if any) and use those to see if we should invalidate beyond period.
+  */
+  _.each(state.groupEventQueries[groupId][start], (result) => {
+    if (ready(result)) {
+      let firstEvent: ApiT.GenericCalendarEvent|undefined;
+      _.find(result.eventIds, (id) => {
+        let event = (state.groupEvents[groupId] || {})[id];
+        if (ready(event)) {
+          firstEvent = event;
+          return true;
+        }
+        return false;
+      });
+
+      if (firstEvent) {
+        let day = index(moment(firstEvent.start).toDate(), 'day');
+        start = Math.min(day, start);
+      }
+    }
+  });
+
+  // Do the same for the last event
+  _.each(state.groupEventQueries[groupId][end], (result) => {
+    if (ready(result)) {
+      let lastEvent: ApiT.GenericCalendarEvent|undefined;
+      _.findLast(result.eventIds, (id) => {
+        let event = (state.groupEvents[groupId] || {})[id];
+        if (ready(event)) {
+          lastEvent = event;
+          return true;
+        }
+        return false;
+      });
+
+      if (lastEvent) {
+        let day = index(moment(lastEvent.end).toDate(), 'day');
+        end = Math.max(day, end);
+      }
+    }
+  });
+
+  // Apply updated start and end days to invalidation
+  let update = invalidateDays(state, groupId, _.range(start, end + 1));
+  return _.extend({}, state, update);
+}
+
+// Invalidate each query on each of the specified days
+function invalidateDays(
+  state: EventsState, groupId: string, days: number[]
+): Partial<EventsState> {
+  let queryDays = state.groupEventQueries[groupId] || [];
+  let queryDaysUpdate: EventsQueryState = [];
+  _.each(days, (i) => {
+    queryDaysUpdate[i] = _.mapValues(queryDays[i] || {},
+      (v, k) => ready(v) ? { ...v, invalid: true } : v
+    );
+  });
+  return {
     groupEventQueries: {
       ...state.groupEventQueries,
       [groupId]: mergeQueryStates(queryDays, queryDaysUpdate)
     }
   };
-  return _.extend({}, state, update);
 }
 
 export function eventCommentPostReducer<S extends EventsState & LoginState>(
@@ -210,7 +278,8 @@ export function eventCommentPostReducer<S extends EventsState & LoginState>(
       id: commentId,
       author: login.uid,
       upvoted_users: [],
-      text: text
+      text: text,
+      created: (new Date()).toISOString()
     });
     eventsMapUpdate[eventId] = { ...event, comments };
   }

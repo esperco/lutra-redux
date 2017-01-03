@@ -1,6 +1,5 @@
 /*
-  Event list component that takes advantage of how we store
-  queries to be efficient about React updates
+  Groups-specific wrapper around event list component
 */
 import * as _ from "lodash";
 import * as React from "react";
@@ -72,14 +71,6 @@ interface DayProps {
 }
 
 class QueryDay extends React.Component<DayProps, {}> {
-  /*
-    Note that we omit eventMap because any update to eventMap should
-    also invalidate the relevant queryState;
-  */
-  shouldComponentUpdate(nextProps: DayProps) {
-    return nextProps.result !== this.props.result;
-  }
-
   render() {
     if (! this.props.result || this.props.result === "FETCH_ERROR") {
       return null;

@@ -50,7 +50,7 @@ ul {
 
   // Full-width headers, footers on mobile
   @media screen and (max-width: @screen-xs-max) {
-    header, footer {
+    & > header, & > footer {
       margin-left: -@padding-base;
       margin-right: -@padding-base;
     }
@@ -125,49 +125,75 @@ ul {
     position: relative;
     margin: 0;
     padding: @padding-base;
+    z-index: @zindex-navbar;
+  }
+
+  // Proper z-indexing for horizontal bars
+  > header, > footer, > .banner {
+    z-index: auto;
   }
 
   // But content expands
   > .content {
     flex: 1000 1000 auto;
     overflow: auto;
+    z-index: none;
   }
 }
 
 /*
-  Used for a basic sidebar layout that's responsive on mobile. Can be nested
-  inside .rowbar-layout.
+  Used for a basic three-column sidebar layout that's responsive on mobile.
+  Can be nested inside .rowbar-layout.
 
   Should use with .expand to set width / height.
+
+  Different modes for sidebars:
+
+    * XS / Mobile
+      - Only show one column at a time, default center.
+      - .show-left shows left column, hides center
+      - .show-right shows right column, hides left + center
+
+    * SM
+      - Always show center, default to only center
+      - .show-left shows left column
+      - .show-right shows right column, hides left
+
+    * MD
+      - Always show center, default to only center
+      - .show-left shows left column, does not hide other columns
+      - .show-right shows right column, does not hide other columns
+
+    * LG
+      - Default to showing left + center
+      - .hide-left hides left column
+      - .show-right shows right column, does not hide other columns
 */
 .sidebar-layout {
   .expand;
 
   display: flex;
   flex-flow: row nowrap;
-  justify-content: center;
   overflow: hidden;
 
   > * {
     flex: 1000 1000 auto;
     position: relative;
-    min-width: @min-container-width;
+    min-width: 0;
     max-width: 100vw;
     overflow: auto;
     margin: 0;
     padding: @padding-base;
-    transition: margin 0.6s ease-in-out;
+    transition: margin 0.6s ease-in-out, box-shadow 0.6s ease-in-out;
+    box-sizing: border-box;
   }
 
   // Main content resizes, tries to fill full width
   > .content {
     flex: 1000 1000 100vw;
+    min-width: @min-container-width;
 
-    @media screen and (max-width: @screen-xs-max) {
-      min-width: 100vw;
-    }
-
-    // Hide backdrop (make visible on mobile)
+    // Hide backdrop by default (display on mobile)
     > .backdrop {
       display: none;
     }
@@ -175,90 +201,201 @@ ul {
 
   // But sidebars are static
   > .sidebar {
-    width: @sidebar-width-lg;
     flex: 0 0 auto;
+    margin: 0;
+    z-index: @zindex-sidebar;
 
-    @media screen and (max-width: @screen-md-max) {
-      width: @sidebar-width-md;
-    }
+    // Close button
+    .close-btn {
+      float: right;
 
-    @media screen and (max-width: @screen-sm-max) {
-      width: @sidebar-width-sm;
-    }
-
-    @media screen and (max-width: @screen-xs-max) {
-      width: @sidebar-width-xs;
+      + * { margin-top: 0; }
     }
   }
 
-  // Left sidebar visible
-  &.shift-left {
+  /*
+    Selectors for controls to toggle sidebar. There are two modes --
+    switch (showing one sidebar disables other) and show (sidebar display
+    is independent). Small displays are in switch mode. Larger displays allow
+    for showing.
+  */
+  @media screen and (max-width: @screen-sm-max) {
+    .switch-left-btn, .switch-right-btn {
+      display: inline-block;
+    }
+    .show-left-btn, .show-right-btn {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: @screen-md-min) {
+    .show-left-btn, .show-right-btn {
+      display: inline-block;
+    }
+    .switch-left-btn, .switch-right-btn {
+      display: none;
+    }
+  }
+
+  .hide-left-btn, .hide-right-btn {
+    display: none;
+  }
+
+  /*
+    Show sidebars when show is active -- we slide sidebars out left and right
+    based on media queries below.
+  */
+  &.show-left {
     > .sidebar:first-child {
       margin-left: 0;
+      box-shadow: @right-box-shadow;
+    }
+
+    .hide-left-btn {
+      display: inline-block;
+    }
+
+    .show-left-btn, .switch-left-btn {
+      display: none;
     }
   }
 
-  // Right sidebar visible
-  &.shift-right {
+  &.show-right {
     > .sidebar:last-child {
-      margin-right: 0
+      margin-right: 0;
+      box-shadow: @left-box-shadow;
+    }
+
+    .hide-right-btn {
+      display: inline-block;
+    }
+
+    .show-right-btn, .switch-right-btn {
+      display: none;
     }
   }
 
-  // Backdrop visible on mobile
-  &.shift-left, &.shift-right {
-    > .content > .backdrop {
-      @media screen and (max-width: @screen-xs-max) {
+  // XS
+  @media screen and (max-width: @screen-xs-max) {
+    & > .sidebar:first-child,
+    &.hide-left > .sidebar:first-child {
+      width: @left-sidebar-width-xs;
+      margin-left: -@left-sidebar-width-xs;
+    }
+
+    & > .sidebar:last-child,
+    &.hide-right > .sidebar:last-child {
+      width: @right-sidebar-width-xs;
+      margin-right: -@right-sidebar-width-xs;
+    }
+
+    & > .content {
+      width: 100vw;
+    }
+
+    &.show-right > .content {
+      margin-left: -@right-sidebar-width-xs;
+    }
+
+    // Backdrop visible on mobile
+    &.show-left, &.show-right {
+      > .content > .backdrop {
         display: block;
       }
     }
   }
 
-  // Else, full screen
-  > .sidebar:first-child { // Hide left sidebar
-    margin-left: -@sidebar-width-lg;
-    margin-right: 0;
-
-    @media screen and (max-width: @screen-md-max) {
-      margin-left: -@sidebar-width-md;
+  // SM
+  @media screen and (min-width: @screen-sm-min) {
+    & > .sidebar:first-child,
+    &.hide-left > .sidebar:first-child {
+      width: @left-sidebar-width-sm;
+      margin-left: -@left-sidebar-width-sm;
     }
 
-    @media screen and (max-width: @screen-sm-max) {
-      margin-left: -@sidebar-width-sm;
-    }
-
-    // Double on mobile to center things
-    @media screen and (max-width: @screen-xs-max) {
-      margin-left: -2 * @sidebar-width-xs;
+    & > .sidebar:last-child,
+    &.hide-right > .sidebar:last-child {
+      width: @right-sidebar-width-sm;
+      margin-right: -@right-sidebar-width-sm;
     }
   }
 
-  > .sidebar:last-child { // Hide right sidebar
-    margin-right: -@sidebar-width-lg;
-    margin-left: 0;
+  // SM and below -> right sidebar hides left
+  @media screen and (max-width: @screen-sm-max) {
+    &.show-left.show-right {
+      > .sidebar:first-child {
+        margin-left: -@left-sidebar-width-sm;
+      }
 
-    @media screen and (max-width: @screen-md-max) {
-      margin-right: -@sidebar-width-md;
-    }
+      .hide-left-btn {
+        display: none;
+      }
 
-    @media screen and (max-width: @screen-sm-max) {
-      margin-right: -@sidebar-width-sm;
-    }
-
-    @media screen and (max-width: @screen-xs-max) {
-      margin-right: -2 * @sidebar-width-xs;
+      .switch-left-btn {
+        display: inline-block;
+      }
     }
   }
 
   @media screen and (max-width: @screen-xs-max) {
-    // Special behavior if missing left sidebar
-    & > .content:first-child {
-      margin-left: -@sidebar-width-xs;
+    &.show-left.show-right > .sidebar:first-child {
+      margin-left: -@left-sidebar-width-xs;
+    }
+  }
+
+  // MD
+  @media screen and (min-width: @screen-md-min) {
+    & > .sidebar:first-child,
+    &.hide-left > .sidebar:first-child {
+      width: @left-sidebar-width-md;
+      margin-left: -@left-sidebar-width-md;
     }
 
-    // Special behavior if missing right sidebar
-    & > .content:last-child {
-      margin-right: -@sidebar-width-xs;
+    & > .sidebar:last-child,
+    &.hide-right > .sidebar:last-child {
+      width: @right-sidebar-width-md;
+      margin-right: -@right-sidebar-width-md;
+    }
+  }
+
+  // LG
+  @media screen and (min-width: @screen-lg-min) {
+    & > .sidebar:first-child,
+    &.hide-left > .sidebar:first-child {
+      width: @left-sidebar-width-lg;
+    }
+
+    & > .sidebar:first-child {
+      margin-left: 0;
+      box-shadow: @right-box-shadow;
+    }
+
+    .hide-left-btn {
+      display: inline-block;
+    }
+
+    .show-left-btn {
+      display: none;
+    }
+
+    &.hide-left {
+      > .sidebar:first-child {
+        margin-left: -@left-sidebar-width-lg;
+      }
+
+      .hide-left-btn {
+        display: none;
+      }
+
+      .show-left-btn {
+        display: inline-block;
+      }
+    }
+
+    & > .sidebar:last-child,
+    &.hide-right > .sidebar:last-child {
+      width: @right-sidebar-width-lg;
+      margin-right: -@right-sidebar-width-lg;
     }
   }
 
@@ -275,13 +412,11 @@ ul {
     &:last-child { // Right
       border-left-width: 1px;
     }
-  }
 
-  &.shift-left > .sidebar-panel:first-child {
-    box-shadow: @right-box-shadow;
-  }
-
-  &.shift-right > .sidebar-panel:last-child {
-    box-shadow: @left-box-shadow;
+    .close-btn {
+      position: relative;
+      top: -@padding-small;
+      right: -@padding-small;
+    }
   }
 }

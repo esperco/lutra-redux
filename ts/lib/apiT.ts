@@ -6,6 +6,7 @@
 
 type uid = string;
 type email = string;
+type timestamp = string;
 
 /*
   Type of variants (tagged unions) using atdgen's convention.
@@ -149,6 +150,8 @@ export interface GroupEventComment {
   author: string;
   upvoted_users: string[];
   text: string;
+  created: timestamp;
+  updated?: timestamp;
 }
 
 export interface PostComment {

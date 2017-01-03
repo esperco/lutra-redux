@@ -109,9 +109,10 @@
         <div class="content">
           <div id="sidebar-layout" class="sidebar-layout">
             <div id="left-sidebar" class="sidebar panel">
+              <button class="close-btn hide-left-btn">&times;</button>
               <h3>Left Sidebar</h3>
               <div class="panel">
-                <a class="sidebar-none-link">Close sidebar</a>
+                Sidebar content
               </div>
             </div>
             <div id="content" class="content">
@@ -123,15 +124,22 @@
                   <a class="footer-toggle">Toggle footer</a>
                 </div>
                 <div>
-                  <a class="sidebar-left-link">Open left sidebar</a><br />
-                  <a class="sidebar-right-link">Open right sidebar</a>
+                  <button class="show-left-btn">Open Left Sidebar</button>
+                  <button class="switch-left-btn">Open Left Sidebar</button>
+                  <button class="hide-left-btn">Close Left Sidebar</button>
+                  <br />
+                  <button class="show-right-btn">Open Right Sidebar</button>
+                  <button class="switch-right-btn">Open Right Sidebar</button>
+                  <button class="hide-right-btn">Close Right Sidebar</button>
                 </div>
               </div></div>
+              <div class="backdrop"></div>
             </div>
             <div id="right-sidebar" class="sidebar panel">
+              <button class="close-btn hide-right-btn">&times;</button>
               <h3>Right Sidebar</h3>
               <div class="panel">
-                <a class="sidebar-none-link">Close sidebar</a>
+                Sidebar content
               </div>
             </div>
           </div>

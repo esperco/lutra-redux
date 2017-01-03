@@ -17,6 +17,7 @@
 
 import * as React from "react";
 import * as Text from "../text/common";
+import * as LabelText from "../text/labels";
 
 /*
   Icon names should be semantic. We can map these to appropriate classes
@@ -34,9 +35,13 @@ export const IconMappings = {
   "filters": "fa-bars",
   "help": "fa-question-circle",
   "home": "fa-home",
+  "label": "fa-tag",
+  "labels": "fa-tags",
   "location": "fa-map-marker",
   "logout": "fa-sign-out",
   "next": "fa-chevron-right",
+  "people": "fa-users",
+  "person": "fa-user",
   "privacy": "fa-lock",
   "previous": "fa-chevron-left",
   "refresh": "fa-refresh",
@@ -69,9 +74,13 @@ function getTextForIcon(icon: IconType): string {
     "filters": Text.Filters,
     "help": Text.Help,
     "home": Text.Home,
+    "label": LabelText.Label,
+    "labels": LabelText.Labels,
     "location": Text.Location,
     "logout": Text.Logout,
     "next": Text.Next,
+    "people": Text.People,
+    "person": Text.Person,
     "privacy": Text.Privacy,
     "previous": Text.Previous,
     "refresh": Text.Refresh,

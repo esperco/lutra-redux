@@ -2,6 +2,7 @@
   Sidebar for group events filtering -- delays
 */
 import * as React from 'react';
+import Icon from "../components/Icon";
 import SearchInput from "../components/SearchInput";
 import GroupGuestsSelector from "./GroupGuestsSelector";
 import GroupLabelsSelector from "./GroupLabelsSelector";
@@ -51,7 +52,9 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
       </div>
 
       <div className="panel">
-        <h4>{ LabelText.Labels }</h4>
+        <h4><Icon type="labels">
+          { LabelText.Labels }
+        </Icon></h4>
         <GroupLabelsSelector
           labels={labels}
           selected={expanded.labels}
@@ -61,7 +64,9 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
       </div>
 
       <div className="panel">
-        <h4>{ EventText.Attendees }</h4>
+        <h4><Icon type="people">
+          { EventText.Attendees }
+        </Icon></h4>
         <GroupGuestsSelector
           guests={guests}
           selected={expanded.participant}

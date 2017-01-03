@@ -126,18 +126,39 @@ interface MenuProps {
   children?: JSX.Element[];
 }
 
+interface MenuState {
+  left: number;
+  top: number;
+  height: number;
+  width: number;
+  hAlign: "left"|"right"|"center",
+  vAlign: "up"|"down"
+}
+
 // Desktop only -- mobile is simpler
-export class DropdownMenu extends React.Component<MenuProps, {}> {
+export class DropdownMenu extends React.Component<MenuProps, MenuState> {
   _wrapper: HTMLDivElement;
 
-  render() {
-    if (! this.props.anchor) {
-      Log.e("DropdownMenu called without anchor");
-      return null;
+  constructor(props: MenuProps) {
+    super(props);
+    this.state = this.getPos(props);
+  }
+
+  // Only update positioning if anchor changes to keep dropdown from moving
+  componentWillReceiveProps(newProps: MenuProps) {
+    if (this.props.anchor !== newProps.anchor) {
+      this.setState(this.getPos(newProps));
     }
-    let anchor = $(this.props.anchor);
+  }
+
+  // Calculate positioning
+  getPos(props: MenuProps): MenuState {
+    if (! props.anchor) {
+      throw new Error("DropdownMenu called without anchor");
+    }
+    let anchor = $(props.anchor);
     let offset = anchor.offset() || { left: 0, top: 0 };
-    let style = {
+    let pos = {
       /*
         In addition to offset, we need to consider scroll position since
         offset is relative to document, not window, but dropdown is
@@ -155,16 +176,16 @@ export class DropdownMenu extends React.Component<MenuProps, {}> {
     };
 
     // Adjust horizontal alignment based on position
-    let hAlign = (() => {
+    let hAlign: "left"|"right"|"center" = (() => {
       let width = $(window).width();
 
       // Near left edge of screen
-      if (style.left / width < 0.15) {
+      if (pos.left / width < 0.15) {
         return "left";
       }
 
       // Near right edge of screen
-      if ((style.left + style.width) / width > 0.85) {
+      if ((pos.left + pos.width) / width > 0.85) {
         return "right";
       }
 
@@ -173,9 +194,16 @@ export class DropdownMenu extends React.Component<MenuProps, {}> {
     })();
 
     // Drop-up if top is too low
-    let vAlign = (style.top + style.height) / $(window).height() > 0.7 ?
+    let vAlign: "up"|"down" =
+      (pos.top + pos.height) / $(window).height() > 0.7 ?
       "up" : "down";
 
+    return { ...pos, hAlign, vAlign };
+  }
+
+  render() {
+    let { left, top, height, width, vAlign, hAlign } = this.state;
+    let style = { left, top, height, width };
     let classes = classNames("dropdown-wrapper", "open", vAlign, hAlign);
     return <div ref={(c) => this._wrapper = c}
                 className={classes} style={style}

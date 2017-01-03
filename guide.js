@@ -27,19 +27,43 @@ $(document).ready(function() {
   });
 
   /* Sidebar sliding */
-  $(".sidebar-left-link").click(function() {
-    $("#sidebar-layout").addClass("shift-left");
-    $("#sidebar-layout").removeClass("shift-right");
+  $('.show-left-btn').click(function() {
+    $("#sidebar-layout").addClass("show-left");
+    $("#sidebar-layout").removeClass("hide-left");
   });
 
-  $(".sidebar-right-link").click(function() {
-    $("#sidebar-layout").removeClass("shift-left");
-    $("#sidebar-layout").addClass("shift-right");
+  $('.switch-left-btn').click(function() {
+    $("#sidebar-layout").addClass("show-left");
+    $("#sidebar-layout").removeClass("hide-left");
+    $("#sidebar-layout").addClass("hide-right");
+    $("#sidebar-layout").removeClass("show-right");
   });
 
-  $(".sidebar-none-link").click(function() {
-    $("#sidebar-layout").removeClass("shift-left");
-    $("#sidebar-layout").removeClass("shift-right");
+  $('.hide-left-btn').click(function() {
+    $("#sidebar-layout").addClass("hide-left");
+    $("#sidebar-layout").removeClass("show-left");
+  });
+
+  $('.show-right-btn').click(function() {
+    $("#sidebar-layout").addClass("show-right");
+    $("#sidebar-layout").removeClass("hide-right");
+  });
+
+  $('.switch-right-btn').click(function() {
+    $("#sidebar-layout").addClass("show-right");
+    $("#sidebar-layout").removeClass("hide-right");
+    $("#sidebar-layout").addClass("hide-left");
+    $("#sidebar-layout").removeClass("show-left");
+  });
+
+  $('.hide-right-btn').click(function() {
+    $("#sidebar-layout").addClass("hide-right");
+    $("#sidebar-layout").removeClass("show-right");
+  });
+
+  $('#sidebar-layout .backdrop').click(function() {
+    $("#sidebar-layout").addClass("hide-right hide-left");
+    $("#sidebar-layout").removeClass("show-right show-left");
   });
 });
 
