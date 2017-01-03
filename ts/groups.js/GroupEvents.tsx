@@ -38,8 +38,9 @@ class Props extends RouteProps {
 class GroupEvents extends React.Component<Props, {}> {
   render() {
     return <div className={classNames("sidebar-layout", {
-      "shift-left": this.props.showFilters && !this.props.eventId,
-      "shift-right": !!this.props.eventId
+      "show-left": this.props.showFilters,
+      "hide-left": this.props.showFilters === false,
+      "show-right": !!this.props.eventId
     })}>
 
       {/* Filters Sidebar -- delayed URL update */}
@@ -61,11 +62,26 @@ class GroupEvents extends React.Component<Props, {}> {
       <div className="content">
         <div className="rowbar-layout">
           <header>
-            {/* Toggle filters sidebar */}
-            <button onClick={() => this.toggleFilters()}>
-              <Icon type={this.props.showFilters ? "close" : "filters"} />
-            </button>
+            {/*
+              Open/close filters sidebar -- two different button for switching
+              and toggling behavior (display controlled by CSS).
+            */}
+            <span className="btn-set">
+              <button className="show-left-btn"
+                      onClick={() => this.showFilters()}>
+                <Icon type="filters" />
+              </button>
+              <button className="switch-left-btn"
+                      onClick={() => this.switchFilters()}>
+                <Icon type="filters" />
+              </button>
+              <button className="hide-left-btn"
+                      onClick={() => this.hideFilters()}>
+                <Icon type="close" />
+              </button>
+            </span>
 
+            {/* Select which period to show events for */}
             <PeriodSelector
               value={this.props.period}
               onChange={(p) => this.update({ period: p })}
@@ -152,11 +168,19 @@ class GroupEvents extends React.Component<Props, {}> {
   }
 
   // Toggling filters is just a hashchange
-  toggleFilters() {
-    this.props.Svcs.Nav.go(this.updateHref({
-      showFilters: !this.props.showFilters,
+  showFilters() {
+    this.update({ showFilters: true });
+  }
+
+  switchFilters() {
+    this.update({
+      showFilters: true,
       eventId: undefined
-    }));
+    });
+  }
+
+  hideFilters() {
+    this.update({ showFilters: false });
   }
 
   backdropHref() {
