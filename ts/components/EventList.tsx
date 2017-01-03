@@ -54,10 +54,6 @@ interface EventProps extends SharedProps {
 }
 
 export class EventDisplay extends React.Component<EventProps, {}> {
-  shouldComponentUpdate(nextProps: EventProps) {
-    return nextProps.event !== this.props.event;
-  }
-
   render() {
     let { event } = this.props;
     let title = event.title ?

@@ -126,8 +126,7 @@ class GroupEvents extends React.Component<Props, {}> {
     return <GroupEventsList
       {...this.props}
       eventHrefFn={(ev) => this.updateHref({
-        eventId: ev.id,
-        showFilters: false
+        eventId: ev.id
       })}
     />;
   }
