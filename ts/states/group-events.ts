@@ -22,10 +22,20 @@ export type EventsQueryState = Array<{
 
 export type EventMap = StoreMap<ApiT.GenericCalendarEvent>;
 
+// Map from recurring_event_id to all instances we've encountered thus far
+export interface RecurringEventMap {
+  [recurringId: string]: Record<string, boolean>;
+}
+
 export interface EventsState {
   // groupId to another map
   groupEvents: {
     [index: string]: EventMap;
+  };
+
+  // groupId to another map
+  groupRecurringEvents: {
+    [index: string]: RecurringEventMap;
   };
 
   // groupId to another map
@@ -128,13 +138,18 @@ export function eventsDataReducer<S extends EventsState> (
     return (state.groupEvents[action.groupId] =
       _.clone(state.groupEvents[action.groupId]) || {});
   };
+  let recurringMap = () => {
+    state.groupRecurringEvents = _.clone(state.groupRecurringEvents);
+    return (state.groupRecurringEvents[action.groupId] =
+      _.clone(state.groupRecurringEvents[action.groupId]) || {});
+  };
 
   switch (action.dataType) {
     case "FETCH_QUERY_START":
       reduceFetchQueryRequest(queryDays(), action);
       break;
     case "FETCH_QUERY_END":
-      reduceFetchQueryResponse(queryDays(), eventMap(), action);
+      reduceFetchQueryResponse(queryDays(), eventMap(), recurringMap(), action);
       break;
     case "FETCH_QUERY_FAIL":
       reduceFetchQueryFail(queryDays(), action);
@@ -389,6 +404,7 @@ function reduceFetchQueryRequest(
 function reduceFetchQueryResponse(
   queryDays: EventsQueryState,
   eventMap: StoreMap<ApiT.GenericCalendarEvent>,
+  recurringMap: RecurringEventMap,
   action: EventsFetchQueryResponseAction
 ) {
   // Create a list for each event - day combo
@@ -418,6 +434,14 @@ function reduceFetchQueryResponse(
         eventIdList.push(event.id);
       }
     });
+
+    // Update recurrences if applicable
+    if (event.recurring_event_id) {
+      recurringMap[event.recurring_event_id] = {
+        ...recurringMap[event.recurring_event_id],
+        [event.id]: true
+      };
+    }
 
     // Add actual event data too -- indexed by eventId
     eventMap[event.id] = event;
@@ -469,6 +493,7 @@ function reduceFetchIdsResponse(
 export function initState(): EventsState {
   return {
     groupEvents: {},
+    groupRecurringEvents: {},
     groupEventQueries: {}
   };
 }

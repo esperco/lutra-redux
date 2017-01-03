@@ -229,6 +229,90 @@ describe("group-events / eventsDataReducer", () => {
       expect(s2.groupEvents["my-group-id"][e2.id]).to.deep.equal(e2);
       expect(s2.groupEvents["my-group-id"][oldE3.id]).to.deep.equal(oldE3);
     });
+
+    it("populates our recurring events list", () => {
+      let e1a = makeEvent({ id: "e1a",
+        start: "2016-10-01T08:00:00.000",
+        end:   "2016-10-02T08:00:00.000",
+        recurring_event_id: "e1_recurring"
+      });
+      let e1b = makeEvent({ id: "e1b",
+        start: "2016-10-01T08:00:00.000",
+        end:   "2016-10-02T08:00:00.000",
+        recurring_event_id: "e1_recurring"
+      });
+      let e2 = makeEvent({ id: "e2",
+        start: "2016-10-02T09:00:00.000",
+        end:   "2016-10-03T02:00:00.000",
+        recurring_event_id: "e2_recurring"
+      });
+      let e3 = makeEvent({ id: "e3",
+        start: "2016-10-02T09:00:00.000",
+        end:   "2016-10-03T02:00:00.000"
+      });
+
+      let s = initState();
+      let period = fromDates("day",
+        new Date("2016-10-01"),
+        new Date("2016-10-05")
+      );
+      let query = {};
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_QUERY_END",
+        groupId: "my-group-id",
+        period, query,
+        events: [e1a, e1b, e2, e3]
+      });
+
+      expect(s2.groupRecurringEvents["my-group-id"]).to.deep.equal({
+        "e1_recurring": { e1a: true, e1b: true },
+        "e2_recurring": { e2: true }
+      });
+    });
+
+    it("should add recurring events to existing list", () => {
+      let e1a = makeEvent({ id: "e1a",
+        start: "2016-10-01T08:00:00.000",
+        end:   "2016-10-02T08:00:00.000",
+        recurring_event_id: "e1_recurring"
+      });
+      let e1b = makeEvent({ id: "e1b",
+        start: "2016-10-02T08:00:00.000",
+        end:   "2016-10-03T08:00:00.000",
+        recurring_event_id: "e1_recurring"
+      });
+
+      let s = initState();
+      let period1 = fromDates("day",
+        new Date("2016-10-01"),
+        new Date("2016-10-02")
+      );
+      let period2 = fromDates("day",
+        new Date("2016-10-02"),
+        new Date("2016-10-03")
+      );
+      let query = {};
+
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_QUERY_END",
+        groupId: "my-group-id",
+        period: period1, query,
+        events: [e1a]
+      });
+      let s3 = eventsDataReducer(deepFreeze(s2), {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_QUERY_END",
+        groupId: "my-group-id",
+        period: period2, query,
+        events: [e1b]
+      });
+
+      expect(s3.groupRecurringEvents["my-group-id"]).to.deep.equal({
+        "e1_recurring": { e1a: true, e1b: true }
+      });
+    });
   });
 
   describe("when handling FETCH_QUERY_FAIL", () => {
