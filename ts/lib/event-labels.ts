@@ -122,6 +122,19 @@ export function resetColors() {
 }
 
 
+/*
+  When to apply labels to a recurring master rather than the instance
+*/
+export function useRecurringLabels(event: ApiT.GenericCalendarEvent)
+: event is ApiT.GenericCalendarEvent & {
+  recurring_event_id: string
+} {
+  return !!event.recurring_event_id && (
+    event.has_recurring_labels || !event.labels
+  );
+}
+
+
 /* Label Filtering */
 
 export function filter<T extends ApiT.LabelInfo>(

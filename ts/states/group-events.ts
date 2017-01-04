@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
-import { updateEventLabels } from "../lib/event-labels";
+import { updateEventLabels, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, fromDates, index } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
@@ -309,7 +309,7 @@ function reduceEventUpdate(
   recurring?: boolean
 ): ApiT.GenericCalendarEvent {
   // Don't update recurring labels if event doesn't have them
-  if (recurring && !event.has_recurring_labels) {
+  if (recurring && !useRecurringLabels(event)) {
     return event;
   }
 
