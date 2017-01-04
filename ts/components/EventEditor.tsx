@@ -3,8 +3,10 @@ import * as React from "react";
 import * as moment from "moment";
 import * as classNames from "classnames";
 import * as ApiT from "../lib/apiT";
+import { useRecurringLabels } from "../lib/event-labels";
 import fmtText from "../lib/fmt-text";
 import * as EventText from "../text/events";
+import * as LabelText from "../text/labels";
 import { ok, ready, StoreData } from "../states/data-status";
 import { GroupMembers } from "../states/groups";
 import Icon from "./Icon";
@@ -17,6 +19,7 @@ interface Props {
   labels: ApiT.LabelInfo[];
   loginDetails: ApiT.LoginResponse|undefined;
   onChange: (x: ApiT.LabelInfo, active: boolean) => void;
+  onForceInstance: () => void;
   onCommentPost: (eventId: string, text: string) => Promise<any>;
   onCommentDelete: (eventId: string, commentId: string) => void;
 }
@@ -75,6 +78,19 @@ export class EventEditor extends React.Component<Props, {}> {
         events={[event]}
         onChange={(ids, label, active) => this.props.onChange(label, active)}
       />
+
+      { event.recurring_event_id ? <div className="recurring-labels">
+        { useRecurringLabels(event) ?
+          <span>
+            <span className="description">
+              { LabelText.RecurringLabelsDescription }
+            </span>
+            <button onClick={this.props.onForceInstance}>
+              { LabelText.SwitchToInstanceLabels }
+            </button>
+          </span> :
+          LabelText.InstanceLabelsDescription }
+      </div> : null }
 
       <GuestList guests={event.guests} />
 
