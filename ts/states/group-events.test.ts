@@ -470,6 +470,7 @@ describe("eventsUpdateReducer", () => {
   // Constants for testing labels
   const label1 = newLabel("Label 1");
   const label2 = newLabel("Label 2");
+  const label3 = newLabel("Label 3");
   const hashtagState = {
     hashtag: { original: "#Hashtag", normalized: "#hashtag" }
   };
@@ -589,6 +590,114 @@ describe("eventsUpdateReducer", () => {
       (queryDays[period.end + 1][queryKey1] as QueryResult).invalid
     ).to.not.be.ok;
   });
+
+  describe("with recurring event Ids", () => {
+    let period = fromDates("day",
+      new Date("2016-10-01"),
+      new Date("2016-10-03")
+    );
+    let query = {};
+    let queryKey = stringify(query);
+
+    const e1 = makeEvent({ id: "e1",
+      labels: [label1],
+      hashtags: [hashtagState],
+      recurring_event_id: "recurring_id",
+      has_recurring_labels: true,
+      start: "2016-10-01T08:00:00.000",
+      end:   "2016-10-01T09:00:00.000"
+    });
+    const e2 = makeEvent({ id: "e2",
+      labels: [label1],
+      hashtags: [hashtagState],
+      recurring_event_id: "recurring_id",
+      has_recurring_labels: true,
+      start: "2016-10-02T08:00:00.000",
+      end:   "2016-10-02T09:00:00.000"
+    });
+    const e3 = makeEvent({ id: "e3",
+      labels: [label2],
+      hashtags: [hashtagState],
+      recurring_event_id: "recurring_id",
+      has_recurring_labels: false,
+      start: "2016-10-03T08:00:00.000",
+      end:   "2016-10-03T09:00:00.000"
+    });
+
+    const s1: EventsState = {
+      ...initState(),
+      groupEvents: { ["my-group-id"]: { e1, e2, e3 } },
+      groupRecurringEvents: { ["my-group-id"]: {
+        recurring_id: { e1: true, e2: true, e3: true }
+      } }
+    };
+    prePop(s1, "my-group-id", period);
+    s1.groupEventQueries["my-group-id"][period.start][queryKey] = {
+      query, eventIds: ["e1"], updatedOn: new Date()
+    };
+    s1.groupEventQueries["my-group-id"][period.start + 1][queryKey] = {
+      query, eventIds: ["e2"], updatedOn: new Date()
+    };
+    s1.groupEventQueries["my-group-id"][period.start + 2][queryKey] = {
+      query, eventIds: ["e3"], updatedOn: new Date()
+    };
+
+    it("updates recurring labels but not non-recurring labels", () => {
+      let s2 = eventsUpdateReducer(deepFreeze(s1), {
+        type: "GROUP_EVENTS_UPDATE",
+        groupId: "my-group-id",
+        eventIds: [],
+        recurringEventIds: ["recurring_id"],
+        addLabels: [label3]
+      });
+
+      expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+        ...e1, labels: [label1, label3]
+      });
+      expect(s2.groupEvents["my-group-id"]["e2"]).to.deep.equal({
+        ...e2, labels: [label1, label3]
+      });
+
+      // Not recurring labels
+      expect(s2.groupEvents["my-group-id"]["e3"]).to.deep.equal(e3);
+    });
+
+    it("invalidates all queries for all recurrences", () => {
+      let s2 = eventsUpdateReducer(deepFreeze(s1), {
+        type: "GROUP_EVENTS_UPDATE",
+        groupId: "my-group-id",
+        eventIds: [],
+        recurringEventIds: ["recurring_id"],
+        addLabels: [label3]
+      });
+
+      let queryDays = s2.groupEventQueries["my-group-id"];
+      expect(
+        (queryDays[period.start][queryKey] as QueryResult).invalid
+      ).to.be.true;
+      expect(
+        (queryDays[period.start + 1][queryKey] as QueryResult).invalid
+      ).to.be.true;
+      expect(
+        (queryDays[period.start + 2][queryKey] as QueryResult).invalid
+      ).to.not.be.ok;
+    });
+
+    it("breaks recurrence if individual ID is labeled", () => {
+      let s2 = eventsUpdateReducer(deepFreeze(s1), {
+        type: "GROUP_EVENTS_UPDATE",
+        groupId: "my-group-id",
+        eventIds: ["e1"],
+        addLabels: [label3]
+      });
+
+      expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+        ...e1,
+        labels: [label1, label3],
+        has_recurring_labels: false
+      });
+    });
+  })
 });
 
 

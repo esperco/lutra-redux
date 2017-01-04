@@ -292,6 +292,7 @@ export interface GenericCalendarEvent {
   location?: string;
   all_day: boolean;
   guests: Attendee[];
+  has_recurring_labels: boolean;
   transparent: boolean;
   recurrence?: Recurrence;
   recurring_event_id?: string;
