@@ -4,7 +4,7 @@ import { setGroupLabels } from "./groups";
 import { ApiSvc } from "../lib/api";
 import { updateEventLabels, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
-import { GenericPeriod, bounds, toDays } from "../lib/period";
+import { GenericPeriod, bounds, toDays, fromDates } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
 import { OrderedSet } from "../lib/util";
@@ -12,7 +12,7 @@ import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import {
   EventsState, EventCommentAction, EventsDataAction, EventsUpdateAction,
-  EventsInvalidatePeriodAction
+  EventsInvalidatePeriodAction, QueryMap
 } from "../states/group-events";
 
 export function fetchGroupEvents(props: {
@@ -25,15 +25,18 @@ export function fetchGroupEvents(props: {
   Svcs: ApiSvc;
   Conf?: { cacheDuration: number }
 }): Promise<void> {
-  if (shouldUpdate(props, deps)) {
+  let range = rangeToUpdate(props, deps);
+  if (range) {
+    let [start, end] = range;
+    let period = fromDates(start, end);
+    let request = toAPI(start, end, props.query);
+
     deps.dispatch({
       type: "GROUP_EVENTS_DATA",
       dataType: "FETCH_QUERY_START",
-      ...props
+      ...props, period
     });
 
-    let [start, end] = bounds(props.period);
-    let request = toAPI(start, end, props.query);
     return deps.Svcs.Api.postForGroupEvents(props.groupId, request).then(
       (result) => {
         /*
@@ -50,7 +53,7 @@ export function fetchGroupEvents(props: {
         deps.dispatch({
           type: "GROUP_EVENTS_DATA",
           dataType: "FETCH_QUERY_END",
-          events, ...props
+          events, ...props, period
         });
       },
 
@@ -59,7 +62,7 @@ export function fetchGroupEvents(props: {
         deps.dispatch({
           type: "GROUP_EVENTS_DATA",
           dataType: "FETCH_QUERY_FAIL",
-          ...props
+          ...props, period
         });
       }
     );
@@ -78,48 +81,70 @@ function sortFn(e1: ApiT.GenericCalendarEvent, e2: ApiT.GenericCalendarEvent) {
          endE1.getTime() - endE2.getTime();
 }
 
-// Should we fetch event query again?
-function shouldUpdate(props: {
+// Should we fetch event query again? If so, what date range should we fetch?
+function rangeToUpdate(props: {
   groupId: string;
   period: GenericPeriod;
   query: QueryFilter;
 }, deps: {
   state: EventsState;
   Conf?: { cacheDuration: number }
-}) {
+}): [Date, Date]|null {
   let { groupId, period, query } = props;
   let { state, Conf } = deps;
+  let { start, end } = toDays(period);
   let queryKey = stringify(query);
   let queryDays = state.groupEventQueries[groupId];
   if (queryDays) {
-    let {start, end} = toDays(period);
+    let minDay: number|undefined;
     for (let i = start; i <= end; i++) {
-      let queries = queryDays[i];
-      if (! queries) {
-        return true;
-      }
-
-      let queryData = queries[queryKey];
-      if (! ok(queryData)) {
-        return true;
-      }
-
-      if (ready(queryData)) {
-        if (queryData.invalid) {
-          return true;
-        }
-
-        if (Conf && _.isNumber(Conf.cacheDuration) &&
-            queryData.updatedOn.getTime() + Conf.cacheDuration <
-              (new Date()).getTime()
-        ) {
-          return true;
-        }
+      if (invalidDay(queryKey, queryDays[i], Conf)) {
+        minDay = i;
+        break;
       }
     }
-    return false;
+    if (typeof minDay === "undefined") { return null; }
+
+    let maxDay = minDay;
+    for (let i = end; i > minDay; i--) {
+      if (invalidDay(queryKey, queryDays[i], Conf)) {
+        maxDay = i;
+        break;
+      }
+    }
+
+    return bounds({ interval: "day", start: minDay, end: maxDay })
   }
-  return true;
+  return bounds(props.period);
+}
+
+function invalidDay(
+  queryKey: string,
+  queryMap?: QueryMap,
+  Conf?: { cacheDuration: number }
+) {
+  if (! queryMap) {
+    return true;
+  }
+
+  let queryData = queryMap[queryKey];
+  if (! ok(queryData)) {
+    return true;
+  }
+
+  if (ready(queryData)) {
+    if (queryData.invalid) {
+      return true;
+    }
+
+    if (Conf && _.isNumber(Conf.cacheDuration) &&
+        queryData.updatedOn.getTime() + Conf.cacheDuration <
+          (new Date()).getTime()
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 

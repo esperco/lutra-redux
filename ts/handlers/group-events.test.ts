@@ -173,9 +173,66 @@ describe("Group Events handlers", function() {
       expect(deps.dispatch.called).to.be.true;
       expect(apiSpy.called).to.be.true;
     });
+
+    it("trims fetch period to minimum invalid for API call", () => {
+      let deps = getDeps();
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "postForGroupEvents");
+      fakeData(deps.state);
+
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 1][queryKey] as QueryResult
+      ).invalid = true;
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 3][queryKey] as QueryResult
+      ).invalid = true;
+
+      let [start, end] = bounds({
+        interval: "day",
+        start: daysStart + 1,
+        end: daysStart + 3
+      });
+
+      fetchGroupEvents({ groupId, period, query }, deps);
+      expectCalledWith(apiSpy, groupId, toAPI(start, end, query));
+    });
+
+    it("trims fetch period for FETCH_QUERY_END dispatch", (done) => {
+      let e1 = makeEvent({ id: "e1" });
+      let e2 = makeEvent({ id: "e2" });
+      let deps = getDeps();
+
+      fakeData(deps.state);
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 1][queryKey] as QueryResult
+      ).invalid = true;
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 3][queryKey] as QueryResult
+      ).invalid = true;
+
+      let dfd = stubApi(deps.Svcs, "postForGroupEvents");
+
+      fetchGroupEvents({ groupId, period, query }, deps).then(() => {
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_EVENTS_DATA",
+          dataType: "FETCH_QUERY_END",
+          groupId, query,
+          period: {
+            interval: "day",
+            start: daysStart + 1,
+            end: daysStart + 3
+          },
+          events: [e1, e2]
+        });
+      }).then(done, done);
+
+      deps.dispatch.reset();
+      dfd.resolve({
+        "cal-id": { events: [e1, e2] }
+      });
+    });
   });
 
-  // TODO: Pending new PAI calls
+  // TODO: Pending new API calls
   //
   // describe("fetchByIds", () => {
   //   // Common vars

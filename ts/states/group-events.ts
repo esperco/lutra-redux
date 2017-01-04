@@ -16,9 +16,11 @@ export interface QueryResult {
 }
 
 // Map from days since epoch to hashed query id to query result
-export type EventsQueryState = Array<{
-  [index: string]: StoreData<QueryResult>;
-}>;
+export interface QueryMap {
+  [index: string]: StoreData<QueryResult>
+};
+
+export type EventsQueryState = QueryMap[];
 
 export type EventMap = StoreMap<ApiT.GenericCalendarEvent>;
 
