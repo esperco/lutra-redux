@@ -248,6 +248,7 @@ describe("Group Events handlers", function() {
         type: "GROUP_EVENTS_UPDATE",
         groupId,
         eventIds,
+        recurringEventIds: [],
         addLabels: [label1],
         rmLabels: []
       });
@@ -266,6 +267,7 @@ describe("Group Events handlers", function() {
         type: "GROUP_EVENTS_UPDATE",
         groupId,
         eventIds,
+        recurringEventIds: [],
         addLabels: [],
         rmLabels: [label1]
       });
@@ -380,6 +382,155 @@ describe("Group Events handlers", function() {
       }, deps);
 
       // No expectations other than not throwing
+    });
+
+    it("dispatches confirmation of existing labels if none provided", () => {
+      let deps = getDeps();
+      setGroupEventLabels({
+        groupId,
+        eventIds
+      }, deps);
+
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_EVENTS_UPDATE",
+        groupId,
+        eventIds,
+        recurringEventIds: [],
+        addLabels: [],
+        rmLabels: []
+      });
+    });
+
+    it("makes an API call to confirm existing labels if none provided",
+    (done) => {
+      let deps = getDeps();
+      stubApiRet(deps.Svcs, "updateGroupHashtagStates");
+      let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
+
+      setGroupEventLabels({
+        groupId,
+        eventIds
+      }, deps).then(() => {
+        expectCalledWith(stub, groupId, {
+          set_labels: [{
+            id: "e1",
+            labels: []
+          }, {
+            id: "e2",
+            labels: [label2.original]
+          }],
+          predict_labels: []
+        })
+      }).then(done, done);
+      dfd.resolve({});
+    });
+
+    describe("with recurring events", () => {
+      function getRecurringDeps() {
+        let deps = getDeps();
+        return {
+          ...deps,
+          state: {
+            ...deps.state,
+            groupEvents: {
+              [groupId]: {
+                ...deps.state.groupEvents[groupId],
+                e4: makeEvent({
+                  id: "e4",
+                  recurring_event_id: "recurId"
+                }),
+                e5: makeEvent({
+                  id: "e5",
+                  recurring_event_id: "recurId"
+                })
+              }
+            },
+            groupRecurringEvents: {
+              [groupId]: {
+                recurId: { e4: true as true, e5: true as true }
+              }
+            }
+          }
+        }
+      }
+
+      it("dispatches an action with a recurring ID if relevant", () => {
+        let deps = getRecurringDeps();
+        setGroupEventLabels({
+          groupId,
+          eventIds: ["e1", "e4", "e5"],
+          label: label1,
+          active: true
+        }, deps);
+
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_EVENTS_UPDATE",
+          groupId,
+          eventIds: ["e1"],
+          recurringEventIds: ["recurId"],
+          addLabels: [label1],
+          rmLabels: []
+        });
+      });
+
+      it("makes an API call with a recurring ID if relevant", (done) => {
+        let deps = getRecurringDeps();
+        stubApiRet(deps.Svcs, "updateGroupHashtagStates");
+        let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
+
+        setGroupEventLabels({
+          groupId,
+          eventIds: ["e1", "e4", "e5"],
+          label: label1,
+          active: true
+        }, deps).then(() => {
+          expectCalledWith(stub, groupId, {
+            set_labels: [{
+              id: "e1",
+              labels: [label1.original]
+            }, {
+              id: "recurId",
+              labels: [label1.original]
+            }],
+            predict_labels: []
+          })
+        }).then(done, done);
+        dfd.resolve({});
+      });
+
+      it("accepts an option to force recurring events to be labeled as an " +
+         "instance",
+      (done) => {
+        let deps = getRecurringDeps();
+        stubApiRet(deps.Svcs, "updateGroupHashtagStates");
+        let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
+
+        setGroupEventLabels({
+          groupId,
+          eventIds: ["e4"],
+          label: label1,
+          active: true
+        }, deps, { forceInstance: true }).then(() => {
+          expectCalledWith(stub, groupId, {
+              set_labels: [{
+                id: "e4",
+                labels: [label1.original]
+              }],
+              predict_labels: []
+            })
+          }).then(done, done);
+
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_EVENTS_UPDATE",
+          groupId,
+          eventIds: ["e4"],
+          recurringEventIds: [],
+          addLabels: [label1],
+          rmLabels: []
+        });
+
+        dfd.resolve({});
+      });
     });
   });
 
