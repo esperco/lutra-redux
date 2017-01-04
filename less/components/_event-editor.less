@@ -9,30 +9,6 @@
     color: @text-muted;
   }
 
-  .comment-section {
-    button.primary { float: right; }
-  }
-
-  .comment-delete {
-    float: right;
-    position: relative;
-    top: -@padding-small;
-  }
-
-  .comment {
-    font-size: 0.9em;
-
-    h5 {
-      margin-top: 0;
-      font-weight: bold;
-      font-size: 1rem;
-    }
-
-    .time + * {
-      margin-top: @padding-small;
-    }
-  }
-
   .time {
     font-size: @font-size-small;
     color: @text-muted;
@@ -45,8 +21,18 @@
     color: @text-muted;
   }
 
-  .description {
+  .description, .recurring-labels {
     font-size: @font-size-small;
+  }
+
+  .recurring-labels .description {
+    margin-right: @padding-small;
+  }
+
+  .recurring-labels button {
+    padding: 0;
+    display: inline;
+    text-transform: none;
   }
 
   .guest {
@@ -69,6 +55,30 @@
     &.declined .name {
       color: @text-muted;
       text-decoration: line-through;
+    }
+  }
+
+  .comment-section {
+    button.primary { float: right; }
+  }
+
+  .comment-delete {
+    float: right;
+    position: relative;
+    top: -@padding-small;
+  }
+
+  .comment {
+    font-size: 0.9em;
+
+    h5 {
+      margin-top: 0;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .time + * {
+      margin-top: @padding-small;
     }
   }
 }

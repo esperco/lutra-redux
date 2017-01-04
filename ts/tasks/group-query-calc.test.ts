@@ -56,6 +56,8 @@ describe("handleGroupQueryCalc", () => {
         }
       },
 
+      groupRecurringEvents: {},
+
       groupEventQueries: {
         [groupId]: makeQueryState(
           period, query, ["e1", "e2"],

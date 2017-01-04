@@ -147,6 +147,10 @@ class GroupEvents extends React.Component<Props, {}> {
           eventIds: this.props.eventId ? [this.props.eventId] : [],
           label, active
         }, this.props)}
+        onForceInstance={() => Events.setGroupEventLabels({
+          groupId: this.props.groupId,
+          eventIds: this.props.eventId ? [this.props.eventId] : []
+        }, this.props, { forceInstance: true })}
         onCommentPost={(eventId, text) =>
           Events.postGroupEventComment({
             groupId: this.props.groupId,

@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
-import { updateEventLabels } from "../lib/event-labels";
+import { updateEventLabels, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, fromDates, index } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
@@ -22,10 +22,20 @@ export type EventsQueryState = Array<{
 
 export type EventMap = StoreMap<ApiT.GenericCalendarEvent>;
 
+// Map from recurring_event_id to all instances we've encountered thus far
+export interface RecurringEventMap {
+  [recurringId: string]: Record<string, true>;
+}
+
 export interface EventsState {
   // groupId to another map
   groupEvents: {
     [index: string]: EventMap;
+  };
+
+  // groupId to another map
+  groupRecurringEvents: {
+    [index: string]: RecurringEventMap;
   };
 
   // groupId to another map
@@ -91,6 +101,7 @@ export interface EventsUpdateAction {
   type: "GROUP_EVENTS_UPDATE";
   groupId: string;
   eventIds: string[];
+  recurringEventIds?: string[];
   addLabels?: ApiT.LabelInfo[];
   rmLabels?: ApiT.LabelInfo[];
 }
@@ -128,13 +139,18 @@ export function eventsDataReducer<S extends EventsState> (
     return (state.groupEvents[action.groupId] =
       _.clone(state.groupEvents[action.groupId]) || {});
   };
+  let recurringMap = () => {
+    state.groupRecurringEvents = _.clone(state.groupRecurringEvents);
+    return (state.groupRecurringEvents[action.groupId] =
+      _.clone(state.groupRecurringEvents[action.groupId]) || {});
+  };
 
   switch (action.dataType) {
     case "FETCH_QUERY_START":
       reduceFetchQueryRequest(queryDays(), action);
       break;
     case "FETCH_QUERY_END":
-      reduceFetchQueryResponse(queryDays(), eventMap(), action);
+      reduceFetchQueryResponse(queryDays(), eventMap(), recurringMap(), action);
       break;
     case "FETCH_QUERY_FAIL":
       reduceFetchQueryFail(queryDays(), action);
@@ -153,30 +169,35 @@ export function eventsDataReducer<S extends EventsState> (
 export function eventsUpdateReducer<S extends EventsState>(
   state: S, action: EventsUpdateAction
 ): S {
-  let { groupId } = action;
+  let { groupId, eventIds, recurringEventIds } = action;
   let eventsMap = state.groupEvents[groupId] || {};
   let eventsMapUpdate: Partial<EventMap> = {};
   let daysToUpdateMap: { [index: number]: true } = {};
 
-  _.each(action.eventIds, (id) => {
-    let event = eventsMap[id];
+  let setEventsToUpdate = (
+    event?: StoreData<ApiT.GenericCalendarEvent>,
+    recurring?: boolean
+  ) => {
     if (ready(event)) {
-      eventsMapUpdate[event.id] = reduceEventUpdate(event, action);
-
-      /*
-        Mark each day touched by this event for query invalidation. Don't
-        actually invalidate just yet to avoid duplication if event days
-        overlap.
-      */
-      let period = fromDates("day",
-        moment(event.start).toDate(),
-        moment(event.end).toDate());
-
-      _.each(_.range(period.start, period.end + 1), (day) => {
-        daysToUpdateMap[day] = true;
-      });
+      let newEvent = reduceEventUpdate(event, action, recurring);
+      if (newEvent !== event) {
+        eventsMapUpdate[event.id] = newEvent;
+        setDaysToUpdate(daysToUpdateMap, event);
+      }
     }
+  };
+
+  // Reduce recurring ids to individual ids and process
+  _.each(recurringEventIds || [], (recurId) => {
+    _.each(state.groupRecurringEvents[groupId][recurId], (v, k) => {
+      if (v && k) {
+        setEventsToUpdate(eventsMap[k], true);
+      }
+    });
   });
+
+  // Update individual events
+  _.each(eventIds, (id) => setEventsToUpdate(eventsMap[id]));
 
   let daysToUpdate = _(daysToUpdateMap).keys().map((n) => parseInt(n)).value();
   let update: Partial<EventsState> = {
@@ -189,6 +210,23 @@ export function eventsUpdateReducer<S extends EventsState>(
     ...invalidateDays(state, action.groupId, daysToUpdate)
   };
   return _.extend({}, state, update);
+}
+
+/*
+  Mark each day touched by this event for query invalidation. Don't
+  actually invalidate just yet to avoid duplication if event days
+  overlap.
+*/
+function setDaysToUpdate(
+  updateMap: { [index: number]: true },
+  event: ApiT.GenericCalendarEvent
+) {
+  let period = fromDates("day",
+    moment(event.start).toDate(),
+    moment(event.end).toDate());
+  _.each(_.range(period.start, period.end + 1), (day) => {
+    updateMap[day] = true;
+  });
 }
 
 export function invalidatePeriodReducer<S extends EventsState>(
@@ -264,6 +302,71 @@ function invalidateDays(
   };
 }
 
+// Update a single event based on action
+function reduceEventUpdate(
+  event: ApiT.GenericCalendarEvent,
+  action: EventsUpdateAction,
+  recurring?: boolean
+): ApiT.GenericCalendarEvent {
+  // Don't update recurring labels if event doesn't have them
+  if (recurring && !useRecurringLabels(event)) {
+    return event;
+  }
+
+  // Labels
+  let labels = event.labels || [];
+  let hashtags = event.hashtags || [];
+  if (action.addLabels || action.rmLabels) {
+    let update = updateEventLabels(event, {
+      add: action.addLabels,
+      rm: action.rmLabels
+    });
+    labels = update.labels;
+    hashtags = update.hashtags;
+  }
+
+  return {
+    ...event,
+    labels,
+    hashtags,
+    has_recurring_labels: !!recurring
+  };
+}
+
+// Merges group event query day arrays, returns a new state
+function mergeQueryStates(...states: EventsQueryState[]): EventsQueryState {
+  let ret: EventsQueryState = [];
+  _.each(states, (s) => {
+    // Use normal iterator because of sparesly populated array
+    for (let i in s) {
+      ret[i] = s[i];
+    }
+  });
+  return ret;
+}
+
+// Helper function to make query states for testing -- optionally merge w/
+// existing state
+export function makeQueryState(
+  period: GenericPeriod,
+  query: QueryFilter,
+  eventIds: string[],
+  addTo?: EventsQueryState)
+{
+  addTo = addTo || [];
+  let { start, end } = toDays(period);
+  let queryKey = stringify(query);
+  for (let i = start; i <= end; i++) {
+    let queryMap = addTo[i] = _.clone(addTo[i]) || {};
+    queryMap[queryKey] = {
+      query,
+      eventIds,
+      updatedOn: new Date()
+    };
+  }
+  return addTo;
+}
+
 export function eventCommentPostReducer<S extends EventsState & LoginState>(
   state: S, action: EventCommentPostAction
 ): S {
@@ -317,59 +420,6 @@ export function eventCommentDeleteReducer<S extends EventsState>(
   return _.extend({}, state, update);
 }
 
-// Update a single event based on action
-function reduceEventUpdate(
-  event: ApiT.GenericCalendarEvent,
-  action: EventsUpdateAction
-) {
-  // Labels
-  let labels = event.labels || [];
-  let hashtags = event.hashtags || [];
-  if (action.addLabels || action.rmLabels) {
-    let update = updateEventLabels(event, {
-      add: action.addLabels,
-      rm: action.rmLabels
-    });
-    labels = update.labels;
-    hashtags = update.hashtags;
-  }
-  return { ...event, labels, hashtags };
-}
-
-// Merges group event query day arrays, returns a new state
-function mergeQueryStates(...states: EventsQueryState[]): EventsQueryState {
-  let ret: EventsQueryState = [];
-  _.each(states, (s) => {
-    // Use normal iterator because of sparesly populated array
-    for (let i in s) {
-      ret[i] = s[i];
-    }
-  });
-  return ret;
-}
-
-// Helper function to make query states for testing -- optionally merge w/
-// existing state
-export function makeQueryState(
-  period: GenericPeriod,
-  query: QueryFilter,
-  eventIds: string[],
-  addTo?: EventsQueryState)
-{
-  addTo = addTo || [];
-  let { start, end } = toDays(period);
-  let queryKey = stringify(query);
-  for (let i = start; i <= end; i++) {
-    let queryMap = addTo[i] = _.clone(addTo[i]) || {};
-    queryMap[queryKey] = {
-      query,
-      eventIds,
-      updatedOn: new Date()
-    };
-  }
-  return addTo;
-}
-
 
 /* Below functions mutate -- assume already cloned from above for below */
 
@@ -389,6 +439,7 @@ function reduceFetchQueryRequest(
 function reduceFetchQueryResponse(
   queryDays: EventsQueryState,
   eventMap: StoreMap<ApiT.GenericCalendarEvent>,
+  recurringMap: RecurringEventMap,
   action: EventsFetchQueryResponseAction
 ) {
   // Create a list for each event - day combo
@@ -418,6 +469,14 @@ function reduceFetchQueryResponse(
         eventIdList.push(event.id);
       }
     });
+
+    // Update recurrences if applicable
+    if (event.recurring_event_id) {
+      recurringMap[event.recurring_event_id] = {
+        ...recurringMap[event.recurring_event_id],
+        [event.id]: true
+      };
+    }
 
     // Add actual event data too -- indexed by eventId
     eventMap[event.id] = event;
@@ -469,6 +528,7 @@ function reduceFetchIdsResponse(
 export function initState(): EventsState {
   return {
     groupEvents: {},
+    groupRecurringEvents: {},
     groupEventQueries: {}
   };
 }

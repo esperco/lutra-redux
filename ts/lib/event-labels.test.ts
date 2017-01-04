@@ -305,5 +305,31 @@ describe("Event label helpers", () => {
         }]
       });
     });
+
+    it("confirms existing labels", () => {
+      let event = makeEvent({
+        labels: [label1],
+        hashtags: [{ hashtag: hashtag1 }]
+      });
+
+      expect(EventLabels.updateEventLabels(event, {})).to.deep.equal({
+        labels: [label1],
+        hashtags: [{ hashtag: hashtag1 }]
+      });
+    });
+
+    it("confirms predicted labels", () => {
+      let event = makeEvent({
+        predicted_labels: [{
+          label: label1,
+          score: 0.99
+        }]
+      });
+
+      expect(EventLabels.updateEventLabels(event, {})).to.deep.equal({
+        labels: [label1],
+        hashtags: []
+      });
+    });
   });
 });

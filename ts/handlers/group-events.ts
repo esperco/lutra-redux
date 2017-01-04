@@ -2,11 +2,12 @@ import * as ApiT from "../lib/apiT";
 import * as _ from "lodash";
 import { setGroupLabels } from "./groups";
 import { ApiSvc } from "../lib/api";
-import { updateEventLabels } from "../lib/event-labels";
+import { updateEventLabels, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
 import { GenericPeriod, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
+import { OrderedSet } from "../lib/util";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import {
@@ -220,21 +221,17 @@ export const LabelQueues = new QueueMap<LabelRequest>(processLabelRequests);
 export function setGroupEventLabels(props: {
   groupId: string;
   eventIds: string[];
-  label: ApiT.LabelInfo;
-  active: boolean;
+  label?: ApiT.LabelInfo; // Leave undefined to confirm existing label
+  active?: boolean;
 }, deps: {
   dispatch: (a: EventsUpdateAction|GroupUpdateAction) => any;
   state: EventsState & GroupState;
   Svcs: ApiSvc;
-}) {
-  // Dispatch changes to store
-  deps.dispatch({
-    type: "GROUP_EVENTS_UPDATE",
-    groupId: props.groupId,
-    eventIds: props.eventIds,
-    addLabels: props.active ? [props.label] : [],
-    rmLabels: props.active ? [] : [props.label]
-  });
+}, opts: {
+  forceInstance?: boolean;
+} = {}) {
+  let soloIds = new OrderedSet<string>([], _.identity);
+  let recurringIds = new OrderedSet<string>([], _.identity);
 
   // For label API call
   let request: LabelRequest = {
@@ -250,23 +247,34 @@ export function setGroupEventLabels(props: {
   _.each(props.eventIds, (id) => {
     let event = (deps.state.groupEvents[props.groupId] || {})[id];
     if (ready(event)) {
+      let apiId: string; // ID to use for API call
+
+      // Sort based on recurrence
+      if (!opts.forceInstance && useRecurringLabels(event)) {
+        recurringIds.push(event.recurring_event_id);
+        apiId = event.recurring_event_id;
+      } else {
+        soloIds.push(event.id);
+        apiId = event.id;
+      }
 
       // Add or remove labels from each event
-      let { hashtags, labels } = updateEventLabels(event, {
+      let { hashtags, labels } = updateEventLabels(event, props.label ? {
         add: props.active ? [props.label] : [],
         rm: props.active ? [] : [props.label]
-      });
+      } : {});
 
       // Flag if this is a hashtag (hashtag-only updates don't trigger
       // group label API call)
+      let norm = props.label ? props.label.normalized : "";
       let isHashtag = !!_.find(event.hashtags,
-        (h) => !h.label && h.hashtag.normalized === props.label.normalized);
+        (h) => !h.label && h.hashtag.normalized === norm);
       hashtagOnly = hashtagOnly && isHashtag;
 
       // Set complete set of labels in request (this may clobber other
       // requests but that's the nature of the API for now)
       request.setLabels.push({
-        id: event.id,
+        id: apiId,
         labels: _.map(labels, (l) => l.original),
         hashtags: _.map(hashtags, (h) => ({
           hashtag: h.hashtag.original,
@@ -276,9 +284,19 @@ export function setGroupEventLabels(props: {
     }
   });
 
+  // Dispatch changes to store
+  deps.dispatch({
+    type: "GROUP_EVENTS_UPDATE",
+    groupId: props.groupId,
+    eventIds: soloIds.toList(),
+    recurringEventIds: recurringIds.toList(),
+    addLabels: props.label && props.active ? [props.label] : [],
+    rmLabels: !props.label || props.active ? [] : [props.label]
+  });
+
   // Also need to set new group labels (but not for hashtags)
   var groupLabelPromise: Promise<any> = Promise.resolve();
-  if (props.active && !hashtagOnly) {
+  if (props.label && props.active && !hashtagOnly) {
     groupLabelPromise = setGroupLabels({
       groupId: props.groupId,
       addLabels: [props.label]

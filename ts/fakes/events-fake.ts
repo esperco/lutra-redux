@@ -14,6 +14,7 @@ export function makeGenericCalendarEvent(
     hashtags: [],
     guests: [],
     comments: [],
+    has_recurring_labels: false,
     transparent: false,
     description_messageids: []
   };
