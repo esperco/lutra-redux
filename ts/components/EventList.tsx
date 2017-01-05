@@ -8,7 +8,7 @@ import * as ApiT from "../lib/apiT";
 import Icon from "../components/Icon";
 import LabelList from "../components/LabelList";
 import Tooltip from "../components/Tooltip";
-// import * as classNames from "classnames";
+import * as classNames from "classnames";
 import { ok, StoreData } from "../states/data-status";
 import * as EventText from "../text/events";
 
@@ -60,7 +60,10 @@ export class EventDisplay extends React.Component<EventProps, {}> {
       <span>{ event.title }</span> :
       <span className="no-title">{ EventText.NoTitle }</span>;
 
-    return <div className="event panel">
+    return <div className={classNames("event", "panel", {
+      unconfirmed: !event.labels_confirmed,
+      "has-predictions": event.labels_predicted
+    })}>
       <h4>{ this.props.eventHrefFn ?
         <a href={this.props.eventHrefFn(event)}>{ title }</a> :
         title

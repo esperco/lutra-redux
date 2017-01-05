@@ -9,8 +9,6 @@ import { ChoiceSet } from "../lib/util";
 // ChoiceSet specific to labels
 export class LabelSet extends ChoiceSet<ApiT.LabelInfo> {}
 
-const PREDICTED_LABEL_PERCENT_CUTOFF = 0.5;
-
 /*
   Takes team or group labels, plus a list of events -- returns a list of labels
   plus totals for labels
@@ -82,33 +80,7 @@ export function getLabels(
   event: ApiT.GenericCalendarEvent,
   incHashtag = true
 ): ApiT.LabelInfo[] {
-  // Hashtags
-  let hashtags = incHashtag ? _(event.hashtags)
-    .filter((h) => h.approved !== false)
-    .map((h) => h.label || ({
-      ...h.hashtag, color: newLabelColor(h.hashtag.normalized)
-    }))
-    .value() : [];
-
-  // Default to user-specified labels if they exist -- union with hashtags
-  if (event.labels) {
-    return _(event.labels).unionBy(hashtags, (l) => l.normalized).value();
-  }
-
-  // Else hashtags
-  if (! _.isEmpty(event.hashtags)) {
-    return hashtags;
-  }
-
-  // Else predictions
-  if (event.predicted_labels) {
-    return _(event.predicted_labels)
-      .filter((l) => l.score > PREDICTED_LABEL_PERCENT_CUTOFF)
-      .map((l) => l.label)
-      .value();
-  }
-
-  return [];
+  return event.labels || [];
 }
 
 
@@ -130,7 +102,12 @@ export function useRecurringLabels(event: ApiT.GenericCalendarEvent)
   recurring_event_id: string
 } {
   return !!event.recurring_event_id && (
-    event.has_recurring_labels || !event.labels
+    event.has_recurring_labels ||
+
+    // No labls or predicted labels means no labels on instance, can
+    // apply to recurring
+    !event.labels ||
+    !!event.labels_predicted
   );
 }
 
@@ -150,11 +127,10 @@ export function match<T extends ApiT.LabelInfo>(
   return label.normalized === filter;
 }
 
-// Normalize label -- should match server ideally
+// Normalize label -- should match server
 export function normalize(label: string) {
   return label.trim().toLowerCase();
 }
-
 
 /*
   New label -> create
@@ -167,7 +143,6 @@ export function newLabel(original: string): ApiT.LabelInfo {
   }
 }
 
-
 /*
   Returns updated label list -- labels are always alphabetized based on
   normalization. Labels added to a list replace existing ones based on
@@ -177,68 +152,8 @@ export function updateLabelList(labels: ApiT.LabelInfo[], update: {
   add?: ApiT.LabelInfo[];
   rm?: ApiT.LabelInfo[];
 }): ApiT.LabelInfo[] {
-  let rmLabels: Record<string, true> = {};
-  _.each(update.rm || [], (l) => rmLabels[l.normalized] = true);
-
-  /*
-    Remove additions too (we'll re-add later, but this ensures
-    the additions actually replace the old labels when we do a uniqueness
-    check)
-  */
-  _.each(update.add || [], (l) => rmLabels[l.normalized] = true);
-
-  return _(labels)
-    .filter((l) => !rmLabels[l.normalized])
-    .concat(update.add || [])
-    .sortBy((l) => l.normalized)
-    .sortedUniqBy((l) => l.normalized)
-    .value();
-}
-
-
-/*
-  Returns updated labels + hashtags for an events
-*/
-export function updateEventLabels(event: ApiT.GenericCalendarEvent, update: {
-  add?: ApiT.LabelInfo[];
-  rm?: ApiT.LabelInfo[];
-}): {
-  labels: ApiT.LabelInfo[];
-  hashtags: ApiT.HashtagState[];
-} {
-  let hashtags = event.hashtags;
-  let labels = getLabels(event, false);
-
-  // Store in hash for lookup
-  let rmLabels: Record<string, ApiT.LabelInfo> = {};
-  _.each(update.rm || [], (l) => rmLabels[l.normalized] = l);
-  let addLabels: Record<string, ApiT.LabelInfo> = {};
-  _.each(update.add || [], (l) => addLabels[l.normalized] = l);
-
-  /*
-    Update hashtags first -- this also removes from hash so as to avoid
-    double adding / removing later.
-  */
-  hashtags = _.map(hashtags, (h) => {
-    let id = h.label ? h.label.normalized : h.hashtag.normalized
-    if (rmLabels[id]) {
-      delete rmLabels[id];
-      return { ...h, approved: false };
-    }
-    if (addLabels[id]) {
-      delete addLabels[id];
-      return { ...h, approved: true };
-    }
-    return h;
-  });
-
-  // Apply remaining hash to filter labels
-  labels = _(labels || [])
-    .filter((l) => !rmLabels[l.normalized] && !addLabels[l.normalized])
-    .concat(_.values(addLabels))
-    .sortBy((l) => l.normalized)
-    .sortedUniqBy((l) => l.normalized)
-    .value();
-
-  return { labels, hashtags };
+  let labelSet = new LabelSet(labels);
+  labelSet.pull(...(update.rm || []));
+  labelSet.push(...(update.add || []));
+  return _.sortBy(labelSet.toList(), (l) => l.normalized);
 }

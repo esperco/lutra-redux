@@ -11,10 +11,11 @@ export function makeGenericCalendarEvent(
     end: "2016-03-02T13:14:17.000-08:00",
     title: "Event",
     all_day: false,
-    hashtags: [],
     guests: [],
     comments: [],
     has_recurring_labels: false,
+    labels_confirmed: true,
+    labels_predicted: false,
     transparent: false,
     description_messageids: []
   };

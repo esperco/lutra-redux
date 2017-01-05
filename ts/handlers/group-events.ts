@@ -15,7 +15,7 @@ import * as ApiT from "../lib/apiT";
 import * as _ from "lodash";
 import { setGroupLabels } from "./groups";
 import { ApiSvc } from "../lib/api";
-import { updateEventLabels, useRecurringLabels } from "../lib/event-labels";
+import { updateLabelList, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
 import { GenericPeriod, Period, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
@@ -38,10 +38,6 @@ interface LabelRequest {
   setLabels: {
     id: string;
     labels?: string[];
-    hashtags?: {
-      hashtag: string;    // Original
-      approved: boolean;
-    }[];
     attended?: boolean;
   }[];
   predictLabels: string[];
@@ -164,16 +160,12 @@ export function processLabelRequests(
   if (! last) return Promise.resolve();
   let { Api } = last.deps.Svcs;
 
-  let setHashtags: { [id: string]: ApiT.HashtagRequestItem[] } = {}
   let setLabels: { [id: string]: ApiT.EventLabels } = {};
   let predictLabels = new OrderedSet<string>([], _.identity);
 
   // Left to right, override previous results with new ones
   _.each(queue, (q) => {
     _.each(q.setLabels, (s) => {
-      if (s.hashtags) {
-        setHashtags[s.id] = s.hashtags;
-      }
       if (s.labels) {
         setLabels[s.id] = {
           ...setLabels[s.id],
@@ -192,22 +184,10 @@ export function processLabelRequests(
     _.each(q.predictLabels, (id) => predictLabels.push(id));
   });
 
-  /*
-    API calls -- first hashtags, then labels, then clear queue.
-    TODO: Ideally, we'd like to combine hashtag confirmation and label setting
-    in one API call but that isn't available yet.
-  */
-  return Api.batch(() => Promise.all(
-    _.map(setHashtags,
-      (h, eventId: string) => Api.updateGroupHashtagStates(
-        groupId, eventId, {
-          hashtag_states: h
-        })
-    )
-  )).then(() => Api.setPredictGroupLabels(groupId, {
+  return Api.setPredictGroupLabels(groupId, {
     set_labels: _.values(setLabels),
     predict_labels: predictLabels.toList()
-  }));
+  });
 }
 
 // Batch all comment posts in a single API call and dispatch when done
@@ -512,9 +492,6 @@ export function setGroupEventLabels(props: {
     deps
   };
 
-  // Track if label actually updates for any event (vs. hashtag)
-  var hashtagOnly = true;
-
   // Apply label change to each event in list
   _.each(props.eventIds, (id) => {
     let event = (deps.state.groupEvents[props.groupId] || {})[id];
@@ -531,27 +508,16 @@ export function setGroupEventLabels(props: {
       }
 
       // Add or remove labels from each event
-      let { hashtags, labels } = updateEventLabels(event, props.label ? {
+      let labels = updateLabelList(event.labels || [], props.label ? {
         add: props.active ? [props.label] : [],
         rm: props.active ? [] : [props.label]
       } : {});
-
-      // Flag if this is a hashtag (hashtag-only updates don't trigger
-      // group label API call)
-      let norm = props.label ? props.label.normalized : "";
-      let isHashtag = !!_.find(event.hashtags,
-        (h) => !h.label && h.hashtag.normalized === norm);
-      hashtagOnly = hashtagOnly && isHashtag;
 
       // Set complete set of labels in request (this may clobber other
       // requests but that's the nature of the API for now)
       request.setLabels.push({
         id: apiId,
-        labels: _.map(labels, (l) => l.original),
-        hashtags: _.map(hashtags, (h) => ({
-          hashtag: h.hashtag.original,
-          approved: h.approved !== false // Implicit approval
-        }))
+        labels: _.map(labels, (l) => l.original)
       });
     }
   });
@@ -568,7 +534,7 @@ export function setGroupEventLabels(props: {
 
   // Also need to set new group labels (but not for hashtags)
   var groupLabelPromise: Promise<any> = Promise.resolve();
-  if (props.label && props.active && !hashtagOnly) {
+  if (props.label && props.active && props.label.normalized[0] !== "#") {
     groupLabelPromise = setGroupLabels({
       groupId: props.groupId,
       addLabels: [props.label]

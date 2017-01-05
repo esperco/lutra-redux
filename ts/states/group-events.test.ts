@@ -471,12 +471,8 @@ describe("eventsUpdateReducer", () => {
   const label1 = newLabel("Label 1");
   const label2 = newLabel("Label 2");
   const label3 = newLabel("Label 3");
-  const hashtagState = {
-    hashtag: { original: "#Hashtag", normalized: "#hashtag" }
-  };
   const ev = makeEvent({ id: "e1",
-    labels: [label1],
-    hashtags: [hashtagState]
+    labels: [label1]
   });
   const s1 = deepFreeze({
     ...initState(),
@@ -497,6 +493,32 @@ describe("eventsUpdateReducer", () => {
     });
   });
 
+  it("confirms event labels", () => {
+    let ev2 = {
+      ...ev,
+      labels_confirmed: false,
+      labels_predicted: true,
+    };
+    let s2 = deepFreeze({
+      ...s1,
+      groupEvents: { ["my-group-id"]: { "e1": ev2 } }
+    });
+
+    let s3 = eventsUpdateReducer(s2, {
+      type: "GROUP_EVENTS_UPDATE",
+      groupId: "my-group-id",
+      eventIds: [ev2.id],
+      addLabels: [label2],
+      rmLabels: [label1]
+    });
+    expect(s3.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+      ...ev2,
+      labels_confirmed: true,
+      labels_predicted: false,
+      labels: [label2]
+    });
+  });
+
   it("should not duplicate labels", () => {
     let s2 = eventsUpdateReducer(s1, {
       type: "GROUP_EVENTS_UPDATE",
@@ -507,25 +529,6 @@ describe("eventsUpdateReducer", () => {
     expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
       ...ev,
       labels: [label1, label2]
-    });
-  });
-
-  it("confirms hashtags matching labels", () => {
-    let s2 = eventsUpdateReducer(s1, {
-      type: "GROUP_EVENTS_UPDATE",
-      groupId: "my-group-id",
-      eventIds: [ev.id],
-      addLabels: [{
-        ...hashtagState.hashtag,
-        color: "#123456"
-      }]
-    });
-    expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
-      ...ev,
-      hashtags: [{
-        ...hashtagState,
-        approved: true
-      }]
     });
   });
 
@@ -601,7 +604,6 @@ describe("eventsUpdateReducer", () => {
 
     const e1 = makeEvent({ id: "e1",
       labels: [label1],
-      hashtags: [hashtagState],
       recurring_event_id: "recurring_id",
       has_recurring_labels: true,
       start: "2016-10-01T08:00:00.000",
@@ -609,7 +611,6 @@ describe("eventsUpdateReducer", () => {
     });
     const e2 = makeEvent({ id: "e2",
       labels: [label1],
-      hashtags: [hashtagState],
       recurring_event_id: "recurring_id",
       has_recurring_labels: true,
       start: "2016-10-02T08:00:00.000",
@@ -617,7 +618,6 @@ describe("eventsUpdateReducer", () => {
     });
     const e3 = makeEvent({ id: "e3",
       labels: [label2],
-      hashtags: [hashtagState],
       recurring_event_id: "recurring_id",
       has_recurring_labels: false,
       start: "2016-10-03T08:00:00.000",

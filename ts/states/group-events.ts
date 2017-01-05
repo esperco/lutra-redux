@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
-import { updateEventLabels, useRecurringLabels } from "../lib/event-labels";
+import { updateLabelList, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, fromDates, index } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
@@ -315,22 +315,16 @@ function reduceEventUpdate(
     return event;
   }
 
-  // Labels
-  let labels = event.labels || [];
-  let hashtags = event.hashtags || [];
-  if (action.addLabels || action.rmLabels) {
-    let update = updateEventLabels(event, {
-      add: action.addLabels,
-      rm: action.rmLabels
-    });
-    labels = update.labels;
-    hashtags = update.hashtags;
-  }
-
   return {
     ...event,
-    labels,
-    hashtags,
+
+    // Update labels
+    labels: updateLabelList(event.labels || [], {
+      add: action.addLabels,
+      rm: action.rmLabels
+    }),
+    labels_predicted: false,
+    labels_confirmed: true,
     has_recurring_labels: !!recurring
   };
 }
