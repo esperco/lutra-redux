@@ -608,12 +608,14 @@ export interface LabelChangeRequest {
   add_labels?: string[];
 }
 
+export interface EventLabels {
+  id: string;
+  labels?: string[];
+  attended?: boolean;
+}
+
 export interface LabelsSetPredictRequest {
-  set_labels: {
-    id: string;
-    labels?: string[];
-    attended?: boolean;
-  }[];
+  set_labels: EventLabels[];
   predict_labels: string[]; // Event IDs
 }
 
