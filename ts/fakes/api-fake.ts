@@ -27,7 +27,10 @@ export function stubApiPlus(svc: ApiSvc, name: string) {
 
 export function stubApiRet(svc: ApiSvc, name: string, val?: any) {
   let Api: any = svc.Api;
-  let stub = Sinon.stub(Api, name, function() {
+  let stub = Sinon.stub(Api, name, function(...args: any[]) {
+    if (_.isFunction(val)) {
+      return Promise.resolve(val(...args));
+    }
     return Promise.resolve(val);
   });
   return stub;

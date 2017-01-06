@@ -5,7 +5,7 @@ import {
   initState, EventsState, QueryResult
 } from "./group-events";
 import makeEvent from "../fakes/events-fake";
-import { newLabel, resetColors } from "../lib/event-labels";
+import { testLabel } from "../fakes/labels-fake";
 import { stringify } from "../lib/event-queries";
 import { Period, fromDates } from "../lib/period";
 import { sandbox } from "../lib/sandbox";
@@ -34,7 +34,7 @@ describe("group-events / eventsDataReducer", () => {
         type: "GROUP_EVENTS_DATA",
         dataType: "FETCH_QUERY_START",
         groupId: "my-group-id",
-        period: { interval: "week", start: 100, end: 100 },
+        periods: [{ interval: "week", start: 100, end: 100 }],
         query
       });
 
@@ -69,7 +69,8 @@ describe("group-events / eventsDataReducer", () => {
         type: "GROUP_EVENTS_DATA",
         dataType: "FETCH_QUERY_START",
         groupId: "my-group-id",
-        period, query
+        periods: [period],
+        query
       });
 
       // Don't replace data (but do replace FETCH_ERROR)
@@ -463,14 +464,11 @@ describe("group-events / eventsDataReducer", () => {
 //////////
 
 describe("eventsUpdateReducer", () => {
-  beforeEach(() => {
-    resetColors();
-  });
 
   // Constants for testing labels
-  const label1 = newLabel("Label 1");
-  const label2 = newLabel("Label 2");
-  const label3 = newLabel("Label 3");
+  const label1 = testLabel("Label 1");
+  const label2 = testLabel("Label 2");
+  const label3 = testLabel("Label 3");
   const ev = makeEvent({ id: "e1",
     labels: [label1]
   });

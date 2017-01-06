@@ -3,16 +3,18 @@ import { expect } from "chai";
 import { shallow } from 'enzyme';
 import * as Sinon from 'sinon';
 import TagList from "../components/TagList";
+import { testLabel } from "../fakes/labels-fake";
 import * as ASN from "../lib/asn";
-import { newLabel, resetColors } from "../lib/event-labels";
+import * as Color from "../lib/colors";
+import { sandbox } from "../lib/sandbox";
 import { expectCalledWith } from "../lib/expect-helpers";
 import GroupLabelsSelector from './GroupLabelsSelector';
 
 describe("<GroupLabelsSelector />", () => {
-  const label1 = newLabel("Label 1");
-  const label2 = newLabel("Label 2");
-  const label3 = newLabel("Label 3");
-  const label4 = newLabel("Label 4");
+  const label1 = testLabel("Label 1");
+  const label2 = testLabel("Label 2");
+  const label3 = testLabel("Label 3");
+  const label4 = testLabel("Label 4");
   const defaultSelected: ASN.AllSomeNone = {
     some: {
       "Label 2": true,
@@ -21,12 +23,12 @@ describe("<GroupLabelsSelector />", () => {
     }
   };
 
+  beforeEach(() => {
+    sandbox.stub(Color, "getColorForMap", () => label4.color);
+  });
+
   var onChangeSpy: Sinon.SinonSpy;
   var onSubmitSpy: Sinon.SinonSpy;
-
-  after(() => {
-    resetColors();
-  });
 
   function getTagList(selected=defaultSelected) {
     onChangeSpy = Sinon.spy();

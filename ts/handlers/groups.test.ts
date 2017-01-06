@@ -3,8 +3,8 @@ import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { apiSvcFactory, stubApi, stubApiPlus } from "../fakes/api-fake";
 import { makeGroup } from "../fakes/groups-fake";
+import { testLabel } from "../fakes/labels-fake";
 import { initState } from "../states/groups";
-import { newLabel, resetColors } from "../lib/event-labels";
 import { sandbox } from "../lib/sandbox";
 
 describe("Groups handlers", function() {
@@ -127,11 +127,10 @@ describe("Groups handlers", function() {
   describe("setGroupLabels", function() {
     afterEach(() => {
       Groups.LabelQueues.reset();
-      resetColors();
     });
 
-    const label1 = newLabel("L1");
-    const label2 = newLabel("L2");
+    const label1 = testLabel("L1");
+    const label2 = testLabel("L2");
 
     function getDeps() {
       return {

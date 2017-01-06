@@ -50,7 +50,7 @@ export interface EventsFetchQueryRequestAction {
   type: "GROUP_EVENTS_DATA";
   dataType: "FETCH_QUERY_START";
   groupId: string;
-  period: GenericPeriod;
+  periods: GenericPeriod[];
   query: QueryFilter;
 }
 
@@ -422,14 +422,16 @@ export function eventCommentDeleteReducer<S extends EventsState>(
 function reduceFetchQueryRequest(
   queryDays: EventsQueryState, action: EventsFetchQueryRequestAction
 ) {
-  let days = toDays(action.period);
-  let queryKey = stringify(action.query);
-  for (let i = days.start; i <= days.end; i++) {
-    let queryMap = queryDays[i] = _.clone(queryDays[i]) || {};
-    if (! ok(queryMap[queryKey])) {
-      queryMap[queryKey] = "FETCHING";
+  _.each(action.periods, (period) => {
+    let days = toDays(period);
+    let queryKey = stringify(action.query);
+    for (let i = days.start; i <= days.end; i++) {
+      let queryMap = queryDays[i] = _.clone(queryDays[i]) || {};
+      if (! ok(queryMap[queryKey])) {
+        queryMap[queryKey] = "FETCHING";
+      }
     }
-  }
+  });
 }
 
 function reduceFetchQueryResponse(

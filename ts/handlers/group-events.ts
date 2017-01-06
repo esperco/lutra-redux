@@ -235,7 +235,7 @@ export function processFetchRequests(
   groupId: string,
   queue: FetchRequest[]
 ): Promise<FetchRequest[]> {
-  queue = _.sortBy(queue, (q) => q.priority);
+  queue = _.sortBy(queue, (q) => -q.priority);
   let first = queue[0];
   if (! first) return Promise.resolve([]);
 
@@ -325,14 +325,19 @@ export function fetchGroupEvents(props: {
   Svcs: ApiSvc;
   Conf?: { cacheDuration?: number; maxDaysFetch?: number; }
 }): Promise<any> {
-  deps.dispatch({
-    type: "GROUP_EVENTS_DATA",
-    dataType: "FETCH_QUERY_START",
-    ...props
-  });
+  let periods = rangesToUpdate(props, deps);
+  if (periods.length) {
+    deps.dispatch({
+      type: "GROUP_EVENTS_DATA",
+      dataType: "FETCH_QUERY_START",
+      groupId: props.groupId,
+      query: props.query,
+      periods
+    });
+  }
 
   let priority = (new Date()).getTime();
-  return Promise.all(_.map(rangesToUpdate(props, deps), (period) =>
+  return Promise.all(_.map(periods, (period) =>
     EventQueues.get(props.groupId).enqueue({
       type: "FETCH_QUERY",
       query: props.query,
