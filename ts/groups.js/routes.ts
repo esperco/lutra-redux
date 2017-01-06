@@ -17,6 +17,7 @@ interface Deps {
   state: State,
   postTask: PostTaskFn,
   Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc,
+  Conf: { cacheDuration?: number; maxDaysFetch?: number; }
 }
 
 export interface EventListRoute {
@@ -81,11 +82,12 @@ export const setup = Paths.setup.route<Deps>(function(p, deps) {
 
 export type RouteTypes = EventListRoute|SetupRoute;
 
-export function init({ dispatch, getState, postTask, Svcs }: {
+export function init({ dispatch, getState, postTask, Svcs, Conf }: {
   dispatch: (action: Action) => any,
   getState: () => State,
   postTask: PostTaskFn,
   Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc,
+  Conf: { cacheDuration?: number; maxDaysFetch?: number; }
 }) {
   Routing.init<Deps>(
     [ // Routes
@@ -94,7 +96,7 @@ export function init({ dispatch, getState, postTask, Svcs }: {
     ],
 
     // Deps
-    () => ({ dispatch, state: getState(), postTask, Svcs }),
+    () => ({ dispatch, state: getState(), postTask, Svcs, Conf }),
 
     // Opts
     { home: () => Paths.eventList.href({

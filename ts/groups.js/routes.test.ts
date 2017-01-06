@@ -25,7 +25,8 @@ describe("Routes", function() {
       dispatch: sandbox.spy(),
       state: initState(),
       Svcs: getSvcs(),
-      postTask: sandbox.spy()
+      postTask: sandbox.spy(),
+      Conf: {}
     };
 
     // Incomplete login response -- but good enough for tests

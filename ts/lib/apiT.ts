@@ -251,15 +251,6 @@ export interface HashtagState {
   approved?: boolean;
 }
 
-export interface HashtagRequestItem {
-  hashtag: string;
-  approved: boolean;
-}
-
-export interface HashtagRequest {
-  hashtag_states: HashtagRequestItem[];
-}
-
 export interface MergedEventSource {
   eventid: string;
   recurring_event_id?: string;
@@ -284,10 +275,11 @@ export interface GenericCalendarEvent {
   description?: string;
   description_messageids: string[];
   labels?: LabelInfo[];
+  labels_confirmed?: boolean;
+  labels_predicted?: boolean;
   predicted_attended?: number;         // Floating score
-  predicted_labels?: PredictedLabel[]; // Sorted by score desc
   comments: GroupEventComment[];
-  hashtags: HashtagState[];
+  // hashtags: HashtagState[];         // Exists, but deprecate
   feedback?: EventFeedback;
   location?: string;
   all_day: boolean;
@@ -608,12 +600,14 @@ export interface LabelChangeRequest {
   add_labels?: string[];
 }
 
+export interface EventLabels {
+  id: string;
+  labels?: string[];
+  attended?: boolean;
+}
+
 export interface LabelsSetPredictRequest {
-  set_labels: {
-    id: string;
-    labels?: string[];
-    attended?: boolean;
-  }[];
+  set_labels: EventLabels[];
   predict_labels: string[]; // Event IDs
 }
 

@@ -8,6 +8,7 @@ module.exports = {
   logoutRedirect: location.origin + "/login?logout=1",
 
   cacheDuration: 30 * 1000, // 30 sec
+  maxDaysFetch: 5,
   esperVersion: "lutra-redux",
   logLevel: 0,
   logTag: "Esper"

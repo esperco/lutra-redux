@@ -1,26 +1,32 @@
 import {
-  fetchGroupEvents, setGroupEventLabels, LabelQueues, processLabelRequests
+  fetchGroupEvents, setGroupEventLabels, EventQueues, processLabelRequests,
+  processQueueRequest, processCommentRequests, processDeleteCommentRequest,
+  postGroupEventComment, deleteGroupEventComment
 } from "./group-events";
 import { LabelQueues as GroupLabelQueues } from "./groups";
 import { expect } from "chai";
 import { ApiSvc } from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stringify, toAPI } from "../lib/event-queries";
-import { bounds } from "../lib/period";
+import { bounds, toDays } from "../lib/period";
 import { apiSvcFactory,
   stubApi, stubApiPlus, stubApiRet
 } from "../fakes/api-fake";
 import { initState as initGroupState } from "../states/groups"
 import { initState, EventsState, QueryResult } from "../states/group-events";
-import { newLabel, resetColors } from "../lib/event-labels";
-import { toDays } from "../lib/period";
 import { sandbox } from "../lib/sandbox";
 import makeEvent from "../fakes/events-fake";
+import { testLabel } from "../fakes/labels-fake";
 import * as Sinon from "sinon";
 
 describe("Group Events handlers", function() {
   // Common vars
   const groupId = "my-group-id";
+
+  afterEach(() => {
+    EventQueues.reset();
+  });
 
   describe("fetchGroupEvents", function() {
     function getDeps() {
@@ -58,7 +64,7 @@ describe("Group Events handlers", function() {
       expectCalledWith(deps.dispatch, {
         type: "GROUP_EVENTS_DATA",
         dataType: "FETCH_QUERY_START",
-        groupId, period, query
+        groupId, periods: [toDays(period)], query
       });
     });
 
@@ -82,7 +88,8 @@ describe("Group Events handlers", function() {
         expectCalledWith(deps.dispatch, {
           type: "GROUP_EVENTS_DATA",
           dataType: "FETCH_QUERY_END",
-          groupId, period, query,
+          groupId, query,
+          period: toDays(period),
           events: [e1, e2]
         });
       }).then(done, done);
@@ -102,7 +109,8 @@ describe("Group Events handlers", function() {
           expectCalledWith(deps.dispatch, {
             type: "GROUP_EVENTS_DATA",
             dataType: "FETCH_QUERY_FAIL",
-            groupId, period, query
+            groupId, query,
+            period: toDays(period)
           });
         }
       ).then(done, done);
@@ -173,15 +181,91 @@ describe("Group Events handlers", function() {
       expect(deps.dispatch.called).to.be.true;
       expect(apiSpy.called).to.be.true;
     });
+
+    it("trims fetch period to minimum invalid for API call", () => {
+      let deps = getDeps();
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "postForGroupEvents");
+      fakeData(deps.state);
+
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 1][queryKey] as QueryResult
+      ).invalid = true;
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 3][queryKey] as QueryResult
+      ).invalid = true;
+
+      let [start, end] = bounds({
+        interval: "day",
+        start: daysStart + 1,
+        end: daysStart + 3
+      });
+
+      fetchGroupEvents({ groupId, period, query }, deps);
+      expectCalledWith(apiSpy, groupId, toAPI(start, end, query));
+    });
+
+    it("trims fetch period for FETCH_QUERY_END dispatch", (done) => {
+      let e1 = makeEvent({ id: "e1" });
+      let e2 = makeEvent({ id: "e2" });
+      let deps = getDeps();
+
+      fakeData(deps.state);
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 1][queryKey] as QueryResult
+      ).invalid = true;
+      (deps.state.groupEventQueries
+        [groupId][daysStart + 3][queryKey] as QueryResult
+      ).invalid = true;
+
+      let dfd = stubApi(deps.Svcs, "postForGroupEvents");
+
+      fetchGroupEvents({ groupId, period, query }, deps).then(() => {
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_EVENTS_DATA",
+          dataType: "FETCH_QUERY_END",
+          groupId, query,
+          period: {
+            interval: "day",
+            start: daysStart + 1,
+            end: daysStart + 3
+          },
+          events: [e1, e2]
+        });
+      }).then(done, done);
+
+      deps.dispatch.reset();
+      dfd.resolve({
+        "cal-id": { events: [e1, e2] }
+      });
+    });
+
+    it("enqueues multiple fetch periods based on Conf.maxDaysFetch", () => {
+      let deps = getDeps();
+      (deps.Conf as any).maxDaysFetch = 5;
+      let queue = EventQueues.get(groupId);
+      let spy = sandbox.spy(queue, 'enqueue');
+
+      fetchGroupEvents({ groupId, period, query }, deps);
+
+      expect(spy.getCall(0).args[0].period).to.deep.equal({
+        interval: "day", start: daysStart, end: daysStart + 4
+      });
+      expect(spy.getCall(1).args[0].period).to.deep.equal({
+        interval: "day", start: daysStart + 5, end: daysStart + 9
+      });
+      expect(spy.getCall(2).args[0].period).to.deep.equal({
+        interval: "day", start: daysStart + 10, end: daysStart + 13
+      });
+    });
   });
 
-  // TODO: Pending new PAI calls
+  // TODO: Pending new API calls
   //
   // describe("fetchByIds", () => {
   //   // Common vars
   //   const eventIds = ["e1", "e2"];
   //   // const event1 = makeEvent({ id: "e1" });
-  //   // const event2 = makeEVent({ id: "e2" });
+  //   // const event2 = makeEvent({ id: "e2" });
 
   //   it("dispatches FETCH_IDS_START", () => {
   //     let deps = getDeps();
@@ -210,11 +294,6 @@ describe("Group Events handlers", function() {
               e2: makeEvent({
                 id: "e2",
                 labels: [label2]
-              }),
-              e3: makeEvent({
-                id: "e3",
-                labels: [label2],
-                hashtags: [{ hashtag }]
               })
             }
           }
@@ -224,15 +303,12 @@ describe("Group Events handlers", function() {
     }
 
     // Common vars
-    const eventIds = ["e1", "e2"]; // Ignore e3 (hashtag test only)
-    const label1 = newLabel("L1");
-    const label2 = newLabel("L2");
-    const hashtag = newLabel("#Hashtag");
+    const eventIds = ["e1", "e2"];
+    const label1 = testLabel("L1");
+    const label2 = testLabel("L2");
 
     afterEach(() => {
-      LabelQueues.reset();
       GroupLabelQueues.reset();
-      resetColors();
     });
 
     it("dispatches a GROUP_EVENTS_UPDATE action when adding", () => {
@@ -273,56 +349,8 @@ describe("Group Events handlers", function() {
       });
     });
 
-    it("makes API call to update hashtags", (done) => {
-      let deps = getDeps();
-      let { stub, promise } = stubApiPlus(
-        deps.Svcs,
-        "updateGroupHashtagStates"
-      );
-      setGroupEventLabels({
-        groupId,
-        eventIds: ["e3"],
-        label: hashtag,
-        active: true
-      }, deps);
-      promise.then(() => {
-        expectCalledWith(stub, groupId, "e3", {
-          hashtag_states: [{
-            hashtag: hashtag.original,
-            approved: true
-          }]
-        });
-      }).then(done, done);
-    });
-
-    it("confirms hashtags implicitly", (done) => {
-      let deps = getDeps();
-      let { stub, promise } = stubApiPlus(
-        deps.Svcs,
-        "updateGroupHashtagStates"
-      );
-      setGroupEventLabels({
-        groupId,
-        eventIds: ["e3"],
-        label: label1,
-        active: true
-      }, deps);
-
-      // Even though hashtag is not the label, it gets confirmed anyway
-      // by virtue of just being on event
-      promise.then(() => {
-        expectCalledWith(stub, groupId, "e3", {
-          hashtag_states: [{
-            hashtag: hashtag.original,
-            approved: true
-          }]
-        });
-      }).then(done, done);
-    });
-
     it("makes API call to set event labels", (done) => {
       let deps = getDeps();
-      stubApiRet(deps.Svcs, "updateGroupHashtagStates");
       let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
       setGroupEventLabels({
         groupId,
@@ -404,7 +432,6 @@ describe("Group Events handlers", function() {
     it("makes an API call to confirm existing labels if none provided",
     (done) => {
       let deps = getDeps();
-      stubApiRet(deps.Svcs, "updateGroupHashtagStates");
       let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
 
       setGroupEventLabels({
@@ -475,7 +502,6 @@ describe("Group Events handlers", function() {
 
       it("makes an API call with a recurring ID if relevant", (done) => {
         let deps = getRecurringDeps();
-        stubApiRet(deps.Svcs, "updateGroupHashtagStates");
         let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
 
         setGroupEventLabels({
@@ -502,7 +528,6 @@ describe("Group Events handlers", function() {
          "instance",
       (done) => {
         let deps = getRecurringDeps();
-        stubApiRet(deps.Svcs, "updateGroupHashtagStates");
         let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
 
         setGroupEventLabels({
@@ -534,34 +559,200 @@ describe("Group Events handlers", function() {
     });
   });
 
+  // Shared helper for stubbing comment API function
+  function stubComment(Svcs: ApiSvc) {
+    return stubApiRet(Svcs, "postGroupEventComment",
+      (groupId: string, eventId: string, commentBody: ApiT.PostComment) => ({
+        author: "Hello",
+        upvoted_users: [],
+        created: (new Date()).toISOString(),
+        id: "id-" + commentBody.body,
+        text: commentBody.body
+      }));
+  }
+
+  describe("postGroupEventComment", () => {
+    function getDeps() {
+      return {
+        Svcs: apiSvcFactory(),
+        dispatch: sandbox.spy()
+      };
+    }
+
+    const groupId = "group-id";
+    const eventId = "event-id";
+    const text = "Comment text";
+
+    it("posts API call for comment", () => {
+      let deps = getDeps();
+      let stub = stubComment(deps.Svcs);
+      postGroupEventComment({ groupId, eventId, text }, deps);
+      expectCalledWith(stub, groupId, eventId, { body: text });
+    });
+
+    it("does not dispatch until API call returns", (done) => {
+      let deps = getDeps();
+      stubComment(deps.Svcs);
+
+      postGroupEventComment({ groupId, eventId, text }, deps).then(() => {
+        expect(deps.dispatch.called).to.be.true;
+      }).then(done, done);
+
+      expect(deps.dispatch.called).to.be.false;
+    });
+  });
+
+  describe("deleteGroupEventComment", () => {
+    function getDeps() {
+      return {
+        Svcs: apiSvcFactory(),
+        dispatch: sandbox.spy()
+      };
+    }
+
+    const groupId = "group-id";
+    const eventId = "event-id";
+    const commentId = "comment-id";
+
+    it("dispatches GROUP_EVENT_COMMENT_DELETE action", () => {
+      let deps = getDeps();
+      deleteGroupEventComment({ groupId, eventId, commentId }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_EVENT_COMMENT_DELETE",
+        groupId, eventId, commentId
+      });
+    });
+
+    it("posts API call to delete comment", () => {
+      let deps = getDeps();
+      let spy = sandbox.spy(deps.Svcs.Api, "deleteGroupEventComment");
+      deleteGroupEventComment({ groupId, eventId, commentId }, deps);
+      expectCalledWith(spy, groupId, commentId);
+    });
+  });
+
+
+  // Helpers for testing queue request processing
+  interface Deps { Svcs: ApiSvc; dispatch: Sinon.SinonSpy; };
+  function getDeps(): Deps {
+    return {
+      Svcs: apiSvcFactory(),
+      dispatch: sandbox.spy()
+    };
+  }
+
+  function makeLabelRequest(deps?: Deps) {
+    return {
+      type: "LABEL" as "LABEL",
+      setLabels: [],
+      predictLabels: [],
+      deps: deps || getDeps()
+    };
+  };
+
+  function makeCommentRequest(deps?: Deps) {
+    return {
+      type: "COMMENT" as "COMMENT",
+      eventId: "id",
+      text: "Comment text",
+      deps: deps || getDeps()
+    };
+  }
+
+  function makeCommentDeleteRequest(deps?: Deps) {
+    return {
+      type: "DELETE_COMMENT" as "DELETE_COMMENT",
+      commentId: "commentId",
+      deps: deps || getDeps()
+    };
+  }
+
+  function makeQueryRequest(deps?: Deps) {
+    return {
+      type: "FETCH_QUERY" as "FETCH_QUERY",
+      period: { interval: "day" as "day", start: 1000, end: 1014 },
+      query: {},
+      priority: 123,
+      deps: deps || getDeps()
+    }
+  }
+
+  describe("processQueueRequest", () => {
+    it("processes push requests in parallel before fetch requests", (done) => {
+      let deps = getDeps();
+      let fetch1 = makeQueryRequest(deps);
+      let fetch2 = makeQueryRequest(deps);
+      let push1 = makeCommentRequest(deps);
+      let push2 = makeLabelRequest(deps);
+      let push3 = makeCommentDeleteRequest(deps);
+
+      // Stub all API calls to resolve right away
+      let labelStub = stubApiRet(deps.Svcs, "setPredictGroupLabels");
+      let commentStub = stubComment(deps.Svcs);
+      let commentDeleteStub = stubApiRet(deps.Svcs, "deleteGroupEventComment");
+
+      processQueueRequest("group-id", [
+        fetch1,
+        push1,
+        push2,
+        push3,
+        fetch2
+      ]).then((ret) => {
+        expect(labelStub.callCount).to.equal(1);
+        expect(commentStub.callCount).to.equal(1);
+        expect(commentDeleteStub.callCount).to.equal(1);
+        expect(ret).to.deep.equal([fetch1, fetch2]);
+      }).then(done, done);
+    });
+
+    it("processes fetch requests in descending priority", (done) => {
+      let deps = getDeps();
+      let fetch1 = { ...makeQueryRequest(deps), priority: 1 };
+      let fetch2 = { ...makeQueryRequest(deps), priority: 2 };
+      let fetch3 = { ...makeQueryRequest(deps),
+        query: {contains: "Test 3"},
+        priority: 3
+      };
+      let fetchStub = stubApiRet(deps.Svcs, "postForGroupEvents", {
+        "cal-id": { events: [] }
+      });
+
+      processQueueRequest("group-id", [
+        fetch1,
+        fetch3,
+        fetch2
+      ]).then((ret) => {
+        expect(fetchStub.getCall(0).args[1].contains).to.equal("Test 3");
+        expect(ret).to.deep.equal([fetch2, fetch1]);
+      }).then(done, done);
+    });
+  });
+
   describe("processLabelRequests", () => {
-    var Svcs: ApiSvc;
-    var hashtagStub: Sinon.SinonStub;
     var labelStub: Sinon.SinonStub;
+    var deps: Deps;
+
     beforeEach(() => {
-      Svcs = apiSvcFactory();
-      hashtagStub = stubApiRet(Svcs, "updateGroupHashtagStates");
-      labelStub = stubApiRet(Svcs, "setPredictGroupLabels");
+      deps = getDeps();
+      labelStub = stubApiRet(deps.Svcs, "setPredictGroupLabels");
     });
 
     it("includes last set of labels for each event id in API call", (done) => {
       processLabelRequests("group-id", [{
+        ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
           labels: ["L1"]
         }, {
           id: "e2",
           labels: ["L1"]
-        }],
-        predictLabels: [],
-        Svcs
+        }]
       }, {
+        ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
           labels: ["L2", "L3"]
-        }],
-        predictLabels: [],
-        Svcs
+        }]
       }]).then(() => {
         expectCalledWith(labelStub, "group-id", {
           set_labels: [{
@@ -578,20 +769,18 @@ describe("Group Events handlers", function() {
 
     it("merges attend and label requests", (done) => {
       processLabelRequests("group-id", [{
+        ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
           labels: ["L1"],
           attended: true
-        }],
-        predictLabels: [],
-        Svcs
+        }]
       }, {
+        ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
           attended: false
-        }],
-        predictLabels: [],
-        Svcs
+        }]
       }]).then(() => {
         expectCalledWith(labelStub, "group-id", {
           set_labels: [{
@@ -604,81 +793,18 @@ describe("Group Events handlers", function() {
       }).then(done, done);
     });
 
-    it("merges hashtags and labels", (done) => {
-      processLabelRequests("group-id", [{
-        setLabels: [{
-          id: "e1",
-          labels: ["L1"],
-          hashtags: [{
-            hashtag: "#hash1",
-            approved: false
-          }, {
-            hashtag: "#hash2",
-            approved: false
-          }]
-        }],
-        predictLabels: [],
-        Svcs
-      }, {
-        setLabels: [{
-          id: "e1",
-          hashtags: [{
-            hashtag: "#hash1",
-            approved: true
-          }, {
-            hashtag: "#hash2",
-            approved: false
-          }]
-        }, {
-          id: "e2",
-          hashtags: [{
-            hashtag: "#hash1",
-            approved: true
-          }]
-        }],
-        predictLabels: [],
-        Svcs
-      }]).then(() => {
-        expectCalledWith(hashtagStub, "group-id", "e1", {
-          hashtag_states: [{
-            hashtag: "#hash1",
-            approved: true
-          }, {
-            hashtag: "#hash2",
-            approved: false
-          }]
-        });
-
-        expectCalledWith(hashtagStub, "group-id", "e2", {
-          hashtag_states: [{
-            hashtag: "#hash1",
-            approved: true
-          }]
-        });
-
-        expectCalledWith(labelStub, "group-id", {
-          set_labels: [{
-            id: "e1",
-            labels: ["L1"]
-          }],
-          predict_labels: []
-        });
-      }).then(done, done);
-    });
-
     it("merges predict_labels field", (done) => {
       processLabelRequests("group-id", [{
+        ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
           labels: ["L1"],
           attended: true
         }],
-        predictLabels: ["e2", "e3"],
-        Svcs
+        predictLabels: ["e2", "e3"]
       }, {
-        setLabels: [],
-        predictLabels: ["e3", "e4"],
-        Svcs
+        ...makeLabelRequest(deps),
+        predictLabels: ["e3", "e4"]
       }]).then(() => {
         expectCalledWith(labelStub, "group-id", {
           set_labels: [{
@@ -690,17 +816,79 @@ describe("Group Events handlers", function() {
         });
       }).then(done, done);
     });
+  });
 
-    it("returns empty list", (done) => {
-      processLabelRequests("group-id", [{
-        setLabels: [{
-          id: "e1",
-          labels: ["L1"]
-        }],
-        predictLabels: [],
-        Svcs
-      }]).then((x) => {
-        expect(x).to.deep.equal([]);
+  describe("processCommentRequests", () => {
+    var commentStub: Sinon.SinonStub;
+    var deps: Deps;
+
+    beforeEach(() => {
+      deps = getDeps();
+      commentStub = stubComment(deps.Svcs);
+    });
+
+    it("processes multiple comments in parallel", (done) => {
+      let c1 = {
+        ...makeCommentRequest(deps),
+        text: "Test 1"
+      };
+      let c2 = {
+        ...makeCommentRequest(deps),
+        text: "Test 2"
+      };
+      processCommentRequests("group-id", [c1, c2]).then(() => {
+        expectCalledWith(commentStub, "group-id", c1.eventId, {
+          body: c1.text
+        });
+        expectCalledWith(commentStub, "group-id", c2.eventId, {
+          body: c2.text
+        });
+      }).then(done, done);
+    });
+
+    it("dispatches updates for each comment", (done) => {
+      let c1 = {
+        ...makeCommentRequest(deps),
+        text: "Test 1"
+      };
+      let c2 = {
+        ...makeCommentRequest(deps),
+        text: "Test 2"
+      };
+      processCommentRequests("group-id", [c1, c2]).then(() => {
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_EVENT_COMMENT_POST",
+          commentId: "id-" + c1.text,
+          eventId: c1.eventId,
+          groupId: "group-id",
+          text: c1.text
+        });
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_EVENT_COMMENT_POST",
+          commentId: "id-" + c2.text,
+          eventId: c2.eventId,
+          groupId: "group-id",
+          text: c2.text
+        });
+      }).then(done, done);
+    });
+  });
+
+  describe("processDeleteCommentRequests", () => {
+    it("processes multiple deletions in parallel", (done) => {
+      let deps = getDeps();
+      let stub = stubApiRet(deps.Svcs, "deleteGroupEventComment");
+      let c1 = {
+        ...makeCommentDeleteRequest(deps),
+        commentId: "id1"
+      };
+      let c2 = {
+        ...makeCommentDeleteRequest(deps),
+        commentId: "id2"
+      };
+      processDeleteCommentRequest("group-id", [c1, c2]).then(() => {
+        expectCalledWith(stub, "group-id", c1.commentId);
+        expectCalledWith(stub, "group-id", c2.commentId);
       }).then(done, done);
     });
   });
