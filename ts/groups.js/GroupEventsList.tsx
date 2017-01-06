@@ -2,7 +2,9 @@
   Groups-specific wrapper around event list component
 */
 import * as _ from "lodash";
+import * as $ from "jquery";
 import * as React from "react";
+import * as Waypoint from "react-waypoint";
 import { State, DispatchFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList from "../components/EventList";
@@ -70,26 +72,79 @@ interface DayProps {
   ) => void;
 }
 
+/*
+  QueryDay component should update if and only if visible. Waypoints are added
+  to top and bottom (or just one waypoint if not content) which force an
+  update when we scroll into view.
+*/
 class QueryDay extends React.Component<DayProps, {}> {
+  _ref: HTMLElement;
+  _pending: boolean;
+
+  componentWillReceiveProps() {
+    this._pending = true; // New props, signal that there is an update queued
+  }
+
+  shouldComponentUpdate() {
+    // Update if visible
+    if (this._ref) {
+      let top = $(this._ref).position().top;
+      let bottom = top + $(this._ref).outerHeight();
+      let parent = $(this._ref).offsetParent();
+      return top <= parent.outerHeight() && bottom >= 0;
+    }
+
+    // Edge case -- ref missing for whatever reason? Return true to be safe.
+    return true;
+  }
+
+  componentDidUpdate() {
+    this._pending = false;
+  }
+
   render() {
     if (! this.props.result || this.props.result === "FETCH_ERROR") {
-      return null;
+      return this.renderEmpty();
     }
 
     let calEvents: (StoreData<ApiT.GenericCalendarEvent>|undefined)[] =
       this.props.result === "FETCHING" ? ["FETCHING"] :
       _.map(this.props.result.eventIds, (id) => this.props.eventMap[id]);
 
-    if (_.isEmpty(calEvents)) return null;
+    if (_.isEmpty(calEvents)) return this.renderEmpty();;
 
-    return <DayBox date={dateForDay(this.props.day)}>
-      <EventList events={calEvents}
-        eventHrefFn={this.props.eventHrefFn}
-        labels={ ready(this.props.groupLabels) ?
-          this.props.groupLabels.group_labels : [] }
-        onChange={this.props.onChange}
-      />
-    </DayBox>;
+    return <div ref={(c) => this._ref = c}>
+      <Waypoint onEnter={this.maybeUpdate} />
+      <DayBox date={dateForDay(this.props.day)}>
+        <EventList events={calEvents}
+          eventHrefFn={this.props.eventHrefFn}
+          labels={ ready(this.props.groupLabels) ?
+            this.props.groupLabels.group_labels : [] }
+          onChange={this.props.onChange}
+        />
+      </DayBox>
+      <Waypoint onEnter={this.maybeUpdate} />
+    </div>;
+  }
+
+  /*
+    Need to render something (rather than null) if no data so we
+    can check visibility when deciding whether to update. Use a span
+    (since that shouldn't affect * + * CSS selectors or other spacing)
+  */
+  renderEmpty() {
+    return <span ref={(c) => this._ref = c}>
+      <Waypoint onEnter={this.maybeUpdate} />
+    </span>
+  }
+
+  // Update only if there is a pending udpate for this day
+  maybeUpdate = () => {
+    if (this._pending) {
+      this._pending = false; // Set false right away in case function fired
+                             // multiple times (e.g. because two waypoints)
+      this.forceUpdate();
+    }
   }
 }
 
