@@ -33,6 +33,7 @@ class Props extends RouteProps {
   state: State;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
+  Conf?: { maxDaysFetch?: number; }
 }
 
 class GroupEvents extends React.Component<Props, {}> {

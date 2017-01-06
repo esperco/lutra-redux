@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import * as $ from "jquery";
 import * as React from "react";
 import * as Waypoint from "react-waypoint";
-import { State, DispatchFn } from './types';
+import { State as StoreState, DispatchFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList from "../components/EventList";
 import * as Events from "../handlers/group-events";
@@ -16,18 +16,39 @@ import { GenericPeriod, toDays, dateForDay } from "../lib/period";
 import { ready, StoreData } from "../states/data-status";
 import { GroupLabels } from "../states/groups";
 import { EventMap, QueryResult } from "../states/group-events";
+import { Loading } from "../text/data-status";
 
 interface Props {
   groupId: string;
   period: GenericPeriod;
   query: QueryFilter;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
-  state: State;
+  state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc;
+  Conf?: { maxDaysFetch?: number; }
 }
 
-export class GroupEventsList extends React.Component<Props, {}> {
+interface State {
+  daysToShow: number;
+}
+
+export class GroupEventsList extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { daysToShow: this.getDaysIncr() };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (! _.isEqual(this.props.period, nextProps.period)) {
+      this.setState({ daysToShow: this.getDaysIncr() });
+    }
+  }
+
+  getDaysIncr() {
+    return (this.props.Conf && this.props.Conf.maxDaysFetch) || Infinity;
+  }
+
   render() {
     let { groupId, state, period, query } = this.props;
     let groupLabels = state.groupLabels[groupId];
@@ -35,10 +56,15 @@ export class GroupEventsList extends React.Component<Props, {}> {
     let eventMap = state.groupEvents[groupId] || {};
 
     let { start, end } = toDays(period);
-    let queryDays = queryState.slice(start, end + 1);
+    let endToShow = Math.min(start + this.state.daysToShow - 1, end);
+    let queryDays = queryState.slice(start, endToShow + 1);
     let queryKey = stringify(query);
 
-    return <div>
+    // Only show more if we're not busy fetching stuff
+    let canShowMore = endToShow < end &&
+      !_.find(queryDays, (d) => d[queryKey] === "FETCHING")
+
+    return <div className="group-events-list">
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i} result={d[queryKey]}
           eventMap={eventMap}
@@ -47,6 +73,13 @@ export class GroupEventsList extends React.Component<Props, {}> {
           onChange={this.onChange}
         />
       ) }
+
+      { canShowMore ?
+        /* Use different key so it re-updates if nothing new in update */
+        <div className="loading-msg">
+          <Waypoint key={endToShow} onEnter={this.showMore} />
+          { Loading }
+        </div> : null }
     </div>;
   }
 
@@ -55,6 +88,15 @@ export class GroupEventsList extends React.Component<Props, {}> {
       groupId: this.props.groupId,
       eventIds, label, active
     }, this.props)
+  }
+
+  showMore = () => {
+    let incr = this.props.Conf && this.props.Conf.maxDaysFetch;
+    if (incr) {
+      this.setState({
+        daysToShow: this.state.daysToShow + this.getDaysIncr()
+      });
+    }
   }
 }
 

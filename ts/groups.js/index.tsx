@@ -108,9 +108,10 @@ store.subscribe(() => {
 
 // View routing
 function MainView(props: {
-  state: State,
+  state: State;
   dispatch: (a: Action) => Action;
-  Svcs: typeof Svcs
+  Svcs: typeof Svcs;
+  Conf: typeof Conf;
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
