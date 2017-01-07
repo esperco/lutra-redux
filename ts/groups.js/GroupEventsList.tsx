@@ -71,6 +71,7 @@ export class GroupEventsList extends React.Component<Props, State> {
           groupLabels={groupLabels}
           eventHrefFn={this.props.eventHrefFn}
           onChange={this.onChange}
+          onConfirm={this.onConfirm}
         />
       ) }
 
@@ -87,7 +88,14 @@ export class GroupEventsList extends React.Component<Props, State> {
     Events.setGroupEventLabels({
       groupId: this.props.groupId,
       eventIds, label, active
-    }, this.props)
+    }, this.props);
+  }
+
+  onConfirm = (eventIds: string[]) => {
+    Events.setGroupEventLabels({
+      groupId: this.props.groupId,
+      eventIds
+    }, this.props);
   }
 
   showMore = () => {
@@ -112,6 +120,7 @@ interface DayProps {
     x: ApiT.LabelInfo,
     active: boolean
   ) => void;
+  onConfirm: (eventIds: string[]) => void;
 }
 
 /*
@@ -163,6 +172,7 @@ class QueryDay extends React.Component<DayProps, {}> {
           labels={ ready(this.props.groupLabels) ?
             this.props.groupLabels.group_labels : [] }
           onChange={this.props.onChange}
+          onConfirm={this.props.onConfirm}
         />
       </DayBox>
       <Waypoint onEnter={this.maybeUpdate} />
