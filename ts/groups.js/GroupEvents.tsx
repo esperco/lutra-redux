@@ -10,6 +10,7 @@ import delay from "../components/DelayedControl";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
 import EventEditor from "../components/EventEditor";
+import ScrollContainer from "../components/ScrollContainer";
 import GroupCalcDisplay from "./GroupCalcDisplay";
 import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
@@ -94,12 +95,16 @@ class GroupEvents extends React.Component<Props, {}> {
             </button>
           </header>
 
-          <div className="content">
+          <ScrollContainer
+            className="content"
+            onScrollChange={(direction) => this.props.dispatch({
+              type: "SCROLL", direction
+            })}>
             <div className="container">
               { this.renderCalcDisplay() }
               { this.renderEventDates() }
             </div>
-          </div>
+          </ScrollContainer>
         </div>
         <a className="backdrop" href={this.backdropHref()} />
       </div>

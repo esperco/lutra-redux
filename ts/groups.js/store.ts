@@ -12,6 +12,7 @@ import * as ErrorMsg from "../states/error-msg";
 import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
+import * as Scroll from "../states/scroll";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import initState from "./init-state";
@@ -51,6 +52,8 @@ export const store = createStore(
       case "ADD_ERROR":
       case "RM_ERROR":
         return ErrorMsg.errorReducer(state, action);
+      case "SCROLL":
+        return Scroll.scrollReducer(state, action);
       default:
         // Ignore actions that start with @@ (these are built-in Redux
         // actions) but log any other weird ones
