@@ -29,5 +29,5 @@ export function startGroupCalc(props: {
   }
 
   postTask();
-  return Promise.resolve<void>();
+  return Promise.resolve();
 }

@@ -512,18 +512,22 @@ export function setGroupEventLabels(props: {
         apiId = event.id;
       }
 
-      // Add or remove labels from each event
-      let labels = updateLabelList(event.labels || [], props.label ? {
-        add: props.active ? [props.label] : [],
-        rm: props.active ? [] : [props.label]
-      } : {});
+      // Only confirm if event needs confirming (also ignore instance mode)
+      if (props.label || !event.labels_confirmed || opts.forceInstance) {
 
-      // Set complete set of labels in request (this may clobber other
-      // requests but that's the nature of the API for now)
-      request.setLabels.push({
-        id: apiId,
-        labels: _.map(labels, (l) => l.original)
-      });
+        // Add or remove labels from each event
+        let labels = updateLabelList(event.labels || [], props.label ? {
+          add: props.active ? [props.label] : [],
+          rm: props.active ? [] : [props.label]
+        } : {});
+
+        // Set complete set of labels in request (this may clobber other
+        // requests but that's the nature of the API for now)
+        request.setLabels.push({
+          id: apiId,
+          labels: _.map(labels, (l) => l.original)
+        });
+      }
     }
   });
 

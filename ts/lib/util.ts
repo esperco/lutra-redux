@@ -149,7 +149,7 @@ export function recordToList(r: Record<string, boolean>): string[] {
 // replacement for JQueryDeferred
 export class Deferred<T> {
   _promise: Promise<T>;
-  _resolve: (value?: T | Thenable<T> | undefined) => void;
+  _resolve: (value?: T | PromiseLike<T> | undefined) => void;
   _reject: (error?: Error) => void;
   state: "pending"|"resolved"|"rejected";
 
@@ -165,7 +165,7 @@ export class Deferred<T> {
     return this._promise;
   }
 
-  resolve(value?: T | Thenable<T> | undefined): void {
+  resolve(value?: T | PromiseLike<T> | undefined): void {
     if (this.state === "pending") {
       this._resolve(value);
       this.state = "resolved";

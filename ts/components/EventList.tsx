@@ -4,6 +4,7 @@
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as React from "react";
+import * as Waypoint from "react-waypoint";
 import * as ApiT from "../lib/apiT";
 import Icon from "../components/Icon";
 import LabelList from "../components/LabelList";
@@ -11,6 +12,9 @@ import Tooltip from "../components/Tooltip";
 import * as classNames from "classnames";
 import { ok, StoreData } from "../states/data-status";
 import * as EventText from "../text/events";
+
+// Viewing event in list will confirm its labels after this time in ms
+const DEFAULT_AUTO_CONFIRM_TIMEOUT = 3000;
 
 interface SharedProps {
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
@@ -20,6 +24,8 @@ interface SharedProps {
     x: ApiT.LabelInfo,
     active: boolean
   ) => void;
+  onConfirm?: (eventIds: string[]) => void;
+  autoConfirmTimeout?: number;
 }
 
 interface ListProps extends SharedProps {
@@ -49,11 +55,43 @@ export class EventList extends React.Component<ListProps, {}> {
   }
 }
 
+
 interface EventProps extends SharedProps {
   event: ApiT.GenericCalendarEvent;
 }
 
-export class EventDisplay extends React.Component<EventProps, {}> {
+interface EventState {
+  // Track confirmation in state because we want to persist indications
+  // of confirmation even after auto-confirming
+  confirmed: boolean;
+}
+
+export class EventDisplay extends React.Component<EventProps, EventState> {
+  _timeout: number;
+
+  constructor(props: EventProps) {
+    super(props);
+    this.state = {
+      confirmed: !!props.event.labels_confirmed
+    };
+  }
+
+  // Change display to confirmed if result of labeling action
+  componentWillReceiveProps(newProps: EventProps) {
+    if (!this.state.confirmed && newProps.event.labels_confirmed) {
+      let newLabelLength = (newProps.event.labels || []).length;
+      let oldLabelLength = (this.props.event.labels || []).length;
+      if (newLabelLength !== oldLabelLength) {
+        this.setState({ confirmed: true })
+      }
+    }
+  }
+
+  // Don't fire confirmation timeout if we skipped past it really fast
+  componentWillUnmount() {
+    clearTimeout(this._timeout);
+  }
+
   render() {
     let { event } = this.props;
     let title = event.title ?
@@ -61,12 +99,14 @@ export class EventDisplay extends React.Component<EventProps, {}> {
       <span className="no-title">{ EventText.NoTitle }</span>;
 
     return <div className={classNames("event", "panel", {
-      unconfirmed: !event.labels_confirmed,
+      unconfirmed: !this.state.confirmed,
       "has-predictions": event.labels_predicted
     })}>
       <h4>{ this.props.eventHrefFn ?
-        <a href={this.props.eventHrefFn(event)}>{ title }</a> :
-        title
+        <a href={this.props.eventHrefFn(event)}
+           onClick={() => this.confirm(true)}>
+          { title }
+        </a> : title
       }</h4>
 
       <div className="time">
@@ -96,12 +136,34 @@ export class EventDisplay extends React.Component<EventProps, {}> {
         ) }
       </div> : null }
 
+      { !event.labels_confirmed ?
+        <Waypoint onEnter={this.setConfirmTimeout} /> : null }
+
       <LabelList
         labels={this.props.labels || []}
         events={[event]}
         onChange={this.props.onChange}
       />
     </div>;
+  }
+
+  confirm(explicit=false) {
+    if (explicit && !this.state.confirmed) {
+      this.setState({ confirmed: true });
+    }
+
+    let { event } = this.props;
+    if (!event.labels_confirmed && this.props.onConfirm) {
+      this.props.onConfirm([event.id]);
+    }
+  }
+
+  // Once event has been viewed. Auto-confirm after a short timeout.
+  setConfirmTimeout = () => {
+    if (! this._timeout) {
+      this._timeout = setTimeout(() => this.confirm(false),
+        this.props.autoConfirmTimeout || DEFAULT_AUTO_CONFIRM_TIMEOUT);
+    }
   }
 }
 

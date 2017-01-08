@@ -6,6 +6,7 @@ import * as React from 'react';
 import * as Conf from 'config';
 import { LoggedInState, DispatchFn } from './types';
 import { ready } from "../states/data-status";
+import { ScrollState } from "../states/scroll";
 import { ApiSvc } from "../lib/api";
 import * as Paths from "./paths";
 import * as CommonText from "../text/common";
@@ -17,7 +18,7 @@ import * as CommonPaths from "../lib/paths";
 import { Group as GroupPaths } from "../manage.js/paths";
 
 class Props {
-  state: LoggedInState;
+  state: LoggedInState & ScrollState;
   dispatch: DispatchFn;
   Svcs: ApiSvc;
   Conf: typeof Conf; // Don't use config directly -- let index pass it
@@ -26,7 +27,9 @@ class Props {
 
 class GroupHeader extends React.Component<Props, {}> {
   render() {
-    return <header>
+    return <header className={
+      this.props.state.lastScroll === "down" ? "hide" : ""
+    }>
       <h1><a href="#!/">
         <img alt="Esper" src="/img/esper-logo-purple.svg" />
       </a></h1>

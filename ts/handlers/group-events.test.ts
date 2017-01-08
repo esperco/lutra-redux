@@ -429,10 +429,14 @@ describe("Group Events handlers", function() {
       });
     });
 
-    it("makes an API call to confirm existing labels if none provided",
+    it("makes an API call to confirm existing labels if none provided but " +
+       "only if event needs confirmation",
     (done) => {
       let deps = getDeps();
       let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
+
+      deps.state.groupEvents[groupId].e1.labels_confirmed = true;
+      deps.state.groupEvents[groupId].e2.labels_confirmed = false;
 
       setGroupEventLabels({
         groupId,
@@ -440,9 +444,6 @@ describe("Group Events handlers", function() {
       }, deps).then(() => {
         expectCalledWith(stub, groupId, {
           set_labels: [{
-            id: "e1",
-            labels: []
-          }, {
             id: "e2",
             labels: [label2.original]
           }],

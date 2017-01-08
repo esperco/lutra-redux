@@ -7,6 +7,7 @@ import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 import * as ErrorMsg from "../states/error-msg";
+import * as Scroll from "../states/scroll";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
@@ -30,6 +31,7 @@ export type Action =
   Login.LoginAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
+  Scroll.ScrollAction|
   { type: "@@INIT" };
 
 /*
@@ -41,6 +43,7 @@ export interface State extends
   Events.EventsState,
   Groups.GroupState,
   ErrorMsg.ErrorMsgState,
+  Scroll.ScrollState,
   Login.LoginState,
   Routing.RouteState<Routes.RouteTypes> { };
 
