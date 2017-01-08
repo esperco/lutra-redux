@@ -224,9 +224,9 @@ export class CommentList extends React.Component<CommentProps, {
 
     let { group_individuals, group_teams } = this.props.members;
     let gim = _.find(group_individuals, (i) => i.uid === uid);
-    if (!gim) return EventText.DefaultUsername;
+    if (! gim) return EventText.DefaultUsername;
 
-    let team = _.find(group_teams, (t) => t.email === gim.email);
+    let team = _.find(group_teams, (t) => gim && t.email === gim.email);
     if (!team) return gim.email;
 
     return team.name;

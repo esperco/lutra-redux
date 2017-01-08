@@ -334,7 +334,7 @@ namespace JsonHttp {
   export function batch<T>(fn: () => Promise<T>|T,
                            batchPath: string): Promise<T> {
     var topLevel = false;
-    var resolveFn: (value?: {}|Thenable<{}>|undefined) => void = () => null;
+    var resolveFn: (value?: {}|PromiseLike<{}>|undefined) => void = () => null;
     var rejectFn: (error?: Error) => void = () => null;
     if (! batchPromise) {
       topLevel = true;

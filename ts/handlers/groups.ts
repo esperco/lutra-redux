@@ -193,7 +193,7 @@ export function setGroupLabels(props: {
     }
   }
 
-  return Promise.resolve<void>();
+  return Promise.resolve();
 }
 
 // Fetch group names after logging in
