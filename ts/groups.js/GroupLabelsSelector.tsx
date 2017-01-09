@@ -9,14 +9,14 @@ import { Choice } from '../components/FilterMenu';
 import { TagList } from "../components/TagList";
 import * as ApiT from "../lib/apiT";
 import * as ASN from "../lib/asn";
-import { LabelSet, newLabel, filter, match } from "../lib/event-labels";
+import { LabelSet, newLabel, filter } from "../lib/event-labels";
 import * as CommonText from "../text/common";
 import * as LabelText from "../text/labels";
 import { makeRecord } from "../lib/util";
 
 
 export class GroupLabelsSelector extends React.Component<{
-  labels: ApiT.LabelInfo[];
+  labels: LabelSet;
   selected: ASN.AllSomeNone;
   onChange: (selected: ASN.AllSomeNone) => void;
   onSubmit?: () => void;
@@ -24,7 +24,7 @@ export class GroupLabelsSelector extends React.Component<{
   _tagList: TagList;
 
   render() {
-    let choices = new LabelSet(this.props.labels);
+    let choices = this.props.labels.clone();
     let selected = new LabelSet([]);
     let selectedSome = (this.props.selected || {}).some || {};
     _.each(selectedSome, (v, k) => {
@@ -38,6 +38,10 @@ export class GroupLabelsSelector extends React.Component<{
         }
       }
     });
+
+    // Sort (uses normalized form by default)
+    choices.sort();
+    selected.sort();
 
     /*
       Toggle a selected choice on and off -- note that we're not using
@@ -111,8 +115,7 @@ export class GroupLabelsSelector extends React.Component<{
       onAdd={onAdd}
       onToggle={onToggle}
       onClose={this.props.onSubmit}
-      filterFn={filter}
-      matchFn={match}
+      filterFn={(str) => filter(choices, str)}
       buttonText={buttonText}
       specialChoices={[
         selectAll,

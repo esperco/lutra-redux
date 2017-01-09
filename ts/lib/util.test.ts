@@ -160,7 +160,28 @@ describe("OrderedSet", function() {
   describe("filter", () => {
     it("removes all values for which filter returns false", () => {
       let o = new OrderedSet([0, 1, 2, 3]);
-      expect(o.filter((n) => n % 2 !== 0)).to.deep.equal([1, 3]);
+      expect(o.filter((n) => n % 2 !== 0).toList())
+        .to.deep.equal([1, 3]);
+    });
+
+    it("accepts a limit to its return value", () => {
+      let o = new OrderedSet([0, 1, 2, 3, 4, 5, 6, 7]);
+      expect(o.filter((n) => n % 2 !== 0, 3).toList())
+        .to.deep.equal([1, 3, 5]);
+    });
+  });
+
+  describe("sort", () => {
+    it("sorts in place with a given key function", () => {
+      let o = new OrderedSet([0, 1, 2, 3]);
+      o.sort((n) => -n);
+      expect(o.toList()).to.deep.equal([3, 2, 1, 0]);
+    });
+
+    it("sorts in place with original key function by default", () => {
+      let o = new OrderedSet([3, 2, 1, 0], (n) => n.toString());
+      o.sort();
+      expect(o.toList()).to.deep.equal([0, 1, 2, 3]);
     });
   });
 

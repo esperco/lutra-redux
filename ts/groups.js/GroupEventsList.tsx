@@ -6,15 +6,15 @@ import * as $ from "jquery";
 import * as React from "react";
 import { State as StoreState, DispatchFn } from './types';
 import DayBox from "../components/DayBox";
-import EventList from "../components/EventList";
+import EventList, { SharedProps } from "../components/EventList";
 import Waypoint from "../components/Waypoint";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
+import { LabelSet } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, dateForDay } from "../lib/period";
-import { ready, StoreData } from "../states/data-status";
-import { GroupLabels } from "../states/groups";
+import { StoreData } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/group-events";
 import { Loading } from "../text/data-status";
 
@@ -24,6 +24,8 @@ interface Props {
   query: QueryFilter;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
+  labels: LabelSet;
+  searchLabels: LabelSet;
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc;
@@ -52,7 +54,6 @@ export class GroupEventsList extends React.Component<Props, State> {
 
   render() {
     let { groupId, state, period, query } = this.props;
-    let groupLabels = state.groupLabels[groupId];
     let queryState = state.groupEventQueries[groupId] || [];
     let eventMap = state.groupEvents[groupId] || {};
 
@@ -69,9 +70,7 @@ export class GroupEventsList extends React.Component<Props, State> {
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i} result={d[queryKey]}
           eventMap={eventMap}
-          groupLabels={groupLabels}
-          eventHrefFn={this.props.eventHrefFn}
-          labelHrefFn={this.props.labelHrefFn}
+          { ...this.props }
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
@@ -119,20 +118,10 @@ export class GroupEventsList extends React.Component<Props, State> {
 }
 
 
-interface DayProps {
+interface DayProps extends SharedProps {
   day: number; // Period day index
-  groupLabels: StoreData<GroupLabels>|undefined;
   result: StoreData<QueryResult>;
   eventMap: EventMap;
-  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
-  labelHrefFn?: (l: ApiT.LabelInfo) => string;
-  onChange: (
-    eventIds: string[],
-    x: ApiT.LabelInfo,
-    active: boolean
-  ) => void;
-  onConfirm: (eventIds: string[]) => void;
-  onHideChange: (eventIds: string[], hidden: boolean) => void;
 }
 
 /*
@@ -183,15 +172,7 @@ class QueryDay extends React.Component<DayProps, {}> {
           Wrap EventList with extra div so flexbox doesn't expand height of
           EventList when it's too short.
         */}
-        <div><EventList events={calEvents}
-          eventHrefFn={this.props.eventHrefFn}
-          labelHrefFn={this.props.labelHrefFn}
-          labels={ ready(this.props.groupLabels) ?
-            this.props.groupLabels.group_labels : [] }
-          onChange={this.props.onChange}
-          onConfirm={this.props.onConfirm}
-          onHideChange={this.props.onHideChange}
-        /></div>
+        <div><EventList events={calEvents} {...this.props} /></div>
       </DayBox>
       <Waypoint onEnter={this.maybeUpdate} />
     </div>;

@@ -10,6 +10,7 @@ import LabelList from "./LabelList";
 import Tooltip from "./Tooltip";
 import Waypoint from "./Waypoint";
 import * as classNames from "classnames";
+import { LabelSet } from "../lib/event-labels";
 import { ok, StoreData } from "../states/data-status";
 import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
@@ -17,10 +18,11 @@ import * as EventText from "../text/events";
 // Viewing event in list will confirm its labels after this time in ms
 const DEFAULT_AUTO_CONFIRM_TIMEOUT = 3000;
 
-interface SharedProps {
+export interface SharedProps {
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
-  labels?: ApiT.LabelInfo[];
+  labels: LabelSet;          // For LabelList
+  searchLabels: LabelSet;    // For LabelList
   onChange: (
     eventIds: string[],
     x: ApiT.LabelInfo,
@@ -31,7 +33,7 @@ interface SharedProps {
   autoConfirmTimeout?: number;
 }
 
-interface ListProps extends SharedProps {
+export interface ListProps extends SharedProps {
   events: (StoreData<ApiT.GenericCalendarEvent>|undefined)[];
 }
 
@@ -59,7 +61,7 @@ export class EventList extends React.Component<ListProps, {}> {
 }
 
 
-interface EventProps extends SharedProps {
+export interface EventProps extends SharedProps {
   event: ApiT.GenericCalendarEvent;
 }
 
@@ -151,7 +153,8 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
 
       <div className="event-actions">
         <LabelList
-          labels={this.props.labels || []}
+          labels={this.props.labels}
+          searchLabels={this.props.searchLabels}
           events={[event]}
           onChange={this.props.onChange}
           labelHrefFn={this.props.labelHrefFn}

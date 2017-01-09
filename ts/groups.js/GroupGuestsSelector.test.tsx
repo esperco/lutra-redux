@@ -7,7 +7,7 @@ import { normalize, GuestSet } from "../lib/event-guests";
 import { expectCalledWith } from "../lib/expect-helpers";
 import GroupGuestsSelector from './GroupGuestsSelector';
 
-describe("<GroupLabelsSelector />", () => {
+describe("<GroupGuestsSelector />", () => {
   const guest1 = {
     displayName: "Guest 1",
     email: "g1@example.com"
@@ -129,29 +129,13 @@ describe("<GroupLabelsSelector />", () => {
     expect(onSubmitSpy.called).to.be.true;
   });
 
-  it("wraps filter function to match either email or display names", () => {
+  it("wraps guests filter function to return choices", () => {
     let wrapper = getTagList();
     let filter = wrapper.prop('filterFn');
-
-    expect(filter(guest1Choice, "EXAMPLE.COM")).to.be.true;
-    expect(filter(guest1Choice, "Guest")).to.be.true;
-    expect(filter(guest1Choice, "Guest 2")).to.be.false;
-
-    expect(filter(guest4Choice, "EXAMPLE.COM")).to.be.false;
-    expect(filter(guest4Choice, "Random")).to.be.true;
-    expect(filter(guest4Choice, "Guest 2")).to.be.false;
-  });
-
-  it("wraps match function to match either email or display names", () => {
-    let wrapper = getTagList();
-    let match = wrapper.prop('matchFn');
-
-    expect(match(guest1Choice, "g1@EXAMPLE.COM")).to.be.true;
-    expect(match(guest1Choice, "Guest 1")).to.be.true;
-    expect(match(guest1Choice, "Guest")).to.be.false;
-
-    expect(match(guest4Choice, "g1@EXAMPLE.COM")).to.be.false;
-    expect(match(guest4Choice, "Random Name")).to.be.true;
-    expect(match(guest4Choice, "Random")).to.be.false;
+    expect(filter("EXAMPLE.com")).to.deep.equal([
+      undefined, [guest1Choice, guest2Choice, guest3Choice]
+    ]);
+    expect(filter("Guest 2")).to.deep.equal([guest2Choice, []]);
+    expect(filter("Random")).to.deep.equal([undefined, [guest4Choice]]);
   });
 });

@@ -205,11 +205,10 @@ export function timeoutP(t: number) {
 */
 export class OrderedSet<T> {
   // Map from value to index
-  hash: Record<string, number>;
+  hash: Record<string, T>;
 
-  // Ordered values -- may be sparse (i.e. no guarantee value exists for any
-  // n such that n < list.length)
-  list: T[]
+  // Ordered list of keys -- keys may point to items that no longer exist.
+  list: string[];
 
   _keyFn: (t: T) => string;
 
@@ -217,17 +216,12 @@ export class OrderedSet<T> {
     this.hash = {};
     this.list = [];
     this._keyFn = keyFn;
-    _.each(lst, (l) => this.push(l));
+    this.push(...lst);
   }
 
-  // Returns a normal list (no sparse values)
+  // Returns a normal list (no sparse values, returns values from hash)
   toList(): T[] {
-    return _.filter(this.list, (l) => !_.isUndefined(l));
-  }
-
-  // Returns sparse list with possible undefined values
-  toSparseList(): (T|undefined)[] {
-    return this.list;
+    return this.map((t) => t);
   }
 
   has(item: T): boolean {
@@ -236,7 +230,7 @@ export class OrderedSet<T> {
   }
 
   hasKey(key: string): boolean {
-    return typeof this.hash[key] === "number"
+    return this.hash.hasOwnProperty(key);
   }
 
   // Returns item as it appears in list (may differ from original depending
@@ -247,55 +241,67 @@ export class OrderedSet<T> {
   }
 
   getByKey(key: string): T {
-    return this.list[this.hash[key]];
+    return this.hash[key];
   }
 
-  /*
-    For each and map functions that skips undefined values in our
-    sparsely populated list
-  */
+  // Calls a callback
   forEach(cb: (t: T) => void): void {
     this.map(cb);
   }
 
-  filter(predicate: (t: T) => boolean): T[] {
-    let ret: T[] = [];
+  /*
+    Filters and returns new set -- optionally stop after a certain number
+    of items in return value
+  */
+  filter(predicate: (t: T) => boolean, limit?: number): this {
+    let ret = this.clone();
+    ret.list = [];
+    ret.hash = {};
     for (let i in this.list) {
-      if (predicate(this.list[i])) {
-        ret.push(this.list[i]);
+      if (limit && ret.list.length >= limit) continue;
+      let item = this.hash[this.list[i]];
+      if (predicate(item)) {
+        ret.push(item);
       }
     }
     return ret;
   }
 
+  // Maps item to new item
   map<U>(cb: (t: T) => U): U[] {
     let ret: U[] = [];
     for (let i in this.list) {
-      ret.push(cb(this.list[i]));
+      let key = this.list[i];
+      if (this.hash.hasOwnProperty(key)) {
+        ret.push(cb(this.hash[key]));
+      }
     }
     return ret;
+  }
+
+  sort(keyFn?: (t: T) => string|number): void {
+    this.list = _(this.list)
+      .filter((key) => this.hasKey(key))
+      .sortBy((key) => keyFn ? keyFn(this.getByKey(key)) : key)
+      .value();
   }
 
   // Add item to end of list (if new) -- or replace existing one if key
   push(...items: T[]): void {
     _.each(items, (item) => {
       let key = this._keyFn(item);
-      let index = this.hash[key];
-      if (typeof index !== "number") {
-        index = this.list.length;
-        this.hash[key] = index;
+      if (! this.hasKey(key)) {
+        this.list.push(key);
       }
-      this.list[index] = item;
+      this.hash[key] = item;
     });
   }
 
   // Removes item (if any)
   pull(...items: T[]): void {
     _.each(items, (item) => {
-      if (this.has(item)) {
-        let key = this._keyFn(item);
-        let index = this.hash[key];
-        delete this.list[index];
+      let key = this._keyFn(item);
+      if (this.hasKey(key)) {
         delete this.hash[key];
       }
     });

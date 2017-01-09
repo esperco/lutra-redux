@@ -3,7 +3,7 @@ import * as React from "react";
 import * as moment from "moment";
 import * as classNames from "classnames";
 import * as ApiT from "../lib/apiT";
-import { useRecurringLabels } from "../lib/event-labels";
+import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import fmtText from "../lib/fmt-text";
 import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
@@ -18,7 +18,8 @@ import Tooltip from "./Tooltip";
 interface Props {
   event: StoreData<ApiT.GenericCalendarEvent>|undefined;
   members: StoreData<GroupMembers>|undefined;
-  labels: ApiT.LabelInfo[];
+  labels: LabelSet;         // For LabelList
+  searchLabels: LabelSet;   // For LabelList
   loginDetails: ApiT.LoginResponse|undefined;
   onChange: (x: ApiT.LabelInfo, active: boolean) => void;
   onForceInstance: () => void;
@@ -103,6 +104,7 @@ export class EventEditor extends React.Component<Props, {}> {
 
       <LabelList
         labels={this.props.labels}
+        searchLabels={this.props.searchLabels}
         events={[event]}
         onChange={(ids, label, active) => this.props.onChange(label, active)}
         labelHrefFn={this.props.labelHrefFn}

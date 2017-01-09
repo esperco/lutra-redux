@@ -4,12 +4,13 @@ import Icon from "./Icon";
 import TagList from "./TagList";
 import * as ApiT from "../lib/apiT";
 import {
-  getLabelPartials, newLabel, match, filter
+  getLabelPartials, LabelSet, newLabel, filter
 } from "../lib/event-labels";
 import * as LabelText from "../text/labels";
 
 interface Props {
-  labels: ApiT.LabelInfo[];
+  labels: LabelSet;           // Default labels to show in dropdown
+  searchLabels?: LabelSet;    // Set of labels to use for autocomplete
   labelHrefFn?: (label: ApiT.LabelInfo) => string;
   events: ApiT.GenericCalendarEvent[];
   onChange: (ids: string[], x: ApiT.LabelInfo, active: boolean) => void;
@@ -24,14 +25,14 @@ export class LabelList extends React.Component<Props, {}> {
       selected,
       partial
     } = getLabelPartials(this.props.labels, this.props.events);
+    let searchLabels = this.props.searchLabels || labels;
 
     return <TagList
       ref={(c) => this._tagList = c}
       choices={labels}
       selected={selected}
       partial={partial}
-      matchFn={match}
-      filterFn={filter}
+      filterFn={(filterStr) => filter(searchLabels, filterStr)}
       onAdd={this.add}
       onToggle={this.toggle}
       buttonText={<Icon type="add">

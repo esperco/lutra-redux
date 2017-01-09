@@ -2,6 +2,8 @@ import * as _ from "lodash";
 import { validateEmailAddress, OrderedSet } from "../lib/util";
 import { GroupMembers } from "../states/groups";
 
+const GUEST_FILTER_LIMIT = 10;
+
 export type Guest = {
   displayName?: string;
   email: string;
@@ -11,14 +13,60 @@ export type Guest = {
 };
 
 export class GuestSet extends OrderedSet<Guest> {
+  /*
+    Maps display names to key fn (which may be e-mail). This works imperfectly
+    if different guests have the same name, but it's better than having to
+    iterate over the entire list every time we're checking for one person.
+  */
+  _nameMap: { [index: string]: string; }
+
   constructor(lst: Guest[]) {
-    super(lst, (l) => normalize(l.email || l.displayName || ""));
+    super([], normalizeGuest);
+    this._nameMap = {};
+    this.push(...lst);
+  }
+
+  getByKey(key: string): Guest {
+    return super.getByKey(key) || super.getByKey(this._nameMap[key]);
+  }
+
+  hasKey(key: string): boolean {
+    return super.hasKey(key) || super.hasKey(this._nameMap[key]);
+  }
+
+  push(...guests: Guest[]): void {
+    super.push(...guests);
+    _.each(guests, (g) => {
+      if (g.displayName) {
+        this._nameMap[normalize(g.displayName)] = this._keyFn(g);
+      }
+    });
+  }
+
+  pull(...guests: Guest[]): void {
+    super.pull(...guests);
+    _.each(guests, (g) => {
+      if (g.displayName) {
+        delete this._nameMap[normalize(g.displayName)];
+      }
+    });
+  }
+
+  clone() {
+    let ret = super.clone();
+    ret._nameMap = _.clone(this._nameMap);
+    return ret;
   }
 }
 
 // Normalize guest emails / name
 export function normalize(str: string): string {
   return str.trim().toLowerCase();
+}
+
+// Normalize actual guest
+export function normalizeGuest(guest: Guest): string {
+  return normalize(guest.email || guest.displayName || "");
 }
 
 export function newGuest(str: string): Guest {
@@ -49,14 +97,23 @@ export function guestSetFromGroupMembers(members: GroupMembers): GuestSet {
   return ret;
 }
 
-export function filter(guest: Guest, filter: string): boolean {
-  filter = normalize(filter);
-  return !!((guest.email && _.includes(normalize(guest.email), filter)) ||
-    (guest.displayName && _.includes(normalize(guest.displayName), filter)));
-}
-
-export function match(guest: Guest, filter: string): boolean {
-  filter = normalize(filter);
-  return !!((guest.email && filter === normalize(guest.email)) ||
-    (guest.displayName && filter === normalize(guest.displayName)));
+/*
+  For use with filter menu -- returns two-tuple of any guest that matches
+  filter string exactly, followed by any other guests that contain filter
+*/
+export function filter(
+  guestSet: GuestSet,
+  str: string,
+  limit = GUEST_FILTER_LIMIT
+): [Guest|undefined, Guest[]] {
+  str = normalize(str);
+  let filtered = guestSet.filter((g) => !!(
+    (g.email && _.includes(normalize(g.email), str)) ||
+    (g.displayName && _.includes(normalize(g.displayName), str))
+  ), limit);
+  let match = guestSet.getByKey(str);
+  if (match && filtered.has(match)) {
+    filtered = filtered.without(match);
+  }
+  return [match, filtered.toList()];
 }

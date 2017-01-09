@@ -6,6 +6,8 @@ import * as ApiT from "./apiT";
 import { ColorMap, getColorForMap } from "./colors";
 import { ChoiceSet } from "../lib/util";
 
+const LABEL_FILTER_LIMIT = 10;
+
 // ChoiceSet specific to labels
 export class LabelSet extends ChoiceSet<ApiT.LabelInfo> {}
 
@@ -14,7 +16,7 @@ export class LabelSet extends ChoiceSet<ApiT.LabelInfo> {}
   plus totals for labels
 */
 export function getLabelCounts(
-  baseLabels: ApiT.LabelInfo[],
+  baseLabels: LabelSet,
   events: ApiT.GenericCalendarEvent[]
 ): {
   labels: LabelSet;
@@ -23,7 +25,7 @@ export function getLabelCounts(
 } {
   // Map for faster lookup. Ret preserves order.
   let counts: {[norm: string]: number} = {};
-  let labels = new LabelSet(baseLabels);
+  let labels = baseLabels.clone();
   let selected = new LabelSet([]);
 
   // Prepopulate with base group or team labels
@@ -50,7 +52,7 @@ export function getLabelCounts(
   (labels selected in at least one event but not all the events)
 */
 export function getLabelPartials(
-  baseLabels: ApiT.LabelInfo[],
+  baseLabels: LabelSet,
   events: ApiT.GenericCalendarEvent[]
 ): {
   labels: LabelSet;
@@ -58,10 +60,7 @@ export function getLabelPartials(
   partial: LabelSet;
 } {
   let { labels, selected, counts } = getLabelCounts(baseLabels, events);
-  let partial = new LabelSet(
-    selected.filter((k) => counts[k.normalized] < events.length)
-  );
-
+  let partial = selected.filter((k) => counts[k.normalized] < events.length);
   return {
     labels,
     selected,
@@ -112,20 +111,24 @@ export function useRecurringLabels(event: ApiT.GenericCalendarEvent)
 }
 
 
-/* Label Filtering */
+/*
+  For use with filter menu -- returns two-tuple of any label that matches
+  filter string exactly, followed by any other labels that contain filter
+*/
+export function filter(
+  labels: LabelSet,
+  str: string,
+  limit = LABEL_FILTER_LIMIT
+): [ApiT.LabelInfo|undefined, ApiT.LabelInfo[]] {
+  str = normalize(str);
+  let filtered = labels.filter((l) => _.includes(l.normalized, str), limit);
+  let match = labels.getByKey(str);
+  if (match && filtered.has(match)) {
+    filtered = filtered.without(match);
+  }
+  return [match, filtered.toList()];
+}
 
-export function filter<T extends ApiT.LabelInfo>(
-  label: T, filter: string
-): boolean {
-  filter = normalize(filter);
-  return _.includes(label.normalized, filter);
-}
-export function match<T extends ApiT.LabelInfo>(
-  label: T, filter: string
-): boolean {
-  filter = normalize(filter);
-  return label.normalized === filter;
-}
 
 // Normalize label -- should match server
 export function normalize(label: string) {

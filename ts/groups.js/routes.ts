@@ -8,6 +8,7 @@ import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod, fromDates } from "../lib/period";
 import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/group-events";
+import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
 import * as Log from "../lib/log";
 import { compactObject } from "../lib/util";
@@ -48,10 +49,9 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     let p1 = Groups.fetch(groupId,
       { withLabels: true, withMembers: true }, deps);
     let p2 = Events.fetchGroupEvents(props, deps);
-    Calcs.startGroupCalc(props, {
-      ...deps,
-      promise: Promise.all([p1, p2])
-    });
+    let promise = Promise.all([p1, p2]);
+    Calcs.startGroupCalc(props, { ...deps, promise });
+    Suggestions.loadSuggestions(props, { ...deps, promise });
 
     deps.dispatch({
       type: "ROUTE",

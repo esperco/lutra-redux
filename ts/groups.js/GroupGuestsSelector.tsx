@@ -8,7 +8,7 @@ import Icon from "../components/Icon";
 import { Choice } from '../components/FilterMenu';
 import { TagList } from "../components/TagList";
 import {
-  Guest, GuestSet, filter, match, newGuest, normalize
+  Guest, GuestSet, filter, newGuest, normalizeGuest
 } from "../lib/event-guests";
 import * as CommonText from "../text/common";
 import { ChoiceSet } from "../lib/util";
@@ -19,7 +19,7 @@ import { ChoiceSet } from "../lib/util";
 function toChoice(g: Guest): Choice {
   return {
     original: g.displayName || g.email || "",
-    normalized: normalize(g.email || g.displayName || "")
+    normalized: normalizeGuest(g)
   };
 }
 
@@ -52,6 +52,10 @@ export class GroupGuestsSelector extends React.Component<{
       selected.push(c);
       choices.push(c);
     });
+
+    // Sort (uses normalized form by default)
+    choices.sort();
+    selected.sort();
 
     // Converts guest to a list of strings in URL
     let toggleGuest = (guest: Guest, val: boolean) => {
@@ -92,12 +96,19 @@ export class GroupGuestsSelector extends React.Component<{
       </span>;
     }
 
+    let filterFn = ((filterStr: string): [Choice|undefined, Choice[]] => {
+      let [match, filtered] = filter(allGuests, filterStr);
+      return [
+        match ? toChoice(match) : undefined,
+        _.map(filtered, toChoice)
+      ];
+    });
+
     return <TagList
       ref={(c) => this._tagList = c}
       choices={choices}
       selected={selected}
-      filterFn={(c, filterStr) => filter(toGuest(c, allGuests), filterStr)}
-      matchFn={(c, filterStr) => match(toGuest(c, allGuests), filterStr)}
+      filterFn={filterFn}
       onAdd={onAdd}
       onToggle={onToggle}
       onClose={this.props.onSubmit}

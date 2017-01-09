@@ -33,7 +33,7 @@ export interface SpecialChoice {
 }
 
 export interface Props {
-  // All choices
+  // Default choices to show
   choices: OrderedSet<Choice>;
 
   // Selected choices
@@ -55,13 +55,15 @@ export interface Props {
   // Typing in something new and hitting enter
   onAdd: (text: string, method: "click"|"enter") => void;
 
-  // Filter function to use -- defaults to including trim plus lower-case of
-  // normalized text
-  filterFn?: (c: Choice, text: string) => boolean;
-
-  // Function that returns true if string matches choice exactly -- defaults
-  // to matching trim-plus-lower case of normalized text exactly
-  matchFn?: (c: Choice, text: string) => boolean;
+  /*
+    Filter function to use -- defaults to including trim plus lower-case of
+    normalized text. Should return 2-tuple of filtered choices. First item
+    is tuple is the
+  */
+  filterFn: (text: string) => [
+    Choice|undefined,   // Exact match?
+    Choice[]            // Remainder
+  ];
 
   specialChoices?: SpecialChoice[];
 }
@@ -88,18 +90,6 @@ export class FilterMenu extends React.Component<Props, State> {
       visibleSpecialChoices: !!props.specialChoices,
       visibleAdd: false
     };
-  }
-
-  filter(c: Choice, text: string) {
-    return this.props.filterFn ?
-      this.props.filterFn(c, text) :
-      _.includes(c.normalized, text.trim().toLowerCase());
-  }
-
-  match(c: Choice, text: string) {
-    return this.props.matchFn ?
-      this.props.matchFn(c, text) :
-      c.normalized === text.trim().toLowerCase();
   }
 
   render() {
@@ -179,11 +169,10 @@ export class FilterMenu extends React.Component<Props, State> {
   }
 
   change(value: string) {
-    let visibleChoices = this.props.choices.filter(
-      (c) => this.filter(c, value)
-    );
-    let exactMatch = !!_.find(visibleChoices, (c) => this.match(c, value));
-
+    let [exactMatch, visibleChoices] = this.props.filterFn(value);
+    if (exactMatch) {
+      visibleChoices = [exactMatch].concat(visibleChoices);
+    }
     this.setState({
       value,
       activeIndex: !!value.trim() ? 0 : -1,
@@ -194,12 +183,12 @@ export class FilterMenu extends React.Component<Props, State> {
   }
 
   submit(method: "enter"|"click" = "enter") {
-    (() => {
+    let didAdd = (() => {
       let index = this.state.activeIndex;
       if (this.state.visibleAdd) {
         if (index === 0) {
           this.props.onAdd(this.state.value, method);
-          return;
+          return true;
         }
         index -= 1;
       }
@@ -208,7 +197,7 @@ export class FilterMenu extends React.Component<Props, State> {
         let specialChoice = this.props.specialChoices[index];
         if (specialChoice) {
           specialChoice.onSelect(!specialChoice.selected, method);
-          return;
+          return false;
         }
         index -= this.props.specialChoices.length;
       }
@@ -220,11 +209,15 @@ export class FilterMenu extends React.Component<Props, State> {
           this.selectStatus(choice) !== true,
           method
         );
-        return;
+        return false;
       }
+      return false;
     })();
 
-    this.setState(this.resetState(this.props));
+    // Reset state only if adding a label
+    if (didAdd) {
+      this.setState(this.resetState(this.props));
+    }
   }
 
   toggle(choice: Choice, val: boolean) {

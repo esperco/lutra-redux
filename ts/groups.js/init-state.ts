@@ -3,6 +3,7 @@ import * as DataStatus from "../states/data-status";
 import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
+import * as Suggestions from "../states/group-suggestions";
 
 /*
   Exports a correctly typed state object.
@@ -13,6 +14,7 @@ export default function initState(): State {
     ...DataStatus.initState(),
     ...Groups.initState(),
     ...Events.initState(),
-    ...Calcs.initState()
+    ...Calcs.initState(),
+    ...Suggestions.initState()
   };
 }

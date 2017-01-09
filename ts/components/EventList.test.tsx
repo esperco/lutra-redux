@@ -7,6 +7,7 @@ import Waypoint from './Waypoint';
 import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
 import { expectCalledWith } from "../lib/expect-helpers";
+import { LabelSet } from "../lib/event-labels";
 import { stub as stubGlobal } from '../lib/sandbox';
 
 // Consts for tests
@@ -16,6 +17,8 @@ const e3 = makeEvent({ id: "e3" });
 const confirmedEvent = makeEvent({ id: "c1", labels_confirmed: true });
 const unconfirmedevent = makeEvent({ id: "u1", labels_confirmed: false });
 const defaultsProps = {
+  labels: new LabelSet([]),
+  searchLabels: new LabelSet([]),
   onChange: () => null,
   onConfirm: () => null,
   onHideChange: () => null,
