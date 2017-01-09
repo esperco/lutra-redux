@@ -4,11 +4,11 @@
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as React from "react";
-import * as Waypoint from "react-waypoint";
 import * as ApiT from "../lib/apiT";
-import Icon from "../components/Icon";
-import LabelList from "../components/LabelList";
-import Tooltip from "../components/Tooltip";
+import Icon from "./Icon";
+import LabelList from "./LabelList";
+import Tooltip from "./Tooltip";
+import Waypoint from "./Waypoint";
 import * as classNames from "classnames";
 import { ok, StoreData } from "../states/data-status";
 import * as EventText from "../text/events";

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import * as Waypoint from 'react-waypoint';
 import * as Sinon from 'sinon';
 import { expect } from "chai";
 import { shallow } from 'enzyme';
 import { EventList, EventDisplay, PlaceholderEvent } from "./EventList";
+import Waypoint from './Waypoint';
 import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
 import { expectCalledWith } from "../lib/expect-helpers";
