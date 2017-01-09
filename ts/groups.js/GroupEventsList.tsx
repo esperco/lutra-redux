@@ -4,10 +4,10 @@
 import * as _ from "lodash";
 import * as $ from "jquery";
 import * as React from "react";
-import * as Waypoint from "react-waypoint";
 import { State as StoreState, DispatchFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList from "../components/EventList";
+import Waypoint from "../components/Waypoint";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
