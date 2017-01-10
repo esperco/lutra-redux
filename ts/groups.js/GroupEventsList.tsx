@@ -23,6 +23,7 @@ interface Props {
   period: GenericPeriod;
   query: QueryFilter;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  labelHrefFn?: (l: ApiT.LabelInfo) => string;
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc;
@@ -70,6 +71,7 @@ export class GroupEventsList extends React.Component<Props, State> {
           eventMap={eventMap}
           groupLabels={groupLabels}
           eventHrefFn={this.props.eventHrefFn}
+          labelHrefFn={this.props.labelHrefFn}
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
@@ -123,6 +125,7 @@ interface DayProps {
   result: StoreData<QueryResult>;
   eventMap: EventMap;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  labelHrefFn?: (l: ApiT.LabelInfo) => string;
   onChange: (
     eventIds: string[],
     x: ApiT.LabelInfo,
@@ -182,6 +185,7 @@ class QueryDay extends React.Component<DayProps, {}> {
         */}
         <div><EventList events={calEvents}
           eventHrefFn={this.props.eventHrefFn}
+          labelHrefFn={this.props.labelHrefFn}
           labels={ ready(this.props.groupLabels) ?
             this.props.groupLabels.group_labels : [] }
           onChange={this.props.onChange}

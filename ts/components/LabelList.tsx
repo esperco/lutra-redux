@@ -10,6 +10,7 @@ import * as LabelText from "../text/labels";
 
 interface Props {
   labels: ApiT.LabelInfo[];
+  labelHrefFn?: (label: ApiT.LabelInfo) => string;
   events: ApiT.GenericCalendarEvent[];
   onChange: (ids: string[], x: ApiT.LabelInfo, active: boolean) => void;
 }
@@ -36,6 +37,7 @@ export class LabelList extends React.Component<Props, {}> {
       buttonText={<Icon type="add">
         { LabelText.AddLabel }
       </Icon>}
+      tagHrefFn={this.props.labelHrefFn}
     />;
   }
 
