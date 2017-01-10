@@ -19,6 +19,7 @@ const DEFAULT_AUTO_CONFIRM_TIMEOUT = 3000;
 
 interface SharedProps {
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  labelHrefFn?: (l: ApiT.LabelInfo) => string;
   labels?: ApiT.LabelInfo[];
   onChange: (
     eventIds: string[],
@@ -153,6 +154,7 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
           labels={this.props.labels || []}
           events={[event]}
           onChange={this.props.onChange}
+          labelHrefFn={this.props.labelHrefFn}
         />
 
         { event.comments.length ?
