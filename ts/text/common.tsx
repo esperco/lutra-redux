@@ -20,6 +20,7 @@ export const Home = "Home";
 export const Location = "Location";
 export const Logout = "Sign out";
 export const Next = "Next";
+export const Options = "Options";
 export const People = "People";
 export const Person = "Person";
 export const Previous = "Previous";

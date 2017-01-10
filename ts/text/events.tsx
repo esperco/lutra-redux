@@ -8,6 +8,10 @@ export const Recurring = "Recurring Event";
 export const FilterEvents = "Filter by Keyword";
 export const CommentPlaceholder = "Post a comment about this event";
 export const DefaultUsername = "Esper User";
+export const HideDescription = "Remove all tags and exclude this event " +
+  "from time stats.";
+export const ShowDescription = "This event is currently hidden from time " +
+  "stats. Click to include it.";
 
 export const Attendees = "Guests";
 export const Comments = "Comments";

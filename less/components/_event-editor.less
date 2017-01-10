@@ -4,6 +4,30 @@
 @import "./_tag-list";
 
 .event-editor {
+  > .dropdown-toggle:first-child {
+    float: right;
+    position: relative;
+    top: -@padding-small;
+    right: -@padding-small;
+
+    + * { margin-top: 0; }
+  }
+
+  &.hidden {
+    h3 {
+      text-decoration: line-through;
+      color: @text-muted;
+    }
+
+    .tag-list, .tag-list ~ * {
+      display: none;
+    }
+
+    .tag-list ~ .panel {
+      display: block;
+    }
+  }
+
   .no-title {
     font-style: italic;
     color: @text-muted;
@@ -16,6 +40,10 @@
     display: inline;
   }
 
+  .hide-event {
+    button { float: right; }
+  }
+
   .location {
     font-size: @font-size-small;
     color: @text-muted;
@@ -25,14 +53,17 @@
     font-size: @font-size-small;
   }
 
-  .recurring-labels .description {
-    margin-right: @padding-small;
-  }
+  .recurring-labels {
+    .description {
+      margin-right: @padding-small;
+    }
 
-  .recurring-labels button {
-    padding: 0;
-    display: inline;
-    text-transform: none;
+    button {
+      padding: 0;
+      display: inline;
+      text-transform: none;
+      line-height: inherit;
+    }
   }
 
   .guest {

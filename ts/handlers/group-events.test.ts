@@ -326,7 +326,8 @@ describe("Group Events handlers", function() {
         eventIds,
         recurringEventIds: [],
         addLabels: [label1],
-        rmLabels: []
+        rmLabels: [],
+        hidden: false
       });
     });
 
@@ -345,7 +346,8 @@ describe("Group Events handlers", function() {
         eventIds,
         recurringEventIds: [],
         addLabels: [],
-        rmLabels: [label1]
+        rmLabels: [label1],
+        hidden: false
       });
     });
 
@@ -361,10 +363,12 @@ describe("Group Events handlers", function() {
         expectCalledWith(stub, groupId, {
           set_labels: [{
             id: "e1",
-            labels: [label1.original]
+            labels: [label1.original],
+            hidden: false
           }, {
             id: "e2",
-            labels: [label1.original, label2.original]
+            labels: [label1.original, label2.original],
+            hidden: false
           }],
           predict_labels: []
         })
@@ -486,7 +490,8 @@ describe("Group Events handlers", function() {
         expectCalledWith(stub, groupId, {
           set_labels: [{
             id: "e2",
-            labels: [label2.original]
+            labels: [label2.original],
+            hidden: false
           }],
           predict_labels: []
         })
@@ -562,7 +567,8 @@ describe("Group Events handlers", function() {
           eventIds: ["e1"],
           recurringEventIds: ["recurId"],
           addLabels: [label1],
-          rmLabels: []
+          rmLabels: [],
+          hidden: false // Any label action sets hidden to false by default
         });
       });
 
@@ -579,10 +585,12 @@ describe("Group Events handlers", function() {
           expectCalledWith(stub, groupId, {
             set_labels: [{
               id: "e1",
-              labels: [label1.original]
+              labels: [label1.original],
+              hidden: false
             }, {
               id: "recurId",
-              labels: [label1.original]
+              labels: [label1.original],
+              hidden: false
             }],
             predict_labels: []
           })
@@ -605,7 +613,8 @@ describe("Group Events handlers", function() {
           expectCalledWith(stub, groupId, {
               set_labels: [{
                 id: "e4",
-                labels: [label1.original]
+                labels: [label1.original],
+                hidden: false
               }],
               predict_labels: []
             })
@@ -617,7 +626,8 @@ describe("Group Events handlers", function() {
           eventIds: ["e4"],
           recurringEventIds: [],
           addLabels: [label1],
-          rmLabels: []
+          rmLabels: [],
+          hidden: false
         });
 
         dfd.resolve({});
@@ -823,10 +833,12 @@ describe("Group Events handlers", function() {
         expectCalledWith(labelStub, "group-id", {
           set_labels: [{
             id: "e1",
-            labels: ["L2", "L3"]
+            labels: ["L2", "L3"],
+            hidden: false
           }, {
             id: "e2",
-            labels: ["L1"]
+            labels: ["L1"],
+            hidden: false
           }],
           predict_labels: []
         });
@@ -899,7 +911,8 @@ describe("Group Events handlers", function() {
         expectCalledWith(labelStub, "group-id", {
           set_labels: [{
             id: "e1",
-            labels: ["L1"]
+            labels: ["L1"],
+            hidden: false
           }, {
             id: "e2",
             hidden: true
