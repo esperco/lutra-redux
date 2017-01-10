@@ -14,7 +14,7 @@
     "@types/jquery": "^2.0.39",
     "@types/json-stable-stringify": "^1.0.29",
     "@types/lodash": "^4.14.47",
-    "@types/mocha": "2.2.35",
+    "@types/mocha": "^2.2.35",
     "@types/react": "^0.14.57",
     "@types/react-addons-shallow-compare": "^0.14.18",
     "@types/react-addons-test-utils": "^0.14.16",
@@ -68,7 +68,7 @@
     "react-addons-shallow-compare": "^15.4.2",
     "react-addons-test-utils": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-waypoint": "5.0.0",
+    "react-waypoint": "^5.0.0",
     "redux": "^3.6.0",
     "whatwg-fetch": "^2.0.1"
   },
