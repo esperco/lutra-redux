@@ -4,7 +4,9 @@ module.exports = {
   // No port (assume API server is on Port 80)
   apiPrefix: location.protocol + "//" + location.hostname,
 
-  loginRedirect: location.origin + "/login",
+  loginRedirect: function(hex) {
+    return location.origin + "/login?redirect=" + hex
+  },
   logoutRedirect: location.origin + "/login?logout=1",
 
   cacheDuration: 10 * 60 * 1000, // 10 min

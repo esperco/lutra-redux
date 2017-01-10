@@ -5,7 +5,7 @@ declare module "config" {
   var config: {
     production: boolean;
     apiPrefix: string;
-    loginRedirect: string;
+    loginRedirect: string|((hexPath: string) => string);
     logoutRedirect: string;
     cacheDuration?: number; // Milliseconds before data is stale
     maxDaysFetch?: number;  // Max number of days in a query to fetch
