@@ -1,8 +1,10 @@
 module.exports = {
   production: true,
   apiPrefix: "https://app.esper.com",
-  loginRedirect: location.protocol + "//" +
-    location.hostname + "/login",
+  loginRedirect: function(hex) {
+    return location.protocol + "//" + location.hostname +
+           "/login?redirect=" + hex;
+  },
   logoutRedirect: location.protocol + "//" +
     location.hostname + "/login?logout=1",
   cacheDuration: 10 * 60 * 1000, // 10 min

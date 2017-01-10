@@ -6,8 +6,9 @@
 import { LocalStoreSvc } from "./local-store";
 import { AnalyticsSvc } from "./analytics";
 import { ApiSvc } from "./api";
-import { NavSvc } from "./routing";
 import * as ApiT from "./apiT";
+import { NavSvc } from "./routing";
+import { hexEncode } from "./util";
 import * as _ from "lodash";
 
 const storedLoginKey = "login";
@@ -59,9 +60,12 @@ export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
 // Returns a promise for when login process is done -- dispatches to store
 export function init(
   dispatch: (action: LoginAction) => any,
-  Conf: { loginRedirect: string },
+  Conf: { loginRedirect: string|((hexPath: string) => string) },
   Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc
 ): Promise<ApiT.LoginResponse> {
+  let redirect = typeof Conf.loginRedirect === "string" ?
+    Conf.loginRedirect :
+    Conf.loginRedirect(hexEncode(location.pathname + location.hash));
   let credentials = getCredentials(Svcs);
   let { Analytics, Api, Nav } = Svcs;
   if (credentials) {
@@ -99,12 +103,12 @@ export function init(
 
       // Failure, redirect to login
       (err) => {
-        Nav.go(Conf.loginRedirect);
+        Nav.go(redirect);
         throw err;
       });
   }
 
-  Nav.go(Conf.loginRedirect);
+  Nav.go(redirect);
   return new Promise(function() {}); // Never resolves -- waiting for redirect
 }
 
