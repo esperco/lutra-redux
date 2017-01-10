@@ -171,14 +171,12 @@ export function processLabelRequests(
         Hidden status + labels are mutually exclusive. Hidden takes precedence.
         Remove labels if hidden.
       */
-      if (! _.isUndefined(s.hidden)) {
-        setLabels[s.id] = s.hidden ? {
-          id: s.id,
-          hidden: s.hidden
-        } : compactObject(s);
-      } else if (s.labels) {
-        setLabels[s.id] = compactObject(s);
-      }
+      setLabels[s.id] = compactObject({
+        id: s.id,
+        labels: s.hidden ? undefined : s.labels,
+        hidden: _.isUndefined(s.hidden) && s.labels ? false : s.hidden
+      });
+
     });
     _.each(q.predictLabels, (id) => predictLabels.push(id));
   });
@@ -528,12 +526,15 @@ export function setGroupEventLabels(props: {
           rm: props.active ? [] : [props.label]
         } : {});
 
+        let hidden = _.isUndefined(props.hidden) ?
+          (props.label ? false : event.hidden) : props.hidden;
+
         // Set complete set of labels in request (this may clobber other
         // requests but that's the nature of the API for now)
         request.setLabels.push({
           id: apiId,
           labels: _.map(labels, (l) => l.original),
-          hidden: _.isUndefined(props.hidden) ? event.hidden : props.hidden
+          hidden
         });
       }
     }
@@ -547,7 +548,7 @@ export function setGroupEventLabels(props: {
     recurringEventIds: recurringIds.toList(),
     addLabels: props.label && props.active ? [props.label] : [],
     rmLabels: !props.label || props.active ? [] : [props.label],
-    hidden: props.hidden
+    hidden: props.label && _.isUndefined(props.hidden) ? false : props.hidden
   }));
 
   // Also need to set new group labels (but not for hashtags)

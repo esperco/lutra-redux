@@ -5,10 +5,12 @@ import * as classNames from "classnames";
 import * as ApiT from "../lib/apiT";
 import { useRecurringLabels } from "../lib/event-labels";
 import fmtText from "../lib/fmt-text";
+import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
 import * as LabelText from "../text/labels";
 import { ok, ready, StoreData } from "../states/data-status";
 import { GroupMembers } from "../states/groups";
+import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
 import Tooltip from "./Tooltip";
@@ -20,20 +22,20 @@ interface Props {
   loginDetails: ApiT.LoginResponse|undefined;
   onChange: (x: ApiT.LabelInfo, active: boolean) => void;
   onForceInstance: () => void;
+  onHide: (hidden: boolean) => void;
   onCommentPost: (eventId: string, text: string) => Promise<any>;
   onCommentDelete: (eventId: string, commentId: string) => void;
 }
 
 export class EventEditor extends React.Component<Props, {}> {
   render() {
-    let event = this.props.event;
-    if (! ok(event)) {
+    if (! ok(this.props.event)) {
       return <div className="event-editor">
         <h3>{ EventText.NotFound }</h3>
       </div>;
     }
 
-    if (event === "FETCHING") {
+    if (this.props.event === "FETCHING") {
       return <div className="event-editor">
         <div className="placeholder" />
         <div className="placeholder" />
@@ -41,16 +43,40 @@ export class EventEditor extends React.Component<Props, {}> {
       </div>;
     }
 
-    return <div className="event-editor">
+    let event = this.props.event;
+    let mStart = moment(event.start);
+    let mEnd = moment(event.end);
+    return <div className={classNames("event-editor", {
+      hidden: event.hidden
+    })}>
+      <Dropdown
+        toggle={<button className="dropdown-toggle">
+          <Icon type="options" />
+        </button>}
+
+        menu={<div className="dropdown-menu"><div className="menu">
+          <button className="hide-btn"
+                  onClick={() => this.props.onHide(!event.hidden)}>
+            <span>{ event.hidden ? CommonText.Show : CommonText.Hide }</span>
+            <div className="description">
+              { event.hidden ?
+                EventText.ShowDescription :
+                EventText.HideDescription }
+            </div>
+          </button>
+        </div></div>}
+      />
+
       <h3>{ event.title ||
         <span className="no-title">{ EventText.NoTitle }</span>
       }</h3>
 
       <div className="time">
         <span className="start">
-          { moment(event.start).format("h:mm a") }
+          { mStart.format("MMM D, LT") }
         </span>{" to "}<span className="end">
-          { moment(event.end).format("h:mm a") }
+          { mStart.isSame(mEnd, 'day') ?
+            mEnd.format("LT") : mEnd.format("LT") }
         </span>{" "}
 
         { event.recurring_event_id ?
@@ -79,18 +105,19 @@ export class EventEditor extends React.Component<Props, {}> {
         onChange={(ids, label, active) => this.props.onChange(label, active)}
       />
 
-      { event.recurring_event_id ? <div className="recurring-labels">
-        { useRecurringLabels(event) ?
-          <span>
-            <span className="description">
-              { LabelText.RecurringLabelsDescription }
-            </span>
-            <button onClick={this.props.onForceInstance}>
-              { LabelText.SwitchToInstanceLabels }
-            </button>
-          </span> :
-          LabelText.InstanceLabelsDescription }
-      </div> : null }
+      { event.recurring_event_id ?
+        <div className="recurring-labels alert info">
+          { useRecurringLabels(event) ?
+            <span>
+              <span className="description">
+                { LabelText.RecurringLabelsDescription }
+              </span>
+              <button onClick={this.props.onForceInstance}>
+                { LabelText.SwitchToInstanceLabels }
+              </button>
+            </span> :
+            LabelText.InstanceLabelsDescription }
+        </div> : null }
 
       <GuestList guests={event.guests} />
 
