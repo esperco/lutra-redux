@@ -18,7 +18,7 @@ describe("handleGroupQueryCalc", () => {
     state = {
       groupEvents: {
         [groupId]: {
-          e1: makeEvent({
+          e1: makeEvent({ // 1 hours * 2 guests
             id: "e1",
             start: "2016-10-01T08:00:00.000",
             end:   "2016-10-01T09:00:00.000",
@@ -34,7 +34,7 @@ describe("handleGroupQueryCalc", () => {
             }]
           }),
 
-          e2: makeEvent({
+          e2: makeEvent({ // 2 hours * 1 guest
             id: "e2",
             start: "2016-10-02T10:00:00.000",
             end:   "2016-10-02T12:00:00.000",
@@ -44,7 +44,7 @@ describe("handleGroupQueryCalc", () => {
             }]
           }),
 
-          e3: makeEvent({
+          e3: makeEvent({ // 1 hour * 1 guest, but not in query
             id: "e3",
             start: "2016-10-03T10:00:00.000",
             end:   "2016-10-03T12:00:00.000",
@@ -132,6 +132,27 @@ describe("handleGroupQueryCalc", () => {
         seconds: (4 * 24 * 60 * 60) +  (2 * 60 * 60),
         eventCount: 2,
         peopleSeconds: (2 * 4 * 24 * 60 * 60) + (1 * 2 * 60 * 60)
+      }
+    });
+  });
+
+  it("ignores hidden events", () => {
+    let event = state.groupEvents[groupId]["e1"] as ApiT.GenericCalendarEvent;
+    event.hidden = true;
+    expect(handleGroupQueryCalc({
+      type: "GROUP_QUERY_CALC",
+      groupId,
+      query: query,
+      period
+    }, state)).to.deep.equal({
+      type: "GROUP_CALC_END",
+      groupId,
+      query: query,
+      period,
+      results: {
+        seconds: 2 * 60 * 60,
+        eventCount: 1,
+        peopleSeconds: (1 * 2 * 60 * 60)
       }
     });
   });

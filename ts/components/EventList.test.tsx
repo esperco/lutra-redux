@@ -18,6 +18,7 @@ const unconfirmedevent = makeEvent({ id: "u1", labels_confirmed: false });
 const defaultsProps = {
   onChange: () => null,
   onConfirm: () => null,
+  onHideChange: () => null,
   eventHrefFn: () => "http://esper.com"
 };
 

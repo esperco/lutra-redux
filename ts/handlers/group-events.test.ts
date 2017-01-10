@@ -388,6 +388,47 @@ describe("Group Events handlers", function() {
       }).then(done, done);
     });
 
+    it("dispatches action to hide events", () => {
+      let deps = getDeps();
+      setGroupEventLabels({
+        groupId,
+        eventIds,
+        hidden: true
+      }, deps);
+
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_EVENTS_UPDATE",
+        groupId,
+        eventIds,
+        recurringEventIds: [],
+        addLabels: [],
+        rmLabels: [],
+        hidden: true
+      });
+    });
+
+    it("makes API call to hide event", (done) => {
+      let deps = getDeps();
+      let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
+      setGroupEventLabels({
+        groupId,
+        eventIds,
+        hidden: true
+      }, deps).then(() => {
+        expectCalledWith(stub, groupId, {
+          set_labels: [{
+            id: "e1",
+            hidden: true
+          }, {
+            id: "e2",
+            hidden: true
+          }],
+          predict_labels: []
+        })
+      }).then(done, done);
+      dfd.resolve({});
+    });
+
     it("handles unknown groups gracefully", () => {
       let deps = getDeps();
       setGroupEventLabels({
@@ -446,6 +487,30 @@ describe("Group Events handlers", function() {
           set_labels: [{
             id: "e2",
             labels: [label2.original]
+          }],
+          predict_labels: []
+        })
+      }).then(done, done);
+      dfd.resolve({});
+    });
+
+    it("makes an API call to hide events if confirmation needed", (done) => {
+      let deps = getDeps();
+      let { stub, dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
+
+      deps.state.groupEvents[groupId].e1.labels_confirmed = true;
+      deps.state.groupEvents[groupId].e1.hidden = true;
+      deps.state.groupEvents[groupId].e2.labels_confirmed = false;
+      deps.state.groupEvents[groupId].e2.hidden = true;
+
+      setGroupEventLabels({
+        groupId,
+        eventIds
+      }, deps).then(() => {
+        expectCalledWith(stub, groupId, {
+          set_labels: [{
+            id: "e2",
+            hidden: true
           }],
           predict_labels: []
         })
@@ -768,26 +833,45 @@ describe("Group Events handlers", function() {
       }).then(done, done);
     });
 
-    it("merges attend and label requests", (done) => {
+    it("ignores labels when setting hidden to true", (done) => {
       processLabelRequests("group-id", [{
         ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
           labels: ["L1"],
-          attended: true
+          hidden: true
+        }]
+      }]).then(() => {
+        expectCalledWith(labelStub, "group-id", {
+          set_labels: [{
+            id: "e1",
+            hidden: true
+          }],
+          predict_labels: []
+        });
+      }).then(done, done);
+    });
+
+    it("unsets hidden when settings any labels", (done) => {
+      processLabelRequests("group-id", [{
+        ...makeLabelRequest(deps),
+        setLabels: [{
+          id: "e1",
+          hidden: true
         }]
       }, {
         ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
-          attended: false
+          labels: ["L1"],
+          hidden: false
         }]
       }]).then(() => {
         expectCalledWith(labelStub, "group-id", {
           set_labels: [{
             id: "e1",
             labels: ["L1"],
-            attended: false
+            hidden: false
           }],
           predict_labels: []
         });
@@ -799,21 +883,28 @@ describe("Group Events handlers", function() {
         ...makeLabelRequest(deps),
         setLabels: [{
           id: "e1",
-          labels: ["L1"],
-          attended: true
+          labels: ["L1"]
         }],
-        predictLabels: ["e2", "e3"]
+        predictLabels: ["e3", "e4"]
       }, {
         ...makeLabelRequest(deps),
-        predictLabels: ["e3", "e4"]
+        setLabels: [{
+          id: "e2",
+          hidden: true
+        }]
+      }, {
+        ...makeLabelRequest(deps),
+        predictLabels: ["e4", "e5"]
       }]).then(() => {
         expectCalledWith(labelStub, "group-id", {
           set_labels: [{
             id: "e1",
-            labels: ["L1"],
-            attended: true
+            labels: ["L1"]
+          }, {
+            id: "e2",
+            hidden: true
           }],
-          predict_labels: ["e2", "e3", "e4"]
+          predict_labels: ["e3", "e4", "e5"]
         });
       }).then(done, done);
     });

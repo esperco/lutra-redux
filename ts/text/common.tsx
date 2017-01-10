@@ -15,6 +15,7 @@ export const Edit = "Edit";
 export const Filter = "Filter";
 export const Filters = "Search and Filtering";
 export const Help = "Help";
+export const Hide = "Hide";
 export const Home = "Home";
 export const Location = "Location";
 export const Logout = "Sign out";
@@ -29,6 +30,7 @@ export const Repeat = "Repeat";
 export const Save = "Save";
 export const Search = "Search";
 export const Settings = "Settings";
+export const Show = "Show";
 export const Terms = "Terms of Use";
 
 // UX

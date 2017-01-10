@@ -72,6 +72,7 @@ export class GroupEventsList extends React.Component<Props, State> {
           eventHrefFn={this.props.eventHrefFn}
           onChange={this.onChange}
           onConfirm={this.onConfirm}
+          onHideChange={this.onHideChange}
         />
       ) }
 
@@ -98,6 +99,13 @@ export class GroupEventsList extends React.Component<Props, State> {
     }, this.props);
   }
 
+  onHideChange = (eventIds: string[], hidden: boolean) => {
+    Events.setGroupEventLabels({
+      groupId: this.props.groupId,
+      eventIds, hidden
+    }, this.props);
+  }
+
   showMore = () => {
     let incr = this.props.Conf && this.props.Conf.maxDaysFetch;
     if (incr) {
@@ -121,6 +129,7 @@ interface DayProps {
     active: boolean
   ) => void;
   onConfirm: (eventIds: string[]) => void;
+  onHideChange: (eventIds: string[], hidden: boolean) => void;
 }
 
 /*
@@ -167,13 +176,18 @@ class QueryDay extends React.Component<DayProps, {}> {
     return <div ref={(c) => this._ref = c}>
       <Waypoint onEnter={this.maybeUpdate} />
       <DayBox date={dateForDay(this.props.day)}>
-        <EventList events={calEvents}
+        {/*
+          Wrap EventList with extra div so flexbox doesn't expand height of
+          EventList when it's too short.
+        */}
+        <div><EventList events={calEvents}
           eventHrefFn={this.props.eventHrefFn}
           labels={ ready(this.props.groupLabels) ?
             this.props.groupLabels.group_labels : [] }
           onChange={this.props.onChange}
           onConfirm={this.props.onConfirm}
-        />
+          onHideChange={this.props.onHideChange}
+        /></div>
       </DayBox>
       <Waypoint onEnter={this.maybeUpdate} />
     </div>;

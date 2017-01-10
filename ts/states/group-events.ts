@@ -6,6 +6,7 @@ import { QueryFilter, stringify } from "../lib/event-queries";
 import { GenericPeriod, toDays, fromDates, index } from "../lib/period";
 import { ok, ready, StoreMap, StoreData } from "./data-status";
 import { LoginState } from "../lib/login";
+import { compactObject } from "../lib/util";
 
 // Stored query result
 export interface QueryResult {
@@ -106,6 +107,7 @@ export interface EventsUpdateAction {
   recurringEventIds?: string[];
   addLabels?: ApiT.LabelInfo[];
   rmLabels?: ApiT.LabelInfo[];
+  hidden?: boolean;
 }
 
 export interface EventCommentPostAction {
@@ -315,18 +317,22 @@ function reduceEventUpdate(
     return event;
   }
 
-  return {
+  return compactObject({
     ...event,
 
-    // Update labels
-    labels: updateLabelList(event.labels || [], {
-      add: action.addLabels,
-      rm: action.rmLabels
-    }),
+    // Update labels -- clear labels if hidden
+    labels: (action.addLabels || action.rmLabels) && action.hidden !== true ?
+      updateLabelList(event.labels || [], {
+        add: action.addLabels,
+        rm: action.rmLabels
+      }) : [],
     labels_predicted: false,
     labels_confirmed: true,
-    has_recurring_labels: !!recurring
-  };
+    has_recurring_labels: !!recurring,
+
+    // Update hide
+    hidden: _.isUndefined(action.hidden) ? event.hidden : action.hidden
+  });
 }
 
 // Merges group event query day arrays, returns a new state

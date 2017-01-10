@@ -19,12 +19,31 @@
     border-left: @border-radius-small solid @info;
   }
 
+  &.hidden {
+    .time ~ * { display: none; }
+    .time ~ .confirm-waypoint { display: inline; }
+
+    a {
+      color: @text-muted;
+      text-decoration: line-through;
+    }
+  }
+
   .no-title {
     .event-editor .no-title;
   }
 
   .time {
     .event-editor .time;
+  }
+
+  .hide-btn {
+    float: right;
+    margin-top: 0;
+    position: relative;
+    top: -@padding-small;
+    right: -@padding-small;
+    font-weight: normal;
   }
 
   .guests {

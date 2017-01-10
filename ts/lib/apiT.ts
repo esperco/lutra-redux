@@ -286,6 +286,7 @@ export interface GenericCalendarEvent {
   guests: Attendee[];
   has_recurring_labels: boolean;
   transparent: boolean;
+  hidden?: boolean;
   recurrence?: Recurrence;
   recurring_event_id?: string;
   merged?: MergedEventExtra;
@@ -604,6 +605,7 @@ export interface EventLabels {
   id: string;
   labels?: string[];
   attended?: boolean;
+  hidden?: boolean;
 }
 
 export interface LabelsSetPredictRequest {
