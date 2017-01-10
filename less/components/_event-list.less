@@ -42,7 +42,7 @@
     margin-top: 0;
     position: relative;
     top: -@padding-small;
-    right: -@padding-small;
+    right: -@padding-base;
     font-weight: normal;
   }
 
@@ -75,5 +75,22 @@
   .cost-5 {
     color: @degree-5;
     font-weight: bold;
+  }
+
+  .event-actions {
+    display: flex;
+
+    > * { margin-top: 0; }
+
+    .comment-count {
+      font-size: @font-size-small;
+      white-space: nowrap;
+      line-height: @input-height-small;
+      flex: 0 0 auto;
+    }
+
+    .tag-list {
+      flex: 1 1 auto;
+    }
   }
 }
