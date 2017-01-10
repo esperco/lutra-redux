@@ -4,13 +4,14 @@
 
 import * as React from 'react';
 import Dropdown from "./Dropdown";
-import { Props as MenuProps, FilterMenu } from './FilterMenu';
+import { Props as MenuProps, Choice, FilterMenu } from './FilterMenu';
 import Icon from "./Icon";
 import { colorForText } from "../lib/colors";
 
 interface Props extends MenuProps {
   buttonText: string|JSX.Element;
   onClose?: () => void;      // On dropdown close
+  tagHrefFn?: (c: Choice) => string;
 }
 
 export class TagList extends React.Component<Props, {}> {
@@ -29,7 +30,9 @@ export class TagList extends React.Component<Props, {}> {
         background: c.color,
         color: c.color ? colorForText(c.color) : undefined
       }}>
-        <span>{ c.original }</span>
+        { this.props.tagHrefFn ?
+          <a href={this.props.tagHrefFn(c)}>{ c.original }</a> :
+          <span>{ c.original }</span> }
         <button onClick={() => this.props.onToggle(c, false, "click")}>
           <Icon type="remove" />
         </button>

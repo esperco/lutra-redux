@@ -16,6 +16,7 @@ import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
@@ -131,9 +132,8 @@ class GroupEvents extends React.Component<Props, {}> {
   renderEventDates() {
     return <GroupEventsList
       {...this.props}
-      eventHrefFn={(ev) => this.updateHref({
-        eventId: ev.id
-      })}
+      eventHrefFn={this.eventHref}
+      labelHrefFn={this.labelHref}
     />;
   }
 
@@ -176,6 +176,8 @@ class GroupEvents extends React.Component<Props, {}> {
             commentId
           }, {...this.props})
         }
+        labelHrefFn={this.labelHref}
+        guestHrefFn={this.guestHref}
       />
     }
     return null; // No event
@@ -210,6 +212,24 @@ class GroupEvents extends React.Component<Props, {}> {
     let query = reduce(updates.query || this.props.query);
     return eventList.href({
       groupId, showFilters, eventId, period, ...query, ...updates
+    });
+  }
+
+  eventHref = (event: ApiT.GenericCalendarEvent) => {
+    return this.updateHref({
+      eventId: event.id
+    });
+  }
+
+  guestHref = (guest: ApiT.Attendee) => {
+    return this.updateHref({
+      query: { participant: [guest.email] }
+    });
+  }
+
+  labelHref = (label: ApiT.LabelInfo) => {
+    return this.updateHref({
+      query: { labels: { some: { [label.normalized]: true }}}
     });
   }
 

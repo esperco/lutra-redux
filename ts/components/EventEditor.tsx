@@ -25,6 +25,8 @@ interface Props {
   onHide: (hidden: boolean) => void;
   onCommentPost: (eventId: string, text: string) => Promise<any>;
   onCommentDelete: (eventId: string, commentId: string) => void;
+  labelHrefFn?: (x: ApiT.LabelInfo) => string;
+  guestHrefFn?: (x: ApiT.Attendee) => string;
 }
 
 export class EventEditor extends React.Component<Props, {}> {
@@ -103,6 +105,7 @@ export class EventEditor extends React.Component<Props, {}> {
         labels={this.props.labels}
         events={[event]}
         onChange={(ids, label, active) => this.props.onChange(label, active)}
+        labelHrefFn={this.props.labelHrefFn}
       />
 
       { event.recurring_event_id ?
@@ -119,7 +122,7 @@ export class EventEditor extends React.Component<Props, {}> {
             LabelText.InstanceLabelsDescription }
         </div> : null }
 
-      <GuestList guests={event.guests} />
+      <GuestList guests={event.guests} hrefFn={this.props.guestHrefFn} />
 
       <CommentList eventId={event.id}
                    comments={event.comments}
@@ -133,6 +136,7 @@ export class EventEditor extends React.Component<Props, {}> {
 
 export class GuestList extends React.Component<{
   guests?: ApiT.Attendee[]
+  hrefFn?: (x: ApiT.Attendee) => string;
 }, {}> {
   render() {
     if (_.isEmpty(this.props.guests)) {
@@ -146,14 +150,19 @@ export class GuestList extends React.Component<{
   }
 
   renderGuest(guest: ApiT.Attendee, index: number) {
+    let display = guest.display_name || guest.email;
     return <div key={guest.email || index}
     className={classNames("guest", {
       declined: guest.response === "Declined"
     })}>
       <Tooltip
-          target={<span className="name">
-            { guest.display_name || guest.email }
-          </span>}
+          target={this.props.hrefFn ?
+            <a className="name" href={this.props.hrefFn(guest)}>
+              { display }
+            </a> :
+            <span className="name">
+              { display }
+            </span>}
           title={guest.email}
       />
       <span className="status">
