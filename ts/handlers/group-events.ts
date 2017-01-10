@@ -20,7 +20,7 @@ import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
 import { GenericPeriod, Period, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
-import { OrderedSet } from "../lib/util";
+import { OrderedSet, compactObject } from "../lib/util";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import {
@@ -38,7 +38,7 @@ interface LabelRequest {
   setLabels: {
     id: string;
     labels?: string[];
-    attended?: boolean;
+    hidden?: boolean;
   }[];
   predictLabels: string[];
   deps: {
@@ -166,19 +166,18 @@ export function processLabelRequests(
   // Left to right, override previous results with new ones
   _.each(queue, (q) => {
     _.each(q.setLabels, (s) => {
-      if (s.labels) {
-        setLabels[s.id] = {
-          ...setLabels[s.id],
+
+      /*
+        Hidden status + labels are mutually exclusive. Hidden takes precedence.
+        Remove labels if hidden.
+      */
+      if (! _.isUndefined(s.hidden)) {
+        setLabels[s.id] = s.hidden ? {
           id: s.id,
-          labels: s.labels
-        };
-      }
-      if (! _.isUndefined(s.attended)) {
-        setLabels[s.id] = {
-          ...setLabels[s.id],
-          id: s.id,
-          attended: s.attended
-        };
+          hidden: s.hidden
+        } : compactObject(s);
+      } else if (s.labels) {
+        setLabels[s.id] = compactObject(s);
       }
     });
     _.each(q.predictLabels, (id) => predictLabels.push(id));
@@ -477,8 +476,11 @@ export function fetchByIds(props: {
 export function setGroupEventLabels(props: {
   groupId: string;
   eventIds: string[];
-  label?: ApiT.LabelInfo; // Leave undefined to confirm existing label
+
+  // Leave undefined to confirm existing label
+  label?: ApiT.LabelInfo;
   active?: boolean;
+  hidden?: boolean;
 }, deps: {
   dispatch: (a: EventsUpdateAction|GroupUpdateAction) => any;
   state: EventsState & GroupState;
@@ -513,7 +515,12 @@ export function setGroupEventLabels(props: {
       }
 
       // Only confirm if event needs confirming (also ignore instance mode)
-      if (props.label || !event.labels_confirmed || opts.forceInstance) {
+      if (
+        props.label ||
+        ! _.isUndefined(props.hidden) ||
+        ! event.labels_confirmed ||
+        opts.forceInstance
+      ) {
 
         // Add or remove labels from each event
         let labels = updateLabelList(event.labels || [], props.label ? {
@@ -525,21 +532,23 @@ export function setGroupEventLabels(props: {
         // requests but that's the nature of the API for now)
         request.setLabels.push({
           id: apiId,
-          labels: _.map(labels, (l) => l.original)
+          labels: _.map(labels, (l) => l.original),
+          hidden: _.isUndefined(props.hidden) ? event.hidden : props.hidden
         });
       }
     }
   });
 
   // Dispatch changes to store
-  deps.dispatch({
-    type: "GROUP_EVENTS_UPDATE",
+  deps.dispatch(compactObject({
+    type: "GROUP_EVENTS_UPDATE" as "GROUP_EVENTS_UPDATE",
     groupId: props.groupId,
     eventIds: soloIds.toList(),
     recurringEventIds: recurringIds.toList(),
     addLabels: props.label && props.active ? [props.label] : [],
-    rmLabels: !props.label || props.active ? [] : [props.label]
-  });
+    rmLabels: !props.label || props.active ? [] : [props.label],
+    hidden: props.hidden
+  }));
 
   // Also need to set new group labels (but not for hashtags)
   var groupLabelPromise: Promise<any> = Promise.resolve();

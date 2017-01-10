@@ -67,6 +67,8 @@ export function runCalc(
       // Don't process same event twice
       if (! eventMap[event.id]) {
         eventMap[event.id] = true;
+        if (event.hidden) { continue; }
+
         ret.eventCount += 1;
         let seconds = getSeconds(event, {
           truncateStart: startTime,

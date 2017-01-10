@@ -11,6 +11,7 @@ import Tooltip from "./Tooltip";
 import Waypoint from "./Waypoint";
 import * as classNames from "classnames";
 import { ok, StoreData } from "../states/data-status";
+import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
 
 // Viewing event in list will confirm its labels after this time in ms
@@ -24,6 +25,7 @@ interface SharedProps {
     x: ApiT.LabelInfo,
     active: boolean
   ) => void;
+  onHideChange: (eventIds: string[], hidden: boolean) => void;
   onConfirm?: (eventIds: string[]) => void;
   autoConfirmTimeout?: number;
 }
@@ -100,6 +102,7 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
 
     return <div className={classNames("event", "panel", {
       unconfirmed: !this.state.confirmed,
+      hidden: event.hidden === true,
       "has-predictions": event.labels_predicted
     })}>
       <h4>{ this.props.eventHrefFn ?
@@ -108,6 +111,10 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
           { title }
         </a> : title
       }</h4>
+
+      <button className="hide-btn" onClick={() => this.toggleHide()}>
+        { event.hidden ? CommonText.Show : CommonText.Hide }
+      </button>
 
       <div className="time">
         <span className="start">
@@ -137,7 +144,9 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
       </div> : null }
 
       { !event.labels_confirmed ?
-        <Waypoint onEnter={this.setConfirmTimeout} /> : null }
+        <span className="confirm-waypoint">
+          <Waypoint onEnter={this.setConfirmTimeout} />
+        </span> : null }
 
       <LabelList
         labels={this.props.labels || []}
@@ -164,6 +173,10 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
       this._timeout = setTimeout(() => this.confirm(false),
         this.props.autoConfirmTimeout || DEFAULT_AUTO_CONFIRM_TIMEOUT);
     }
+  }
+
+  toggleHide() {
+    this.props.onHideChange([this.props.event.id], !this.props.event.hidden);
   }
 }
 

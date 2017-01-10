@@ -517,6 +517,45 @@ describe("eventsUpdateReducer", () => {
     });
   });
 
+  it("unsets labels when hiding", () => {
+    let s2 = eventsUpdateReducer(s1, {
+      type: "GROUP_EVENTS_UPDATE",
+      groupId: "my-group-id",
+      eventIds: [ev.id],
+      hidden: true
+    });
+    expect(s2.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+      ...ev,
+      labels: [],
+      hidden: true
+    });
+  });
+
+  it("confirms hidden", () => {
+    let ev2 = {
+      ...ev,
+      hidden: true,
+      labels_confirmed: false,
+      labels_predicted: true,
+    };
+    let s2 = deepFreeze({
+      ...s1,
+      groupEvents: { ["my-group-id"]: { "e1": ev2 } }
+    });
+
+    let s3 = eventsUpdateReducer(s2, {
+      type: "GROUP_EVENTS_UPDATE",
+      groupId: "my-group-id",
+      eventIds: [ev2.id]
+    });
+    expect(s3.groupEvents["my-group-id"]["e1"]).to.deep.equal({
+      ...ev2,
+      labels_confirmed: true,
+      labels_predicted: false,
+      labels: []
+    });
+  });
+
   it("should not duplicate labels", () => {
     let s2 = eventsUpdateReducer(s1, {
       type: "GROUP_EVENTS_UPDATE",
