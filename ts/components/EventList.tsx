@@ -148,26 +148,24 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
           <Waypoint onEnter={this.setConfirmTimeout} />
         </span> : null }
 
-      { event.comments.length ?
-        <span className="comment-count">
-          { this.props.eventHrefFn ?
-            <a href={this.props.eventHrefFn(event)}>
-            { event.comments.length == 1 ?
-              "1 comment"
-              : `${event.comments.length} comments`
-            }</a>
-            : event.comments.length == 1 ?
-              "1 comment"
-              : `${event.comments.length} comments`
-          }
-        </span>
-        : null }
+      <div className="event-actions">
+        <LabelList
+          labels={this.props.labels || []}
+          events={[event]}
+          onChange={this.props.onChange}
+        />
 
-      <LabelList
-        labels={this.props.labels || []}
-        events={[event]}
-        onChange={this.props.onChange}
-      />
+        { event.comments.length ?
+          <span className="comment-count">
+            { this.props.eventHrefFn ?
+              <a href={this.props.eventHrefFn(event)}>
+                <Icon type="comments">
+                  { event.comments.length }
+                </Icon>
+              </a> : <Icon type="comments" /> }
+          </span>
+          : null }
+      </div>
     </div>;
   }
 

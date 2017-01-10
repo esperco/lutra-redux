@@ -42,7 +42,7 @@
     margin-top: 0;
     position: relative;
     top: -@padding-small;
-    right: -@padding-small;
+    right: -@padding-base;
     font-weight: normal;
   }
 
@@ -77,13 +77,20 @@
     font-weight: bold;
   }
 
-  .comment-count {
-    font-size: @font-size-small;
-    white-space: nowrap;
-    float: right;
-  }
+  .event-actions {
+    display: flex;
 
-  .tag-list {
-    display: inline-block;
+    > * { margin-top: 0; }
+
+    .comment-count {
+      font-size: @font-size-small;
+      white-space: nowrap;
+      line-height: @input-height-small;
+      flex: 0 0 auto;
+    }
+
+    .tag-list {
+      flex: 1 1 auto;
+    }
   }
 }

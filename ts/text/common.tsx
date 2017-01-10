@@ -9,6 +9,7 @@ export const Add = "Add";
 export const Cancel = "Cancel";
 export const Clear = "Clear";
 export const Close = "Close";
+export const Comments = "Comments";
 export const Contact = "Contact Us";
 export const Dismiss = "Dismiss";
 export const Edit = "Edit";
