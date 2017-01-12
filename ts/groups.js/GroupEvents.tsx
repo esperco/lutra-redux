@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { eventList } from "./paths";
-import { State, DispatchFn } from './types';
+import { State, DispatchFn, PostTaskFn } from './types';
 import delay from "../components/DelayedControl";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
@@ -37,8 +37,9 @@ class RouteProps {
 class Props extends RouteProps {
   state: State;
   dispatch: DispatchFn;
+  postTask: PostTaskFn;
   Svcs: ApiSvc & NavSvc;
-  Conf?: { maxDaysFetch?: number; }
+  Conf?: { maxDaysFetch?: number; };
 }
 
 class GroupEvents extends React.Component<Props, {}> {

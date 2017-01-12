@@ -3,21 +3,26 @@
 */
 import * as _ from "lodash";
 import * as React from "react";
-import { State as StoreState, DispatchFn } from './types';
+import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import EventEditor from "../components/EventEditor";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
+import { QueryFilter } from "../lib/event-queries";
+import { GenericPeriod } from "../lib/period";
 import { ready } from "../states/data-status";
 
 interface Props {
   groupId: string;
   eventId: string;
+  period: GenericPeriod;  // For handler context
+  query: QueryFilter;     // For handler context
   guestHrefFn?: (x: ApiT.Attendee) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
   state: StoreState;
   dispatch: DispatchFn;
+  postTask: PostTaskFn;
   Svcs: ApiSvc;
   Conf?: { maxDaysFetch?: number; }
 }
@@ -31,6 +36,10 @@ export class GroupEventEditor extends React.Component<Props, {}> {
     let searchLabels = labels.with(
       ... _.values(this.props.state.groupLabelSuggestions[this.props.groupId])
     );
+    let context = {
+      query: this.props.query,
+      period: this.props.period
+    };
     return <EventEditor
       event={eventMap[this.props.eventId]}
       members={members}
@@ -40,7 +49,7 @@ export class GroupEventEditor extends React.Component<Props, {}> {
       onChange={(label, active) => Events.setGroupEventLabels({
         groupId: this.props.groupId,
         eventIds: this.props.eventId ? [this.props.eventId] : [],
-        label, active
+        label, active, context
       }, this.props)}
       onForceInstance={() => Events.setGroupEventLabels({
         groupId: this.props.groupId,
@@ -49,7 +58,7 @@ export class GroupEventEditor extends React.Component<Props, {}> {
       onHide={(hidden) => Events.setGroupEventLabels({
         groupId: this.props.groupId,
         eventIds: this.props.eventId ? [this.props.eventId] : [],
-        hidden
+        hidden, context
       }, this.props)}
       onCommentPost={(eventId, text) =>
         Events.postGroupEventComment({

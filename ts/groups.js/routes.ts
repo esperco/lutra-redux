@@ -29,6 +29,7 @@ export interface EventListRoute {
   query: QueryFilter;
   period: GenericPeriod;
 };
+
 export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupId) {

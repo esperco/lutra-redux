@@ -298,7 +298,8 @@ describe("Group Events handlers", function() {
             }
           }
         },
-        Svcs: apiSvcFactory()
+        Svcs: apiSvcFactory(),
+        postTask: sandbox.spy()
       };
     }
 
@@ -631,6 +632,48 @@ describe("Group Events handlers", function() {
         });
 
         dfd.resolve({});
+      });
+
+      describe("with a period-query context", () => {
+        const period = { interval: "day" as "day", start: 1000, end: 1012 };
+        const query = { contains: "Test" };
+        const context = { period, query };
+
+        it("dispatches a GROUP_CALC_START action ", () => {
+          let deps = getDeps();
+          setGroupEventLabels({
+            groupId,
+            eventIds: ["e1"],
+            label: label1,
+            active: true,
+            context
+          }, deps);
+          expectCalledWith(deps.dispatch, {
+            type: "GROUP_CALC_START",
+            groupId, period, query
+          });
+        });
+
+        it("posts a GROUP_QUERY_CALC task after promise resolves",
+        (done) => {
+          let deps = getDeps();
+          let { dfd } = stubApiPlus(deps.Svcs, "setPredictGroupLabels");
+
+          setGroupEventLabels({
+            groupId,
+            eventIds: ["e1"],
+            label: label1,
+            active: true,
+            context
+          }, deps).then(() => {
+            expectCalledWith(deps.postTask, {
+              type: "GROUP_QUERY_CALC",
+              groupId, period, query
+            });
+          }).then(done, done);
+
+          dfd.resolve({});
+        });
       });
     });
   });
