@@ -1,8 +1,10 @@
 import { expect } from "chai";
 import makeEvent from "../fakes/events-fake";
+import { testLabel } from "../fakes/labels-fake";
 import * as ApiT from "../lib/apiT";
 import { fromDates } from "../lib/period";
 import { makeQueryState, EventsState } from "../states/group-events";
+import { GroupState, initState } from "../states/groups";
 import { handleGroupQueryCalc } from "./group-query-calc";
 
 describe("handleGroupQueryCalc", () => {
@@ -13,23 +15,53 @@ describe("handleGroupQueryCalc", () => {
     new Date("2016-10-01"),
     new Date("2016-10-04"));
 
-  var state: EventsState;
+  const label1 = testLabel("Label 1");
+  const label2 = testLabel("Label 2");
+
+  var state: EventsState & GroupState;
   beforeEach(() => {
     state = {
+      ...initState(),
+      groupSummaries: {
+        [groupId]: {
+          group_name: "My Group",
+          group_timezone: "America/Los_Angeles"
+        }
+      },
+      groupMembers: {
+        [groupId]: {
+          group_member_role: "Manager",
+          group_teams: [{
+            teamid: "team2",
+            email: "email2@example.com",
+            name: "User 2"
+          }, {
+            teamid: "team3",
+            email: "email3@example.com",
+            name: "User 3"
+          }],
+          group_individuals: [{
+            uid: "user1",
+            email: "email1@example.com",
+            role: "Manager"
+          }]
+        }
+      },
       groupEvents: {
         [groupId]: {
-          e1: makeEvent({ // 1 hours * 2 guests
+          e1: makeEvent({ // 1 hours * 2 (attending) guests
             id: "e1",
             start: "2016-10-01T08:00:00.000",
             end:   "2016-10-01T09:00:00.000",
+            labels: [label1, label2],
             guests: [{
-              email: "email1@example.com",
+              email: "email1@example.com",  // Not in team
               response: "Needs_action"
             }, {
-              email: "email2@example.com",
+              email: "email2@example.com",  // In team
               response: "Accepted"
             }, {
-              email: "email3@example.com",
+              email: "email3@example.com",  // In team but declined
               response: "Declined"
             }]
           }),
@@ -38,8 +70,9 @@ describe("handleGroupQueryCalc", () => {
             id: "e2",
             start: "2016-10-02T10:00:00.000",
             end:   "2016-10-02T12:00:00.000",
+            labels: [label2],
             guests: [{
-              email: "email1@example.com",
+              email: "email1@example.com",  // Not in team
               response: "Tentative"
             }]
           }),
@@ -109,7 +142,22 @@ describe("handleGroupQueryCalc", () => {
       results: {
         seconds: 3 * 60 * 60,
         eventCount: 2,
-        peopleSeconds: (2 * 1 * 60 * 60) + (1 * 2 * 60 * 60)
+        peopleSeconds: (2 * 1 * 60 * 60) + (1 * 2 * 60 * 60),
+        groupPeopleSeconds: (1 * 1 * 60 * 60),
+        labelResults: {
+          [label1.normalized]: {
+            seconds: 1 * 60 * 60,
+            eventCount: 1,
+            peopleSeconds: (2 * 1 * 60 * 60),
+            groupPeopleSeconds: (1 * 1 * 60 * 60)
+          },
+          [label2.normalized]: {
+            seconds: 3 * 60 * 60,
+            eventCount: 2,
+            peopleSeconds: (2 * 1 * 60 * 60) + (1 * 2 * 60 * 60),
+            groupPeopleSeconds: (1 * 1 * 60 * 60)
+          }
+        }
       }
     });
   });
@@ -131,7 +179,22 @@ describe("handleGroupQueryCalc", () => {
       results: {
         seconds: (4 * 24 * 60 * 60) +  (2 * 60 * 60),
         eventCount: 2,
-        peopleSeconds: (2 * 4 * 24 * 60 * 60) + (1 * 2 * 60 * 60)
+        peopleSeconds: (2 * 4 * 24 * 60 * 60) + (1 * 2 * 60 * 60),
+        groupPeopleSeconds: (1 * 4 * 24 * 60 * 60),
+        labelResults: {
+          [label1.normalized]: {
+            seconds: (4 * 24 * 60 * 60),
+            eventCount: 1,
+            peopleSeconds: (2 * 4 * 24 * 60 * 60),
+            groupPeopleSeconds: (1 * 4 * 24 * 60 * 60),
+          },
+          [label2.normalized]: {
+            seconds: (4 * 24 * 60 * 60) +  (2 * 60 * 60),
+            eventCount: 2,
+            peopleSeconds: (2 * 4 * 24 * 60 * 60) + (1 * 2 * 60 * 60),
+            groupPeopleSeconds: (1 * 4 * 24 * 60 * 60),
+          }
+        }
       }
     });
   });
@@ -152,7 +215,16 @@ describe("handleGroupQueryCalc", () => {
       results: {
         seconds: 2 * 60 * 60,
         eventCount: 1,
-        peopleSeconds: (1 * 2 * 60 * 60)
+        peopleSeconds: (1 * 2 * 60 * 60),
+        groupPeopleSeconds: 0,
+        labelResults: {
+          [label2.normalized]: {
+            seconds: 2 * 60 * 60,
+            eventCount: 1,
+            peopleSeconds: (1 * 2 * 60 * 60),
+            groupPeopleSeconds: 0
+          }
+        }
       }
     });
   });

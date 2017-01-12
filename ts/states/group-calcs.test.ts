@@ -6,6 +6,20 @@ describe("calcReducer", () => {
   const groupId = "my-group-id";
   const query = { contains: "test" };
   const period = { interval: "week" as "week", start: 123, end: 124 };
+  const defaultResults = {
+    seconds: 123,
+    eventCount: 1,
+    peopleSeconds: 123,
+    groupPeopleSeconds: 60,
+    labelResults: {
+      label1: {
+        seconds: 123,
+        eventCount: 1,
+        peopleSeconds: 123,
+        groupPeopleSeconds: 60,
+      }
+    }
+  }
 
   describe("with GROUP_CALC_START", () => {
     it("marks new entries as FETCHING", () => {
@@ -22,7 +36,7 @@ describe("calcReducer", () => {
 
     it("doesn't replace existing data with FETCHING", () => {
       let key = calcKey(period, query);
-      let results = { seconds: 123, eventCount: 1, peopleSeconds: 123 };
+      let results = defaultResults;
       let state = {
         groupCalcs: {
           [groupId]: {
@@ -40,7 +54,7 @@ describe("calcReducer", () => {
 
   describe("with GROUP_CALC_END", () => {
     it("adds results to store", () => {
-      let results = { seconds: 123, eventCount: 1, peopleSeconds: 123 };
+      let results = defaultResults;
       let key = calcKey(period, query);
       let state = {
         groupCalcs: {

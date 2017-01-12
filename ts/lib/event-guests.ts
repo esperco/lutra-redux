@@ -83,11 +83,17 @@ export function newGuest(str: string): Guest {
 }
 
 // Generate a guest list from group data
-export function guestSetFromGroupMembers(members: GroupMembers): GuestSet {
+export function guestSetFromGroupMembers(
+  members: GroupMembers,
+  incIndividuals = true
+): GuestSet {
   let ret = new GuestSet([]);
-  _.each(members.group_individuals, (gim) => gim.email ? ret.push({
-    email: gim.email
-  }) : null);
+
+  if (incIndividuals) {
+    _.each(members.group_individuals, (gim) => gim.email ? ret.push({
+      email: gim.email
+    }) : null);
+  }
 
   _.each(members.group_teams, (team) => team.email ? ret.push({
     email: team.email,
