@@ -29,3 +29,11 @@ export const setup = new Path({
   params: {},
   hash: ["setup"]
 });
+
+export const settings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  hash: ["settings", ":groupId"]
+})

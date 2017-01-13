@@ -81,7 +81,29 @@ export const setup = Paths.setup.route<Deps>(function(p, deps) {
   });
 });
 
-export type RouteTypes = EventListRoute|SetupRoute;
+export interface SettingsRoute {
+  page: "Settings";
+  groupId: string;
+}
+export const settings = Paths.settings.route<Deps>(function(p, deps) {
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupId) {
+    deps.dispatch({
+      type: "ROUTE",
+      route: compactObject({
+        page: "Settings" as "Settings",
+        groupId
+      })
+    })
+  } else {
+    deps.dispatch({
+      type: "ROUTE",
+      route: { page: "NotFound" }
+    })
+  }
+})
+
+export type RouteTypes = EventListRoute|SetupRoute|SettingsRoute;
 
 export function init({ dispatch, getState, postTask, Svcs, Conf }: {
   dispatch: (action: Action) => any,
@@ -93,7 +115,8 @@ export function init({ dispatch, getState, postTask, Svcs, Conf }: {
   Routing.init<Deps>(
     [ // Routes
       eventList,
-      setup
+      setup,
+      settings
     ],
 
     // Deps

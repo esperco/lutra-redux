@@ -23,6 +23,7 @@ import Loading from "../components/Loading";
 import GroupEvents from "./GroupEvents";
 import GroupHeader from "./GroupHeader";
 import Setup from "./Setup";
+import Settings from "./Settings";
 
 // Store Types
 import { LoggedInState, State, Action, PostTaskFn, DispatchFn } from "./types";
@@ -120,6 +121,8 @@ function MainView(props: {
         return <GroupEvents {...props} {...props.state.route} />;
       case "Setup":
         return <Setup {...props} />;
+      case "Settings":
+        return <Settings {...props} {...props.state.route} />;
       case "NotFound":
         return <NotFound />;
     }

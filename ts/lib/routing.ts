@@ -38,7 +38,7 @@ export const BooleanParam: ParamType<boolean> = {
   toStr(val: boolean) {
     return val ? "1" : "0";
   }
-}
+};
 
 // See arraySeparator below
 const DefaultArraySeparator = ",";
