@@ -102,7 +102,6 @@ export function init({ dispatch, getState, postTask, Svcs, Conf }: {
     // Opts
     { home: () => Paths.eventList.href({
       groupId: "default",
-      showFilters: false,
       eventId: ""
     }) }
   );
