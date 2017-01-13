@@ -76,6 +76,11 @@ export function events(n?: number) {
 export function hours(n?: number) {
   return `hour${s(n)}`;
 }
+
 export function peopleHours(n?: number) {
   return `person hour${s(n)}`;
+}
+
+export function groupPeopleHours(n?: number) {
+  return `team person hour${s(n)}`;
 }

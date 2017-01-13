@@ -110,7 +110,7 @@ class GroupEvents extends React.Component<Props, {}> {
               type: "SCROLL", direction
             })}>
             <div className="container">
-              { this.renderCalcDisplay() }
+              { this.renderCalcDisplay(searchLabels) }
               { this.renderEventDates({ labels, searchLabels }) }
             </div>
           </ScrollContainer>
@@ -131,10 +131,14 @@ class GroupEvents extends React.Component<Props, {}> {
     </div>;
   }
 
-  renderCalcDisplay() {
+  renderCalcDisplay(searchLabels: LabelSet) {
     let key = calcKey(this.props.period, this.props.query);
     let results = (this.props.state.groupCalcs[this.props.groupId] || {})[key];
-    return <GroupCalcDisplay results={results} />;
+    return <GroupCalcDisplay
+      results={results}
+      labels={searchLabels}
+      labelHrefFn={this.labelHref}
+    />;
   }
 
   renderEventDates({ labels, searchLabels }: {

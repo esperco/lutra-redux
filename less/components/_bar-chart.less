@@ -1,0 +1,97 @@
+// Proportional width for name column on different screen sizes
+// Mobile is 100%
+@bar-chart-name-width-sm: 0.32;
+@bar-chart-name-width-md: 0.25;
+@bar-chart-name-width-lg: 0.25;
+@bar-chart-number-width: 6em; // Space for number at end of bar chart
+
+// Extend out bars for bar chart
+@keyframes extendBar {
+  from { max-width: 0; }
+  to   { max-width: 100vw; }
+}
+
+.bar-chart {
+  * + .row { margin-top: @padding-small; }
+  .row * + * { margin-top: 0; }
+  .name { font-weight: bold; }
+
+  @media screen and (min-width: @screen-sm-min) {
+    .name { font-weight: normal; }
+    .row {
+      display: flex;
+      align-items: center;
+
+      // This is the label name -- fix column width
+      > :first-child {
+        text-align: right;
+        flex: (@bar-chart-name-width-sm * 1000)
+              (@bar-chart-name-width-sm * 1000) 1em;
+      }
+
+      > :last-child {
+        flex: ((1 - @bar-chart-name-width-sm) * 1000)
+              ((1 - @bar-chart-name-width-sm) * 1000) 1em;
+      }
+    }
+  }
+
+  @media screen and (min-width: @screen-md-min) {
+    .row {
+      > :first-child {
+        text-align: right;
+        flex: (@bar-chart-name-width-md * 1000)
+              (@bar-chart-name-width-md * 1000) 1em;
+      }
+
+      > :last-child {
+        flex: ((1 - @bar-chart-name-width-md) * 1000)
+              ((1 - @bar-chart-name-width-md) * 1000) 1em;
+      }
+    }
+  }
+
+  @media screen and (min-width: @screen-lg-min) {
+    .row {
+      > :first-child {
+        text-align: right;
+        flex: (@bar-chart-name-width-lg * 1000)
+              (@bar-chart-name-width-lg * 1000) 1em;
+      }
+
+      > :last-child {
+        flex: ((1 - @bar-chart-name-width-lg) * 1000)
+              ((1 - @bar-chart-name-width-lg) * 1000) 1em;
+      }
+    }
+  }
+
+  /*
+    Pad with width for number but single-line and let overflow. This lets
+    us specify a bar width of "100%" or something in JS without having to
+    worry about how much to space to leave remaining for the number;
+  */
+  .row > :last-child {
+    padding-right: @bar-chart-number-width;
+    white-space: nowrap;
+    > * {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  .name, .number {
+    font-size: @font-size-small;
+    line-height: @input-height-small;
+    vertical-align: middle;
+  }
+
+  .name { padding-right: @padding-small; }
+  .number { padding-left: @padding-small; }
+
+  .bar {
+    height: @input-height-small;
+    background: @shade-bg;
+    animation: extendBar 0.6s ease-in-out;
+  }
+}
