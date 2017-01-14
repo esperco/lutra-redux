@@ -266,7 +266,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
 
 /*
   A Route defines a connection between a path and a callback function. Takes
-  the form of a funciton that extracts params from location and takes some
+  the form of a function that extracts params from location and takes some
   addtion dependencies. Returns true if successful.
 */
 type Route<P extends ParamMap, O extends ParamMap, D> = {

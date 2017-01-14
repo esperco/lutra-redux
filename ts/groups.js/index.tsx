@@ -121,7 +121,7 @@ function MainView(props: {
         return <GroupEvents {...props} {...props.state.route} />;
       case "Setup":
         return <Setup {...props} />;
-      case "Settings":
+      case "GeneralSettings":
         return <Settings {...props} {...props.state.route} />;
       case "NotFound":
         return <NotFound />;

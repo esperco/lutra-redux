@@ -81,17 +81,22 @@ export const setup = Paths.setup.route<Deps>(function(p, deps) {
   });
 });
 
-export interface SettingsRoute {
-  page: "Settings";
+export interface SettingsRoute { page: "Settings", groupId: string; }
+export const settings = Paths.settings.route<Deps>(function(p, deps) {
+  deps.Svcs.Nav.go(Paths.generalSettings.href(p));
+});
+
+export interface GeneralSettingsRoute {
+  page: "GeneralSettings";
   groupId: string;
 }
-export const settings = Paths.settings.route<Deps>(function(p, deps) {
+export const generalSettings = Paths.generalSettings.route<Deps>(function(p, deps) {
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupId) {
     deps.dispatch({
       type: "ROUTE",
       route: compactObject({
-        page: "Settings" as "Settings",
+        page: "GeneralSettings" as "GeneralSettings",
         groupId
       })
     })
@@ -101,9 +106,13 @@ export const settings = Paths.settings.route<Deps>(function(p, deps) {
       route: { page: "NotFound" }
     })
   }
-})
+});
 
-export type RouteTypes = EventListRoute|SetupRoute|SettingsRoute;
+export type RouteTypes =
+  EventListRoute|
+  SetupRoute|
+  SettingsRoute|
+  GeneralSettingsRoute;
 
 export function init({ dispatch, getState, postTask, Svcs, Conf }: {
   dispatch: (action: Action) => any,
@@ -116,7 +125,8 @@ export function init({ dispatch, getState, postTask, Svcs, Conf }: {
     [ // Routes
       eventList,
       setup,
-      settings
+      settings,
+      generalSettings
     ],
 
     // Deps
