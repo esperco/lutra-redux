@@ -6,7 +6,7 @@ import * as Sinon from 'sinon';
 import { expectCalledWith } from "../lib/expect-helpers";
 import CheckboxItem from "./CheckboxItem";
 import FilterInput from "./FilterInput";
-import FilterMenu from "./FilterMenu";
+import FilterMenu, { Choice } from "./FilterMenu";
 import { OrderedSet } from "../lib/util";
 
 describe("<FilterMenu />", () => {
@@ -23,15 +23,31 @@ describe("<FilterMenu />", () => {
     normalized: "green tea"
   };
 
-  const choices = new OrderedSet([choice1, choice2, choice3]);
-  const selected = new OrderedSet([choice1, choice2]);
-  const partial = new OrderedSet([choice2]);
-  var addSpy: Sinon.SinonSpy;
-  var toggleSpy: Sinon.SinonSpy;
-
   // Custom norm function for testing -- ignores all non-alpha chars
   function norm(s: string) {
     return s.replace(/[^a-zA-Z]+/g, "");
+  }
+
+  class TestSet extends OrderedSet<Choice> {
+    constructor(choices: Choice[]) {
+      super(choices, (c) => norm(c.normalized));
+    }
+  }
+
+  const choices = new TestSet([choice1, choice2, choice3]);
+  const selected = new TestSet([choice1, choice2]);
+  const partial = new TestSet([choice2]);
+  var addSpy: Sinon.SinonSpy;
+  var toggleSpy: Sinon.SinonSpy;
+
+  function filter(choices: OrderedSet<Choice>, s: string) {
+    s = norm(s);
+    let filtered = choices.filter((c) => _.includes(c.normalized, s));
+    let match = choices.getByKey(s);
+    if (match) {
+      filtered.pull(match);
+    }
+    return [match, filtered.toList()] as [Choice|undefined, Choice[]];
   }
 
   function getMenu() {
@@ -41,8 +57,7 @@ describe("<FilterMenu />", () => {
       choices={choices}
       selected={selected}
       partial={partial}
-      filterFn={(c, str) => _.includes(norm(c.normalized), norm(str))}
-      matchFn={(c, str) => norm(c.normalized) === norm(str)}
+      filterFn={(str) => filter(choices, str)}
       onAdd={addSpy}
       onToggle={toggleSpy}
     />);
@@ -142,6 +157,11 @@ describe("<FilterMenu />", () => {
       expectCalledWith(addSpy, "ellow 3", "enter");
     });
 
+    it("does not include the onAdd button if exact match", () => {
+      let button = getMenuAfterTyping("yellow green").find('button');
+      expect(button).to.have.length(0);
+    });
+
     it("allows highlighting checkboxes with arrow keys", () => {
       let wrapper = getMenuAfterTyping("ellow 3")
       let input = wrapper.find(FilterInput);
@@ -197,8 +217,7 @@ describe("<FilterMenu />", () => {
         choices={choices}
         selected={selected}
         partial={partial}
-        filterFn={(c, str) => _.includes(norm(c.normalized), norm(str))}
-        matchFn={(c, str) => norm(c.normalized) === norm(str)}
+        filterFn={(str) => filter(choices, str)}
         onAdd={addSpy}
         onToggle={toggleSpy}
         specialChoices={[{

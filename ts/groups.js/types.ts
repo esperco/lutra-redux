@@ -5,6 +5,7 @@
 import * as DataStatus from "../states/data-status";
 import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
+import * as Suggestions from "../states/group-suggestions";
 import * as Groups from "../states/groups";
 import * as ErrorMsg from "../states/error-msg";
 import * as Scroll from "../states/scroll";
@@ -13,6 +14,7 @@ import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
 import { UpdateStoreTask } from "../tasks/update-store";
 import { QueryCalcTask } from "../tasks/group-query-calc";
+import { QuerySuggestTask } from "../tasks/group-suggest-iter";
 
 /*
   Actions are updates to the Redux store -- they are processed by both
@@ -28,6 +30,7 @@ export type Action =
   Events.EventsInvalidatePeriodAction|
   Groups.GroupDataAction|
   Groups.GroupUpdateAction|
+  Suggestions.SuggestionsAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
@@ -44,6 +47,7 @@ export interface State extends
   Groups.GroupState,
   ErrorMsg.ErrorMsgState,
   Scroll.ScrollState,
+  Suggestions.SuggestionsState,
   Login.LoginState,
   Routing.RouteState<Routes.RouteTypes> { };
 
@@ -59,7 +63,8 @@ export interface DispatchFn {
   Tasks are messages that get passed to our worker function for processing.
 */
 export type Task = UpdateStoreTask<Action>|
-  QueryCalcTask;
+  QueryCalcTask|
+  QuerySuggestTask;
 
 // Typed function for posting Tasks
 export interface PostTaskFn {

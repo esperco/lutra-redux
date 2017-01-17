@@ -6,6 +6,7 @@ import TagList from "../components/TagList";
 import { testLabel } from "../fakes/labels-fake";
 import * as ASN from "../lib/asn";
 import * as Color from "../lib/colors";
+import { LabelSet }from "../lib/event-labels";
 import { sandbox } from "../lib/sandbox";
 import { expectCalledWith } from "../lib/expect-helpers";
 import GroupLabelsSelector from './GroupLabelsSelector';
@@ -34,7 +35,7 @@ describe("<GroupLabelsSelector />", () => {
     onChangeSpy = Sinon.spy();
     onSubmitSpy = Sinon.spy();
     return shallow(<GroupLabelsSelector
-      labels={[label1, label2, label3]}
+      labels={new LabelSet([label1, label2, label3])}
       selected={selected}
       onChange={onChangeSpy}
       onSubmit={onSubmitSpy}

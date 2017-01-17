@@ -2,6 +2,7 @@
   This is the main view for the group page
 */
 
+import * as _ from 'lodash';
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { eventList } from "./paths";
@@ -9,14 +10,16 @@ import { State, DispatchFn } from './types';
 import delay from "../components/DelayedControl";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
-import EventEditor from "../components/EventEditor";
 import ScrollContainer from "../components/ScrollContainer";
 import GroupCalcDisplay from "./GroupCalcDisplay";
+import GroupEventEditor from "./GroupEventEditor";
 import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
+import { guestSetFromGroupMembers, GuestSet } from "../lib/event-guests";
+import { LabelSet } from "../lib/event-labels";
 import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
@@ -40,6 +43,9 @@ class Props extends RouteProps {
 
 class GroupEvents extends React.Component<Props, {}> {
   render() {
+    let { labels, searchLabels } = this.getLabels();
+    let searchGuests = this.getGuests();
+
     return <div className={classNames("sidebar-layout", {
       "show-left": this.props.showFilters,
       "hide-left": this.props.showFilters === false,
@@ -54,8 +60,9 @@ class GroupEvents extends React.Component<Props, {}> {
             <GroupFiltersSelector
               className="sidebar panel"
               groupId={this.props.groupId}
-              state={this.props.state}
               query={value}
+              searchGuests={searchGuests}
+              searchLabels={searchLabels}
               onChange={onChange}
               onSubmit={onSubmit}
             />
@@ -103,7 +110,7 @@ class GroupEvents extends React.Component<Props, {}> {
             })}>
             <div className="container">
               { this.renderCalcDisplay() }
-              { this.renderEventDates() }
+              { this.renderEventDates({ labels, searchLabels }) }
             </div>
           </ScrollContainer>
         </div>
@@ -118,7 +125,7 @@ class GroupEvents extends React.Component<Props, {}> {
           <Icon type="close" />
         </button>
 
-        { this.renderSingleEvent() }
+        { this.renderSingleEvent({ labels, searchLabels }) }
       </div>
     </div>;
   }
@@ -129,58 +136,58 @@ class GroupEvents extends React.Component<Props, {}> {
     return <GroupCalcDisplay results={results} />;
   }
 
-  renderEventDates() {
+  renderEventDates({ labels, searchLabels }: {
+    labels: LabelSet;
+    searchLabels: LabelSet;
+  }) {
     return <GroupEventsList
       {...this.props}
+      labels={labels}
+      searchLabels={searchLabels}
       eventHrefFn={this.eventHref}
       labelHrefFn={this.labelHref}
     />;
   }
 
-  renderSingleEvent() {
+  renderSingleEvent({ labels, searchLabels }: {
+    labels: LabelSet;
+    searchLabels: LabelSet;
+  }) {
     if (this.props.eventId) {
-      let eventMap = this.props.state.groupEvents[this.props.groupId] || {};
-      let members = this.props.state.groupMembers[this.props.groupId];
-      let group = this.props.state.groupLabels[this.props.groupId];
-      let labels = ready(group) ? group.group_labels : [];
-      return <EventEditor
-        event={eventMap[this.props.eventId]}
-        members={members}
-        labels={labels}
-        loginDetails={this.props.state.login}
-        onChange={(label, active) => Events.setGroupEventLabels({
-          groupId: this.props.groupId,
-          eventIds: this.props.eventId ? [this.props.eventId] : [],
-          label, active
-        }, this.props)}
-        onForceInstance={() => Events.setGroupEventLabels({
-          groupId: this.props.groupId,
-          eventIds: this.props.eventId ? [this.props.eventId] : []
-        }, this.props, { forceInstance: true })}
-        onHide={(hidden) => Events.setGroupEventLabels({
-          groupId: this.props.groupId,
-          eventIds: this.props.eventId ? [this.props.eventId] : [],
-          hidden
-        }, this.props)}
-        onCommentPost={(eventId, text) =>
-          Events.postGroupEventComment({
-            groupId: this.props.groupId,
-            eventId,
-            text
-          }, {...this.props})
-        }
-        onCommentDelete={(eventId, commentId) =>
-          Events.deleteGroupEventComment({
-            groupId: this.props.groupId,
-            eventId,
-            commentId
-          }, {...this.props})
-        }
-        labelHrefFn={this.labelHref}
+      return <GroupEventEditor
+        {...this.props}
+        eventId={this.props.eventId}
         guestHrefFn={this.guestHref}
-      />
+        labelHrefFn={this.labelHref}
+      />;
     }
     return null; // No event
+  }
+
+  // Create LabelSet from suggestions to pass down
+  getLabels() {
+    let { groupId, state } = this.props;
+    let groupLabels = state.groupLabels[groupId];
+    let labelSuggestions = state.groupLabelSuggestions[groupId] || {};
+    let labels = new LabelSet(
+      ready(groupLabels) ? groupLabels.group_labels : []
+    );
+    let searchLabels = labels.with(... _.values(labelSuggestions));
+    labels.sort();
+    searchLabels.sort();
+    return { labels, searchLabels };
+  }
+
+  // Create GuestSet from suggestions to pass down
+  getGuests() {
+    let { groupId, state } = this.props;
+    let groupMembers = state.groupMembers[groupId];
+    let guests = ready(groupMembers) ?
+      guestSetFromGroupMembers(groupMembers) : new GuestSet([]);
+    let guestSuggestions = _.values(state.groupGuestSuggestions[groupId]);
+    guests.push(...guestSuggestions);
+    guests.sort();
+    return guests;
   }
 
   // Toggling filters is just a hashchange

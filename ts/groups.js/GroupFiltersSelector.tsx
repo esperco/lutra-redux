@@ -7,10 +7,9 @@ import SearchInput from "../components/SearchInput";
 import GroupGuestsSelector from "./GroupGuestsSelector";
 import GroupLabelsSelector from "./GroupLabelsSelector";
 import MinCostSelector from "./MinCostSelector";
-import { guestSetFromGroupMembers, GuestSet } from "../lib/event-guests"
+import { GuestSet } from "../lib/event-guests";
+import { LabelSet } from "../lib/event-labels";
 import { QueryFilter, expand } from "../lib/event-queries";
-import { State as StoreState } from "./types";
-import { ready } from "../states/data-status";
 import * as EventText from "../text/events";
 import * as LabelText from "../text/labels";
 
@@ -18,21 +17,15 @@ interface Props {
   className?: string;
   query: QueryFilter;
   groupId: string;
-  state: StoreState;
+  searchGuests: GuestSet;
+  searchLabels: LabelSet;
   onChange: (query: QueryFilter) => void;
   onSubmit?: () => void;
 }
 
 export class GroupFiltersSelector extends React.Component<Props, {}> {
   render() {
-    let groupLabels = this.props.state.groupLabels[this.props.groupId];
-    let labels = ready(groupLabels) ? groupLabels.group_labels : [];
     let expanded = expand(this.props.query);
-
-    let groupMembers = this.props.state.groupMembers[this.props.groupId];
-    let guests = ready(groupMembers) ?
-      guestSetFromGroupMembers(groupMembers) : new GuestSet([]);
-
     return <div className={this.props.className}>
       <div className="panel">
         <SearchInput
@@ -56,7 +49,7 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
           { LabelText.Labels }
         </Icon></h4>
         <GroupLabelsSelector
-          labels={labels}
+          labels={this.props.searchLabels}
           selected={expanded.labels}
           onChange={(labels) => this.update({ labels })}
           onSubmit={this.props.onSubmit}
@@ -68,7 +61,7 @@ export class GroupFiltersSelector extends React.Component<Props, {}> {
           { EventText.Attendees }
         </Icon></h4>
         <GroupGuestsSelector
-          guests={guests}
+          guests={this.props.searchGuests}
           selected={expanded.participant}
           onChange={(participant) => this.update({ participant })}
           onSubmit={this.props.onSubmit}

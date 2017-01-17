@@ -31,6 +31,7 @@ describe('<TagList />', () => {
       selected={selected}
       onAdd={() => null}
       onToggle={toggleSpy}
+      filterFn={() => [undefined, []]}
       buttonText="Hello"
     />);
   }

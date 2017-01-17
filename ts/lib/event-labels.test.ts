@@ -1,21 +1,24 @@
 import { expect } from "chai";
 import * as EventLabels from "./event-labels";
 import makeEvent from "../fakes/events-fake";
+import { testLabel } from "../fakes/labels-fake";
+
+let { LabelSet } = EventLabels;
 
 describe("Event label helpers", () => {
-  afterEach(() => { EventLabels.resetColors(); })
-
-  const label1 = EventLabels.newLabel("Label 1");
-  const label2 = EventLabels.newLabel("Label 2");
-  const label3 = EventLabels.newLabel("Label 3");
-  const label4 = EventLabels.newLabel("Label 4");
+  const label1 = testLabel("Label 1");
+  const label2 = testLabel("Label 2");
+  const label3 = testLabel("Label 3");
+  const label4 = testLabel("Label 4");
+  const label21 = testLabel("Label 21");
 
   describe("getLabelCounts", () => {
     it("returns a count of labels per event", () => {
-      let { counts } = EventLabels.getLabelCounts([label1, label2], [
-        makeEvent({ id: "e1", labels: [label2, label3] }),
-        makeEvent({ id: "e2", labels: [label3, label4] })
-      ]);
+      let { counts } = EventLabels.getLabelCounts(
+        new LabelSet([label1, label2]), [
+          makeEvent({ id: "e1", labels: [label2, label3] }),
+          makeEvent({ id: "e2", labels: [label3, label4] })
+        ]);
       expect(counts).to.deep.equal({
         [label1.normalized]: 0,
         [label2.normalized]: 1,
@@ -26,20 +29,23 @@ describe("Event label helpers", () => {
 
     it("returns a list of labels ordered by base order, " +
        "then by event appearance", () => {
-      let { labels } = EventLabels.getLabelCounts([label1, label2], [
-        makeEvent({ id: "e1", labels: [label2, label3] }),
-        makeEvent({ id: "e2", labels: [label3, label4] })
-      ]);
+      let { labels } = EventLabels.getLabelCounts(
+        new LabelSet([label1, label2]), [
+          makeEvent({ id: "e1", labels: [label2, label3] }),
+          makeEvent({ id: "e2", labels: [label3, label4] })
+        ]);
       expect(labels.toList()).to.deep.equal(
         [label1, label2, label3, label4]
       );
     });
 
     it("returns a list of selected labels (attached to any event)", () => {
-      let { selected } = EventLabels.getLabelCounts([label1, label2], [
-        makeEvent({ id: "e1", labels: [label2, label3] }),
-        makeEvent({ id: "e2", labels: [label3, label4] })
-      ]);
+      let { selected } = EventLabels.getLabelCounts(
+        new LabelSet([label1, label2]),
+        [
+          makeEvent({ id: "e1", labels: [label2, label3] }),
+          makeEvent({ id: "e2", labels: [label3, label4] })
+        ]);
       expect(selected.toList()).to.deep.equal(
         [label2, label3, label4]
       );
@@ -48,28 +54,26 @@ describe("Event label helpers", () => {
 
   describe("getLabelPartials", () => {
     it("returns labels that are partially selected", () => {
-      let { partial } = EventLabels.getLabelPartials([label1, label2], [
-        makeEvent({ id: "e1", labels: [label2, label3] }),
-        makeEvent({ id: "e2", labels: [label3, label4] })
-      ]);
+      let { partial } = EventLabels.getLabelPartials(
+        new LabelSet([label1, label2]), [
+          makeEvent({ id: "e1", labels: [label2, label3] }),
+          makeEvent({ id: "e2", labels: [label3, label4] })
+        ]);
       expect(partial.toList()).to.deep.equal([label2, label4]);
     });
   });
 
   describe("filter", () => {
-    it("matches any normalized substring of label", () => {
-      expect(EventLabels.filter(label1, "ABe")).to.be.true;
-      expect(EventLabels.filter(label1, "3")).to.be.false;
-    });
-  });
-
-  describe("match", () => {
-    it("returns true if its normalized form matches exactly", () => {
-      expect(EventLabels.match(label2, "lABEl 2")).to.be.true;
+    it("returns exact matches as first return and remainder as second", () => {
+      expect(EventLabels.filter(
+        new EventLabels.LabelSet([label1, label2, label21]), "lABEl 2"
+      )).to.deep.equal([label2, [label21]]);
     });
 
-    it("returns false otherwise", () => {
-      expect(EventLabels.match(label2, "ABe")).to.be.false;
+    it("returns undefined as first if no exact mathces", () => {
+      expect(EventLabels.filter(
+        new EventLabels.LabelSet([label1, label2, label21]), "lABEl"
+      )).to.deep.equal([undefined, [label1, label2, label21]]);
     });
   });
 

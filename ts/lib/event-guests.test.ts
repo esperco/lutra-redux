@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { GuestSet, filter, match } from "./event-guests";
+import { GuestSet, filter } from "./event-guests";
 
 describe("Event guest helpers", () => {
   describe("GuestSet", () => {
@@ -32,51 +32,61 @@ describe("Event guest helpers", () => {
         displayName: "BoB"
       }]);
     });
+
+    it("allows getByKey using name", () => {
+      let guest = {
+        displayName: "Robert",
+        email: "bob@esper.com"
+      };
+      let guestSet = new GuestSet([guest]);
+      expect(guestSet.getByKey("robert")).to.deep.equal(guest);
+    });
+
+    it("allows hasKey using name", () => {
+      let guest = {
+        displayName: "Robert",
+        email: "bob@esper.com"
+      };
+      let guestSet = new GuestSet([guest]);
+      expect(guestSet.hasKey("robert")).to.be.true;
+    });
   });
 
   describe("filter", () => {
-    it("returns true if name overlaps", () => {
-      expect(filter({
-        displayName: "Peter Griffin",
-        email: "peter@quahog.com"
-      }, "riff")).to.be.true;
+    const peter = {
+      displayName: "Peter Griffin",
+      email: "peter@quahog.co"
+    };
+    const peter2 = {
+      displayName: "Peter Griffin II",
+      email: "peter@quahog.co.uk"
+    };
+    const stewie = {
+      displayName: "Stewie Griffin",
+      email: "stewie@quahog.com"
+    };
+
+    it("returns exact matches as first return and remainder with overlap " +
+       "for name", () => {
+      expect(filter(
+        new GuestSet([peter, peter2, stewie]),
+        "Peter Griffin")
+      ).to.deep.equal([peter, [peter2]]);
     });
 
-    it("returns true if email overlaps", () => {
-      expect(filter({
-        displayName: "Peter Griffin",
-        email: "peter@quahog.com"
-      }, "hog")).to.be.true;
+    it("returns exact matches as first return and remainder with overlap " +
+       "for e-mail", () => {
+      expect(filter(
+        new GuestSet([peter, peter2, stewie]),
+        "peter@quahog.co")
+      ).to.deep.equal([peter, [peter2]]);
     });
 
-    it("returns false otherwise", () => {
-      expect(filter({
-        displayName: "Peter Griffin",
-        email: "peter@quahog.com"
-      }, "gibberish")).to.be.false;
-    });
-  });
-
-  describe("match", () => {
-    it("returns true if normalized name matches exactly", () => {
-      expect(match({
-        displayName: "Peter Griffin",
-        email: "peter@quahog.com"
-      }, "peter griffin")).to.be.true;
-    });
-
-    it("returns true if email overlaps", () => {
-      expect(match({
-        displayName: "Peter Griffin",
-        email: "peter@quahog.com"
-      }, "PETER@quahog.com")).to.be.true;
-    });
-
-    it("returns false otherwise", () => {
-      expect(match({
-        displayName: "Peter Griffin",
-        email: "peter@quahog.com"
-      }, "peter")).to.be.false;
+    it("returns undefined as first if no exact matches", () => {
+       expect(filter(
+        new GuestSet([peter, peter2, stewie]),
+        "Peter")
+      ).to.deep.equal([undefined, [peter, peter2]]);
     });
   });
 });

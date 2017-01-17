@@ -11,6 +11,7 @@ import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
+import * as Suggestions from "../states/group-suggestions";
 import * as Groups from "../states/groups";
 import * as Scroll from "../states/scroll";
 import * as Login from "../lib/login";
@@ -46,6 +47,8 @@ export const store = createStore(
       case "GROUP_CALC_START":
       case "GROUP_CALC_END":
         return Calcs.calcReducer(state, action);
+      case "GROUP_SUGGESTIONS":
+        return Suggestions.suggestReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);
