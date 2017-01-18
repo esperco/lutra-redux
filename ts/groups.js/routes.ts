@@ -81,13 +81,19 @@ export const setup = Paths.setup.route<Deps>(function(p, deps) {
   });
 });
 
+export type SettingTypes =
+  "GeneralSettings"|
+  "LabelSettings"|
+  "NotificationSettings"|
+  "BillingSettings";
+
 export interface SettingsRoute { page: "Settings", groupId: string; }
 export const settings = Paths.settings.route<Deps>(function(p, deps) {
   deps.Svcs.Nav.go(Paths.generalSettings.href(p));
 });
 
 export interface GeneralSettingsRoute {
-  page: "GeneralSettings";
+  page: SettingTypes;
   groupId: string;
 }
 export const generalSettings = Paths.generalSettings.route<Deps>(function(p, deps) {
@@ -95,10 +101,10 @@ export const generalSettings = Paths.generalSettings.route<Deps>(function(p, dep
   if (groupId) {
     deps.dispatch({
       type: "ROUTE",
-      route: compactObject({
-        page: "GeneralSettings" as "GeneralSettings",
+      route: {
+        page: "GeneralSettings" as SettingTypes,
         groupId
-      })
+      }
     })
   } else {
     deps.dispatch({
