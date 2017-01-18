@@ -23,6 +23,7 @@ export interface CalcResults extends CalcResultsBase {
   labelResults: {
     [normalized: string]: CalcResultsBase;
   };
+  unlabeledResult: CalcResultsBase;
 }
 
 export type CalcResultsState = StoreMap<CalcResults>;

@@ -30,7 +30,13 @@ export function handleGroupQueryCalc(
     eventCount: 0,
     peopleSeconds: 0,
     groupPeopleSeconds: 0,
-    labelResults: {}
+    labelResults: {},
+    unlabeledResult: {
+      seconds: 0,
+      eventCount: 0,
+      peopleSeconds: 0,
+      groupPeopleSeconds: 0,
+    }
   };
 
   let [startDate, endDate] = bounds(task.period);
@@ -43,16 +49,20 @@ export function handleGroupQueryCalc(
     new GuestSet([]);
 
   let complete = iter(task, state, (event) => {
-    results.eventCount += 1;
     let seconds = getSeconds(event, {
       truncateStart: startTime,
       truncateEnd: endTime
     });
     let guests = filterGuests(event);
     let groupGuests = filterGroupGuests(guests, guestSet);
-    results.seconds += seconds;
-    results.peopleSeconds += (seconds * guests.length);
-    results.groupPeopleSeconds += (seconds * groupGuests.length);
+
+    let incr = (r: typeof results.unlabeledResult) => {
+      r.eventCount += 1;
+      r.seconds += seconds;
+      r.peopleSeconds += (seconds * guests.length);
+      r.groupPeopleSeconds += (seconds * groupGuests.length);
+    };
+    incr(results);
 
     // Segment results by label
     _.each(event.labels || [], (l) => {
@@ -63,11 +73,12 @@ export function handleGroupQueryCalc(
           peopleSeconds: 0,
           groupPeopleSeconds: 0
         };
-      labelResults.eventCount += 1;
-      labelResults.seconds += seconds;
-      labelResults.peopleSeconds += (seconds * guests.length);
-      labelResults.groupPeopleSeconds += (seconds * groupGuests.length);
+      incr(labelResults);
     });
+
+    if (_.isEmpty(event.labels)) {
+      incr(results.unlabeledResult);
+    }
   });
 
   if (! complete) return;

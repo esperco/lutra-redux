@@ -10,9 +10,10 @@ import { CalcResults } from "../states/group-calcs";
 import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
 
+
 interface Props {
   labels: LabelSet;
-  labelHrefFn?: (l: ApiT.LabelInfo) => string;
+  labelHrefFn?: (l?: ApiT.LabelInfo) => string;
   results?: StoreData<CalcResults>;
 }
 
@@ -48,7 +49,8 @@ export class GroupCalcDisplay extends React.Component<Props, {
 
     return <div className="calc-display">
       <Stats results={results} />
-      <LabelChart {...this.props} results={results} />
+      { _.isEmpty(results.labelResults) ? null :
+        <LabelChart {...this.props} results={results} /> }
     </div>;
   }
 
@@ -97,7 +99,7 @@ function Stats({ results } : { results: CalcResults }) {
 function LabelChart({ results, labels, labelHrefFn } : {
   results: CalcResults;
   labels: LabelSet;
-  labelHrefFn?: (l: ApiT.LabelInfo) => string;
+  labelHrefFn?: (l?: ApiT.LabelInfo) => string;
 }) {
   let values = _.map(results.labelResults, (data, normalized) => {
     let label = normalized ? labels.getByKey(normalized) : undefined;
@@ -114,9 +116,15 @@ function LabelChart({ results, labels, labelHrefFn } : {
       color: label && label.color
     };
   });
+  values = _.sortBy(values, (v) => -v.value);
 
   return <BarChart
     values={values}
+    sorted={true}
+    sortMax={Math.max(
+      values[0] ? values[0].value : 0,
+      results.unlabeledResult.groupPeopleSeconds
+    )}
     fmtValue={(v) => {
       let hours = EventText.toHours(v.value);
       let pct = roundStr(100 * v.value / results.groupPeopleSeconds, 0) + "%";

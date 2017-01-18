@@ -16,8 +16,14 @@ describe("calcReducer", () => {
         seconds: 123,
         eventCount: 1,
         peopleSeconds: 123,
-        groupPeopleSeconds: 60,
+        groupPeopleSeconds: 60
       }
+    },
+    unlabeledResult: {
+      seconds: 0,
+      eventCount: 0,
+      peopleSeconds: 0,
+      groupPeopleSeconds: 0
     }
   }
 

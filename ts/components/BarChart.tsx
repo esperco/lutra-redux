@@ -16,6 +16,7 @@ export interface Value {
 export interface Props {
   values: Value[];
   sorted?: boolean; // Values already sorted in descending order?
+  sortMax?: number; // Max value for sort (if sorted)
 
   // Formats numeric value for display (e.g. convert seconds to hours)
   fmtValue: (v: Value) => string|JSX.Element;
@@ -27,7 +28,7 @@ export class BarChart extends React.Component<Props, {}> {
     let { values } = this.props;
     values = this.props.sorted ? values : _.sortBy(values, (v) => -v.value);
 
-    let maxValue = values[0] && values[0].value;
+    let maxValue = this.props.sortMax || (values[0] && values[0].value);
     return <div className="bar-chart">
       { _.map(values, (v) => this.renderRow(v, maxValue) )}
     </div>;
