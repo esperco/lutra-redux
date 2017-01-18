@@ -105,8 +105,8 @@ describe("<GroupCalcDisplay />", () => {
     let wrapper = mountAndActivate();
     let links = wrapper.find('.bar-chart .number')
     expect(links).to.have.length(2);
-    expect(links.at(0).text()).to.include('(67%)');
-    expect(links.at(1).text()).to.include('(33%)');
+    expect(links.at(0).text()).to.include('67%');
+    expect(links.at(1).text()).to.include('33%');
   });
 
   it("renders stats but not chart if only unlabeled", () => {

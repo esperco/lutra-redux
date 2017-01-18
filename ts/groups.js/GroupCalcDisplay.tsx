@@ -19,7 +19,7 @@ interface Props {
 
 export class GroupCalcDisplay extends React.Component<Props, {
   /*
-    Active if suser scrolls to see stats. We hide stats until user
+    Active if user scrolls to see stats. We hide stats until user
     scrolls to make visible because if user has scrolled past chart
     already, we don't want the screen to jump if charts renders into
     something particularly long.
