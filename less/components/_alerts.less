@@ -22,3 +22,14 @@
 .alert.danger {
   .alert-color-variant(@danger);
 }
+
+// Dismiss button
+.alert button:first-child {
+  float: right;
+  position: relative;
+  padding: @padding-small;
+  top: -@padding-small;
+  right: -@padding-small;
+  line-height: @font-size-large;
+  font-size: @font-size-small;
+}

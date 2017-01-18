@@ -25,6 +25,7 @@ import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { calcKey } from "../states/group-calcs";
+import * as FilterText from "../text/filters";
 
 class RouteProps {
   groupId: string;
@@ -110,6 +111,7 @@ class GroupEvents extends React.Component<Props, {}> {
               type: "SCROLL", direction
             })}>
             <div className="container">
+              { this.renderFilterAlert(searchLabels) }
               { this.renderCalcDisplay(searchLabels) }
               { this.renderEventDates({ labels, searchLabels }) }
             </div>
@@ -128,6 +130,17 @@ class GroupEvents extends React.Component<Props, {}> {
 
         { this.renderSingleEvent({ labels, searchLabels }) }
       </div>
+    </div>;
+  }
+
+  renderFilterAlert(searchLabels: LabelSet) {
+    if (_.isEmpty(this.props.query)) return null;
+
+    return <div className="alert info">
+      <button onClick={() => this.update({ query: {} })}>
+        { FilterText.Reset }
+      </button>
+      { FilterText.filterText(this.props.query, searchLabels) }
     </div>;
   }
 
