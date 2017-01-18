@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import BarChart from "../components/BarChart";
+import Tooltip from "../components/Tooltip";
 import Waypoint from "../components/Waypoint";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
@@ -60,38 +61,46 @@ export class GroupCalcDisplay extends React.Component<Props, {
 
 function Stats({ results } : { results: CalcResults }) {
   return <div className="stats">
-    <span>
-      <span className="value">
-        { results.eventCount }
-      </span>
-      <span className="unit">
-        { EventText.events(results.eventCount) }
-      </span>
-    </span>
+    <Tooltip
+      target={<span>
+        <span className="value">
+          { results.eventCount }
+        </span>
+        <span className="unit">
+          { EventText.events(results.eventCount) }
+        </span>
+      </span>}
+      title={EventText.CalcEventsDescription} />
 
-    <span>
-      <EventText.FmtHours hours={EventText.toHours(results.seconds)} />
-      <span className="unit">
-        { EventText.hours(EventText.toHours(results.seconds)) }
-      </span>
-    </span>
+    <Tooltip
+      target={<span>
+        <EventText.FmtHours hours={EventText.toHours(results.seconds)} />
+        <span className="unit">
+          { EventText.hours(EventText.toHours(results.seconds)) }
+        </span>
+      </span>}
+      title={EventText.CalcHoursDescription} />
 
-    <span>
-      <EventText.FmtHours hours={EventText.toHours(results.peopleSeconds)} />
-      <span className="unit">
-        { EventText.peopleHours(EventText.toHours(results.peopleSeconds)) }
-      </span>
-    </span>
+    <Tooltip
+      target={<span>
+        <EventText.FmtHours hours={EventText.toHours(results.peopleSeconds)} />
+        <span className="unit">
+          { EventText.peopleHours(EventText.toHours(results.peopleSeconds)) }
+        </span>
+      </span>}
+      title={EventText.CalcPeopleHoursDescription} />
 
-    <span>
-      <EventText.FmtHours
-        hours={EventText.toHours(results.groupPeopleSeconds)} />
-      <span className="unit">
-        { EventText.groupPeopleHours(
-          EventText.toHours(results.groupPeopleSeconds)
-        ) }
-      </span>
-    </span>
+    <Tooltip
+      target={<span>
+        <EventText.FmtHours
+          hours={EventText.toHours(results.groupPeopleSeconds)} />
+        <span className="unit">
+          { EventText.groupPeopleHours(
+            EventText.toHours(results.groupPeopleSeconds)
+          ) }
+        </span>
+      </span>}
+      title={EventText.CalcGroupPeopleHoursDescription} />
   </div>;
 }
 

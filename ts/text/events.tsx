@@ -101,3 +101,10 @@ export function peopleHours(n?: number) {
 export function groupPeopleHours(n?: number) {
   return `team person hour${s(n)}`;
 }
+
+export const CalcEventsDescription = "Total number of events";
+export const CalcHoursDescription = "Aggregate duration of events";
+export const CalcPeopleHoursDescription = "Total hours for each event times " +
+  "each guest attending that event";
+export const CalcGroupPeopleHoursDescription = "Total hours for each event " +
+  "times each guest who is a member of this team attending that event";
