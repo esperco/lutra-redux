@@ -65,6 +65,23 @@ export function FmtHours({ hours, decimals } : {
   </span>;
 }
 
+export function FmtHoursPct({ hours, decimals, pct } : {
+  hours: number;
+  decimals?: number;
+  pct: number; // 0-1
+}) {
+  return <span className="hours-pct">
+    <span>
+      <FmtHours hours={hours} decimals={decimals} />
+      <span className="unit">h</span>
+    </span>
+    <span>
+      <span className="percent">{ roundStr(100 * pct, 0) }</span>
+      <span className="unit">%</span>
+    </span>
+  </span>;
+}
+
 function s(n?: number) {
   return n != 1 ? 's' : '';
 }

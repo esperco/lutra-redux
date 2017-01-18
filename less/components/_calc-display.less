@@ -65,4 +65,17 @@
     margin-top: @padding-lg;
     margin-bottom: @padding-xl;
   }
+
+  .hours-pct > :first-child {
+    font-weight: bold;
+  }
+
+  .hours-pct > :last-child {
+    color: @text-muted;
+
+    &::before {
+      content: "/";
+      padding: 0 @padding-small;
+    }
+  }
 }

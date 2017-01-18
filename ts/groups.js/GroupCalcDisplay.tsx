@@ -4,7 +4,6 @@ import BarChart from "../components/BarChart";
 import Waypoint from "../components/Waypoint";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
-import { roundStr } from "../lib/util";
 import { ready, StoreData } from "../states/data-status";
 import { CalcResults } from "../states/group-calcs";
 import * as CommonText from "../text/common";
@@ -127,8 +126,8 @@ function LabelChart({ results, labels, labelHrefFn } : {
     )}
     fmtValue={(v) => {
       let hours = EventText.toHours(v.value);
-      let pct = roundStr(100 * v.value / results.groupPeopleSeconds, 0) + "%";
-      return `${hours}h (${pct})`;
+      let pct = v.value / results.groupPeopleSeconds;
+      return <EventText.FmtHoursPct hours={hours} pct={pct} />;
     }}
     tooltip={(v) => {
       let hours = EventText.toHours(results.groupPeopleSeconds);
