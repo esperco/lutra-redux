@@ -259,7 +259,11 @@ export class OrderedSet<T> {
     ret.hash = {};
     for (let i in this.list) {
       if (limit && ret.list.length >= limit) continue;
-      let item = this.hash[this.list[i]];
+      let key = this.list[i];
+
+      if (! this.hasKey(key)) continue;
+      let item = this.getByKey(key);
+
       if (predicate(item)) {
         ret.push(item);
       }
@@ -272,8 +276,8 @@ export class OrderedSet<T> {
     let ret: U[] = [];
     for (let i in this.list) {
       let key = this.list[i];
-      if (this.hash.hasOwnProperty(key)) {
-        ret.push(cb(this.hash[key]));
+      if (this.hasKey(key)) {
+        ret.push(cb(this.getByKey(key)));
       }
     }
     return ret;
