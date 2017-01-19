@@ -93,7 +93,7 @@ store.subscribe(() => {
     return;
   }
   let state = gotState as LoggedInState;
-  let props = { state, dispatch, Svcs, Conf };
+  let props = { state, dispatch, postTask, Svcs, Conf };
 
   ReactDOM.render(
     <App {...props} >
@@ -109,7 +109,8 @@ store.subscribe(() => {
 // View routing
 function MainView(props: {
   state: State;
-  dispatch: (a: Action) => Action;
+  dispatch: DispatchFn;
+  postTask: PostTaskFn;
   Svcs: typeof Svcs;
   Conf: typeof Conf;
 }) {

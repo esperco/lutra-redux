@@ -9,9 +9,9 @@ export const FilterEvents = "Filter by Keyword";
 export const CommentPlaceholder = "Post a comment about this event";
 export const DefaultUsername = "Esper User";
 export const HideDescription = "Remove all tags and exclude this event " +
-  "from time stats.";
-export const ShowDescription = "This event is currently hidden from time " +
-  "stats. Click to include it.";
+  "from charts and stats.";
+export const ShowDescription = "This event is currently hidden from charts " +
+  "and stats. Click to include it.";
 
 export const Attendees = "Guests";
 export const Comments = "Comments";
@@ -65,6 +65,23 @@ export function FmtHours({ hours, decimals } : {
   </span>;
 }
 
+export function FmtHoursPct({ hours, decimals, pct } : {
+  hours: number;
+  decimals?: number;
+  pct: number; // 0-1
+}) {
+  return <span className="hours-pct">
+    <span>
+      <FmtHours hours={hours} decimals={decimals} />
+      <span className="unit">h</span>
+    </span>
+    <span>
+      <span className="percent">{ roundStr(100 * pct, 0) }</span>
+      <span className="unit">%</span>
+    </span>
+  </span>;
+}
+
 function s(n?: number) {
   return n != 1 ? 's' : '';
 }
@@ -76,6 +93,19 @@ export function events(n?: number) {
 export function hours(n?: number) {
   return `hour${s(n)}`;
 }
+
 export function peopleHours(n?: number) {
   return `person hour${s(n)}`;
 }
+
+export function groupPeopleHours(n?: number) {
+  return `team person hour${s(n)}`;
+}
+
+export const CalcEventsDescription = "Total number of events";
+export const CalcHoursDescription = "Aggregate duration of events";
+export const CalcPeopleHoursDescription = "Total hours for each event times " +
+  "each guest attending that event";
+export const CalcGroupPeopleHoursDescription = "Total hours for each event " +
+  "times each guest who is a member of this team attending that event";
+export const PeopleHoursByLabelTitle = "Team Person Hours by Tag";

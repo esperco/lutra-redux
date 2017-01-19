@@ -4,7 +4,7 @@
 import * as _ from "lodash";
 import * as $ from "jquery";
 import * as React from "react";
-import { State as StoreState, DispatchFn } from './types';
+import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
 import Waypoint from "../components/Waypoint";
@@ -28,8 +28,9 @@ interface Props {
   searchLabels: LabelSet;
   state: StoreState;
   dispatch: DispatchFn;
+  postTask: PostTaskFn;
   Svcs: ApiSvc;
-  Conf?: { maxDaysFetch?: number; }
+  Conf?: { maxDaysFetch?: number; };
 }
 
 interface State {
@@ -89,7 +90,11 @@ export class GroupEventsList extends React.Component<Props, State> {
   onChange = (eventIds: string[], label: ApiT.LabelInfo, active: boolean) => {
     Events.setGroupEventLabels({
       groupId: this.props.groupId,
-      eventIds, label, active
+      eventIds, label, active,
+      context: {
+        period: this.props.period,
+        query: this.props.query
+      }
     }, this.props);
   }
 
@@ -103,7 +108,11 @@ export class GroupEventsList extends React.Component<Props, State> {
   onHideChange = (eventIds: string[], hidden: boolean) => {
     Events.setGroupEventLabels({
       groupId: this.props.groupId,
-      eventIds, hidden
+      eventIds, hidden,
+      context: {
+        period: this.props.period,
+        query: this.props.query
+      }
     }, this.props);
   }
 

@@ -14,6 +14,7 @@
 import * as ApiT from "../lib/apiT";
 import * as _ from "lodash";
 import { setGroupLabels } from "./groups";
+import { startGroupCalc } from "./group-calcs";
 import { ApiSvc } from "../lib/api";
 import { updateLabelList, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
@@ -23,10 +24,12 @@ import { NavSvc } from "../lib/routing";
 import { OrderedSet, compactObject } from "../lib/util";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
+import { CalcStartAction } from "../states/group-calcs";
 import {
   EventsState, EventCommentAction, EventsDataAction, EventsUpdateAction,
   EventsInvalidatePeriodAction, QueryMap
 } from "../states/group-events";
+import { QueryCalcTask } from "../tasks/group-query-calc"
 
 
 /* ---------------------------------------------
@@ -479,10 +482,17 @@ export function setGroupEventLabels(props: {
   label?: ApiT.LabelInfo;
   active?: boolean;
   hidden?: boolean;
+
+  // If we have a query + period context, we can refresh the current calc
+  context?: {
+    query: QueryFilter;
+    period: GenericPeriod;
+  };
 }, deps: {
-  dispatch: (a: EventsUpdateAction|GroupUpdateAction) => any;
+  dispatch: (a: EventsUpdateAction|GroupUpdateAction|CalcStartAction) => any;
   state: EventsState & GroupState;
   Svcs: ApiSvc;
+  postTask: (x: QueryCalcTask) => any;
 }, opts: {
   forceInstance?: boolean;
 } = {}) {
@@ -563,10 +573,24 @@ export function setGroupEventLabels(props: {
   // API queue
   let queue = EventQueues.get(props.groupId);
 
-  // Apply group labels first (actually a bug since we should be able to
-  // run these in parallel but whatever).
-  // TODO: Fix when API updated.
-  return groupLabelPromise.then(() => queue.enqueue(request));
+  // Apply group labels + queue up event request
+  let ret = Promise.all([
+    groupLabelPromise,
+    queue.enqueue(request)
+  ]);
+
+  // Update calc if necessary
+  if (props.context) {
+    startGroupCalc({
+      groupId: props.groupId,
+      ...props.context
+    }, {
+      ...deps,
+      promise: ret
+    });
+  }
+
+  return ret;
 }
 
 export function postGroupEventComment(props: {

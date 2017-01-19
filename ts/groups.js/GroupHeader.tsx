@@ -128,7 +128,6 @@ class GroupHeader extends React.Component<Props, {}> {
         state={this.props.state}
         getHref={(groupId) => path.href({
           groupId,
-          showFilters: false,
           eventId: ""
         })}
       />;

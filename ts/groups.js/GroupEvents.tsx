@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { eventList } from "./paths";
-import { State, DispatchFn } from './types';
+import { State, DispatchFn, PostTaskFn } from './types';
 import delay from "../components/DelayedControl";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
@@ -25,6 +25,7 @@ import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { calcKey } from "../states/group-calcs";
+import * as FilterText from "../text/filters";
 
 class RouteProps {
   groupId: string;
@@ -37,8 +38,9 @@ class RouteProps {
 class Props extends RouteProps {
   state: State;
   dispatch: DispatchFn;
+  postTask: PostTaskFn;
   Svcs: ApiSvc & NavSvc;
-  Conf?: { maxDaysFetch?: number; }
+  Conf?: { maxDaysFetch?: number; };
 }
 
 class GroupEvents extends React.Component<Props, {}> {
@@ -109,7 +111,8 @@ class GroupEvents extends React.Component<Props, {}> {
               type: "SCROLL", direction
             })}>
             <div className="container">
-              { this.renderCalcDisplay() }
+              { this.renderFilterAlert(searchLabels) }
+              { this.renderCalcDisplay(searchLabels) }
               { this.renderEventDates({ labels, searchLabels }) }
             </div>
           </ScrollContainer>
@@ -130,10 +133,25 @@ class GroupEvents extends React.Component<Props, {}> {
     </div>;
   }
 
-  renderCalcDisplay() {
+  renderFilterAlert(searchLabels: LabelSet) {
+    if (_.isEmpty(this.props.query)) return null;
+
+    return <div className="alert info">
+      <button onClick={() => this.update({ query: {} })}>
+        { FilterText.Reset }
+      </button>
+      { FilterText.filterText(this.props.query, searchLabels) }
+    </div>;
+  }
+
+  renderCalcDisplay(searchLabels: LabelSet) {
     let key = calcKey(this.props.period, this.props.query);
     let results = (this.props.state.groupCalcs[this.props.groupId] || {})[key];
-    return <GroupCalcDisplay results={results} />;
+    return <GroupCalcDisplay
+      results={results}
+      labels={searchLabels}
+      labelHrefFn={this.labelHref}
+    />;
   }
 
   renderEventDates({ labels, searchLabels }: {

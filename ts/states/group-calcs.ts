@@ -12,10 +12,18 @@ import { ok, StoreMap } from "./data-status";
   The numbers we're calculating for a given set of events (identified by a
   query + period)
 */
-export interface CalcResults {
+export interface CalcResultsBase {
   seconds: number;
   eventCount: number;
   peopleSeconds: number;
+  groupPeopleSeconds: number; // only counts guests that are group members
+}
+
+export interface CalcResults extends CalcResultsBase {
+  labelResults: {
+    [normalized: string]: CalcResultsBase;
+  };
+  unlabeledResult: CalcResultsBase;
 }
 
 export type CalcResultsState = StoreMap<CalcResults>;

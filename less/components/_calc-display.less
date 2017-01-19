@@ -1,35 +1,106 @@
-.calc-display {
-  display: flex;
+@import "./_bar-chart";
 
-  > * + * {
-    margin-top: 0;
-  }
-
+.calc-display .stats {
   > * {
-    flex: 1 1 1em;
-    min-width: 4rem;
-    text-align: center;
-  }
-
-  .value {
-    font-weight: bold;
-    font-size: @font-size-large;
     display: block;
-    color: @text-header;
+    clear: both;
 
-    .decimal {
-      font-size: 1rem;
+    .value {
+      float: right;
+      text-align: right;
+      font-weight: bold;
+      color: @text-header;
+
+      .decimal {
+        font-size: 1rem;
+      }
+    }
+
+    .unit {
+      margin-top: 0;
+      color: @text-muted;
+      font-size: @font-size-small;
+      text-transform: uppercase;
+    }
+
+    + * {
+      margin-top: @padding-small;
+    }
+
+    &.active {
+      .value, .unit { color: @info; }
     }
   }
 
-  .unit {
-    color: @text-muted;
-    font-size: @font-size-small;
-    text-transform: uppercase;
+  @media screen and (min-width: @screen-sm-min) {
+    display: flex;
+
+    & > * + * {
+      margin-top: 0;
+    }
+
+    & > * {
+      flex: 1 1 1em;
+      min-width: 4rem;
+      text-align: center;
+    }
+
+    .value {
+      float: none;
+      display: block;
+      font-size: @font-size-large;
+      text-align: center;
+    }
+  }
+}
+
+.calc-display .calculating {
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+  padding: @padding-small;
+  color: @text-muted;
+}
+
+.calc-display .label-chart {
+  margin-bottom: @padding-lg;
+
+  @media screen and (min-width: @screen-sm-min) {
+    margin-top: @padding-lg;
+    margin-bottom: @padding-xl;
+
+    h3 {
+      text-align: center;
+      position: relative;
+      padding-right: @bar-chart-number-width / 2;
+      padding-left: calc(@bar-chart-name-width-sm * 100%
+        ~" - " @bar-chart-number-width / 2);
+    }
   }
 
-  .calculating {
-    padding: @padding-small;
+  @media screen and (min-width: @screen-md-min) {
+    h3 {
+      padding-right: @bar-chart-number-width;
+      padding-left: (@bar-chart-name-width-md * 100%);
+    }
+  }
+
+  @media screen and (minwidth: @screen-lg-min) {
+    h3 {
+      padding-left: (@bar-chart-name-width-lg * 100%);
+    }
+  }
+
+  .hours-pct > :first-child {
+    font-weight: bold;
+  }
+
+  .hours-pct > :last-child {
     color: @text-muted;
+
+    &::before {
+      content: "/";
+      padding: 0 @padding-small;
+    }
   }
 }
