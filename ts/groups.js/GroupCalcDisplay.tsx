@@ -91,7 +91,7 @@ function Stats({ results } : { results: CalcResults }) {
       title={EventText.CalcPeopleHoursDescription} />
 
     <Tooltip
-      target={<span>
+      target={<span className="active">
         <EventText.FmtHours
           hours={EventText.toHours(results.groupPeopleSeconds)} />
         <span className="unit">
@@ -126,23 +126,26 @@ function LabelChart({ results, labels, labelHrefFn } : {
   });
   values = _.sortBy(values, (v) => -v.value);
 
-  return <BarChart
-    values={values}
-    sorted={true}
-    sortMax={Math.max(
-      values[0] ? values[0].value : 0,
-      results.unlabeledResult.groupPeopleSeconds
-    )}
-    fmtValue={(v) => {
-      let hours = EventText.toHours(v.value);
-      let pct = v.value / results.groupPeopleSeconds;
-      return <EventText.FmtHoursPct hours={hours} pct={pct} />;
-    }}
-    tooltip={(v) => {
-      let hours = EventText.toHours(results.groupPeopleSeconds);
-      return `${hours} ${EventText.groupPeopleHours(hours)}`;
-    }}
-  />
+  return <div className="label-chart">
+    <h3>{ EventText.PeopleHoursByLabelTitle }</h3>
+    <BarChart
+      values={values}
+      sorted={true}
+      sortMax={Math.max(
+        values[0] ? values[0].value : 0,
+        results.unlabeledResult.groupPeopleSeconds
+      )}
+      fmtValue={(v) => {
+        let hours = EventText.toHours(v.value);
+        let pct = v.value / results.groupPeopleSeconds;
+        return <EventText.FmtHoursPct hours={hours} pct={pct} />;
+      }}
+      tooltip={(v) => {
+        let hours = EventText.toHours(results.groupPeopleSeconds);
+        return `${hours} ${EventText.groupPeopleHours(hours)}`;
+      }}
+    />
+  </div>;
 }
 
 export default GroupCalcDisplay;

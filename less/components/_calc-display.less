@@ -26,6 +26,10 @@
     + * {
       margin-top: @padding-small;
     }
+
+    &.active {
+      .value, .unit { color: @info; }
+    }
   }
 
   @media screen and (min-width: @screen-sm-min) {
@@ -58,12 +62,33 @@
   color: @text-muted;
 }
 
-.calc-display .bar-chart {
+.calc-display .label-chart {
   margin-bottom: @padding-lg;
 
   @media screen and (min-width: @screen-sm-min) {
     margin-top: @padding-lg;
     margin-bottom: @padding-xl;
+
+    h3 {
+      text-align: center;
+      position: relative;
+      padding-right: @bar-chart-number-width / 2;
+      padding-left: calc(@bar-chart-name-width-sm * 100%
+        ~" - " @bar-chart-number-width / 2);
+    }
+  }
+
+  @media screen and (min-width: @screen-md-min) {
+    h3 {
+      padding-right: @bar-chart-number-width;
+      padding-left: (@bar-chart-name-width-md * 100%);
+    }
+  }
+
+  @media screen and (minwidth: @screen-lg-min) {
+    h3 {
+      padding-left: (@bar-chart-name-width-lg * 100%);
+    }
   }
 
   .hours-pct > :first-child {
