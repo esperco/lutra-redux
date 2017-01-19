@@ -99,6 +99,50 @@ describe("Event label helpers", () => {
     });
   });
 
+  describe("LabelSet", () => {
+    const label1 = {
+      original: "Label 1",
+      normalized: "label 1"
+    };
+    const label1a = {
+      original: "La bel 1",
+      normalized: "la bel 1"
+    };
+    const hash1 = {
+      original: "#Label1",
+      normalized: "#label1"
+    };
+
+    it("replaces hashtags with full label", () => {
+      // Label1 replaces hash1
+      let labels = new LabelSet([hash1, label2]);
+      labels.push(label1);
+      expect(labels.toList()).to.deep.equal([label1, label2]);
+
+      // Check that label1a can also replace hash1
+      let labelsA = new LabelSet([hash1, label2]);
+      labelsA.push(label1a);
+      expect(labelsA.toList()).to.deep.equal([label1a, label2]);
+    });
+
+    it("treats replaced hashtag as normal label afterwards", () => {
+      // Label1 replaces hash1
+      let labels = new LabelSet([hash1, label2]);
+      labels.push(label1);
+
+      /*
+        Although label1a and label1 both normalize to the same hashtag,
+        after replacing the hashtag, we should treat them differently
+      */
+      labels.push(label1a);
+      expect(labels.toList()).to.deep.equal([label1, label2, label1a]);
+
+      // Check we can still remove too
+      labels.pull(label1);
+      expect(labels.toList()).to.deep.equal([label2, label1a]);
+    });
+  });
+
   describe("updateLabelList", () => {
     it("adds new labels and sorts by normalized form", () => {
       expect(EventLabels.updateLabelList([label1, label3], {
@@ -116,7 +160,7 @@ describe("Event label helpers", () => {
       let label1a = { ...label1, original: "LABEL 1!!!!!!!" };
       expect(EventLabels.updateLabelList([label1, label2], {
         add: [label1a]
-      })).to.deep.equal([label1a, label2])
+      })).to.deep.equal([label1a, label2]);
     });
 
     it("doesn't mutate original list", () => {

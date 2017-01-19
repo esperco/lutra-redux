@@ -9,7 +9,51 @@ import { ChoiceSet } from "../lib/util";
 const LABEL_FILTER_LIMIT = 10;
 
 // ChoiceSet specific to labels
-export class LabelSet extends ChoiceSet<ApiT.LabelInfo> {}
+export class LabelSet extends ChoiceSet<ApiT.LabelInfo> {
+  /*
+    Maps normalized hashtags to (most recent) normalized form of label.
+    We keep this map so we can easily convert hashtags to normal labels
+    while preserving any references to the original normalized hashtag
+    that might be floating around.
+  */
+  _hashtags: { [normalized: string]: string; };
+
+  constructor(labels: ApiT.LabelInfo[]) {
+    super([]);
+    this._hashtags = {};
+    this.push(...labels);
+  }
+
+  getByKey(key: string) {
+    return super.getByKey(key) ||
+           super.getByKey(this._hashtags[key]);
+  }
+
+  hasKey(key: string) {
+    return super.hasKey(key) ||
+           super.hasKey(this._hashtags[key]);
+  }
+
+  push(...labels: ApiT.LabelInfo[]) {
+    _.each(labels, (label) => {
+      let key = this._keyFn(label);
+      let hashKey = normalizeHashtag(label.normalized);
+
+      // Replace existing hash
+      if (key !== hashKey && super.hasKey(hashKey)) {
+        this._hashtags[hashKey] = key;
+        delete this.hash[hashKey];
+      }
+
+      // New key altogether, append to end
+      else if (! this.hasKey(key)) {
+        this.list.push(key);
+      }
+
+      this.hash[key] = label;
+    });
+  }
+}
 
 /*
   Takes team or group labels, plus a list of events -- returns a list of labels
@@ -121,7 +165,10 @@ export function filter(
   limit = LABEL_FILTER_LIMIT
 ): [ApiT.LabelInfo|undefined, ApiT.LabelInfo[]] {
   str = normalize(str);
-  let filtered = labels.filter((l) => _.includes(l.normalized, str), limit);
+  let filtered = labels.filter(
+    (l) => _.includes(l.normalized, str),
+    limit
+  );
   let match = labels.getByKey(str);
   if (match && filtered.has(match)) {
     filtered = filtered.without(match);
@@ -133,6 +180,14 @@ export function filter(
 // Normalize label -- should match server
 export function normalize(label: string) {
   return label.trim().toLowerCase();
+}
+
+/*
+  Returns the normalized hashtag equivalent of a label. Returns
+  "#hashtag" for "Hash Tag".
+*/
+export function normalizeHashtag(label: string) {
+  return "#" + normalize(label).replace(/[^A-Za-z0-9]*/g, "");
 }
 
 /*
