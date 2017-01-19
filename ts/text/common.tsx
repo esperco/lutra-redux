@@ -6,6 +6,8 @@ import * as React from 'react';
 // Icons
 export const Accounts = "Accounts";
 export const Add = "Add";
+export const CalendarCheck = "Calendar shared";
+export const CalendarEmpty = "Not sharing calendars";
 export const Cancel = "Cancel";
 export const Clear = "Clear";
 export const Close = "Close";
