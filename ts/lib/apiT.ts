@@ -98,6 +98,7 @@ export interface Team {
   team_api: TeamApi;
   team_name: string;
   team_approved: boolean;
+  groups_only: boolean;
   team_active_until?: string; // timestamp
   team_executive: string;
   team_assistants: string[];
