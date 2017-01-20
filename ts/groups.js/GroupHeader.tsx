@@ -2,6 +2,7 @@
   Header element for groups pages
 */
 
+import * as _ from 'lodash';
 import * as React from 'react';
 import * as Conf from 'config';
 import { LoggedInState, DispatchFn } from './types';
@@ -16,6 +17,7 @@ import Icon from "../components/Icon";
 import GroupSelector from "./GroupSelector";
 import * as CommonPaths from "../lib/paths";
 import { Group as GroupPaths } from "../manage.js/paths";
+import * as TimePaths from "../time.js/paths";
 
 class Props {
   state: LoggedInState & ScrollState;
@@ -75,6 +77,14 @@ class GroupHeader extends React.Component<Props, {}> {
     </button>;
 
     let groupId = this.getGroupId() || "default";
+
+    // Show link to exec product if user has at least one team that's not
+    // groups only
+    let hasExecTeam = !!_.find(
+      this.props.state.login.teams,
+      (t) => !t.groups_only
+    );
+
     let menu = <div className="dropdown-menu">
       <div className="panel">
         { this.props.state.login.email }
@@ -83,6 +93,9 @@ class GroupHeader extends React.Component<Props, {}> {
       { this.renderGroupsSelector(groupId) }
 
       <nav className="panel">
+        { hasExecTeam ? <a href={TimePaths.Home.href({})}>
+          <Icon type="person">{ CommonText.ExecLink }</Icon>
+        </a> : null }
         <a href={GroupPaths.General.href({ groupId })}>
           <Icon type="settings">{ CommonText.Settings }</Icon>
         </a>
