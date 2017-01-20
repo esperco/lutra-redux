@@ -80,10 +80,7 @@ class GroupHeader extends React.Component<Props, {}> {
         { this.props.state.login.email }
       </div>
 
-      <div className="panel">
-        <h4>{ GroupText.Groups }</h4>
-        { this.renderGroupsSelector(groupId) }
-      </div>
+      { this.renderGroupsSelector(groupId) }
 
       <nav className="panel">
         <a href={GroupPaths.General.href({ groupId })}>
@@ -123,14 +120,17 @@ class GroupHeader extends React.Component<Props, {}> {
     let login = this.props.state.login;
     if (login.groups.length > 1) {
       let path = Paths.eventList;
-      return <GroupSelector
-        selected={groupId}
-        state={this.props.state}
-        getHref={(groupId) => path.href({
-          groupId,
-          eventId: ""
-        })}
-      />;
+      return <div className="panel">
+        <h4>{ GroupText.Groups }</h4>
+        <GroupSelector
+          selected={groupId}
+          state={this.props.state}
+          getHref={(groupId) => path.href({
+            groupId,
+            eventId: ""
+          })}
+        />
+      </div>;
     }
     return null;
   }
