@@ -11,7 +11,9 @@ import { NavSvc } from "./routing";
 import { hexEncode } from "./util";
 import * as _ from "lodash";
 
+// LocalStorage Keys
 const storedLoginKey = "login";
+const groupsFlagKey = "groups";
 
 export interface StoredCredentials {
   uid: string;
@@ -69,6 +71,9 @@ export function init(
   let credentials = getCredentials(Svcs);
   let { Analytics, Api, Nav } = Svcs;
   if (credentials) {
+    // Sets a flag so other pages know this is a groups user
+    Svcs.LocalStore.set(groupsFlagKey, true);
+
     Api.setLogin({
       uid: credentials.uid,
       apiSecret: credentials.api_secret
