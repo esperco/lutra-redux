@@ -187,7 +187,7 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
 
   // Once event has been viewed. Auto-confirm after a short timeout.
   setConfirmTimeout = () => {
-    if (! this._timeout) {
+    if (!this._timeout && this.props.autoConfirmTimeout !== Infinity) {
       this._timeout = setTimeout(() => this.confirm(false),
         this.props.autoConfirmTimeout || DEFAULT_AUTO_CONFIRM_TIMEOUT);
     }

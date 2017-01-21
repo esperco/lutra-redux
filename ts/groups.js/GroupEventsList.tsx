@@ -75,6 +75,11 @@ export class GroupEventsList extends React.Component<Props, State> {
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
+          autoConfirmTimeout={
+            /* If admin, don't autoconfirm */
+            this.props.state.loggedInAsAdmin ?
+            Infinity : undefined
+          }
         />
       ) }
 
