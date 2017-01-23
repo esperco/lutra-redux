@@ -102,6 +102,13 @@ export function groupPeopleHours(n?: number) {
   return `team person hour${s(n)}`;
 }
 
+export function hiddenEventsMsg(n?: number) {
+  return `${n} hidden ${events(n)}`;
+}
+
+export const HiddenEventsDescription =
+  "Some events have been marked as hidden. Click here to show them.";
+
 export const CalcEventsDescription = "Total number of events";
 export const CalcHoursDescription = "Aggregate duration of events";
 export const CalcPeopleHoursDescription = "Total hours for each event times " +

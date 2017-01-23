@@ -11,7 +11,7 @@ import Tooltip from "./Tooltip";
 import Waypoint from "./Waypoint";
 import * as classNames from "classnames";
 import { LabelSet } from "../lib/event-labels";
-import { ok, StoreData } from "../states/data-status";
+import { ok, ready, StoreData } from "../states/data-status";
 import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
 
@@ -37,10 +37,74 @@ export interface ListProps extends SharedProps {
   events: (StoreData<ApiT.GenericCalendarEvent>|undefined)[];
 }
 
-export class EventList extends React.Component<ListProps, {}> {
+interface ListState {
+  /*
+    By default, we minimize hidden events (unless those events need
+    confirmation) within a given list and show a notice to the user that
+    we've done so. This state variable stores a record of event IDs that are
+    hidden and should not be rendered.
+
+    Events are hidden only on first render. Subsequent updates should not hide
+    more events because we want the user to be able to re-toggle a hidden event
+    back to shown if they hide it.
+  */
+  hiddenEvents?: Record<string, true>;
+}
+
+export class EventList extends React.Component<ListProps, ListState> {
+  constructor(props: ListProps) {
+    super(props);
+    this.state = {
+      hiddenEvents: this.getHiddenEvents(props)
+    };
+  }
+
+  componentWillReceiveProps(newProps: ListProps) {
+    // Update hidden events iff it hasn't been set already
+    if (! this.state.hiddenEvents) {
+      this.setState({
+        hiddenEvents: this.getHiddenEvents(newProps)
+      });
+    }
+  }
+
+  /*
+    Returns the event ID recordwe're hiding for a given prop set (or undefined
+    if events aren't ready yet.
+  */
+  getHiddenEvents(props: ListProps) {
+    let ret: Record<string, true> = {};
+    for (let i in props.events) {
+      let event = props.events[i];
+
+      // Not ready -> return undefined, don't update hidden state
+      if (! ready(event)) { return; }
+
+      if (event.hidden && event.labels_confirmed) {
+        ret[event.id] = true;
+      }
+    }
+    return ret;
+  }
+
   render() {
     return <div className="event-list panel">
+      { this.renderHiddenEventMsg() }
       { _.map(this.props.events, (ev, i) => this.renderEvent(ev, i)) }
+    </div>;
+  }
+
+  renderHiddenEventMsg() {
+    let numHiddenEvents = _.size(this.state.hiddenEvents || {});
+    if (! numHiddenEvents) return null;
+
+    return <div className="hidden-events panel">
+      <Tooltip
+        title={EventText.HiddenEventsDescription}
+        target={<button onClick={() => this.showHiddenEvents()}>
+          { EventText.hiddenEventsMsg(numHiddenEvents) }
+        </button>}
+      />
     </div>;
   }
 
@@ -54,9 +118,18 @@ export class EventList extends React.Component<ListProps, {}> {
     if (ev === "FETCHING") {
       return <PlaceholderEvent key={index} />;
     }
+    if (this.state.hiddenEvents && this.state.hiddenEvents[ev.id]) {
+      return null; // Hidden
+    }
     return <EventDisplay key={ev.id} event={ev}
       { ...this.props }
     />;
+  }
+
+  showHiddenEvents() {
+    this.setState({
+      hiddenEvents: {}
+    });
   }
 }
 

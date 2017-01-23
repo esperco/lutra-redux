@@ -3,6 +3,7 @@ import * as Sinon from 'sinon';
 import { expect } from "chai";
 import { shallow } from 'enzyme';
 import { EventList, EventDisplay, PlaceholderEvent } from "./EventList";
+import Tooltip from './Tooltip';
 import Waypoint from './Waypoint';
 import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
@@ -46,6 +47,50 @@ describe("EventList", () => {
       events={[e1, undefined, e3]} { ...defaultsProps }
     />);
     expect(wrapper.find(EventDisplay)).to.have.length(2);
+  });
+
+  it("doesn't render hidden, confirmed events", () => {
+    let e1a = { ...e1, hidden: true, labels_confirmed: true };
+    let wrapper = shallow(<EventList
+      events={[e1a, e2]} { ...defaultsProps }
+    />);
+    let eventDisplay = wrapper.find(EventDisplay);
+    expect(eventDisplay).to.have.length(1);
+    expect(eventDisplay.prop('event').id).to.equal(e2.id);
+  });
+
+  it("renders hidden, unconfirmed events", () => {
+    let e1a = { ...e1, hidden: true, labels_confirmed: false };
+    let wrapper = shallow(<EventList
+      events={[e1a, e2]} { ...defaultsProps }
+    />);
+    let eventDisplay = wrapper.find(EventDisplay);
+    expect(eventDisplay).to.have.length(2);
+  });
+
+  it("does not hide events after props update", () => {
+    let e1a = { ...e1, hidden: true, labels_confirmed: false };
+    let e1b = { ...e1, hidden: true, labels_confirmed: true };
+    let wrapper = shallow(<EventList
+      events={[e1a, e2]} { ...defaultsProps }
+    />);
+    wrapper.setProps({ events: [e1b, e2] });
+    wrapper.update();
+    let eventDisplay = wrapper.find(EventDisplay);
+    expect(eventDisplay).to.have.length(2);
+  });
+
+  it("renders hidden, confirmed events after clicking button", () => {
+    let e1a = { ...e1, hidden: true, labels_confirmed: true };
+    let wrapper = shallow(<EventList
+      events={[e1a, e2]} { ...defaultsProps }
+    />);
+    let button = shallow(wrapper.find(Tooltip).prop('target'));
+    button.simulate('click');
+
+    wrapper.update();
+    let eventDisplay = wrapper.find(EventDisplay);
+    expect(eventDisplay).to.have.length(2);
   });
 });
 
