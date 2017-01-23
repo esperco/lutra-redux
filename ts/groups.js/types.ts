@@ -29,6 +29,7 @@ export type Action =
   Events.EventCommentAction|
   Events.EventsInvalidatePeriodAction|
   Groups.GroupDataAction|
+  Groups.GroupPreferencesAction|
   Groups.GroupUpdateAction|
   Suggestions.SuggestionsAction|
   Login.LoginAction|

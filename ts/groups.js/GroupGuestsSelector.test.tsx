@@ -67,7 +67,7 @@ describe("<GroupGuestsSelector />", () => {
 
   it("renders a taglist with selections based on ASN value", () => {
     let wrapper = getTagList();
-    expect(wrapper.prop('selected').toList()).to.deep.equal([
+    expect(wrapper.prop('selectedChoices').toList()).to.deep.equal([
       guest2Choice, guest3Choice, guest4Choice
     ]);
   });

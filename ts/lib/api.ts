@@ -158,6 +158,24 @@ namespace Api {
   }
 
 
+  /* Group Preferences */
+
+  export function getGroupPreferences(groupid: string):
+    Promise<ApiT.GroupPreferences>
+  {
+    var url = `${prefix}/api/group/preferences/${myUid()}/${string(groupid)}`;
+    return JsonHttp.get(url);
+  }
+
+  export function putGroupPreferences(
+    groupid: string,
+    prefs: ApiT.GroupPreferences
+  ): Promise<void> {
+    var url = `${prefix}/api/group/preferences/${myUid()}/${groupid}`;
+    return JsonHttp.put(url, prefs);
+  }
+
+
   /* Events */
 
   export function postForTeamEvents(teamId: string, q: ApiT.CalendarRequest):

@@ -6,10 +6,11 @@ import * as Sinon from 'sinon';
 import { expectCalledWith } from "../lib/expect-helpers";
 import CheckboxItem from "./CheckboxItem";
 import FilterInput from "./FilterInput";
-import FilterMenu, { Choice } from "./FilterMenu";
+import { Choice } from "./Menu";
+import MultiselectFilterMenu from "./MultiselectFilterMenu";
 import { OrderedSet } from "../lib/util";
 
-describe("<FilterMenu />", () => {
+describe("<MultiselectFilterMenu />", () => {
   const choice1 = {
     original: "Yellow Green",
     normalized: "yellow green"
@@ -53,9 +54,9 @@ describe("<FilterMenu />", () => {
   function getMenu() {
     addSpy = Sinon.spy();
     toggleSpy = Sinon.spy();
-    return shallow(<FilterMenu
+    return shallow(<MultiselectFilterMenu
       choices={choices}
-      selected={selected}
+      selectedChoices={selected}
       partial={partial}
       filterFn={(str) => filter(choices, str)}
       onAdd={addSpy}
@@ -213,9 +214,9 @@ describe("<FilterMenu />", () => {
       toggleSpy = Sinon.spy();
       special1Spy = Sinon.spy();
       special2Spy = Sinon.spy();
-      return shallow(<FilterMenu
+      return shallow(<MultiselectFilterMenu
         choices={choices}
-        selected={selected}
+        selectedChoices={selected}
         partial={partial}
         filterFn={(str) => filter(choices, str)}
         onAdd={addSpy}

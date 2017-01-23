@@ -41,7 +41,8 @@ describe("groupDataReducer", function() {
           "id-2": "FETCHING"
         },
         groupLabels: {},
-        groupMembers: {}
+        groupMembers: {},
+        groupPreferences: {}
       });
     });
 
@@ -56,7 +57,8 @@ describe("groupDataReducer", function() {
         },
         groupMembers: {
           "id-1": "FETCH_ERROR"
-        }
+        },
+        groupPreferences: {}
       };
       let s2 = Groups.groupDataReducer(s1, {
         type: "GROUP_DATA",
@@ -77,7 +79,8 @@ describe("groupDataReducer", function() {
         groupMembers: {
           "id-1": "FETCHING",
           "id-2": "FETCHING"
-        }
+        },
+        groupPreferences: {}
       });
     });
 
@@ -96,7 +99,8 @@ describe("groupDataReducer", function() {
         groupLabels: {
           "id-1": "FETCHING"
         },
-        groupMembers: {}
+        groupMembers: {},
+        groupPreferences: {}
       });
     });
 
@@ -115,7 +119,8 @@ describe("groupDataReducer", function() {
         groupLabels: {},
         groupMembers: {
           "id-1": "FETCHING"
-        }
+        },
+        groupPreferences: {}
       });
     });
   });
@@ -141,7 +146,8 @@ describe("groupDataReducer", function() {
         },
         groupMembers: {
           "id-1": groupMembers1
-        }
+        },
+        groupPreferences: {}
       });
     });
 
@@ -164,7 +170,8 @@ describe("groupDataReducer", function() {
         groupLabels: {
           "id-1": "FETCH_ERROR"
         },
-        groupMembers: {}
+        groupMembers: {},
+        groupPreferences: {}
       });
     });
 
@@ -188,7 +195,8 @@ describe("groupDataReducer", function() {
         groupLabels: {},
         groupMembers: {
           "id-1": "FETCH_ERROR"
-        }
+        },
+        groupPreferences: {}
       });
     });
   });
@@ -218,7 +226,8 @@ describe("groupUpdateReducer", () => {
         }
       },
       groupLabels: {},
-      groupMembers: {}
+      groupMembers: {},
+      groupPreferences: {}
     });
   });
 
@@ -242,7 +251,8 @@ describe("groupUpdateReducer", () => {
         "id-1": "FETCHING"
       },
       groupLabels: {},
-      groupMembers: {}
+      groupMembers: {},
+      groupPreferences: {}
     });
   });
 
@@ -272,7 +282,8 @@ describe("groupUpdateReducer", () => {
       groupLabels: {
         "id-1": newLabels
       },
-      groupMembers: {}
+      groupMembers: {},
+      groupPreferences: {}
     });
   });
 
@@ -301,7 +312,8 @@ describe("groupUpdateReducer", () => {
       groupLabels: {},
       groupMembers: {
         "id-1": newMembers
-      }
+      },
+      groupPreferences: {}
     });
   });
 })

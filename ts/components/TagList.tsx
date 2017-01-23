@@ -4,7 +4,8 @@
 
 import * as React from 'react';
 import Dropdown from "./Dropdown";
-import { Props as MenuProps, Choice, FilterMenu } from './FilterMenu';
+import { Props as MenuProps, MultiselectFilterMenu } from './MultiselectFilterMenu';
+import { Choice } from './Menu';
 import Icon from "./Icon";
 import { colorForText } from "../lib/colors";
 
@@ -25,7 +26,7 @@ export class TagList extends React.Component<Props, {}> {
   }
 
   renderTags() {
-    return this.props.selected.map((c) =>
+    return this.props.selectedChoices.map((c) =>
       <span key={c.normalized} className="tag" style={{
         background: c.color,
         color: c.color ? colorForText(c.color) : undefined
@@ -49,7 +50,7 @@ export class TagList extends React.Component<Props, {}> {
       </button>}
 
       menu={<div className="dropdown-menu tag-list-menu">
-        <FilterMenu { ...this.props } />
+        <MultiselectFilterMenu { ...this.props } />
       </div>}
     />
   }

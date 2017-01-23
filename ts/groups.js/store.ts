@@ -34,6 +34,8 @@ export const store = createStore(
         return Groups.groupDataReducer(state, action);
       case "GROUP_UPDATE":
         return Groups.groupUpdateReducer(state, action);
+      case "GROUP_PREFS":
+        return Groups.groupPreferencesReducer(state, action);
       case "GROUP_EVENTS_DATA":
         return Events.eventsDataReducer(state, action);
       case "GROUP_EVENTS_UPDATE":

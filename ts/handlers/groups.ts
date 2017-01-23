@@ -5,7 +5,7 @@ import { updateLabelList } from "../lib/event-labels";
 import { LoginState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
 import {
-  GroupState, GroupDataAction, GroupUpdateAction
+  GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction
 } from "../states/groups";
 import { ok, ready } from "../states/data-status";
 import { compactObject as compact } from "../lib/util";
@@ -66,6 +66,35 @@ export function fetch(groupid: string, opts: {
       });
   }
   return Promise.resolve(undefined);
+}
+
+// Fetch group preferences
+export function fetchPreferences(groupid: string, deps: {
+  dispatch: (a: GroupPreferencesAction) => GroupPreferencesAction;
+  state: GroupState;
+  Svcs: ApiSvc;
+}): Promise<void> {
+  let { Api } = deps.Svcs;
+
+  // Fetch if preferences doesn't exist
+  if (!ok(deps.state.groupPreferences[groupid])) {
+    deps.dispatch(compact<GroupPreferencesAction>({
+      type: "GROUP_PREFS",
+      dataType: "FETCH_START",
+      groupIds: [groupid]
+    }));
+
+    return Api.getGroupPreferences(groupid)
+      .then((prefs) => {
+        deps.dispatch(compact<GroupPreferencesAction>({
+          type: "GROUP_PREFS",
+          dataType: "FETCH_END",
+          groupIds: [groupid],
+          groupPrefs: [prefs]
+        }));
+      });
+  }
+  return Promise.resolve();
 }
 
 

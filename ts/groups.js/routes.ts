@@ -1,4 +1,5 @@
 import * as moment from "moment";
+import * as _ from "lodash";
 import * as Paths from "./paths";
 import * as Routing from "../lib/routing";
 import { Action, State, PostTaskFn } from "./types";
@@ -97,8 +98,11 @@ export interface GeneralSettingsRoute {
   groupId: string;
 }
 export const generalSettings = Paths.generalSettings.route<Deps>(function(p, deps) {
-  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  let groupId = deps.state.login ?
+    (_.includes(deps.state.login.groups, p.groupId) ? p.groupId : null)
+    : null;
   if (groupId) {
+    Groups.fetch(groupId, { withMembers: true }, deps);
     deps.dispatch({
       type: "ROUTE",
       route: {

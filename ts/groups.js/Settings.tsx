@@ -10,6 +10,11 @@ import { ready } from '../states/data-status';
 import { GroupMembers } from '../states/groups';
 import SettingsNav from './SettingsNav';
 import Icon from '../components/Icon';
+import { Menu } from '../components/Menu';
+import { Dropdown } from '../components/Dropdown';
+import { GroupRole } from "../lib/apiT";
+import { OrderedSet } from "../lib/util";
+import * as Text from "../text/groups";
 
 class Props {
   groupId: string;
@@ -19,6 +24,26 @@ class Props {
 }
 
 class Settings extends React.Component<Props, {}> {
+  ROLE_LIST = [{
+    original: <p className="group-role">
+      <span>{Text.roleDisplayName("Owner")}</span>
+      <p>{Text.roleDescription("Owner")}</p>
+    </p>,
+    normalized: "Owner" as GroupRole
+  }, {
+    original: <p className="group-role">
+      <span>{Text.roleDisplayName("Manager")}</span>
+      <p>{Text.roleDescription("Manager")}</p>
+    </p>,
+    normalized: "Manager" as GroupRole
+  }, {
+    original: <p className="group-role">
+      <span>{Text.roleDisplayName("Member")}</span>
+      <p>{Text.roleDescription("Member")}</p>
+    </p>,
+    normalized: "Member" as GroupRole
+  }];
+
   render() {
     let { groupId, state, dispatch } = this.props;
     let groupSummary = state.groupSummaries[groupId];
@@ -87,11 +112,26 @@ class Settings extends React.Component<Props, {}> {
       let associatedTeam =
         _.find(list.group_teams, (m) => m.email === gim.email);
       let displayName = associatedTeam ? associatedTeam.name : gim.email;
+      let choices = new OrderedSet(this.ROLE_LIST, (role) => role.normalized);
 
       return <div key={gim.uid} className="panel">
         <Icon type={associatedTeam ? "calendar-check" : "calendar-empty"}>
           { displayName }
         </Icon>
+        <Dropdown
+          keepOpen={true}
+
+          toggle={<button className="group-role-badge">
+            { Text.roleDisplayName(gim.role) }
+            {" "}
+            <Icon type="caret-down" />
+          </button>}
+
+          menu={<div className="dropdown-menu">
+            <Menu choices={choices}
+              selected={{original: "", normalized: gim.role}} />
+          </div>}
+        />
       </div>;
     });
   }

@@ -51,7 +51,7 @@ describe("<GroupLabelsSelector />", () => {
 
   it("renders a taglist with selections based on ASN value", () => {
     let wrapper = getTagList();
-    expect(wrapper.prop('selected').toList()).to.deep.equal([
+    expect(wrapper.prop('selectedChoices').toList()).to.deep.equal([
       label2, label3, label4
     ]);
   });

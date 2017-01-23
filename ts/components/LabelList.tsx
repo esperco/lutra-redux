@@ -30,7 +30,7 @@ export class LabelList extends React.Component<Props, {}> {
     return <TagList
       ref={(c) => this._tagList = c}
       choices={labels}
-      selected={selected}
+      selectedChoices={selected}
       partial={partial}
       filterFn={(filterStr) => filter(searchLabels, filterStr)}
       onAdd={this.add}

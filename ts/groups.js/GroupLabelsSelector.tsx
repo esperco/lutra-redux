@@ -5,7 +5,7 @@
 import * as _ from "lodash";
 import * as React from "react";
 import Icon from "../components/Icon";
-import { Choice } from '../components/FilterMenu';
+import { Choice } from '../components/Menu';
 import { TagList } from "../components/TagList";
 import * as ApiT from "../lib/apiT";
 import * as ASN from "../lib/asn";
@@ -111,7 +111,7 @@ export class GroupLabelsSelector extends React.Component<{
     return <TagList
       ref={(c) => this._tagList = c}
       choices={choices}
-      selected={selected}
+      selectedChoices={selected}
       onAdd={onAdd}
       onToggle={onToggle}
       onClose={this.props.onSubmit}

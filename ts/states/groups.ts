@@ -21,10 +21,19 @@ export interface GroupMembers {
   group_individuals: ApiT.GroupIndividual[];
 }
 
+export interface GroupPreferences {
+  daily_breakdown: boolean;
+  weekly_breakdown: boolean;
+  bad_meeting_warning: boolean;
+  bad_duration: number;
+  bad_attendees: number;
+}
+
 export interface GroupState {
   groupSummaries: StoreMap<GroupSummary>;
   groupLabels: StoreMap<GroupLabels>;
   groupMembers: StoreMap<GroupMembers>;
+  groupPreferences: StoreMap<GroupPreferences>;
 }
 
 export interface GroupFetchRequestAction {
@@ -48,12 +57,64 @@ export type GroupDataAction =
   GroupFetchRequestAction|
   GroupFetchResponseAction;
 
+export interface GroupPreferencesRequestAction {
+  type: "GROUP_PREFS";
+  dataType: "FETCH_START";
+  groupIds: string[];
+}
+
+export interface GroupPreferencesResponseAction {
+  type: "GROUP_PREFS";
+  dataType: "FETCH_END";
+  groupPrefs: ApiT.GroupPreferences[];
+  groupIds: string[]; // Keep group ids so we know if any groups were missing
+}
+
+export type GroupPreferencesAction =
+  GroupPreferencesRequestAction|
+  GroupPreferencesResponseAction;
+
 export interface GroupUpdateAction {
   type: "GROUP_UPDATE";
   groupId: string;
   summary?: Partial<GroupSummary>;
   labels?: Partial<GroupLabels>;
   members?: Partial<GroupMembers>;
+  preferences?: Partial<GroupPreferences>;
+}
+
+export function groupPreferencesReducer<S extends GroupState>(
+  state: S, action: GroupPreferencesAction
+) {
+  state = _.clone(state);
+  let groupPreferences = state.groupPreferences
+                       = _.clone(state.groupPreferences);
+
+  if (action.dataType === "FETCH_START") {
+    _.each(action.groupIds, (id) => {
+      if (!ok(groupPreferences[id])) {
+        groupPreferences[id] = "FETCHING";
+      }
+    });
+  } else {
+    if (action.dataType === "FETCH_END") {
+      _.each(action.groupIds, (id) => {
+        groupPreferences[id] = "FETCH_ERROR";
+      });
+    }
+
+    _.each(action.groupPrefs, (prefs) => {
+      groupPreferences[prefs.groupid] = {
+        daily_breakdown: prefs.daily_breakdown,
+        weekly_breakdown: prefs.weekly_breakdown,
+        bad_meeting_warning: prefs.bad_meeting_warning,
+        bad_duration: prefs.bad_duration,
+        bad_attendees: prefs.bad_attendees
+      };
+    })
+  }
+
+  return state;
 }
 
 export function groupDataReducer<S extends GroupState> (
@@ -162,6 +223,16 @@ export function groupUpdateReducer<S extends GroupState> (
     }
   }
 
+  if (action.preferences) {
+    let current = state.groupPreferences[groupId];
+    if (ready(current)) {
+      update.groupPreferences = {
+        ...state.groupPreferences,
+        [groupId]: { ...current, ...action.preferences }
+      };
+    }
+  }
+
   return _.extend({}, state, update);
 }
 
@@ -169,6 +240,7 @@ export function initState(): GroupState {
   return {
     groupSummaries: {},
     groupLabels: {},
-    groupMembers: {}
+    groupMembers: {},
+    groupPreferences: {}
   };
 }
