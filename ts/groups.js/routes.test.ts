@@ -60,7 +60,7 @@ describe("Routes", function() {
       });
     });
 
-    it("should fetch a default two week period if none provided " +
+    it("should fetch a default 7-day period starting today if none provided " +
        "and use all labels", () => {
       sandbox.useFakeTimers(1480579200000); // 12/1/2016
       let deps = getDeps();
@@ -76,7 +76,7 @@ describe("Routes", function() {
           showFilters: true,
           eventId: "abc",
           query: {},
-          period: { interval: 'week', start: 2448, end: 2449 }
+          period: { interval: 'day', start: 17136, end: 17142 }
         }
       });
     });

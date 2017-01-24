@@ -33,10 +33,10 @@ export interface EventListRoute {
 export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupId) {
-    // Default period = 2 weeks
-    let period = p.period || fromDates("week",
+    // Default period = today + 6 (7 days total)
+    let period = p.period || fromDates(
       new Date(),
-      moment(new Date()).add(1, 'week').toDate()
+      moment(new Date()).add(6, 'days').toDate()
     );
 
     let query: QueryFilter = reduce({
