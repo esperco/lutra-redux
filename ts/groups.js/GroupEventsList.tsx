@@ -2,19 +2,19 @@
   Groups-specific wrapper around event list component
 */
 import * as _ from "lodash";
-import * as $ from "jquery";
 import * as React from "react";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
+import TreeFall from "../components/TreeFall";
 import Waypoint from "../components/Waypoint";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
-import { GenericPeriod, toDays, dateForDay } from "../lib/period";
-import { StoreData } from "../states/data-status";
+import { GenericPeriod, index, toDays, dateForDay } from "../lib/period";
+import { StoreData, ready } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/group-events";
 import { Loading } from "../text/data-status";
 
@@ -38,13 +38,18 @@ interface State {
 }
 
 export class GroupEventsList extends React.Component<Props, State> {
+  // Sparsely-populated array. Indices refer to the period type's day-index
+  _refs: QueryDay[];
+
   constructor(props: Props) {
     super(props);
+    this._refs = [];
     this.state = { daysToShow: this.getDaysIncr() };
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (! _.isEqual(this.props.period, nextProps.period)) {
+      this._refs = [];
       this.setState({ daysToShow: this.getDaysIncr() });
     }
   }
@@ -67,9 +72,28 @@ export class GroupEventsList extends React.Component<Props, State> {
     let canShowMore = endToShow < end &&
       !_.find(queryDays, (d) => d[queryKey] === "FETCHING")
 
+    /*
+      Determine first visible day. Do not show button to jump to today if
+      today is first visible day (or if all events before today are not
+      visible).
+    */
+    let firstVisible = start;
+    let today = index(new Date(), 'day');
+    _.find(queryDays, (d, i) => {
+      let results = d[queryKey];
+      if (start + i === today ||
+          (ready(results) && results.eventIds.length > 0)) {
+        firstVisible = start + i;
+        return true;
+      }
+      return false;
+    });
+
     return <div className="group-events-list">
       { _.map(queryDays, (d, i) =>
-        <QueryDay key={i} day={start + i} result={d[queryKey]}
+        <QueryDay key={i} day={start + i}
+          ref={(c) => this._refs[start + i] = c}
+          result={d[queryKey]}
           eventMap={eventMap}
           { ...this.props }
           onChange={this.onChange}
@@ -143,31 +167,7 @@ interface DayProps extends SharedProps {
   to top and bottom (or just one waypoint if not content) which force an
   update when we scroll into view.
 */
-class QueryDay extends React.Component<DayProps, {}> {
-  _ref: HTMLElement;
-  _pending: boolean;
-
-  componentWillReceiveProps() {
-    this._pending = true; // New props, signal that there is an update queued
-  }
-
-  shouldComponentUpdate() {
-    // Update if visible
-    if (this._ref) {
-      let top = $(this._ref).position().top;
-      let bottom = top + $(this._ref).outerHeight();
-      let parent = $(this._ref).offsetParent();
-      return top <= parent.outerHeight() && bottom >= 0;
-    }
-
-    // Edge case -- ref missing for whatever reason? Return true to be safe.
-    return true;
-  }
-
-  componentDidUpdate() {
-    this._pending = false;
-  }
-
+class QueryDay extends TreeFall<DayProps, {}> {
   render() {
     if (! this.props.result || this.props.result === "FETCH_ERROR") {
       return this.renderEmpty();
@@ -179,8 +179,8 @@ class QueryDay extends React.Component<DayProps, {}> {
 
     if (_.isEmpty(calEvents)) return this.renderEmpty();;
 
-    return <div ref={(c) => this._ref = c}>
-      <Waypoint onEnter={this.maybeUpdate} />
+    return <div>
+      { this.renderWaypoint() }
       <DayBox date={dateForDay(this.props.day)}>
         {/*
           Wrap EventList with extra div so flexbox doesn't expand height of
@@ -188,7 +188,7 @@ class QueryDay extends React.Component<DayProps, {}> {
         */}
         <div><EventList events={calEvents} {...this.props} /></div>
       </DayBox>
-      <Waypoint onEnter={this.maybeUpdate} />
+      { this.renderWaypoint() }
     </div>;
   }
 
@@ -198,18 +198,9 @@ class QueryDay extends React.Component<DayProps, {}> {
     (since that shouldn't affect * + * CSS selectors or other spacing)
   */
   renderEmpty() {
-    return <span ref={(c) => this._ref = c}>
-      <Waypoint onEnter={this.maybeUpdate} />
-    </span>
-  }
-
-  // Update only if there is a pending udpate for this day
-  maybeUpdate = () => {
-    if (this._pending) {
-      this._pending = false; // Set false right away in case function fired
-                             // multiple times (e.g. because two waypoints)
-      this.forceUpdate();
-    }
+    return <span>
+      { this.renderWaypoint() }
+    </span>;
   }
 }
 
