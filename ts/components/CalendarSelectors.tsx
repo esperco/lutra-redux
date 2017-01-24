@@ -74,7 +74,7 @@ export class RangeSelector extends React.Component<RangeProps, RangeState> {
 
   selectDay(date: Date) {
     let start = this.state.start;
-    if (start && start.getTime() < date.getTime()) {
+    if (start && start.getTime() <= date.getTime()) {
       this.setState({ ...this.state, start: undefined });
       this.props.onChange([start, date]);
     } else {

@@ -171,4 +171,22 @@ describe("<RangeSelector />", () => {
     days.at(2).find('button').simulate('click');
     expect(changeSpy.called).to.be.false;
   });
+
+  it("allows single-day date range", () => {
+    let changeSpy = Sinon.spy();
+    let wrapper = shallow(<RangeSelector
+      initialView={new Date("2016-10-10")}
+      onChange={changeSpy}
+    />);
+    let days = wrapper.find('.day.in-month');
+
+    days.at(2).find('button').simulate('click');
+    expect(changeSpy.called).to.be.false;
+
+    days.at(2).find('button').simulate('click');
+    expectCalledWith(changeSpy, [
+      new Date("2016-10-3"),
+      new Date("2016-10-3")
+    ]);
+  });
 });

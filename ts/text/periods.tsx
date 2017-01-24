@@ -29,6 +29,9 @@ export function fmtPeriod(p: GenericPeriod, short=false) {
     return startText;
   }
   let endText = fmtPeriodDate(p.interval, end, short);
+  if (startText === endText) {
+    return startText;
+  }
   return `${startText} - ${endText}`;
 }
 
