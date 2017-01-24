@@ -140,6 +140,24 @@ namespace Api {
     return JsonHttp.put(url);
   }
 
+  export function putGroupIndividual(groupid: string, uid: string, opts: {
+    role?: string,
+    resendNotif?: boolean
+  } = {}): Promise<ApiT.GroupIndividual>
+  {
+    var query = opts.role || opts.resendNotif ? "?" : "";
+    var roleParam = opts.role ? "role=" + opts.role : "";
+    var resendParam = opts.resendNotif ? "resend_notif=true" : "";
+    var paramString = query + (opts.role && opts.resendNotif ?
+                               roleParam + "&" + resendParam :
+                               roleParam + resendParam);
+    var url = prefix + "/api/group/individual-member/" + string(myUid())
+      + "/" + string(groupid)
+      + "/" + string(uid)
+      + paramString;
+    return JsonHttp.put(url);
+  }
+
   export function putGroupLabels(
     groupid: string,
     labels: {labels: string[]}
@@ -155,6 +173,14 @@ namespace Api {
     var url = `${prefix}/api/group-label/set-color/${myUid()}`
       + `/${string(groupid)}`;
     return JsonHttp.post(url, req);
+  }
+
+  export function putGroupTimezone(groupid: string, timezone: string):
+    Promise<ApiT.Group>
+  {
+    var url = `${prefix}/api/group/timezone/${string(myUid())}/`
+      + `${string(groupid)}/${string(timezone)}`;
+    return JsonHttp.put(url);
   }
 
 

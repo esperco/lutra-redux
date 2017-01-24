@@ -134,7 +134,8 @@ export class Menu<P extends Props> extends React.Component<P, State> {
     color: string|undefined;
     content: string|JSX.Element;
   }) {
-    return <RadioItem name={props.key}
+    return <RadioItem key={props.key}
+        name={props.key}
         className={props.classNames}
         checked={props.selected}
         onChange={props.onSelect}

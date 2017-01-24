@@ -12,6 +12,7 @@ import Icon from "./Icon";
 
 
 export interface Props extends MenuProps {
+  enableAdd?: boolean;
   /*
     Filter function to use -- defaults to including trim plus lower-case of
     normalized text. Should return 2-tuple of filtered choices. First item
@@ -69,7 +70,7 @@ export class FilterMenu<P extends Props> extends Menu<P> {
         onDown={() => this.next()}
       />
 
-      { this.state.visibleAdd ? <div className="menu">
+      { this.state.visibleAdd && this.props.enableAdd ? <div className="menu">
         <button onClick={() => this.submit("click")}
           className={classNames({
             active: this.state.activeIndex === 0

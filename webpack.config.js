@@ -57,7 +57,7 @@ var config = {
 
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
+    extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".json"],
 
     alias: {
       // Special config path based on environment
@@ -100,6 +100,8 @@ var config = {
       },
 
       { test: /\.tsx?$/, loader: "ts-loader" },
+
+      { test: /\.json$/, loader: "json-loader" },
 
       // Static assets
       { test: /.*/,

@@ -10,10 +10,13 @@ import { ready } from '../states/data-status';
 import { GroupMembers } from '../states/groups';
 import SettingsNav from './SettingsNav';
 import Icon from '../components/Icon';
-import { Menu } from '../components/Menu';
+import { Menu, Choice } from '../components/Menu';
+import TimezoneSelector, { toZoneName } from '../components/TimezoneSelector';
 import { Dropdown } from '../components/Dropdown';
 import { GroupRole } from "../lib/apiT";
+import { ApiSvc } from "../lib/api";
 import { OrderedSet } from "../lib/util";
+import { Zones } from "../lib/timezones";
 import * as Text from "../text/groups";
 
 class Props {
@@ -21,6 +24,7 @@ class Props {
   page: SettingTypes;
   state: State;
   dispatch: DispatchFn;
+  Svcs: ApiSvc;
 }
 
 class Settings extends React.Component<Props, {}> {
@@ -45,7 +49,7 @@ class Settings extends React.Component<Props, {}> {
   }];
 
   render() {
-    let { groupId, state, dispatch } = this.props;
+    let { groupId, state, dispatch, Svcs } = this.props;
     let groupSummary = state.groupSummaries[groupId];
     let groupMembers = state.groupMembers[groupId];
 
@@ -57,13 +61,28 @@ class Settings extends React.Component<Props, {}> {
     }
 
     if (groupSummary === "FETCHING") {
-      return <div className="loading-msg" />;
+      return <div className="spinner" />;
     }
 
     if (ready(groupSummary)) {
       let content: JSX.Element;
       switch (this.props.page) {
         case "GeneralSettings":
+          let groupTimezone = groupSummary.group_timezone;
+          let timezone =
+            _.find(Zones, (z) => z.id === groupTimezone);
+          let onSelect = (choice: Choice, _: "enter"|"click") => {
+            let group_timezone = toZoneName(choice).id;
+            Svcs.Api.putGroupTimezone(groupId, group_timezone).then(() =>
+              dispatch({
+                type: "GROUP_UPDATE",
+                groupId,
+                summary: {
+                  group_timezone
+                }
+              })
+            );
+          };
           content = <div className="container">
             <div className="panel">
               <div className="input-row">
@@ -79,14 +98,21 @@ class Settings extends React.Component<Props, {}> {
                 <label htmlFor="group-timezone">
                   Timezone
                 </label>
-                <input id="group-timezone" name="group-timezone"
-                  type="text"
-                  defaultValue={groupSummary.group_timezone}
-                  placeholder="The Avengers" />
+                <Dropdown
+                  toggle={<input type="text" readOnly
+                    value={timezone ? timezone.display : ""} />}
+
+                  menu={<div className="dropdown-menu">
+                    <TimezoneSelector
+                      selected={groupSummary.group_timezone}
+                      onSelect={onSelect} />
+                  </div>}
+                />
               </div>
             </div>
             <div className="panel">
-              { ready(groupMembers) ? this.renderMembers(groupMembers)
+              { ready(groupMembers) ?
+                  this.renderMembers(groupMembers, groupId, {dispatch, Svcs})
                   : <div className="loading-msg" />
               }
             </div>
@@ -107,20 +133,39 @@ class Settings extends React.Component<Props, {}> {
     return <div className="no-content" />;
   }
 
-  renderMembers(list: GroupMembers) {
-    return _.map(list.group_individuals, (gim) => {
+  renderMembers(list: GroupMembers, groupId: string, deps: {
+    dispatch: DispatchFn,
+    Svcs: ApiSvc
+  }) {
+    let { dispatch, Svcs } = deps;
+    return _.map(list.group_individuals, (gim, i) => {
+      // Don't render this individual if its UID does not exist
+      if (!gim.uid) return;
+      let uid = gim.uid;
       let associatedTeam =
         _.find(list.group_teams, (m) => m.email === gim.email);
       let displayName = associatedTeam ? associatedTeam.name : gim.email;
       let choices = new OrderedSet(this.ROLE_LIST, (role) => role.normalized);
+
+      let onSelect = (choice: Choice, _method: "click"|"enter") => {
+        Svcs.Api.putGroupIndividual(groupId, uid, {role: choice.normalized})
+            .then(() => {
+              let group_individuals = _.cloneDeep(list.group_individuals);
+              let ind = _.find(group_individuals, (i) => i.uid === uid);
+              ind ? ind.role = choice.normalized as GroupRole : null;
+              dispatch({
+                type: "GROUP_UPDATE",
+                groupId,
+                members: { group_individuals }
+              });
+            });
+      };
 
       return <div key={gim.uid} className="panel">
         <Icon type={associatedTeam ? "calendar-check" : "calendar-empty"}>
           { displayName }
         </Icon>
         <Dropdown
-          keepOpen={true}
-
           toggle={<button className="group-role-badge">
             { Text.roleDisplayName(gim.role) }
             {" "}
@@ -129,6 +174,7 @@ class Settings extends React.Component<Props, {}> {
 
           menu={<div className="dropdown-menu">
             <Menu choices={choices}
+              onSelect={onSelect}
               selected={{original: "", normalized: gim.role}} />
           </div>}
         />
