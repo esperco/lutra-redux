@@ -36,6 +36,7 @@
 
     &.today {
       border: 1px solid @border-color;
+      color: @info;
     }
 
     &:hover, &:focus {
@@ -69,7 +70,10 @@
     color: @text-highlight;
     border-radius: 0;
 
-    &.today { border: 0; }
+    &.today {
+      border: 0;
+      color: @info;
+    }
 
     &.start {
       border-radius: @border-radius-small 0 0 @border-radius-small;
