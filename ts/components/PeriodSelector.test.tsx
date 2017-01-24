@@ -31,6 +31,7 @@ describe("<PeriodSelector />", () => {
 
     return {
       dropdown,
+      menu,
       rangeSelector,
       periodSelector,
       firstButton,
@@ -93,6 +94,51 @@ describe("<PeriodSelector />", () => {
       new Date("2016-11-1"),
       new Date("2016-11-30")
     ]);
+    expect(closeSpy.called).to.be.true;
+  });
+
+  it("calls onChange when preset selected", () => {
+    stubRAF();
+    let changeSpy = Sinon.spy();
+    let { menu } = getSubs(<PeriodSelector
+      // Value is Sept to Oct 2016
+      value={{ interval: "month", start: 560, end: 561 }}
+      onChange={changeSpy}
+      presets={[{
+        displayAs: "This Month",
+        value: { interval: "month", start: 565, end: 565 }
+      }]}
+    />, true); // Need to mount so Dropdown ref set
+
+    let preset = menu.find('.presets').find('button');
+    expect(preset.text()).to.equal('This Month');
+
+    preset.simulate('click');
+    expectCalledWith(changeSpy, {
+      interval: "month",
+      start: 565, end: 565
+    });
+  });
+
+  it("closes dropdown on preset selection", () => {
+    stubRAF();
+    let { periodSelector, menu } = getSubs(<PeriodSelector
+      // Value is Sept to Oct 2016
+      value={{ interval: "month", start: 560, end: 561 }}
+      onChange={() => null}
+      presets={[{
+        displayAs: "This Month",
+        value: { interval: "month", start: 565, end: 565 }
+      }]}
+    />, true); // Need to mount so Dropdown ref set
+
+    let instance = periodSelector.instance() as PeriodSelector;
+    expect(instance._dropdown).to.be.instanceOf(Dropdown);
+
+    let preset = menu.find('.presets').find('button');
+
+    let closeSpy = Sinon.spy(instance._dropdown, 'close');
+    preset.simulate('click');
     expect(closeSpy.called).to.be.true;
   });
 

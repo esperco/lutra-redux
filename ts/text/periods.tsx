@@ -9,6 +9,10 @@ export const Month = `Month`;
 export const Quarter = `Quarter`;
 export const Custom = `Custom`;
 
+export const Today = `Today`;
+export const ThisWeek = `This Week`;
+export const ThisMonth = `This Month`;
+
 export function date(d: Date|moment.Moment|string) {
   return moment(d).format("MMM D");
 }
