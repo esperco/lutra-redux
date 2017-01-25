@@ -128,6 +128,35 @@ describe("Group Events handlers", function() {
       expect(apiSpy.called).to.be.false;
     });
 
+    it("returns a promise for when queued fetches are done, even if not " +
+       "adding to queue", (done) => {
+      let deps = getDeps();
+      let { dfd, stub } = stubApiPlus(deps.Svcs, "postForGroupEvents");
+      fakeData(deps.state);
+
+      // Request should not make API call, but return promise that resolves
+      // when queue does
+      fetchGroupEvents({ groupId, period, query }, deps).then(() => {
+        // Sanity check. Multiple calls but only one API call.
+        expect(stub.callCount).to.equal(1);
+
+        // Check that query promise doesn't resolve until query2 does.
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_EVENTS_DATA",
+          dataType: "FETCH_QUERY_END",
+          groupId,
+          query: query2,
+          period: toDays(period),
+          events: []
+        });
+      }).then(done, done);
+
+      // Queue another request so above promise returns
+      let query2 = { contains: "Test" };
+      fetchGroupEvents({ groupId, period, query: query2 }, deps);
+      dfd.resolve({});
+    });
+
     it("does fetch if data missing for any one of dates", () => {
       let deps = getDeps();
       let apiSpy = sandbox.spy(deps.Svcs.Api, "postForGroupEvents");
