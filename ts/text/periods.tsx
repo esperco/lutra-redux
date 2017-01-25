@@ -9,6 +9,12 @@ export const Month = `Month`;
 export const Quarter = `Quarter`;
 export const Custom = `Custom`;
 
+export const Today = `Today`;
+export const ThisWeek = `This Week`;
+export const ThisMonth = `This Month`;
+
+export const PeriodSelectorText = "Select date range";
+
 export function date(d: Date|moment.Moment|string) {
   return moment(d).format("MMM D");
 }
@@ -29,6 +35,9 @@ export function fmtPeriod(p: GenericPeriod, short=false) {
     return startText;
   }
   let endText = fmtPeriodDate(p.interval, end, short);
+  if (startText === endText) {
+    return startText;
+  }
   return `${startText} - ${endText}`;
 }
 

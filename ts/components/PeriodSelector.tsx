@@ -1,15 +1,22 @@
 /*
   A calendar range selector that lets us increment by fixed intervals
 */
+import * as _ from "lodash";
 import * as React from "react";
 import { GenericPeriod, fromDates, bounds, add } from "../lib/period";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import { RangeSelector } from "./CalendarSelectors";
-import { fmtPeriod } from "../text/periods";
+import { fmtPeriod, PeriodSelectorText } from "../text/periods";
+
+interface Preset {
+  displayAs: string|JSX.Element;
+  value: GenericPeriod;
+}
 
 interface Props {
   value: GenericPeriod;
+  presets?: Preset[]
   onChange: (period: GenericPeriod) => void;
 }
 
@@ -30,7 +37,8 @@ export class PeriodSelector extends React.Component<Props, {}> {
         toggle={<button>
           { fmtPeriod(this.props.value) }
         </button>}
-        menu={<div className="dropdown-menu">
+        menu={<div className="dropdown-menu period-selector-menu">
+          <div className="description panel">{ PeriodSelectorText }</div>
           <RangeSelector
             value={[start, end]}
             initialView={start}
@@ -38,6 +46,7 @@ export class PeriodSelector extends React.Component<Props, {}> {
               fromDates(range[0], range[1])
             )}
           />
+          { this.renderPresets() }
         </div>}
       />
 
@@ -45,6 +54,19 @@ export class PeriodSelector extends React.Component<Props, {}> {
         <Icon type="next" />
       </button>
     </div>;
+  }
+
+  renderPresets() {
+    if (this.props.presets) {
+      return <div className="presets panel">
+        { _.map(this.props.presets, (d, i) => <button key={i}
+          className={_.isEqual(d.value, this.props.value) ? "active" : ""}
+          onClick={() => this.change(d.value)}>
+            { d.displayAs }
+          </button>) }
+      </div>;
+    }
+    return null;
   }
 
   incr(i: number) {
