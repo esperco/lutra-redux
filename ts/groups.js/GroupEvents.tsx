@@ -21,11 +21,12 @@ import * as ApiT from "../lib/apiT";
 import { guestSetFromGroupMembers, GuestSet } from "../lib/event-guests";
 import { LabelSet } from "../lib/event-labels";
 import { QueryFilter, reduce } from "../lib/event-queries";
-import { GenericPeriod } from "../lib/period";
+import { GenericPeriod, fromDates } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { calcKey } from "../states/group-calcs";
 import * as FilterText from "../text/filters";
+import * as PeriodText from "../text/periods";
 
 class RouteProps {
   groupId: string;
@@ -47,6 +48,7 @@ class GroupEvents extends React.Component<Props, {}> {
   render() {
     let { labels, searchLabels } = this.getLabels();
     let searchGuests = this.getGuests();
+    let now = new Date();
 
     return <div className={classNames("sidebar-layout", {
       "show-left": this.props.showFilters,
@@ -97,6 +99,16 @@ class GroupEvents extends React.Component<Props, {}> {
             <PeriodSelector
               value={this.props.period}
               onChange={(p) => this.update({ period: p })}
+              presets={[{
+                displayAs: PeriodText.Today,
+                value: fromDates(now, now)
+              }, {
+                displayAs: PeriodText.ThisWeek,
+                value: fromDates("week", now, now)
+              }, {
+                displayAs: PeriodText.ThisMonth,
+                value: fromDates("month", now, now)
+              }]}
             />
 
             { /* Refresh event list */ }
