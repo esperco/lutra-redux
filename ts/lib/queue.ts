@@ -16,8 +16,8 @@ interface ProcessFn<T> {
 }
 
 export class Queue<T> {
-  queue: T[];
-  deferred: Deferred<void>;
+  protected queue: T[];
+  protected deferred: Deferred<void>;
 
   constructor(public processFn: ProcessFn<T>) {
     this.queue = [];
@@ -30,6 +30,12 @@ export class Queue<T> {
 
   enqueue(item: T): Promise<void> {
     this.queue.push(item);
+    this.start();
+    return this.deferred.promise();
+  }
+
+  // Returns a promise for when queue resolves (even if queue is empty)
+  promise(): Promise<void> {
     this.start();
     return this.deferred.promise();
   }
