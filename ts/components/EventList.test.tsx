@@ -158,6 +158,27 @@ describe("EventDisplay", () => {
     expectCalledWith(spy, [unconfirmedevent.id]);
   });
 
+  it("clears the timeout if we exit before timer clears", () => {
+    let spy = Sinon.spy();
+    let wrapper = shallow(<EventDisplay
+      event={unconfirmedevent} { ...defaultsProps }
+      onConfirm={spy}
+      autoConfirmTimeout={1234}
+    />);
+    let waypoint = wrapper.find(Waypoint);
+    waypoint.prop('onEnter')({
+      currentPosition: "inside",
+      previousPosition: "below"
+    });
+    waypoint.prop('onLeave')({
+      currentPosition: "above",
+      previousPosition: "inside"
+    });
+
+    expect(timeouts).to.have.length(1);
+    expect(timeouts[0].cleared).to.be.ok;
+  });
+
   it("clears the timeout on unmount", () => {
     let wrapper = shallow(<EventDisplay
       event={unconfirmedevent} { ...defaultsProps }
