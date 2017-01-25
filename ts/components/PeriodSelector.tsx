@@ -7,7 +7,7 @@ import { GenericPeriod, fromDates, bounds, add } from "../lib/period";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import { RangeSelector } from "./CalendarSelectors";
-import { fmtPeriod } from "../text/periods";
+import { fmtPeriod, PeriodSelectorText } from "../text/periods";
 
 interface Preset {
   displayAs: string|JSX.Element;
@@ -38,6 +38,7 @@ export class PeriodSelector extends React.Component<Props, {}> {
           { fmtPeriod(this.props.value) }
         </button>}
         menu={<div className="dropdown-menu period-selector-menu">
+          <div className="description panel">{ PeriodSelectorText }</div>
           <RangeSelector
             value={[start, end]}
             initialView={start}

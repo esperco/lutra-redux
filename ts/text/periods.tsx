@@ -13,6 +13,8 @@ export const Today = `Today`;
 export const ThisWeek = `This Week`;
 export const ThisMonth = `This Month`;
 
+export const PeriodSelectorText = "Select date range";
+
 export function date(d: Date|moment.Moment|string) {
   return moment(d).format("MMM D");
 }

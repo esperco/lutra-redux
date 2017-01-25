@@ -24,7 +24,7 @@ header {
 .period-selector-menu .presets {
   display: flex;
   flex-flow: row wrap;
-  padding: 0;
+  padding: @padding-small;
 
   > button {
     flex-grow: 1;
@@ -32,6 +32,17 @@ header {
   }
 }
 
-.period-selector-menu * + .presets {
+.period-selector-menu .description {
+  text-align: center;
+  background: @shade-bg;
+  font-size: @font-size-small;
+  padding: @padding-small;
+}
+
+.period-selector-menu .calendar ~ * {
   margin-top: @padding-small;
+}
+
+.period-selector-menu .calendar > header:first-child {
+  margin-top: 0;
 }
