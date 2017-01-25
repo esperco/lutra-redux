@@ -145,7 +145,7 @@ interface EventState {
 }
 
 export class EventDisplay extends React.Component<EventProps, EventState> {
-  _timeout: number;
+  _timeout?: number;
 
   constructor(props: EventProps) {
     super(props);
@@ -167,7 +167,9 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
 
   // Don't fire confirmation timeout if we skipped past it really fast
   componentWillUnmount() {
-    clearTimeout(this._timeout);
+    if (typeof this._timeout !== "undefined") {
+      clearTimeout(this._timeout);
+    }
   }
 
   render() {
@@ -221,7 +223,11 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
 
       { !event.labels_confirmed ?
         <span className="confirm-waypoint">
-          <Waypoint onEnter={this.setConfirmTimeout} />
+          <Waypoint
+            fireOnRapidScroll={false}
+            onEnter={this.setConfirmTimeout}
+            onLeave={this.clearConfirmTimeout}
+          />
         </span> : null }
 
       <div className="event-actions">
@@ -260,9 +266,17 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
 
   // Once event has been viewed. Auto-confirm after a short timeout.
   setConfirmTimeout = () => {
-    if (!this._timeout && this.props.autoConfirmTimeout !== Infinity) {
+    if (typeof this._timeout === "undefined" &&
+        this.props.autoConfirmTimeout !== Infinity) {
       this._timeout = setTimeout(() => this.confirm(false),
         this.props.autoConfirmTimeout || DEFAULT_AUTO_CONFIRM_TIMEOUT);
+    }
+  }
+
+  clearConfirmTimeout = () => {
+    if (typeof this._timeout !== "undefined") {
+      clearTimeout(this._timeout);
+      delete this._timeout;
     }
   }
 
