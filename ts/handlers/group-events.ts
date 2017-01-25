@@ -336,6 +336,14 @@ export function fetchGroupEvents(props: {
     });
   }
 
+  /*
+    If nothing to queue, return promise dependent on other tasks in queue
+    since tasks in queue may contain calls to fetch data for this period.
+  */
+  if (_.isEmpty(periods)) {
+    return EventQueues.get(props.groupId).promise();
+  }
+
   let priority = (new Date()).getTime();
   return Promise.all(_.map(periods, (period) =>
     EventQueues.get(props.groupId).enqueue({
