@@ -45,27 +45,18 @@ describe("<GroupCalcDisplay />", () => {
     }
   };
 
+  beforeEach(() => {
+    stubRAF();
+  });
+
   it("renders calculation message if results not ready", () => {
     let wrapper = mount(<GroupCalcDisplay {...props} />);
     expect(wrapper.find('.calculating')).to.have.length(1);
-    expect(wrapper.find(Waypoint)).to.have.length(0);
     expect(wrapper.find('.stats')).to.have.length(0);
     expect(wrapper.find('.bar-chart')).to.have.length(0);
   });
-
-  it("hides chart data by default", () => {
-    let wrapper = mount(<GroupCalcDisplay
-      {...props}
-      results={results}
-    />);
-    expect(wrapper.find(Waypoint)).to.have.length(1);
-    expect(wrapper.find('.stats')).to.have.length(0);
-    expect(wrapper.find('.bar-chart')).to.have.length(0);
-  });
-
 
   function mountAndActivate(thisProps=props, thisResults=results) {
-    stubRAF();
     let wrapper = mount(<GroupCalcDisplay
       {...thisProps}
       results={thisResults}

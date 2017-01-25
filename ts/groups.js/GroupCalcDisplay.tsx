@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import BarChart from "../components/BarChart";
 import Tooltip from "../components/Tooltip";
-import Waypoint from "../components/Waypoint";
+import TreeFall from "../components/TreeFall";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
 import { ready, StoreData } from "../states/data-status";
@@ -17,33 +17,23 @@ interface Props {
   results?: StoreData<CalcResults>;
 }
 
-export class GroupCalcDisplay extends React.Component<Props, {
-  /*
+/*
     Active if user scrolls to see stats. We hide stats until user
     scrolls to make visible because if user has scrolled past chart
     already, we don't want the screen to jump if charts renders into
     something particularly long.
   */
-  active: boolean;
-}> {
+export class GroupCalcDisplay extends TreeFall<Props, {}> {
   constructor(props: Props) {
     super(props);
-    this.state = { active: false };
-  }
-
-  componentWillReceiveProps(newProps: Props) {
-    // New chart or still calculating => deactivate
-    if (!ready(newProps.results) || newProps.results !== this.props.results) {
-      this.setState({ active: false })
-    }
   }
 
   render() {
     let { results } = this.props;
-    if (!ready(results) || !this.state.active) {
+    if (!ready(results)) {
       return <div className="calc-display">
         { CommonText.Calculating }
-        { ready(results) ? <Waypoint onEnter={this.activate} /> : null }
+        { this.renderWaypoint() }
       </div>;
     }
 
@@ -51,11 +41,8 @@ export class GroupCalcDisplay extends React.Component<Props, {
       <Stats results={results} />
       { _.isEmpty(results.labelResults) ? null :
         <LabelChart {...this.props} results={results} /> }
+      { this.renderWaypoint() }
     </div>;
-  }
-
-  activate = () => {
-    this.setState({ active: true });
   }
 }
 
