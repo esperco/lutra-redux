@@ -42,7 +42,10 @@ export abstract class TreeFall<P, S> extends React.Component<P, S> {
     render function to trigger updates when user scrolls back into view.
   */
   renderWaypoint() {
-    return <Waypoint onEnter={this.maybeUpdate} />;
+    return <Waypoint
+      onEnter={this.maybeUpdate}
+      fireOnRapidScroll={false}
+    />;
   }
 
   // Update only if there is a pending update for this day
