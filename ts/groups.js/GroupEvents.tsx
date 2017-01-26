@@ -11,6 +11,7 @@ import delay from "../components/DelayedControl";
 import Icon from "../components/Icon";
 import PeriodSelector from "../components/PeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
+import Tooltip from "../components/Tooltip";
 import GroupCalcDisplay from "./GroupCalcDisplay";
 import GroupEventEditor from "./GroupEventEditor";
 import GroupEventsList from "./GroupEventsList";
@@ -25,6 +26,7 @@ import { GenericPeriod, fromDates } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { calcKey } from "../states/group-calcs";
+import * as EventText from "../text/events";
 import * as FilterText from "../text/filters";
 import * as PeriodText from "../text/periods";
 
@@ -112,9 +114,12 @@ class GroupEvents extends React.Component<Props, {}> {
             />
 
             { /* Refresh event list */ }
-            <button onClick={this.refresh}>
-              <Icon type="refresh" />
-            </button>
+            <Tooltip
+              target={<button onClick={this.refresh}>
+                <Icon type="refresh" />
+              </button>}
+              title={EventText.Refresh}
+            />
           </header>
 
           <ScrollContainer

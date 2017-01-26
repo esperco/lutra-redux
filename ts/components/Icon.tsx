@@ -48,7 +48,7 @@ export const IconMappings = {
   "previous": "fa-chevron-left",
   "refresh": "fa-refresh",
   "remove": "fa-close",
-  "repeat": "fa-refresh",
+  "repeat": "fa-clone",
   "save": "fa-check",
   "search": "fa-search",
   "settings": "fa-cog",
