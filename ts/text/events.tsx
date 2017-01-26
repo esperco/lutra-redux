@@ -116,3 +116,5 @@ export const CalcPeopleHoursDescription = "Total hours for each event times " +
 export const CalcGroupPeopleHoursDescription = "Total hours for each event " +
   "times each guest who is a member of this team attending that event";
 export const PeopleHoursByLabelTitle = "Team Person Hours by Tag";
+
+export const Refresh = "Refresh event data";
