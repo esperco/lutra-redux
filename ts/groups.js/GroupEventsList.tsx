@@ -8,12 +8,14 @@ import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
 import TreeFall from "../components/TreeFall";
 import Waypoint from "../components/Waypoint";
+import * as Select from "../handlers/events-select";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
-import { LabelSet } from "../lib/event-labels";
+import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
-import { GenericPeriod, index, toDays, dateForDay } from "../lib/period";
+import { GenericPeriod, toDays, dateForDay } from "../lib/period";
+import { NavSvc } from "../lib/routing";
 import { StoreData, ready } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/group-events";
 import { Loading } from "../text/data-status";
@@ -22,14 +24,14 @@ interface Props {
   groupId: string;
   period: GenericPeriod;
   query: QueryFilter;
-  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  eventHrefFn?: (ev?: ApiT.GenericCalendarEvent|string) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
   labels: LabelSet;
   searchLabels: LabelSet;
   state: StoreState;
   dispatch: DispatchFn;
   postTask: PostTaskFn;
-  Svcs: ApiSvc;
+  Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
 }
 
@@ -72,33 +74,29 @@ export class GroupEventsList extends React.Component<Props, State> {
     let canShowMore = endToShow < end &&
       !_.find(queryDays, (d) => d[queryKey] === "FETCHING")
 
-    /*
-      Determine first visible day. Do not show button to jump to today if
-      today is first visible day (or if all events before today are not
-      visible).
-    */
-    let firstVisible = start;
-    let today = index(new Date(), 'day');
-    _.find(queryDays, (d, i) => {
-      let results = d[queryKey];
-      if (start + i === today ||
-          (ready(results) && results.eventIds.length > 0)) {
-        firstVisible = start + i;
-        return true;
+    /* Determine if any recurring events are selected */
+    let selectedRecurringIds: {[recurringId: string]: true} = {};
+    for (let key in this.props.state.selectedEvents) {
+      let events = this.props.state.groupEvents[groupId] || {};
+      let event = events[key];
+      if (ready(event) && useRecurringLabels(event)) {
+        selectedRecurringIds[event.recurring_event_id] = true;
       }
-      return false;
-    });
+    }
 
     return <div className="group-events-list">
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i}
           ref={(c) => this._refs[start + i] = c}
           result={d[queryKey]}
+          selectedEventIds={this.props.state.selectedEvents}
+          selectedRecurringIds={selectedRecurringIds}
           eventMap={eventMap}
           { ...this.props }
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
+          onToggleSelect={this.onToggleSelect}
           autoConfirmTimeout={
             /* If admin, don't autoconfirm */
             this.props.state.loggedInAsAdmin ?
@@ -145,6 +143,25 @@ export class GroupEventsList extends React.Component<Props, State> {
     }, this.props);
   }
 
+  onToggleSelect = (eventId: string, value: boolean) => {
+    let count = _.size(this.props.state.selectedEvents);
+    if (this.props.eventHrefFn) {
+      if (value && count === 0) {
+        this.props.Svcs.Nav.go(this.props.eventHrefFn(eventId));
+        return;
+      } else if (!value && count === 1) {
+        this.props.Svcs.Nav.go(this.props.eventHrefFn());
+        return;
+      }
+    }
+
+    Select.toggleEventId({
+      eventId,
+      value,
+      groupId: this.props.groupId
+    }, this.props);
+  }
+
   showMore = () => {
     let incr = this.props.Conf && this.props.Conf.maxDaysFetch;
     if (incr) {
@@ -159,6 +176,8 @@ export class GroupEventsList extends React.Component<Props, State> {
 interface DayProps extends SharedProps {
   day: number; // Period day index
   result: StoreData<QueryResult>;
+  selectedEventIds: Record<string, true>;
+  selectedRecurringIds: Record<string, true>;
   eventMap: EventMap;
 }
 
@@ -186,7 +205,11 @@ class QueryDay extends TreeFall<DayProps, {}> {
           Wrap EventList with extra div so flexbox doesn't expand height of
           EventList when it's too short.
         */}
-        <div><EventList events={calEvents} {...this.props} /></div>
+        <div><EventList
+          events={calEvents}
+          selectedEventIds={this.props.selectedEventIds}
+          {...this.props}
+        /></div>
       </DayBox>
       { this.renderWaypoint() }
     </div>;

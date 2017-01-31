@@ -3,6 +3,7 @@
 */
 
 import * as React from 'react';
+import * as classNames from 'classnames';
 import Dropdown from "./Dropdown";
 import { Props as MenuProps, Choice, FilterMenu } from './FilterMenu';
 import Icon from "./Icon";
@@ -26,7 +27,9 @@ export class TagList extends React.Component<Props, {}> {
 
   renderTags() {
     return this.props.selected.map((c) =>
-      <span key={c.normalized} className="tag" style={{
+      <span key={c.normalized} className={classNames("tag", {
+        partial: this.props.partial && this.props.partial.has(c)
+      })} style={{
         background: c.color,
         color: c.color ? colorForText(c.color) : undefined
       }}>

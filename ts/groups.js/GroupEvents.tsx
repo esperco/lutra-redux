@@ -14,6 +14,7 @@ import ScrollContainer from "../components/ScrollContainer";
 import Tooltip from "../components/Tooltip";
 import GroupCalcDisplay from "./GroupCalcDisplay";
 import GroupEventEditor from "./GroupEventEditor";
+import GroupMultiEventEditor from "./GroupMultiEventEditor";
 import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
 import * as Events from "../handlers/group-events";
@@ -55,7 +56,7 @@ class GroupEvents extends React.Component<Props, {}> {
     return <div className={classNames("sidebar-layout", {
       "show-left": this.props.showFilters,
       "hide-left": this.props.showFilters === false,
-      "show-right": !!this.props.eventId
+      "show-right": _.size(this.props.state.selectedEvents) > 0
     })}>
 
       {/* Filters Sidebar -- delayed URL update */}
@@ -145,7 +146,7 @@ class GroupEvents extends React.Component<Props, {}> {
           <Icon type="close" />
         </button>
 
-        { this.renderSingleEvent({ labels, searchLabels }) }
+        { this.renderEventSidebar({ labels, searchLabels }) }
       </div>
     </div>;
   }
@@ -184,19 +185,26 @@ class GroupEvents extends React.Component<Props, {}> {
     />;
   }
 
-  renderSingleEvent({ labels, searchLabels }: {
+  renderEventSidebar(labelProps: {
     labels: LabelSet;
     searchLabels: LabelSet;
   }) {
-    if (this.props.eventId) {
+    let numEvents = _.size(this.props.state.selectedEvents);
+    if (numEvents === 0) return null;
+    if (numEvents === 1) {
       return <GroupEventEditor
         {...this.props}
-        eventId={this.props.eventId}
+        {...labelProps}
         guestHrefFn={this.guestHref}
         labelHrefFn={this.labelHref}
       />;
     }
-    return null; // No event
+
+    return <GroupMultiEventEditor
+      {...this.props}
+      {...labelProps}
+      labelHrefFn={this.labelHref}
+    />;
   }
 
   // Create LabelSet from suggestions to pass down
@@ -257,10 +265,10 @@ class GroupEvents extends React.Component<Props, {}> {
     });
   }
 
-  eventHref = (event: ApiT.GenericCalendarEvent) => {
-    return this.updateHref({
-      eventId: event.id
-    });
+  eventHref = (eventOrId?: ApiT.GenericCalendarEvent|string) => {
+    let eventId = typeof eventOrId === "string" ?
+      eventOrId : (eventOrId && eventOrId.id);
+    return this.updateHref({ eventId });
   }
 
   guestHref = (guest: ApiT.Attendee) => {
