@@ -4,6 +4,7 @@ import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 import * as Suggestions from "../states/group-suggestions";
+import * as Select from "../states/events-select";
 
 /*
   Exports a correctly typed state object.
@@ -15,6 +16,7 @@ export default function initState(): State {
     ...Groups.initState(),
     ...Events.initState(),
     ...Calcs.initState(),
+    ...Select.initState(),
     ...Suggestions.initState()
   };
 }

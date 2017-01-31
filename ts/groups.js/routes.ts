@@ -54,6 +54,23 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     Calcs.startGroupCalc(props, { ...deps, promise });
     Suggestions.loadSuggestions(props, { ...deps, promise });
 
+    // Toggle selection based on URL
+    if (p.eventId) {
+      deps.dispatch({
+        type: "TOGGLE_EVENT_SELECTION",
+        clear: true,
+        groupId,
+        eventId: p.eventId,
+        value: true
+      });
+    } else {
+      deps.dispatch({
+        type: "TOGGLE_EVENT_SELECTION",
+        clear: true,
+        groupId
+      });
+    }
+
     deps.dispatch({
       type: "ROUTE",
       route: compactObject({
