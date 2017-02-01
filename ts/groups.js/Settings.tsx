@@ -13,7 +13,6 @@ import {
 } from '../handlers/team-cals';
 import { removeGroupIndividual } from '../handlers/groups';
 import { GroupMembers } from '../states/groups';
-import SettingsNav from './SettingsNav';
 import Icon from '../components/Icon';
 import { Menu, Choice } from '../components/Menu';
 import TimezoneSelector, { toZoneName } from '../components/TimezoneSelector';
@@ -126,7 +125,6 @@ class Settings extends React.Component<Props, {}> {
       }
 
       return <div>
-        <SettingsNav {...this.props} />
         <div className="content">
           { content }
         </div>
