@@ -38,16 +38,6 @@ export class FilterMenu<P extends Props> extends Menu<P> {
     this.state = this.resetState(props);
   }
 
-  resetState(props: Props): State {
-    return {
-      value: "",
-      activeIndex: -1,
-      visibleChoices: props.choices.toList(),
-      visibleSpecialChoices: !!props.specialChoices,
-      visibleAdd: false
-    };
-  }
-
   render() {
     // Incr values are used to determine whether an item is highlighted
     // because of this.state.activeIndex
