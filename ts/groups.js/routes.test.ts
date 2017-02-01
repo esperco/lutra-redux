@@ -165,8 +165,7 @@ describe("Routes", function() {
       let deps = getDepsForSelectAll();
       Routes.eventList({
         pathname,
-        hash: "#!/event-list/group-id-123?" +
-              "showFilters=1&selectAll=1&period=d,10000,10002"
+        hash: "#!/event-list/group-id-123?selectMode=1&period=d,10000,10002"
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",
@@ -176,18 +175,29 @@ describe("Routes", function() {
       });
     });
 
-    it("should prioritize select all over single event ID", () => {
+    it("should dispatch action to toggle selection on", () => {
       let deps = getDepsForSelectAll();
       Routes.eventList({
         pathname,
-        hash: "#!/event-list/group-id-123?" +
-              "showFilters=1&eventId=id4&selectAll=1&period=d,10000,10002"
+        hash: "#!/event-list/group-id-123?eventId=id4&selectMode=1"
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",
         groupId: "group-id-123",
-        clear: true,
-        eventIds: { id1: true, id2: true, id3: true }
+        eventIds: { id4: true }
+      });
+    });
+
+    it("should dispatch action to toggle selection off", () => {
+      let deps = getDepsForSelectAll();
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?eventId=id4&selectMode=0"
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "TOGGLE_EVENT_SELECTION",
+        groupId: "group-id-123",
+        eventIds: { id4: false }
       });
     });
 
@@ -195,8 +205,7 @@ describe("Routes", function() {
       let deps = getDepsForSelectAll();
       Routes.eventList({
         pathname,
-        hash: "#!/event-list/group-id-123?" +
-              "showFilters=1&period=d,10000,10002"
+        hash: "#!/event-list/group-id-123"
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",

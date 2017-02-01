@@ -8,7 +8,6 @@ import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
 import TreeFall from "../components/TreeFall";
 import Waypoint from "../components/Waypoint";
-import * as Select from "../handlers/events-select";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
@@ -26,10 +25,11 @@ interface Props {
   groupId: string;
   period: GenericPeriod;
   query: QueryFilter;
-  eventHrefFn?: (ev: ApiT.GenericCalendarEvent|string) => string;
+  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
   clearAllHrefFn?: () => string;
   selectAllHrefFn?: () => string;
+  toggleHrefFn?: (eventId: string, value: boolean) => string;
   labels: LabelSet;
   searchLabels: LabelSet;
   state: StoreState;
@@ -102,7 +102,7 @@ export class GroupEventsList extends React.Component<Props, State> {
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
-          onToggleSelect={this.onToggleSelect}
+          onToggleSelect={this.props.toggleHrefFn && this.onToggleSelect}
           autoConfirmTimeout={
             /* If admin, don't autoconfirm */
             this.props.state.loggedInAsAdmin ?
@@ -184,22 +184,10 @@ export class GroupEventsList extends React.Component<Props, State> {
   }
 
   onToggleSelect = (eventId: string, value: boolean) => {
-    let count = _.size(this.props.state.selectedEvents);
-    if (this.props.eventHrefFn) {
-      if (value && count === 0) {
-        this.props.Svcs.Nav.go(this.props.eventHrefFn(eventId));
-        return;
-      } else if (!value && count === 1 && this.props.clearAllHrefFn) {
-        this.props.Svcs.Nav.go(this.props.clearAllHrefFn());
-        return;
-      }
+    if (this.props.toggleHrefFn) {
+      let url = this.props.toggleHrefFn(eventId, value);
+      this.props.Svcs.Nav.go(url);
     }
-
-    Select.toggleEventId({
-      eventId,
-      value,
-      groupId: this.props.groupId
-    }, this.props);
   }
 
   showMore = () => {

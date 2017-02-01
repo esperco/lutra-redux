@@ -35,7 +35,7 @@ class RouteProps {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
-  selectAll?: boolean;
+  selectMode?: boolean;
   query: QueryFilter;
   period: GenericPeriod;
 }
@@ -184,6 +184,7 @@ class GroupEvents extends React.Component<Props, {}> {
       labelHrefFn={this.labelHref}
       clearAllHrefFn={this.clearAllHref}
       selectAllHrefFn={this.selectAllHref}
+      toggleHrefFn={this.toggleHref}
     />;
   }
 
@@ -254,7 +255,8 @@ class GroupEvents extends React.Component<Props, {}> {
   backdropHref() {
     return this.updateHref({
       showFilters: false,
-      eventId: undefined
+      eventId: undefined,
+      selectMode: undefined
     });
   }
 
@@ -267,32 +269,30 @@ class GroupEvents extends React.Component<Props, {}> {
     });
   }
 
-  eventHref = (eventOrId: ApiT.GenericCalendarEvent|string) => {
-    let eventId = typeof eventOrId === "string" ?
-      eventOrId : (eventOrId && eventOrId.id);
-    return this.updateHref({ eventId });
-  }
+  eventHref = (event: ApiT.GenericCalendarEvent) => this.updateHref({
+    eventId: event.id
+  });
 
-  guestHref = (guest: ApiT.Attendee) => {
-    return this.updateHref({
+  guestHref = (guest: ApiT.Attendee) => this.updateHref({
       query: { participant: [guest.email] }
-    });
-  }
+  });
 
-  labelHref = (label: ApiT.LabelInfo) => {
-    return this.updateHref({
-      query: { labels: { some: { [label.normalized]: true }}}
-    });
-  }
+  labelHref = (label: ApiT.LabelInfo) => this.updateHref({
+    query: { labels: { some: { [label.normalized]: true }}}
+  });
 
   selectAllHref = () => this.updateHref({
-    selectAll: true,
+    selectMode: true,
     eventId: undefined
   });
 
   clearAllHref = () => this.updateHref({
-    selectAll: undefined,
+    selectMode: false,
     eventId: undefined
+  });
+
+  toggleHref = (eventId: string, selectMode: boolean) => this.updateHref({
+    eventId, selectMode
   });
 
   update(updates: Partial<RouteProps>) {

@@ -27,7 +27,6 @@ export interface EventListRoute {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
-  selectAll?: boolean;
   query: QueryFilter;
   period: GenericPeriod;
 };
@@ -56,17 +55,18 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     Calcs.startGroupCalc(props, { ...deps, promise });
     Suggestions.loadSuggestions(props, { ...deps, promise });
 
-    // Toggle selection based on URL
-    if (p.selectAll) {
+    // Toggle selection based on URL - select without eventId => select all
+    if (p.selectMode === true && !p.eventId) {
       Select.selectAll(props, deps);
     }
 
+    // Select with event ID => select one
     else if (p.eventId) {
       Select.toggleEventId({
         groupId,
-        clear: true,
+        clear: typeof p.selectMode === 'undefined',
         eventId: p.eventId,
-        value: true
+        value: typeof p.selectMode === 'undefined' ? true : p.selectMode
       }, deps);
     }
 
@@ -82,8 +82,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
         groupId: groupId,
         showFilters: p.showFilters,
         eventId: p.eventId || undefined,
-        query, period,
-        selectAll: p.selectAll
+        query, period
       })
     });
   } else {

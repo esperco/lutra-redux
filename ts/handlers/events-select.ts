@@ -14,17 +14,18 @@ export function toggleEventId(props: {
   groupId: string;
   eventId: string;
   value: boolean;
-  clear?: true;
+  clear?: boolean;
 }, deps: {
   dispatch: (a: ToggleEventAction) => void;
   state: EventsSelectState
 }) {
-  deps.dispatch({
+  let action: ToggleEventAction = {
     type: "TOGGLE_EVENT_SELECTION",
     groupId: props.groupId,
-    clear: props.clear,
     eventIds: { [props.eventId]: props.value }
-  });
+  };
+  if (props.clear) action.clear = true;
+  deps.dispatch(action);
 }
 
 // Clear selection
