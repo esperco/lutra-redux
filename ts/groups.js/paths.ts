@@ -15,6 +15,7 @@ export const eventList = new Path({
   optParams: {
     showFilters: BooleanParam,
     eventId: StringParam,
+    selectAll: BooleanParam,
     labels: AllSomeNoneParam,
     contains: StringParam,
     participant: StringArrayParam,

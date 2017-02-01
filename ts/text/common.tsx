@@ -40,6 +40,7 @@ export const Calculating = <span className="calculating">
   Crunching numbers &hellip;
 </span>;
 export const SelectAll = "Select All";
+export const ClearAll = "Clear Selection";
 
 // Navigation
 export const ExecLink = "Esper for Individuals";

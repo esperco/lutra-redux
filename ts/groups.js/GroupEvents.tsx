@@ -35,6 +35,7 @@ class RouteProps {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
+  selectAll?: boolean;
   query: QueryFilter;
   period: GenericPeriod;
 }
@@ -140,9 +141,8 @@ class GroupEvents extends React.Component<Props, {}> {
 
       {/* Additional event info goes here (if applicable) */}
       <div className="sidebar panel">
-        <button className="close-btn" onClick={() => this.update({
-          eventId: undefined
-        })}>
+        <button className="close-btn"
+                onClick={() => this.props.Svcs.Nav.go(this.clearAllHref())}>
           <Icon type="close" />
         </button>
 
@@ -182,6 +182,8 @@ class GroupEvents extends React.Component<Props, {}> {
       searchLabels={searchLabels}
       eventHrefFn={this.eventHref}
       labelHrefFn={this.labelHref}
+      clearAllHrefFn={this.clearAllHref}
+      selectAllHrefFn={this.selectAllHref}
     />;
   }
 
@@ -265,7 +267,7 @@ class GroupEvents extends React.Component<Props, {}> {
     });
   }
 
-  eventHref = (eventOrId?: ApiT.GenericCalendarEvent|string) => {
+  eventHref = (eventOrId: ApiT.GenericCalendarEvent|string) => {
     let eventId = typeof eventOrId === "string" ?
       eventOrId : (eventOrId && eventOrId.id);
     return this.updateHref({ eventId });
@@ -282,6 +284,16 @@ class GroupEvents extends React.Component<Props, {}> {
       query: { labels: { some: { [label.normalized]: true }}}
     });
   }
+
+  selectAllHref = () => this.updateHref({
+    selectAll: true,
+    eventId: undefined
+  });
+
+  clearAllHref = () => this.updateHref({
+    selectAll: undefined,
+    eventId: undefined
+  });
 
   update(updates: Partial<RouteProps>) {
     this.props.Svcs.Nav.go(this.updateHref(updates));

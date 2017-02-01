@@ -14,18 +14,22 @@ import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
+import { iter } from "../lib/event-query-iter";
 import { GenericPeriod, toDays, dateForDay } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { StoreData, ready } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/group-events";
 import { Loading } from "../text/data-status";
+import * as CommonText from "../text/common";
 
 interface Props {
   groupId: string;
   period: GenericPeriod;
   query: QueryFilter;
-  eventHrefFn?: (ev?: ApiT.GenericCalendarEvent|string) => string;
+  eventHrefFn?: (ev: ApiT.GenericCalendarEvent|string) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
+  clearAllHrefFn?: () => string;
+  selectAllHrefFn?: () => string;
   labels: LabelSet;
   searchLabels: LabelSet;
   state: StoreState;
@@ -85,6 +89,8 @@ export class GroupEventsList extends React.Component<Props, State> {
     }
 
     return <div className="group-events-list">
+      { this.renderSelectAll() }
+
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i}
           ref={(c) => this._refs[start + i] = c}
@@ -106,12 +112,46 @@ export class GroupEventsList extends React.Component<Props, State> {
       ) }
 
       { canShowMore ?
+
         /* Use different key so it re-updates if nothing new in update */
         <div className="loading-msg">
           <Waypoint key={endToShow} onEnter={this.showMore} />
           { Loading }
-        </div> : null }
+        </div> :
+
+        /* Select all button at end too */
+        this.renderSelectAll()
+      }
     </div>;
+  }
+
+  renderSelectAll() {
+    /*
+      Render select all only if all events are here since we can't really
+      select all if we don't know which events to selet.
+    */
+    let ready = iter(this.props, this.props.state, () => null);
+    if (! ready) return null;
+
+    // Some selected -> de-select
+    if (_.size(this.props.state.selectedEvents) > 0) {
+      if (this.props.clearAllHrefFn) {
+        let url = this.props.clearAllHrefFn();
+        return <button onClick={() => this.props.Svcs.Nav.go(url)}>
+          { CommonText.ClearAll }
+        </button>;
+      }
+      return null;
+    }
+
+    // Else show select all
+    if (this.props.selectAllHrefFn) {
+      let url = this.props.selectAllHrefFn();
+      return <button onClick={() => this.props.Svcs.Nav.go(url)}>
+        { CommonText.SelectAll }
+      </button>;
+    }
+    return null;
   }
 
   onChange = (eventIds: string[], label: ApiT.LabelInfo, active: boolean) => {
@@ -149,8 +189,8 @@ export class GroupEventsList extends React.Component<Props, State> {
       if (value && count === 0) {
         this.props.Svcs.Nav.go(this.props.eventHrefFn(eventId));
         return;
-      } else if (!value && count === 1) {
-        this.props.Svcs.Nav.go(this.props.eventHrefFn());
+      } else if (!value && count === 1 && this.props.clearAllHrefFn) {
+        this.props.Svcs.Nav.go(this.props.clearAllHrefFn());
         return;
       }
     }

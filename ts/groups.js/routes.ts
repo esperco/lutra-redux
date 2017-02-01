@@ -8,6 +8,7 @@ import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod, fromDates } from "../lib/period";
 import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/group-events";
+import * as Select from "../handlers/events-select";
 import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
 import * as Log from "../lib/log";
@@ -26,6 +27,7 @@ export interface EventListRoute {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
+  selectAll?: boolean;
   query: QueryFilter;
   period: GenericPeriod;
 };
@@ -55,22 +57,23 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     Suggestions.loadSuggestions(props, { ...deps, promise });
 
     // Toggle selection based on URL
-    if (p.eventId) {
-      deps.dispatch({
-        type: "TOGGLE_EVENT_SELECTION",
-        clear: true,
+    if (p.selectAll) {
+      Select.selectAll(props, deps);
+    }
+
+    else if (p.eventId) {
+      Select.toggleEventId({
         groupId,
         eventId: p.eventId,
         value: true
-      });
-    } else {
-      deps.dispatch({
-        type: "TOGGLE_EVENT_SELECTION",
-        clear: true,
-        groupId
-      });
+      }, deps);
     }
 
+    else {
+      Select.clearAll(groupId, deps);
+    }
+
+    // Dispatch route changes
     deps.dispatch({
       type: "ROUTE",
       route: compactObject({
@@ -78,7 +81,8 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
         groupId: groupId,
         showFilters: p.showFilters,
         eventId: p.eventId || undefined,
-        query, period
+        query, period,
+        selectAll: p.selectAll
       })
     });
   } else {
