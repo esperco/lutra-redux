@@ -7,6 +7,7 @@ import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Suggestions from "../states/group-suggestions";
 import * as Groups from "../states/groups";
+import * as TeamCalendars from "../states/team-cals";
 import * as ErrorMsg from "../states/error-msg";
 import * as Scroll from "../states/scroll";
 import * as Login from "../lib/login";
@@ -31,7 +32,10 @@ export type Action =
   Groups.GroupDataAction|
   Groups.GroupPreferencesAction|
   Groups.GroupUpdateAction|
+  Groups.GroupDeleteGIMAction|
   Suggestions.SuggestionsAction|
+  TeamCalendars.TeamCalendarDataAction|
+  TeamCalendars.TeamCalendarUpdateAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
@@ -49,6 +53,7 @@ export interface State extends
   ErrorMsg.ErrorMsgState,
   Scroll.ScrollState,
   Suggestions.SuggestionsState,
+  TeamCalendars.TeamCalendarState,
   Login.LoginState,
   Routing.RouteState<Routes.RouteTypes> { };
 

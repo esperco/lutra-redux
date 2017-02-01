@@ -5,7 +5,8 @@ import { updateLabelList } from "../lib/event-labels";
 import { LoginState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
 import {
-  GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction
+  GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
+  GroupDeleteGIMAction
 } from "../states/groups";
 import { ok, ready } from "../states/data-status";
 import { compactObject as compact } from "../lib/util";
@@ -94,6 +95,26 @@ export function fetchPreferences(groupid: string, deps: {
         }));
       });
   }
+  return Promise.resolve();
+}
+
+export function removeGroupIndividual(groupId: string, gim: ApiT.GroupIndividual, deps: {
+  dispatch: (a: GroupDeleteGIMAction) => any;
+  state: GroupState;
+  Svcs: ApiSvc;
+}): Promise<void> {
+  if (!gim.uid) return Promise.resolve();
+  let { dispatch, state, Svcs } = deps;
+
+  if (ok(state.groupMembers[groupId])) {
+    dispatch({
+      type: "GROUP_DELETE_GIM",
+      groupId,
+      gim
+    })
+    return Svcs.Api.removeGroupIndividual(groupId, gim.uid);
+  }
+
   return Promise.resolve();
 }
 

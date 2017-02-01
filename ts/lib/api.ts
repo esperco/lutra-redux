@@ -158,6 +158,14 @@ namespace Api {
     return JsonHttp.put(url);
   }
 
+  export function removeGroupIndividual(groupid: string, uid: string):
+    Promise<void>
+  {
+    var url = `${prefix}/api/group/individual-member/${string(myUid())}`
+      + `/${string(groupid)}/${string(uid)}`;
+    return JsonHttp.delete_(url);
+  }
+
   export function putGroupLabels(
     groupid: string,
     labels: {labels: string[]}
@@ -201,6 +209,28 @@ namespace Api {
     return JsonHttp.put(url, prefs);
   }
 
+
+  /* Calendars */
+  export function getTimestatsCalendarList(teamid: string):
+    Promise<ApiT.GenericCalendars> {
+    var url =
+      `${prefix}/api/ts/ts-calendars/${string(myUid())}/${string(teamid)}`;
+    return JsonHttp.get(url);
+  }
+
+  export function getGenericCalendarList(teamid: string):
+    Promise<ApiT.GenericCalendars> {
+    var url = `${prefix}/api/ts/calendars/${string(myUid())}/${string(teamid)}`;
+    return JsonHttp.get(url);
+  }
+
+  export function putTeamTimestatsCalendars(teamid: string, cals: string[]):
+    Promise<ApiT.Team>
+  {
+    var url = `${prefix}/api/team/${string(myUid())}`
+            + `/${string(teamid)}/ts-calendars`;
+    return JsonHttp.put(url, { calendars: cals });
+  }
 
   /* Events */
 

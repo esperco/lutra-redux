@@ -83,6 +83,12 @@ export interface GroupUpdateAction {
   preferences?: Partial<GroupPreferences>;
 }
 
+export interface GroupDeleteGIMAction {
+  type: "GROUP_DELETE_GIM";
+  groupId: string;
+  gim: ApiT.GroupIndividual;
+}
+
 export function groupPreferencesReducer<S extends GroupState>(
   state: S, action: GroupPreferencesAction
 ) {
@@ -234,6 +240,20 @@ export function groupUpdateReducer<S extends GroupState> (
   }
 
   return _.extend({}, state, update);
+}
+
+export function groupDeleteGIMReducer<S extends GroupState>(
+  state: S, action: GroupDeleteGIMAction
+): S {
+  let { groupId, gim } = action;
+  state = _.clone(state);
+  let current = state.groupMembers[groupId];
+
+  if (ready(current)) {
+    _.pull(current.group_individuals, gim);
+  }
+
+  return state;
 }
 
 export function initState(): GroupState {

@@ -14,6 +14,7 @@ import * as Events from "../states/group-events";
 import * as Suggestions from "../states/group-suggestions";
 import * as Groups from "../states/groups";
 import * as Scroll from "../states/scroll";
+import * as TeamCalendars from "../states/team-cals";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import initState from "./init-state";
@@ -34,6 +35,8 @@ export const store = createStore(
         return Groups.groupDataReducer(state, action);
       case "GROUP_UPDATE":
         return Groups.groupUpdateReducer(state, action);
+      case "GROUP_DELETE_GIM":
+        return Groups.groupDeleteGIMReducer(state, action);
       case "GROUP_PREFS":
         return Groups.groupPreferencesReducer(state, action);
       case "GROUP_EVENTS_DATA":
@@ -51,6 +54,10 @@ export const store = createStore(
         return Calcs.calcReducer(state, action);
       case "GROUP_SUGGESTIONS":
         return Suggestions.suggestReducer(state, action);
+      case "TEAM_CALENDAR_DATA":
+        return TeamCalendars.teamCalendarDataReducer(state, action);
+      case "TEAM_CALENDAR_UPDATE":
+        return TeamCalendars.teamCalendarUpdateReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);
