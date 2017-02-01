@@ -127,10 +127,6 @@ function LabelChart({ results, labels, labelHrefFn } : {
         let pct = v.value / results.groupPeopleSeconds;
         return <EventText.FmtHoursPct hours={hours} pct={pct} />;
       }}
-      tooltip={(v) => {
-        let hours = EventText.toHours(results.groupPeopleSeconds);
-        return `${hours} ${EventText.groupPeopleHours(hours)}`;
-      }}
     />
   </div>;
 }

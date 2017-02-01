@@ -37,14 +37,14 @@ export class BarChart extends React.Component<Props, {}> {
   renderRow(value: Value, maxValue: number) {
     let width = roundStr(100 * value.value/maxValue, 1) + "%";
     let style = { width, background: value.color };
+    let bar = <span className="bar" style={style} />;
+
     return <div className="row" key={value.id || randomString()}>
       <div className="name">{ value.displayAs }</div>
       <div className="value">
-        <Tooltip
-          target={<span className="bar" style={style} />}
-          title={ this.props.tooltip ?
-                  this.props.tooltip(value) :
-                  value.value.toString() } />
+        { this.props.tooltip ? <Tooltip
+          target={bar}
+          title={ this.props.tooltip(value) } /> : bar }
         <span className="number">
           { this.props.fmtValue(value) }
         </span>
