@@ -14,6 +14,7 @@ export function toggleEventId(props: {
   groupId: string;
   eventId: string;
   value: boolean;
+  clear?: true;
 }, deps: {
   dispatch: (a: ToggleEventAction) => void;
   state: EventsSelectState
@@ -21,6 +22,7 @@ export function toggleEventId(props: {
   deps.dispatch({
     type: "TOGGLE_EVENT_SELECTION",
     groupId: props.groupId,
+    clear: props.clear,
     eventIds: { [props.eventId]: props.value }
   });
 }

@@ -64,6 +64,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     else if (p.eventId) {
       Select.toggleEventId({
         groupId,
+        clear: true,
         eventId: p.eventId,
         value: true
       }, deps);
