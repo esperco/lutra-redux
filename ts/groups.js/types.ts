@@ -10,6 +10,7 @@ import * as Groups from "../states/groups";
 import * as TeamCalendars from "../states/team-cals";
 import * as ErrorMsg from "../states/error-msg";
 import * as Scroll from "../states/scroll";
+import * as Select from "../states/events-select";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
@@ -40,6 +41,7 @@ export type Action =
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
   Scroll.ScrollAction|
+  Select.ToggleEventAction|
   { type: "@@INIT" };
 
 /*
@@ -55,7 +57,8 @@ export interface State extends
   Suggestions.SuggestionsState,
   TeamCalendars.TeamCalendarState,
   Login.LoginState,
-  Routing.RouteState<Routes.RouteTypes> { };
+  Routing.RouteState<Routes.RouteTypes>,
+  Select.EventsSelectState { };
 
 // Variant of state where we're logged in
 export type LoggedInState = State & Login.LoggedInState;

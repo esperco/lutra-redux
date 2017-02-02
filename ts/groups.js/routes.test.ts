@@ -1,8 +1,10 @@
 import analyticsFake from "../fakes/analytics-fake";
 import apiFake from "../fakes/api-fake";
+import makeEvent from "../fakes/events-fake";
 import navFake from "../fakes/nav-fake";
 import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
+import { stringify } from "../lib/event-queries";
 import { sandbox } from "../lib/sandbox";
 import { stubLogs } from "../fakes/stubs";
 import * as Calcs from "../handlers/group-calcs";
@@ -112,6 +114,104 @@ describe("Routes", function() {
         groupId: "group-id-123",
         period: { interval: "week", start: 2400, end: 2401 },
         query: { labels: { none: true }}
+      });
+    });
+
+    it("should dispatch action to select a single event ID", () => {
+      let deps = getDeps();
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?" +
+              "showFilters=1&eventId=abc&period=w,2400,2401"
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "TOGGLE_EVENT_SELECTION",
+        groupId: "group-id-123",
+        clear: true,
+        eventIds: { abc: true }
+      });
+    });
+
+    function getDepsForSelectAll() {
+      let deps = getDeps();
+      deps.state.groupEventQueries["group-id-123"] = [];
+      let queryDays = deps.state.groupEventQueries["group-id-123"];
+      queryDays[10000] = {
+        [stringify({})]: {
+          query: {},
+          eventIds: ["id1", "id2"],
+          updatedOn: new Date()
+        }
+      };
+      queryDays[10001] = {
+        [stringify({})]: {
+          query: {},
+          eventIds: ["id2", "id3"],
+          updatedOn: new Date()
+        }
+      };
+
+      deps.state.groupEvents["group-id-123"] = {
+        id1: makeEvent({ id: "id1" }),
+        id2: makeEvent({ id: "id2" }),
+        id3: makeEvent({ id: "id3" }),
+        id4: makeEvent({ id: "id4" })
+      };
+
+      return deps;
+    }
+
+    it("should dispatch action to select all", () => {
+      let deps = getDepsForSelectAll();
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?selectMode=1&period=d,10000,10002"
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "TOGGLE_EVENT_SELECTION",
+        groupId: "group-id-123",
+        clear: true,
+        eventIds: { id1: true, id2: true, id3: true }
+      });
+    });
+
+    it("should dispatch action to toggle selection on", () => {
+      let deps = getDepsForSelectAll();
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?eventId=id4&selectMode=1"
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "TOGGLE_EVENT_SELECTION",
+        groupId: "group-id-123",
+        eventIds: { id4: true }
+      });
+    });
+
+    it("should dispatch action to toggle selection off", () => {
+      let deps = getDepsForSelectAll();
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?eventId=id4&selectMode=0"
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "TOGGLE_EVENT_SELECTION",
+        groupId: "group-id-123",
+        eventIds: { id4: false }
+      });
+    });
+
+    it("should dispatch action to clear all", () => {
+      let deps = getDepsForSelectAll();
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123"
+      }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "TOGGLE_EVENT_SELECTION",
+        groupId: "group-id-123",
+        clear: true,
+        eventIds: {}
       });
     });
 

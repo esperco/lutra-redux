@@ -9,6 +9,7 @@ import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod, fromDates } from "../lib/period";
 import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/group-events";
+import * as Select from "../handlers/events-select";
 import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
 import * as Log from "../lib/log";
@@ -55,6 +56,26 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     Calcs.startGroupCalc(props, { ...deps, promise });
     Suggestions.loadSuggestions(props, { ...deps, promise });
 
+    // Toggle selection based on URL - select without eventId => select all
+    if (p.selectMode === true && !p.eventId) {
+      Select.selectAll(props, deps);
+    }
+
+    // Select with event ID => select one
+    else if (p.eventId) {
+      Select.toggleEventId({
+        groupId,
+        clear: typeof p.selectMode === 'undefined',
+        eventId: p.eventId,
+        value: typeof p.selectMode === 'undefined' ? true : p.selectMode
+      }, deps);
+    }
+
+    else {
+      Select.clearAll(groupId, deps);
+    }
+
+    // Dispatch route changes
     deps.dispatch({
       type: "ROUTE",
       route: compactObject({

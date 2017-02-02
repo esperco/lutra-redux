@@ -5,6 +5,7 @@ import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 import * as TeamCalendars from "../states/team-cals";
 import * as Suggestions from "../states/group-suggestions";
+import * as Select from "../states/events-select";
 
 /*
   Exports a correctly typed state object.
@@ -16,6 +17,7 @@ export default function initState(): State {
     ...Groups.initState(),
     ...Events.initState(),
     ...Calcs.initState(),
+    ...Select.initState(),
     ...Suggestions.initState(),
     ...TeamCalendars.initState()
   };
