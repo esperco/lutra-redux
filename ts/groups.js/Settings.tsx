@@ -106,9 +106,9 @@ class Settings extends React.Component<Props, {}> {
                 </label>
                 { isSuper ?
                     <Dropdown
-                      toggle={<input type="text" readOnly
-                        value={timezone ? timezone.display : ""} />}
-
+                      toggle={<button className="input-style">
+                        {timezone ? timezone.display : ""}
+                      </button>}
                       menu={<div className="dropdown-menu">
                         <TimezoneSelector
                           selected={groupSummary.group_timezone}
