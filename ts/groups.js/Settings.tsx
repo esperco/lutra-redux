@@ -11,10 +11,12 @@ import { ready, StoreData } from '../states/data-status';
 import {
   fetchAvailableCalendars, fetchSelectedCalendars, updateSelectedCalendars
 } from '../handlers/team-cals';
-import { removeGroupIndividual } from '../handlers/groups';
+import { renameGroup, removeGroupIndividual } from '../handlers/groups';
 import { GroupMembers } from '../states/groups';
+import delay from '../components/DelayedControl';
 import Icon from '../components/Icon';
 import { Menu, Choice } from '../components/Menu';
+import TextInput from "../components/TextInput";
 import TimezoneSelector, { toZoneName } from '../components/TimezoneSelector';
 import Tooltip from '../components/Tooltip';
 import { Dropdown } from '../components/Dropdown';
@@ -68,8 +70,8 @@ class Settings extends React.Component<Props, {}> {
             );
           };
 
-          let selfGIM;
-          let isSuper;
+          let selfGIM: GroupIndividual|undefined;
+          let isSuper = false;
           if (ready(groupMembers)) {
             selfGIM = _.find(groupMembers.group_individuals, (gim) =>
               state.login ?
@@ -86,11 +88,17 @@ class Settings extends React.Component<Props, {}> {
                 <label htmlFor="group-name">
                   Group Name
                 </label>
-                <input id="group-name" name="group-name"
-                  type="text"
-                  defaultValue={groupSummary.group_name}
-                  placeholder="The Avengers"
-                  disabled={!isSuper} />
+                { delay({
+                  value: groupSummary.group_name,
+                  onChange: (value: string) =>
+                    renameGroup(groupId, value, this.props),
+                  component: (props) => <TextInput
+                    { ...props}
+                    id="group-name"
+                    placeholder="The Avengers"
+                    disabled={!isSuper}
+                  />
+                }) }
               </div>
               <div className="form-row">
                 <label htmlFor="group-timezone">

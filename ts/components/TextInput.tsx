@@ -6,8 +6,8 @@ import * as React from "react";
 export interface Props {
   id?: string;
   className?: string;
-
   placeholder?: string;
+  disabled?: boolean;
 
   // The "default" or original value
   value: string;
@@ -19,10 +19,8 @@ export interface Props {
 
 export class TextInput extends React.Component<Props, {}> {
   render() {
-    return <input type="text" id={this.props.id}
-      className={this.props.className}
-      placeholder={this.props.placeholder}
-      value={this.props.value || ""}
+    return <input type="text"
+      { ...this.props }
       onKeyDown={(e) => this.inputKeydown(e)}
       onChange={
         (e) => this.onChange((e.target as HTMLInputElement).value)
