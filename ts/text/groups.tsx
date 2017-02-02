@@ -5,7 +5,11 @@ import { GroupRole } from "../lib/apiT";
 
 export const Group = "Enterprise Account";
 export const Groups = "Enterprise Accounts";
-export const GroupCalendarSharing = "Click to pick which calendars to share";
+export const GroupCalendarSharingYes =
+  "This user is sharing calendar data.";
+export const GroupCalendarSharingNo =
+  "This user is not sharing any calendars.";
+export const GroupCalendarSharingEdit = "Pick which calendars to share.";
 
 export function roleDisplayName(role: GroupRole) {
   if (role === "Owner") return "Administrator";

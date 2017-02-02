@@ -74,7 +74,7 @@ function getTextForIcon(icon: IconType): string {
     "calendar-check": Text.CalendarCheck,
     "calendar-empty": Text.CalendarEmpty,
     "calendar": Text.Calendar,
-    "caret-down": Text.CaretDown,
+    "caret-down": "", // Intentionally blank, caret has no semantic meaning
     "cancel": Text.Cancel,
     "clear": Text.Clear,
     "close": Text.Close,

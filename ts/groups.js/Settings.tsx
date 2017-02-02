@@ -82,7 +82,7 @@ class Settings extends React.Component<Props, {}> {
 
           content = <div className="container">
             <div className="panel">
-              <div className="input-row">
+              <div className="form-row">
                 <label htmlFor="group-name">
                   Group Name
                 </label>
@@ -92,7 +92,7 @@ class Settings extends React.Component<Props, {}> {
                   placeholder="The Avengers"
                   disabled={!isSuper} />
               </div>
-              <div className="input-row">
+              <div className="form-row">
                 <label htmlFor="group-timezone">
                   Timezone
                 </label>
@@ -197,38 +197,41 @@ class GroupMembersInfo extends React.Component<MemberProps, {open: string;}> {
           (associatedTeam && associatedTeam.email === state.login.email)
           : false;
 
-        return <div key={gim.uid} className="panel">
-          { canEditCals ?
-            <Tooltip target={
-              <button className="group-calendar"
-                      disabled={!associatedTeam}
-                      onClick={() => {
-                        if (associatedTeam) {
-                          fetchAvailableCalendars(associatedTeam.teamid,
-                                                  this.props);
-                          fetchSelectedCalendars(associatedTeam.teamid,
-                                                 this.props);
-                          this.setState({ open: associatedTeam.teamid });
-                        }
-                      }}>
-                <Icon type={associatedTeam ? "calendar-check" : "calendar-empty"} />
-              </button>}
-              title={ Text.GroupCalendarSharing }
-            /> :
-            <Icon type={associatedTeam ? "calendar-check" : "calendar-empty"} />
-          }
+        return <div key={gim.uid} className="panel group-member-item">
+          <Tooltip target={
+            <button
+              className="group-calendar"
+              disabled={!(associatedTeam && canEditCals)}
+              onClick={() => {
+                if (associatedTeam) {
+                  fetchAvailableCalendars(associatedTeam.teamid,
+                                          this.props);
+                  fetchSelectedCalendars(associatedTeam.teamid,
+                                          this.props);
+                  this.setState({ open: associatedTeam.teamid });
+                }
+              }}>
+                <Icon type={
+                  associatedTeam ? "calendar-check" : "calendar-empty"}
+                />
+            </button>}
+            title={
+              canEditCals ?
+              Text.GroupCalendarSharingEdit :
+              ( associatedTeam ?
+                Text.GroupCalendarSharingYes :
+                Text.GroupCalendarSharingNo ) }
+          />
           { this.state.open && associatedTeam && canEditCals ?
-              this.renderModal(associatedTeam.teamid) : null
-          }
-          {" "}
+            this.renderModal(associatedTeam.teamid) : null }
           { displayName }
-          <button className="gim-remove" disabled={!canRemove} onClick={() => 
+          <button className="gim-remove" disabled={!canRemove} onClick={() =>
             removeGroupIndividual(groupId, gim, this.props)}>
             { canRemove ? <Icon type="remove" /> : null }
           </button>
           { this.props.isSuper ?
               <Dropdown
-                toggle={<button className="group-role-badge">
+                toggle={<button className="dropdown-toggle group-role-badge">
                   { Text.roleDisplayName(gim.role) }
                   {" "}
                   <Icon type="caret-down" />
@@ -276,7 +279,7 @@ class GroupMembersInfo extends React.Component<MemberProps, {open: string;}> {
   }
 
   updateSelectedCalendars(teamId: string,
-                          choice: GenericCalendar, 
+                          choice: GenericCalendar,
                           cals?: StoreData<GenericCalendar[]>) {
     if (!ready(cals)) return;
 

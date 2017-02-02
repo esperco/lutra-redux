@@ -1,0 +1,17 @@
+.group-member-item {
+  &.panel {
+    padding: @padding-small;
+  }
+
+  .gim-remove, .group-role-badge {
+    float: right;
+  }
+
+  @media screen and (max-width: @screen-xs-max) {
+    .group-role-badge {
+      float: left;
+      text-align: left;
+      width: 100%;
+    }
+  }
+}
