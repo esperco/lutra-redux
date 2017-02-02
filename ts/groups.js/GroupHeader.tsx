@@ -26,6 +26,10 @@ class Props {
                      // for ease of testing
 }
 
+function routeHasGroupId(x: any): x is {groupId: string} {
+  return !!(x && x.groupId);
+}
+
 class GroupHeader extends React.Component<Props, {}> {
   render() {
     return <header className={
@@ -42,10 +46,10 @@ class GroupHeader extends React.Component<Props, {}> {
   // Get active group Id, if any
   getGroupId(): string|undefined {
     let route = this.props.state.route;
-    if (route && route.page === "GroupEvents") {
+    if (routeHasGroupId(route)) {
       return route.groupId;
     }
-    return this.props.state.login.groups[0];
+    return;
   }
 
   // Get active group, if any
@@ -131,15 +135,24 @@ class GroupHeader extends React.Component<Props, {}> {
   renderGroupsSelector(groupId?: string) {
     let login = this.props.state.login;
     if (login.groups.length > 1) {
-      let path = Paths.eventList;
+      let path = (() => {
+        if (this.props.state.route) {
+          switch (this.props.state.route.page) {
+            case "GroupEvents":
+              return Paths.eventList;
+            case "GeneralSettings":
+              return Paths.generalSettings;
+          }
+        }
+        return Paths.eventList;
+      })();
       return <div className="panel">
         <h4>{ GroupText.Groups }</h4>
         <GroupSelector
           selected={groupId}
           state={this.props.state}
           getHref={(groupId) => path.href({
-            groupId,
-            eventId: ""
+            groupId
           })}
         />
       </div>;
