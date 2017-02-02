@@ -11,12 +11,15 @@ import Waypoint from "../components/Waypoint";
 import * as Events from "../handlers/group-events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
-import { LabelSet } from "../lib/event-labels";
+import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter, stringify } from "../lib/event-queries";
-import { GenericPeriod, index, toDays, dateForDay } from "../lib/period";
+import { iter } from "../lib/event-query-iter";
+import { GenericPeriod, toDays, dateForDay } from "../lib/period";
+import { NavSvc } from "../lib/routing";
 import { StoreData, ready } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/group-events";
 import { Loading } from "../text/data-status";
+import * as CommonText from "../text/common";
 
 interface Props {
   groupId: string;
@@ -24,12 +27,15 @@ interface Props {
   query: QueryFilter;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
+  clearAllHrefFn?: () => string;
+  selectAllHrefFn?: () => string;
+  toggleHrefFn?: (eventId: string, value: boolean) => string;
   labels: LabelSet;
   searchLabels: LabelSet;
   state: StoreState;
   dispatch: DispatchFn;
   postTask: PostTaskFn;
-  Svcs: ApiSvc;
+  Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
 }
 
@@ -72,33 +78,31 @@ export class GroupEventsList extends React.Component<Props, State> {
     let canShowMore = endToShow < end &&
       !_.find(queryDays, (d) => d[queryKey] === "FETCHING")
 
-    /*
-      Determine first visible day. Do not show button to jump to today if
-      today is first visible day (or if all events before today are not
-      visible).
-    */
-    let firstVisible = start;
-    let today = index(new Date(), 'day');
-    _.find(queryDays, (d, i) => {
-      let results = d[queryKey];
-      if (start + i === today ||
-          (ready(results) && results.eventIds.length > 0)) {
-        firstVisible = start + i;
-        return true;
+    /* Determine if any recurring events are selected */
+    let selectedRecurringIds: {[recurringId: string]: true} = {};
+    for (let key in this.props.state.selectedEvents) {
+      let events = this.props.state.groupEvents[groupId] || {};
+      let event = events[key];
+      if (ready(event) && useRecurringLabels(event)) {
+        selectedRecurringIds[event.recurring_event_id] = true;
       }
-      return false;
-    });
+    }
 
     return <div className="group-events-list">
+      { this.renderSelectAll() }
+
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i}
           ref={(c) => this._refs[start + i] = c}
           result={d[queryKey]}
+          selectedEventIds={this.props.state.selectedEvents}
+          selectedRecurringIds={selectedRecurringIds}
           eventMap={eventMap}
           { ...this.props }
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
+          onToggleSelect={this.props.toggleHrefFn && this.onToggleSelect}
           autoConfirmTimeout={
             /* If admin, don't autoconfirm */
             this.props.state.loggedInAsAdmin ?
@@ -108,12 +112,46 @@ export class GroupEventsList extends React.Component<Props, State> {
       ) }
 
       { canShowMore ?
+
         /* Use different key so it re-updates if nothing new in update */
         <div className="loading-msg">
           <Waypoint key={endToShow} onEnter={this.showMore} />
           { Loading }
-        </div> : null }
+        </div> :
+
+        /* Select all button at end too */
+        this.renderSelectAll()
+      }
     </div>;
+  }
+
+  renderSelectAll() {
+    /*
+      Render select all only if all events are here since we can't really
+      select all if we don't know which events to selet.
+    */
+    let ready = iter(this.props, this.props.state, () => null);
+    if (! ready) return null;
+
+    // Some selected -> de-select
+    if (_.size(this.props.state.selectedEvents) > 0) {
+      if (this.props.clearAllHrefFn) {
+        let url = this.props.clearAllHrefFn();
+        return <button onClick={() => this.props.Svcs.Nav.go(url)}>
+          { CommonText.ClearAll }
+        </button>;
+      }
+      return null;
+    }
+
+    // Else show select all
+    if (this.props.selectAllHrefFn) {
+      let url = this.props.selectAllHrefFn();
+      return <button onClick={() => this.props.Svcs.Nav.go(url)}>
+        { CommonText.SelectAll }
+      </button>;
+    }
+    return null;
   }
 
   onChange = (eventIds: string[], label: ApiT.LabelInfo, active: boolean) => {
@@ -145,6 +183,13 @@ export class GroupEventsList extends React.Component<Props, State> {
     }, this.props);
   }
 
+  onToggleSelect = (eventId: string, value: boolean) => {
+    if (this.props.toggleHrefFn) {
+      let url = this.props.toggleHrefFn(eventId, value);
+      this.props.Svcs.Nav.go(url);
+    }
+  }
+
   showMore = () => {
     let incr = this.props.Conf && this.props.Conf.maxDaysFetch;
     if (incr) {
@@ -159,6 +204,8 @@ export class GroupEventsList extends React.Component<Props, State> {
 interface DayProps extends SharedProps {
   day: number; // Period day index
   result: StoreData<QueryResult>;
+  selectedEventIds: Record<string, true>;
+  selectedRecurringIds: Record<string, true>;
   eventMap: EventMap;
 }
 
@@ -186,7 +233,11 @@ class QueryDay extends TreeFall<DayProps, {}> {
           Wrap EventList with extra div so flexbox doesn't expand height of
           EventList when it's too short.
         */}
-        <div><EventList events={calEvents} {...this.props} /></div>
+        <div><EventList
+          events={calEvents}
+          selectedEventIds={this.props.selectedEventIds}
+          {...this.props}
+        /></div>
       </DayBox>
       { this.renderWaypoint() }
     </div>;

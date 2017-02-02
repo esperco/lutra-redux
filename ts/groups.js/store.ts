@@ -9,6 +9,7 @@ import * as Log from "../lib/log";
 import { State, Action } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
+import * as Select from "../states/events-select";
 import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Suggestions from "../states/group-suggestions";
@@ -49,6 +50,8 @@ export const store = createStore(
         return Calcs.calcReducer(state, action);
       case "GROUP_SUGGESTIONS":
         return Suggestions.suggestReducer(state, action);
+      case "TOGGLE_EVENT_SELECTION":
+        return Select.reduceEventToggling(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);

@@ -1,6 +1,5 @@
 import {
-  Path, StringParam, NumberParam,
-  StringArrayParam, BooleanParam
+  Path, StringParam, NumberParam, StringArrayParam, BooleanParam
 } from "../lib/routing";
 import { AllSomeNoneParam } from "../lib/asn";
 import { PeriodParam } from "../lib/period";
@@ -14,7 +13,14 @@ export const eventList = new Path({
   },
   optParams: {
     showFilters: BooleanParam,
+
+    // Select single event
     eventId: StringParam,
+
+    // Selection mode -- add or remove? Null implies replace
+    selectMode: BooleanParam,
+
+    // Query params
     labels: AllSomeNoneParam,
     contains: StringParam,
     participant: StringArrayParam,

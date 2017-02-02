@@ -10,8 +10,12 @@ export const CommentPlaceholder = "Post a comment about this event";
 export const DefaultUsername = "Esper User";
 export const HideDescription = "Remove all tags and exclude this event " +
   "from charts and stats.";
+export const HideMultiDescription = "Remove all tags and exclude all " +
+  "selected events from charts and stats."
 export const ShowDescription = "This event is currently hidden from charts " +
   "and stats. Click to include it.";
+export const ShowMultiDescription = "One or more of these events are " +
+  "currently hidden from charts and stats. Click to include them.";
 
 export const Attendees = "Guests";
 export const Comments = "Comments";
@@ -106,6 +110,10 @@ export function hiddenEventsMsg(n?: number) {
   return `${n} hidden ${events(n)}`;
 }
 
+export function eventsSelected(n?: number) {
+  return `${n} ${events(n)} selected`;
+}
+
 export const HiddenEventsDescription =
   "Some events have been marked as hidden. Click here to show them.";
 
@@ -118,3 +126,4 @@ export const CalcGroupPeopleHoursDescription = "Total hours for each event " +
 export const PeopleHoursByLabelTitle = "Team Person Hours by Tag";
 
 export const Refresh = "Refresh event data";
+export const Select = "Select this event";

@@ -5,12 +5,13 @@ import * as _ from "lodash";
 import * as moment from "moment";
 import * as React from "react";
 import * as ApiT from "../lib/apiT";
+import CheckboxItem from "./CheckboxItem";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
 import Tooltip from "./Tooltip";
 import Waypoint from "./Waypoint";
 import * as classNames from "classnames";
-import { LabelSet } from "../lib/event-labels";
+import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import { ok, ready, StoreData } from "../states/data-status";
 import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
@@ -31,10 +32,13 @@ export interface SharedProps {
   onHideChange: (eventIds: string[], hidden: boolean) => void;
   onConfirm?: (eventIds: string[]) => void;
   autoConfirmTimeout?: number;
+  onToggleSelect?: (eventId: string, val: boolean) => void;
 }
 
 export interface ListProps extends SharedProps {
   events: (StoreData<ApiT.GenericCalendarEvent>|undefined)[];
+  selectedEventIds?: Record<string, true>;
+  selectedRecurringIds?: Record<string, true>;
 }
 
 interface ListState {
@@ -87,6 +91,16 @@ export class EventList extends React.Component<ListProps, ListState> {
     return ret;
   }
 
+  isSelected(ev: ApiT.GenericCalendarEvent) {
+    return (
+      (this.props.selectedEventIds &&
+        !!this.props.selectedEventIds[ev.id]) ||
+      (this.props.selectedRecurringIds &&
+        useRecurringLabels(ev) &&
+        !!this.props.selectedRecurringIds[ev.recurring_event_id])
+    );
+  }
+
   render() {
     return <div className="event-list panel">
       { this.renderHiddenEventMsg() }
@@ -123,6 +137,7 @@ export class EventList extends React.Component<ListProps, ListState> {
     }
     return <EventDisplay key={ev.id} event={ev}
       { ...this.props }
+      selected={this.isSelected(ev)}
     />;
   }
 
@@ -136,6 +151,7 @@ export class EventList extends React.Component<ListProps, ListState> {
 
 export interface EventProps extends SharedProps {
   event: ApiT.GenericCalendarEvent;
+  selected?: boolean;
 }
 
 interface EventState {
@@ -183,16 +199,24 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
       hidden: event.hidden === true,
       "has-predictions": event.labels_predicted
     })}>
-      <h4>{ this.props.eventHrefFn ?
-        <a href={this.props.eventHrefFn(event)}
-           onClick={() => this.confirm(true)}>
-          { title }
-        </a> : title
-      }</h4>
-
       <button className="hide-btn" onClick={() => this.toggleHide()}>
         { event.hidden ? CommonText.Show : CommonText.Hide }
       </button>
+
+      <h4>
+        {
+          this.props.onToggleSelect ?
+          <CheckboxItem checked={this.props.selected} onChange={this.select}>
+            <span className="sr-only">{ EventText.Select }</span>
+          </CheckboxItem> : null
+        } {
+          this.props.eventHrefFn ?
+          <a href={this.props.eventHrefFn(event)}
+            onClick={() => this.confirm(true)}>
+            { title }
+          </a> : title
+        }
+      </h4>
 
       <div className="time">
         <span className="start">
@@ -251,6 +275,12 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
           : null }
       </div>
     </div>;
+  }
+
+  select = (v: boolean) => {
+    if (this.props.onToggleSelect) {
+      this.props.onToggleSelect(this.props.event.id, v);
+    }
   }
 
   confirm(explicit=false) {

@@ -52,4 +52,12 @@ label.checkbox-item {
   input[type=checkbox]:checked + .pseudo-checkbox ~ span {
     font-weight: bold;
   }
+
+  &.partial {
+    font-style: italic;
+
+    input[type=checkbox]:checked + .pseudo-checkbox::before {
+      content: "\2212";
+    }
+  }
 }

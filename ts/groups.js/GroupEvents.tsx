@@ -14,6 +14,7 @@ import ScrollContainer from "../components/ScrollContainer";
 import Tooltip from "../components/Tooltip";
 import GroupCalcDisplay from "./GroupCalcDisplay";
 import GroupEventEditor from "./GroupEventEditor";
+import GroupMultiEventEditor from "./GroupMultiEventEditor";
 import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
 import * as Events from "../handlers/group-events";
@@ -34,6 +35,7 @@ class RouteProps {
   groupId: string;
   showFilters?: boolean;
   eventId?: string;
+  selectMode?: boolean;
   query: QueryFilter;
   period: GenericPeriod;
 }
@@ -55,7 +57,7 @@ class GroupEvents extends React.Component<Props, {}> {
     return <div className={classNames("sidebar-layout", {
       "show-left": this.props.showFilters,
       "hide-left": this.props.showFilters === false,
-      "show-right": !!this.props.eventId
+      "show-right": _.size(this.props.state.selectedEvents) > 0
     })}>
 
       {/* Filters Sidebar -- delayed URL update */}
@@ -139,13 +141,12 @@ class GroupEvents extends React.Component<Props, {}> {
 
       {/* Additional event info goes here (if applicable) */}
       <div className="sidebar panel">
-        <button className="close-btn" onClick={() => this.update({
-          eventId: undefined
-        })}>
+        <button className="close-btn"
+                onClick={() => this.props.Svcs.Nav.go(this.clearAllHref())}>
           <Icon type="close" />
         </button>
 
-        { this.renderSingleEvent({ labels, searchLabels }) }
+        { this.renderEventSidebar({ labels, searchLabels }) }
       </div>
     </div>;
   }
@@ -181,22 +182,32 @@ class GroupEvents extends React.Component<Props, {}> {
       searchLabels={searchLabels}
       eventHrefFn={this.eventHref}
       labelHrefFn={this.labelHref}
+      clearAllHrefFn={this.clearAllHref}
+      selectAllHrefFn={this.selectAllHref}
+      toggleHrefFn={this.toggleHref}
     />;
   }
 
-  renderSingleEvent({ labels, searchLabels }: {
+  renderEventSidebar(labelProps: {
     labels: LabelSet;
     searchLabels: LabelSet;
   }) {
-    if (this.props.eventId) {
+    let numEvents = _.size(this.props.state.selectedEvents);
+    if (numEvents === 0) return null;
+    if (numEvents === 1) {
       return <GroupEventEditor
         {...this.props}
-        eventId={this.props.eventId}
+        {...labelProps}
         guestHrefFn={this.guestHref}
         labelHrefFn={this.labelHref}
       />;
     }
-    return null; // No event
+
+    return <GroupMultiEventEditor
+      {...this.props}
+      {...labelProps}
+      labelHrefFn={this.labelHref}
+    />;
   }
 
   // Create LabelSet from suggestions to pass down
@@ -244,7 +255,8 @@ class GroupEvents extends React.Component<Props, {}> {
   backdropHref() {
     return this.updateHref({
       showFilters: false,
-      eventId: undefined
+      eventId: undefined,
+      selectMode: undefined
     });
   }
 
@@ -257,23 +269,31 @@ class GroupEvents extends React.Component<Props, {}> {
     });
   }
 
-  eventHref = (event: ApiT.GenericCalendarEvent) => {
-    return this.updateHref({
-      eventId: event.id
-    });
-  }
+  eventHref = (event: ApiT.GenericCalendarEvent) => this.updateHref({
+    eventId: event.id
+  });
 
-  guestHref = (guest: ApiT.Attendee) => {
-    return this.updateHref({
+  guestHref = (guest: ApiT.Attendee) => this.updateHref({
       query: { participant: [guest.email] }
-    });
-  }
+  });
 
-  labelHref = (label: ApiT.LabelInfo) => {
-    return this.updateHref({
-      query: { labels: { some: { [label.normalized]: true }}}
-    });
-  }
+  labelHref = (label: ApiT.LabelInfo) => this.updateHref({
+    query: { labels: { some: { [label.normalized]: true }}}
+  });
+
+  selectAllHref = () => this.updateHref({
+    selectMode: true,
+    eventId: undefined
+  });
+
+  clearAllHref = () => this.updateHref({
+    selectMode: false,
+    eventId: undefined
+  });
+
+  toggleHref = (eventId: string, selectMode: boolean) => this.updateHref({
+    eventId, selectMode
+  });
 
   update(updates: Partial<RouteProps>) {
     this.props.Svcs.Nav.go(this.updateHref(updates));

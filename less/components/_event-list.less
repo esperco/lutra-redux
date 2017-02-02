@@ -21,6 +21,8 @@
       display: inline-block;
       margin-right: @padding-small;
     }
+
+    label { display: inline; }
   }
 
   &.unconfirmed {
@@ -52,6 +54,10 @@
     top: -@padding-small;
     right: -@padding-base;
     font-weight: normal;
+  }
+
+  .hide-btn:first-child + * {
+    margin-top: 0
   }
 
   .guests {
