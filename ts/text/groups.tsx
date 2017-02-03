@@ -11,6 +11,9 @@ export const GroupCalendarSharingNo =
   "This user is not sharing any calendars.";
 export const GroupCalendarSharingEdit = "Pick which calendars to share.";
 
+export const GroupName = "Team Name";
+export const GroupTimezone = "Timezone";
+
 export function roleDisplayName(role: GroupRole) {
   if (role === "Owner") return "Administrator";
   return "Contributor";

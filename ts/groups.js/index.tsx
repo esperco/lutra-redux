@@ -23,10 +23,10 @@ import Loading from "../components/Loading";
 import GroupEvents from "./GroupEvents";
 import GroupHeader from "./GroupHeader";
 import Setup from "./Setup";
-import Settings from "./Settings";
+import GeneralSettings from "./GeneralSettings";
 
 // Store Types
-import { LoggedInState, State, Action, PostTaskFn, DispatchFn } from "./types";
+import { LoggedInState, Action, PostTaskFn, DispatchFn } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Login from "../lib/login";
@@ -109,7 +109,7 @@ store.subscribe(() => {
 
 // View routing
 function MainView(props: {
-  state: State;
+  state: LoggedInState;
   dispatch: DispatchFn;
   postTask: PostTaskFn;
   Svcs: typeof Svcs;
@@ -121,8 +121,8 @@ function MainView(props: {
         return <GroupEvents {...props} {...props.state.route} />;
       case "Setup":
         return <Setup {...props} />;
-      case "GeneralSettings":
-        return <Settings {...props} {...props.state.route} />;
+      case "GroupGeneralSettings":
+        return <GeneralSettings {...props} {...props.state.route} />;
       case "NotFound":
         return <NotFound />;
     }

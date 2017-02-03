@@ -1,5 +1,4 @@
 import * as moment from "moment";
-import * as _ from "lodash";
 import * as Paths from "./paths";
 import * as Routing from "../lib/routing";
 import { Action, State, PostTaskFn } from "./types";
@@ -12,6 +11,7 @@ import * as Events from "../handlers/group-events";
 import * as Select from "../handlers/events-select";
 import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
+import * as TeamCals from "../handlers/team-cals";
 import * as Log from "../lib/log";
 import { compactObject } from "../lib/util";
 
@@ -103,35 +103,38 @@ export const setup = Paths.setup.route<Deps>(function(p, deps) {
   });
 });
 
-export type SettingTypes =
-  "GeneralSettings"|
-  "LabelSettings"|
-  "NotificationSettings"|
-  "BillingSettings";
-
-export interface SettingsRoute { page: "Settings", groupId: string; }
+// Doesn't do anything -- just redirect to general settings
 export const settings = Paths.settings.route<Deps>(function(p, deps) {
   deps.Svcs.Nav.go(Paths.generalSettings.href(p));
 });
 
+// Group info + member list
 export interface GeneralSettingsRoute {
-  page: SettingTypes;
+  page: "GroupGeneralSettings";
   groupId: string;
+  editTeamId?: string;
 }
-export const generalSettings = Paths.generalSettings.route<Deps>(function(p, deps) {
-  let groupId = deps.state.login ?
-    (_.includes(deps.state.login.groups, p.groupId) ? p.groupId : null)
-    : null;
+
+export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupId) {
     Groups.fetch(groupId, { withMembers: true }, deps);
+    if (p.editTeamId) {
+      TeamCals.fetchAvailableCalendars(p.editTeamId, deps);
+      TeamCals.fetchSelectedCalendars(p.editTeamId, deps);
+    }
+
     deps.dispatch({
       type: "ROUTE",
       route: {
-        page: "GeneralSettings" as SettingTypes,
-        groupId
+        page: "GroupGeneralSettings",
+        groupId,
+        editTeamId: p.editTeamId
       }
     })
-  } else {
+  }
+
+  else {
     deps.dispatch({
       type: "ROUTE",
       route: { page: "NotFound" }
@@ -142,7 +145,6 @@ export const generalSettings = Paths.generalSettings.route<Deps>(function(p, dep
 export type RouteTypes =
   EventListRoute|
   SetupRoute|
-  SettingsRoute|
   GeneralSettingsRoute;
 
 export function init({ dispatch, getState, postTask, Svcs, Conf }: {

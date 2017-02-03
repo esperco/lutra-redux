@@ -1,10 +1,11 @@
 import * as _ from "lodash";
 import { ApiSvc } from "../lib/api";
 import { GenericCalendar } from "../lib/apiT";
+import { QueueMap } from "../lib/queue";
 import {
   TeamCalendarState, TeamCalendarDataAction, TeamCalendarUpdateAction
 } from "../states/team-cals";
-import { ok } from "../states/data-status";
+import { ok, ready } from "../states/data-status";
 
 export function fetchAvailableCalendars(teamId: string, deps: {
   dispatch: (a: TeamCalendarDataAction) => any,
@@ -68,24 +69,48 @@ export function fetchSelectedCalendars(teamId: string, deps: {
   return Promise.resolve(undefined);
 }
 
-export function updateSelectedCalendars(teamId: string,
-                                        selected: GenericCalendar[],
-                                        deps: {
+
+/* Update team calendars */
+
+interface UpdateTeamCals {
+  teamId: string;
+  calIds: string[];
+  Svcs: ApiSvc;
+}
+
+// Use last set of calendars in queue for each group
+export const TeamCalQueue = new QueueMap<UpdateTeamCals>((teamId, q) => {
+  let { Svcs, calIds } = _.last(q);
+  return Svcs.Api.putTeamTimestatsCalendars(teamId, calIds).then(() => []);
+});
+
+export function toggleCalendar(props: {
+  teamId: string;
+  cal: GenericCalendar;
+  value: boolean; // True => add, false => remove
+}, deps: {
   dispatch: (a: TeamCalendarUpdateAction) => any;
   state: TeamCalendarState;
   Svcs: ApiSvc;
 }) {
   let { dispatch, state, Svcs } = deps;
-  let cals = state.teamCalendars[teamId];
-
-  if (cals && ok(cals.selected)) {
+  let cals = state.teamCalendars[props.teamId];
+  if (cals && ready(cals.selected)) {
+    let selected = props.value ?
+      _(cals.selected).concat([props.cal]).uniqBy((c) => c.id).value() :
+      _.filter(cals.selected, (c) => c.id !== props.cal.id);
     dispatch({
       type: "TEAM_CALENDAR_UPDATE",
-      teamId, selected
+      teamId: props.teamId,
+      selected
     });
-    let update = _.map(selected, (c) => c.id);
 
-    Svcs.Api.putTeamTimestatsCalendars(teamId, update).then();
+    let update = _.map(selected, (c) => c.id);
+    return TeamCalQueue.get(props.teamId).enqueue({
+      teamId: props.teamId,
+      calIds: update,
+      Svcs
+    });
   }
 
   return Promise.resolve(undefined);

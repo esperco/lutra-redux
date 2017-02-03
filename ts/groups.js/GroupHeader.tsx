@@ -135,25 +135,24 @@ class GroupHeader extends React.Component<Props, {}> {
   renderGroupsSelector(groupId?: string) {
     let login = this.props.state.login;
     if (login.groups.length > 1) {
-      let path = (() => {
+      let hrefFn = (() => {
         if (this.props.state.route) {
           switch (this.props.state.route.page) {
-            case "GroupEvents":
-              return Paths.eventList;
-            case "GeneralSettings":
-              return Paths.generalSettings;
+            case "GroupGeneralSettings":
+              return (groupId: string) => Paths.generalSettings.href({
+                groupId
+              });
           }
         }
-        return Paths.eventList;
+        return (groupId: string) => Paths.eventList.href({ groupId });
       })();
+
       return <div className="panel">
         <h4>{ GroupText.Groups }</h4>
         <GroupSelector
           selected={groupId}
           state={this.props.state}
-          getHref={(groupId) => path.href({
-            groupId
-          })}
+          getHref={hrefFn}
         />
       </div>;
     }
