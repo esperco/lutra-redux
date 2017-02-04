@@ -254,7 +254,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
 
           menu={<div className="dropdown-menu">
             <Menu choices={choices}
-              onSelect={(choice, _) =>
+              onSelect={(choice) =>
                 this.changeRole(choice.normalized)}
               selected={{original: "", normalized: gim.role}} />
           </div>}
