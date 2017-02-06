@@ -14,6 +14,11 @@ input, textarea {
     box-shadow: none;
     border: 1px solid @link-color;
   }
+
+  .has-error & {
+    border-color: @danger;
+    color: @danger;
+  }
 }
 
 input {

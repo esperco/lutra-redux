@@ -8,6 +8,7 @@ import { generalSettings } from "./paths";
 import { LoggedInState, DispatchFn } from './types';
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
+import FilterMenu from "../components/FilterMenu";
 import Icon from '../components/Icon';
 import { Menu, Choice } from '../components/Menu';
 import TextInput from "../components/TextInput";
@@ -16,15 +17,16 @@ import Tooltip from '../components/Tooltip';
 import { Dropdown } from '../components/Dropdown';
 import { Modal } from '../components/Modal';
 import * as TeamCals from '../handlers/team-cals';
-import { renameGroup, removeGroupIndividual } from '../handlers/groups';
+import * as Groups from '../handlers/groups';
 import { ApiSvc } from "../lib/api";
 import { GenericCalendar, GroupRole, GroupIndividual } from "../lib/apiT";
 import { NavSvc } from "../lib/routing";
-import { OrderedSet } from "../lib/util";
+import { OrderedSet, ChoiceSet, validateEmailAddress } from "../lib/util";
 import { Zones } from "../lib/timezones";
 import { GroupMembers, GroupSummary } from '../states/groups';
 import { ok, ready } from '../states/data-status';
 import { GenericErrorMsg } from "../text/error-text";
+import { EmailPlaceholder } from "../text/common";
 import * as Text from "../text/groups";
 
 interface Props {
@@ -71,6 +73,7 @@ class GeneralSettings extends React.Component<Props, {}> {
       <div className="container">
         <SummaryInfo {...subprops} />
         <GroupMembersInfo {...subprops} />
+        <AddMemberButton {...subprops} />
       </div>
     </div>;
   }
@@ -111,11 +114,11 @@ class SummaryInfo extends React.Component<Subprops, {}> {
         { delay({
           value: this.props.summary.group_name,
           onChange: (value: string) =>
-            renameGroup(groupId, value, this.props),
+            Groups.renameGroup(groupId, value, this.props),
           component: (props) => <TextInput
             { ...props}
             id="group-name"
-            placeholder="The Avengers"
+            placeholder={Text.GroupNamePlaceholder}
             disabled={!isSuper}
           />
         }) }
@@ -149,11 +152,10 @@ class GroupMembersInfo extends React.Component<Subprops, {}> {
     return <div className="panel">
       { _.map(members.group_individuals,
         // Render member only if UID exists
-        (gim) => gim.uid ? <SingleMemberInfo
-          key={gim.uid}
+        (gim) => <SingleMemberInfo
+          key={gim.email || gim.uid}
           {...this.props}
-          uid={gim.uid}
-          gim={gim} /> : null
+          gim={gim} />
       ) }
     </div>;
   }
@@ -161,7 +163,6 @@ class GroupMembersInfo extends React.Component<Subprops, {}> {
 
 
 interface SingleMemberProps extends Subprops {
-  uid: string;
   gim: GroupIndividual;
 }
 
@@ -182,32 +183,35 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
 
   // TODO: Refactor into handler
   changeRole(role: string) {
-    let { uid, members, dispatch, groupId, Svcs } = this.props;
-    Svcs.Api.putGroupIndividual(groupId, uid, {role})
-      .then(() => {
-        let group_individuals = _.cloneDeep(members.group_individuals);
-        let ind = _.find(group_individuals, (i) => i.uid === uid);
-        ind ? ind.role = role as GroupRole : null;
-        dispatch({
-          type: "GROUP_UPDATE",
-          groupId,
-          members: { group_individuals }
+    let { gim, members, dispatch, groupId, Svcs } = this.props;
+    if (gim.uid) {
+      let uid = gim.uid;
+      Svcs.Api.putGroupIndividual(groupId, uid, {role})
+        .then(() => {
+          let group_individuals = _.cloneDeep(members.group_individuals);
+          let ind = _.find(group_individuals, (i) => i.uid === uid);
+          ind ? ind.role = role as GroupRole : null;
+          dispatch({
+            type: "GROUP_UPDATE",
+            groupId,
+            members: { group_individuals }
+          });
         });
-      });
+    }
   }
 
   render() {
-    let { gim, uid, members, state, groupId, selfGIM } = this.props;
+    let { gim, members, state, groupId, selfGIM } = this.props;
     let associatedTeam =
       _.find(members.group_teams, (m) => m.email === gim.email);
     let displayName = associatedTeam ? associatedTeam.name : gim.email;
     let choices = new OrderedSet(this.ROLE_LIST, (role) => role.normalized);
 
-    let canRemove = this.props.isSuper ||
-      (selfGIM ? selfGIM.uid === uid : false);
-    let canEditCals = ready(state.login) ?
+    let canRemove = gim.uid && (this.props.isSuper ||
+      (selfGIM ? selfGIM.uid === gim.uid : false));
+    let canEditCals = gim.uid && (ready(state.login) ?
       (associatedTeam && associatedTeam.email === state.login.email)
-      : false;
+      : false);
 
     return <div className="panel group-member-item">
       <Tooltip target={
@@ -241,14 +245,13 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
       { displayName }
 
       <button className="gim-remove" disabled={!canRemove} onClick={() =>
-        removeGroupIndividual(groupId, gim, this.props)}>
+        Groups.removeGroupIndividual(groupId, gim, this.props)}>
         { canRemove ? <Icon type="remove" /> : null }
       </button>
-      { this.props.isSuper ?
+      { this.props.isSuper && this.props.gim.uid ?
         <Dropdown
           toggle={<button className="dropdown-toggle group-role-badge">
             { Text.roleDisplayName(gim.role) }
-            {" "}
             <Icon type="caret-down" />
           </button>}
 
@@ -264,6 +267,81 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
         </button>
       }
     </div>;
+  }
+}
+
+
+class AddMemberButton extends React.Component<Subprops, {}> {
+  _dropdown: Dropdown;
+
+  constructor(props: Subprops) {
+    super(props);
+    this.state = {
+      invalid: false
+    };
+  }
+
+  render() {
+    let emails = this.getEmails();
+    let filterFn = (str: string) => {
+      str = str.trim().toLowerCase();
+      let filtered = emails.filter((c) => _.includes(c.normalized, str));
+      let match = filtered.getByKey(str);
+      if (match && filtered.has(match)) {
+        filtered = filtered.without(match);
+      }
+      return [match, filtered.toList()] as [Choice|undefined, Choice[]];
+    };
+
+    return <Dropdown
+      ref={(c) => this._dropdown = c}
+      toggle={<button className="invite-member-btn">
+        { Text.AddMember }
+      </button>}
+
+      menu={<div className="dropdown-menu">
+        <FilterMenu choices={emails}
+          filterProps={{
+            placeholder: EmailPlaceholder
+          }}
+          onAdd={(str) => this.add(str)}
+          onSelect={(choice) => this.add(choice.normalized)}
+          filterFn={filterFn}
+          validateAdd={validateEmailAddress}
+        />
+      </div>}
+    />;
+  }
+
+  add(email: string) {
+    Groups.addGroupIndividual(this.props.groupId, email, this.props);
+    if (this._dropdown) {
+      this._dropdown.close();
+    }
+  }
+
+  // Extract emails from available calendars
+  getEmails() {
+    let gims = new OrderedSet(
+      this.props.members.group_individuals,
+      (g) => g.email || ""
+    );
+    let emails = new ChoiceSet<Choice>([]);
+    _.each(this.props.state.teamCalendars, (c) => {
+      if (ready(c.available)) {
+        _.each(c.available, (a) => {
+          if (validateEmailAddress(a.title)) {
+            if (! gims.hasKey(a.title)) { // Exclude already included emails
+              emails.push({
+                original: a.title,
+                normalized: a.title.trim().toLowerCase()
+              });
+            }
+          }
+        });
+      }
+    });
+    return emails;
   }
 }
 

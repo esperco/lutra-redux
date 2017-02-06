@@ -5,6 +5,7 @@ import { GroupRole } from "../lib/apiT";
 
 export const Group = "Enterprise Account";
 export const Groups = "Enterprise Accounts";
+export const AddMember = "Invite team member";
 export const GroupCalendarSharingYes =
   "This user is sharing calendar data.";
 export const GroupCalendarSharingNo =
@@ -12,6 +13,7 @@ export const GroupCalendarSharingNo =
 export const GroupCalendarSharingEdit = "Pick which calendars to share.";
 
 export const GroupName = "Team Name";
+export const GroupNamePlaceholder = "Guardians of the Galaxy";
 export const GroupTimezone = "Timezone";
 
 export function roleDisplayName(role: GroupRole) {

@@ -118,18 +118,18 @@ export function addGroupIndividual(
   });
 
   return deps.Svcs.Api.putGroupIndividualByEmail(groupId, email)
-    .then((resp) => deps.dispatch({
-      type: "GROUP_ADD_GIM",
+    .then((resp) => deps.dispatch(compact({
+      type: "GROUP_ADD_GIM" as "GROUP_ADD_GIM",
       groupId,
       gim: {
         email,
         ...resp.gim
       },
-      member: {
+      member: resp.opt_gm ? {
         email,
         ...resp.opt_gm
-      }
-    }));
+      } : undefined
+    })));
 }
 
 export function removeGroupIndividual(
@@ -143,8 +143,6 @@ export function removeGroupIndividual(
 ): Promise<void> {
   if (!gim.uid) return Promise.resolve();
   let { dispatch, Svcs } = deps;
-
-  console.info(gim.uid);
 
   dispatch({
     type: "GROUP_DELETE_GIM",

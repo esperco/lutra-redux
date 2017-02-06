@@ -6,7 +6,7 @@
 import * as _ from "lodash";
 import * as React from 'react';
 import * as classNames from "classnames";
-import FilterInput from "./FilterInput";
+import FilterInput, { Props as FilterProps } from "./FilterInput";
 import Icon from "./Icon";
 import { Choice } from "./Menu";
 import RadioItem from "./RadioItem";
@@ -25,8 +25,14 @@ export interface BaseProps {
   // All choices
   choices: OrderedSet<Choice>;
 
-  // Typing in something new and submitting it
+  /*
+    Typing in something new and submitting it. Optionally
+  */
   onAdd?: (text: string, method: "click"|"enter") => void;
+  filterProps?: Partial<FilterProps>;
+
+  // Validate new values. Return true if valid.
+  validateAdd?: (text: string) => boolean;
 
   specialChoices?: SpecialChoice[];
 
@@ -90,6 +96,7 @@ export abstract class FilterMenuBase<P extends BaseProps>
 
     return <div>
       <FilterInput
+        { ...this.props.filterProps }
         value={this.state.value}
         onChange={(value) => this.change(value)}
         onSubmit={() => this.submit()}
@@ -150,7 +157,8 @@ export abstract class FilterMenuBase<P extends BaseProps>
       activeIndex: !!value.trim() ? 0 : -1,
       visibleChoices,
       visibleSpecialChoices: !value,
-      visibleAdd: !!this.props.onAdd && !!value.trim() && !exactMatch
+      visibleAdd: !!this.props.onAdd && !!value.trim() && !exactMatch &&
+                  !(this.props.validateAdd && !this.props.validateAdd(value))
     });
   }
 
@@ -209,8 +217,6 @@ export abstract class FilterMenuBase<P extends BaseProps>
     if (didAdd) {
       this.setState(this.resetState(this.props));
     }
-
-    this.setState(this.resetState(this.props));
   }
 
   abstract selectChoice(choice: Choice, method: "enter"|"click"): void;

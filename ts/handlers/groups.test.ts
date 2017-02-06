@@ -253,7 +253,6 @@ describe("Groups handlers", function() {
           type: "GROUP_ADD_GIM",
           groupId,
           gim: { uid, email, role: "Member" },
-          member: { teamid, name, email } // Note added email
         });
       }).then(done, done);
 
@@ -263,6 +262,23 @@ describe("Groups handlers", function() {
         groupId,
         gim: { email, role: "Member" }
       });
+
+      dfd.resolve({
+        gim: { email, uid, role: "Member" }
+      });
+    });
+
+    it("dispatches team received from API call", (done) => {
+      let deps = getDeps();
+      let { dfd } = stubApiPlus(deps.Svcs, "putGroupIndividualByEmail");
+      Groups.addGroupIndividual(groupId, email, deps).then(() => {
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_ADD_GIM",
+          groupId,
+          gim: { uid, email, role: "Member" },
+          member: { teamid, name, email } // Note added email
+        });
+      }).then(done, done);
 
       dfd.resolve({
         gim: { email, uid, role: "Member" },
