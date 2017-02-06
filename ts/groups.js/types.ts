@@ -33,6 +33,7 @@ export type Action =
   Groups.GroupDataAction|
   Groups.GroupPreferencesAction|
   Groups.GroupUpdateAction|
+  Groups.GroupAddGIMAction|
   Groups.GroupDeleteGIMAction|
   Suggestions.SuggestionsAction|
   TeamCalendars.TeamCalendarDataAction|

@@ -6,7 +6,7 @@ import { LoginState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
 import {
   GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
-  GroupDeleteGIMAction
+  GroupAddGIMAction, GroupDeleteGIMAction
 } from "../states/groups";
 import { ok, ready } from "../states/data-status";
 import { compactObject as compact } from "../lib/util";
@@ -98,24 +98,60 @@ export function fetchPreferences(groupid: string, deps: {
   return Promise.resolve();
 }
 
-export function removeGroupIndividual(groupId: string, gim: ApiT.GroupIndividual, deps: {
-  dispatch: (a: GroupDeleteGIMAction) => any;
-  state: GroupState;
-  Svcs: ApiSvc;
-}): Promise<void> {
-  if (!gim.uid) return Promise.resolve();
-  let { dispatch, state, Svcs } = deps;
-
-  if (ok(state.groupMembers[groupId])) {
-    dispatch({
-      type: "GROUP_DELETE_GIM",
-      groupId,
-      gim
-    })
-    return Svcs.Api.removeGroupIndividual(groupId, gim.uid);
+export function addGroupIndividual(
+  groupId: string,
+  email: string,
+  deps: {
+    dispatch: (a: GroupAddGIMAction) => any;
+    state: GroupState;
+    Svcs: ApiSvc;
   }
+): Promise<void> {
+  // Dispatch placeholder GIM
+  deps.dispatch({
+    type: "GROUP_ADD_GIM",
+    groupId,
+    gim: {
+      email,
+      role: "Member" as "Member"
+    }
+  });
 
-  return Promise.resolve();
+  return deps.Svcs.Api.putGroupIndividualByEmail(groupId, email)
+    .then((resp) => deps.dispatch({
+      type: "GROUP_ADD_GIM",
+      groupId,
+      gim: {
+        email,
+        ...resp.gim
+      },
+      member: {
+        email,
+        ...resp.opt_gm
+      }
+    }));
+}
+
+export function removeGroupIndividual(
+  groupId: string,
+  gim: ApiT.GroupIndividual,
+  deps: {
+    dispatch: (a: GroupDeleteGIMAction) => any;
+    state: GroupState;
+    Svcs: ApiSvc;
+  }
+): Promise<void> {
+  if (!gim.uid) return Promise.resolve();
+  let { dispatch, Svcs } = deps;
+
+  console.info(gim.uid);
+
+  dispatch({
+    type: "GROUP_DELETE_GIM",
+    groupId,
+    gim
+  });
+  return Svcs.Api.removeGroupIndividual(groupId, gim.uid);
 }
 
 

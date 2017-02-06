@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import { expect } from "chai";
 import * as Groups from "./groups";
 import * as ApiT from "../lib/apiT";
+import { deepFreeze } from "../lib/util";
 import makeGroup from "../fakes/groups-fake";
 
 // Some group data for testing
@@ -317,3 +318,129 @@ describe("groupUpdateReducer", () => {
     });
   });
 })
+
+
+/* State for GIM testing */
+const groupId = "group-id";
+let s1 = deepFreeze({
+  ...Groups.initState(),
+  groupSummaries: { [groupId]: groupSummary1 },
+  groupLabels: { [groupId]: groupLabels1 },
+  groupMembers: { [groupId]: groupMembers1 }
+});
+
+describe("groupAddGIMReducer", () => {
+  it("should add new GIM without UID", () => {
+    let gim = {
+      email: "email2@example.com",
+      role: "Member" as "Member"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim
+    });
+
+    expect(s2.groupMembers[groupId].group_individuals).to.deep.equal([
+      s1.groupMembers[groupId].group_individuals[0],
+      gim
+    ]);
+  });
+
+  it("should de-duplicate GIMs by UID", () => {
+    let gim = {
+      uid: s1.groupMembers[groupId].group_individuals[0].uid,
+      email: "email2@example.com",
+      role: "Owner" as "Owner"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim
+    });
+
+    expect(s2.groupMembers[groupId].group_individuals).to.deep.equal([gim]);
+  });
+
+  it("should de-dupicate GIMs by email", () => {
+    let gim1 = {
+      email: "email2@example.com",
+      role: "Member" as "Member"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim: gim1
+    });
+
+    let gim2 = {
+      ...gim1,
+      uid: "uid2"
+    };
+    let s3 = Groups.groupAddGIMReducer(deepFreeze(s2), {
+      type: "GROUP_ADD_GIM", groupId, gim: gim2
+    });
+
+    expect(s3.groupMembers[groupId].group_individuals).to.deep.equal([
+      s1.groupMembers[groupId].group_individuals[0],
+      gim2
+    ]);
+  });
+
+  it("should add an associated team", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    let member = {
+      teamid: "teamid",
+      email: "email@example.com",
+      name: "John Snow"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim, member
+    });
+
+    expect(s2.groupMembers[groupId].group_teams).to.deep.equal([member]);
+  });
+
+  it("should de-duplicate team by teamid", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    let member1 = {
+      teamid: "teamid",
+      name: "John Snow"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim, member: member1
+    });
+
+    let member2 = {
+      ...member1,
+      name: "Bob Johnson"
+    };
+    let s3 = Groups.groupAddGIMReducer(deepFreeze(s2), {
+      type: "GROUP_ADD_GIM", groupId, gim, member: member2
+    });
+    expect(s3.groupMembers[groupId].group_teams).to.deep.equal([member2]);
+  });
+});
+
+describe("groupDeleteGIMReducer", () => {
+  it("should remove an existing GIM", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    expect(Groups.groupDeleteGIMReducer(s1, {
+      type: "GROUP_DELETE_GIM", groupId, gim
+    }).groupMembers[groupId].group_individuals).to.deep.equal([]);
+  });
+
+  it("should remove an existing GIM by email", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    expect(Groups.groupDeleteGIMReducer(s1, {
+      type: "GROUP_DELETE_GIM", groupId, gim: {
+        email: gim.email,
+        role: gim.role
+      }
+    }).groupMembers[groupId].group_individuals).to.deep.equal([]);
+  });
+
+  it("should remove an existing GIM by UID", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    expect(Groups.groupDeleteGIMReducer(s1, {
+      type: "GROUP_DELETE_GIM", groupId, gim: {
+        uid: gim.uid,
+        role: gim.role
+      }
+    }).groupMembers[groupId].group_individuals).to.deep.equal([]);
+  });
+});

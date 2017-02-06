@@ -151,9 +151,30 @@ namespace Api {
     var paramString = query + (opts.role && opts.resendNotif ?
                                roleParam + "&" + resendParam :
                                roleParam + resendParam);
-    var url = prefix + "/api/group/individual-member/" + string(myUid())
+    var url = prefix + "/api/group/individual-member/" + myUid()
       + "/" + string(groupid)
       + "/" + string(uid)
+      + paramString;
+    return JsonHttp.put(url);
+  }
+
+  export function putGroupIndividualByEmail(
+    groupid: string,
+    email: string,
+    opts: {
+      role?: string,
+      resendNotif?: boolean
+    } = {}
+  ): Promise<ApiT.GroupInviteResponse> {
+    var query = opts.role || opts.resendNotif ? "?" : "";
+    var roleParam = opts.role ? "role=" + opts.role : "";
+    var resendParam = opts.resendNotif ? "resend_notif=true" : "";
+    var paramString = query + (opts.role && opts.resendNotif ?
+                               roleParam + "&" + resendParam :
+                               roleParam + resendParam);
+    var url = prefix + "/api/group/individual-member/" + myUid()
+      + "/" + string(groupid)
+      + "/email/" + string(email)
       + paramString;
     return JsonHttp.put(url);
   }

@@ -36,6 +36,8 @@ export const store = createStore(
         return Groups.groupDataReducer(state, action);
       case "GROUP_UPDATE":
         return Groups.groupUpdateReducer(state, action);
+      case "GROUP_ADD_GIM":
+        return Groups.groupAddGIMReducer(state, action);
       case "GROUP_DELETE_GIM":
         return Groups.groupDeleteGIMReducer(state, action);
       case "GROUP_PREFS":

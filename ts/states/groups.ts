@@ -83,6 +83,13 @@ export interface GroupUpdateAction {
   preferences?: Partial<GroupPreferences>;
 }
 
+export interface GroupAddGIMAction {
+  type: "GROUP_ADD_GIM";
+  groupId: string;
+  gim: ApiT.GroupIndividual;
+  member?: ApiT.GroupMember; // Member or team associated with GIM
+}
+
 export interface GroupDeleteGIMAction {
   type: "GROUP_DELETE_GIM";
   groupId: string;
@@ -242,15 +249,75 @@ export function groupUpdateReducer<S extends GroupState> (
   return _.extend({}, state, update);
 }
 
+// Add GIM but ensure no e-mail OR uid duplication
+export function groupAddGIMReducer<S extends GroupState>(
+  state: S, action: GroupAddGIMAction
+): S {
+  let { groupId, gim, member } = action;
+  let current = state.groupMembers[groupId];
+  if (ready(current)) {
+    let group_individuals = _.clone(current.group_individuals);
+    let index = _.findIndex(group_individuals,
+      (i) => (i.email && i.email === gim.email) ||
+             (i.uid && i.uid === gim.uid));
+
+    // Existing email or UID => merge
+    if (index > -1) {
+      group_individuals[index] = {
+        ...group_individuals[index],
+        ...gim
+      };
+    }
+
+    // New => append
+    else {
+      group_individuals.push(action.gim);
+    }
+
+    // Check if there's an associated team as well
+    let group_teams = _.clone(current.group_teams);
+    if (member) {
+      let m = member; // Fix reference for type-checking purposes
+      let index = _.findIndex(group_teams, (t) => t.teamid === m.teamid);
+      if (index > -1) {
+        group_teams[index] = { ...group_teams[index], ...m }
+      } else {
+        group_teams.push(m);
+      }
+    }
+
+    return _.extend({}, state, {
+      groupMembers: {
+        ...state.groupMembers,
+        [groupId]: {
+          ...current,
+          group_individuals,
+          group_teams
+        }
+      }
+    });
+  }
+  return state;
+}
+
 export function groupDeleteGIMReducer<S extends GroupState>(
   state: S, action: GroupDeleteGIMAction
 ): S {
   let { groupId, gim } = action;
-  state = _.clone(state);
   let current = state.groupMembers[groupId];
 
   if (ready(current)) {
-    _.pull(current.group_individuals, gim);
+    return _.extend({}, state, {
+      groupMembers: {
+        ...state.groupMembers,
+        [groupId]: {
+          ...current,
+          group_individuals: _.filter(current.group_individuals,
+            (i) => !((i.uid && i.uid === gim.uid) ||
+                     (i.email && i.email === gim.email)))
+        }
+      }
+    });
   }
 
   return state;
