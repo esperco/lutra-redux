@@ -232,16 +232,17 @@ namespace Api {
 
 
   /* Calendars */
+
   export function getTimestatsCalendarList(teamid: string):
     Promise<ApiT.GenericCalendars> {
     var url =
-      `${prefix}/api/ts/ts-calendars/${string(myUid())}/${string(teamid)}`;
+      `${prefix}/api/ts/ts-calendars/${myUid()}/${string(teamid)}`;
     return JsonHttp.get(url);
   }
 
   export function getGenericCalendarList(teamid: string):
     Promise<ApiT.GenericCalendars> {
-    var url = `${prefix}/api/ts/calendars/${string(myUid())}/${string(teamid)}`;
+    var url = `${prefix}/api/ts/calendars/${myUid()}/${string(teamid)}`;
     return JsonHttp.get(url);
   }
 
@@ -323,6 +324,12 @@ namespace Api {
     var url = prefix + "/api/group/event/labels/set-predict/" + myUid()
             + "/" + string(groupId);
     return JsonHttp.post(url, req);
+  }
+
+  /* Invites */
+  export function getInviteEmails() : Promise<ApiT.EmailAddresses> {
+    let url = prefix + "/api/invite/emails/" + myUid();
+    return JsonHttp.get(url);
   }
 }
 

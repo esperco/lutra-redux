@@ -9,6 +9,7 @@ import { GenericPeriod, fromDates } from "../lib/period";
 import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/group-events";
 import * as Select from "../handlers/events-select";
+import * as InviteEmails from "../handlers/invite-emails";
 import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
 import * as TeamCals from "../handlers/team-cals";
@@ -123,6 +124,7 @@ export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
       TeamCals.fetchAvailableCalendars(p.editTeamId, deps);
       TeamCals.fetchSelectedCalendars(p.editTeamId, deps);
     }
+    InviteEmails.fetch(deps);
 
     deps.dispatch({
       type: "ROUTE",

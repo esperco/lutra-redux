@@ -274,13 +274,6 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
 class AddMemberButton extends React.Component<Subprops, {}> {
   _dropdown: Dropdown;
 
-  constructor(props: Subprops) {
-    super(props);
-    this.state = {
-      invalid: false
-    };
-  }
-
   render() {
     let emails = this.getEmails();
     let filterFn = (str: string) => {
@@ -327,20 +320,18 @@ class AddMemberButton extends React.Component<Subprops, {}> {
       (g) => g.email || ""
     );
     let emails = new ChoiceSet<Choice>([]);
-    _.each(this.props.state.teamCalendars, (c) => {
-      if (ready(c.available)) {
-        _.each(c.available, (a) => {
-          if (validateEmailAddress(a.title)) {
-            if (! gims.hasKey(a.title)) { // Exclude already included emails
-              emails.push({
-                original: a.title,
-                normalized: a.title.trim().toLowerCase()
-              });
-            }
-          }
-        });
-      }
-    });
+    let inviteEmails = this.props.state.inviteEmails;
+
+    if (ready(inviteEmails)) {
+      _.each(inviteEmails, (v, k) => {
+        if (v && k && !gims.hasKey(k)) { // Exclude already included emails
+          emails.push({
+            original: k,
+            normalized: k.trim().toLowerCase()
+          });
+        }
+      })
+    }
     return emails;
   }
 }

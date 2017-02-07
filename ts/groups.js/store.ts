@@ -13,6 +13,7 @@ import * as Select from "../states/events-select";
 import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Suggestions from "../states/group-suggestions";
+import * as InviteEmails from "../states/invite-emails";
 import * as Groups from "../states/groups";
 import * as Scroll from "../states/scroll";
 import * as TeamCalendars from "../states/team-cals";
@@ -63,6 +64,8 @@ export const store = createStore(
         return TeamCalendars.teamCalendarUpdateReducer(state, action);
       case "TOGGLE_EVENT_SELECTION":
         return Select.reduceEventToggling(state, action);
+      case "UPDATE_INVITE_EMAILS":
+        return InviteEmails.updateInviteStateReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);
