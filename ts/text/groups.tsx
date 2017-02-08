@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import * as React from 'react';
 
 /*
@@ -60,3 +61,40 @@ export const GroupOnboardingDescription = <div>
   </p>
 </div>;
 export const GroupOnboardingStart = "Get Started";
+
+export const Adjectives = [
+  "Above Average",
+  "Amazing",
+  "Awesome",
+  "Excellent",
+  "Fantastic",
+  "Intimidating",
+  "Mildly Amusing",
+  "Miraculous",
+  "Optimistic",
+  "Purple",
+  "Radical",
+  "Super Productive",
+  "Sweet"
+];
+export const Nouns = [
+  "Band",
+  "Compadres",
+  "Company",
+  "Gaggle of Geese",
+  "Miracle-Workers",
+  "Party",
+  "Posse",
+  "Squad",
+  "Team",
+  "Troopers",
+  "Wolfpack"
+];
+export function defaultGroupName(name?: string) {
+  let article = name ? `${_.capitalize(name)}'s` : "The";
+  let adj = _.sample(Adjectives);
+  let noun = _.sample(Nouns);
+  return `${article} ${adj} ${noun}`;
+}
+
+(self as any).defaultGroupName = defaultGroupName;

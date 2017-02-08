@@ -3,12 +3,17 @@
 */
 
 import * as React from 'react';
-import { State, DispatchFn } from './types';
+import { makeNewGroup } from "../handlers/groups";
+import { ApiSvc } from "../lib/api";
+import { NavSvc } from "../lib/routing";
+import * as Paths from "./paths";
+import { LoggedInState, DispatchFn } from './types';
 import * as Text from "../text/groups";
 
 class Props {
-  state: State;
+  state: LoggedInState;
   dispatch: DispatchFn;
+  Svcs: ApiSvc & NavSvc;
 }
 
 class Setup extends React.Component<Props, {}> {
@@ -17,11 +22,18 @@ class Setup extends React.Component<Props, {}> {
       <h2>{ Text.GroupOnboardingHeader }</h2>
       { Text.GroupOnboardingDescription }
       <div>
-        <button className="primary">
+        <button className="primary" onClick={this.start}>
           { Text.GroupOnboardingStart }
         </button>
       </div>
     </div>;
+  }
+
+  start = () => {
+    makeNewGroup(
+      (groupId) => Paths.generalSettings.href({ groupId }),
+      this.props
+    );
   }
 }
 

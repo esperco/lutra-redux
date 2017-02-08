@@ -1,17 +1,19 @@
 import * as _ from "lodash";
+import * as moment from "moment-timezone";
 import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
 import { updateLabelList } from "../lib/event-labels";
 import { LoginState, LoggedInState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
+import { compactObject as compact } from "../lib/util";
 import {
   GroupPreferences,
   GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
   GroupAddGIMAction, GroupDeleteGIMAction, GroupDeleteTeamAction
 } from "../states/groups";
 import { ok, ready } from "../states/data-status";
-import { compactObject as compact } from "../lib/util";
+import { defaultGroupName } from "../text/groups";
 
 /*
   Clean group id -- verify it matches a groupId in login state
@@ -26,6 +28,30 @@ export function cleanGroupId(groupId: string, state: LoginState): string|null {
     }
   }
   return null;
+}
+
+// Onboarding -> new group
+export function makeNewGroup(
+  redirectFn: (groupId: string) => string,
+  deps: {
+    dispatch: (a: GroupDataAction) => any;
+    state: GroupState & LoggedInState;
+    Svcs: NavSvc & ApiSvc
+  }
+) {
+  let name = deps.state.login.email.split('@')[0];
+  return deps.Svcs.Api.createGroup({
+    group_name: defaultGroupName(name),
+    group_timezone: moment.tz.guess()
+  }).then((g) => {
+    deps.dispatch({
+      type: "GROUP_DATA",
+      dataType: "FETCH_END",
+      groupIds: [g.groupid],
+      groups: [g]
+    });
+    deps.Svcs.Nav.go(redirectFn(g.groupid));
+  });
 }
 
 // Fetch a single group

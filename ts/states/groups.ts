@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
+import { LoginState } from "../lib/login";
 import { ok, ready, StoreMap } from "./data-status";
 
 /*
@@ -136,7 +137,7 @@ export function groupPreferencesReducer<S extends GroupState>(
   return state;
 }
 
-export function groupDataReducer<S extends GroupState> (
+export function groupDataReducer<S extends GroupState & LoginState> (
   state: S, action: GroupDataAction
 ) {
   state = _.clone(state);
@@ -165,7 +166,7 @@ export function groupDataReducer<S extends GroupState> (
     // Anything id in the list gets marked as error unless replaced by
     // actual data
     if (action.dataType === "FETCH_END") {
-       _.each(action.groupIds, (id) => {
+      _.each(action.groupIds, (id) => {
         groupSummaries[id] = "FETCH_ERROR";
         if (action.withLabels) {
           groupLabels[id] = "FETCH_ERROR";
@@ -176,7 +177,10 @@ export function groupDataReducer<S extends GroupState> (
       });
     }
 
+    let newGroupIds: string[] = [];
     _.each(action.groups, (g) => {
+      newGroupIds.push(g.groupid);
+
       groupSummaries[g.groupid] = {
         group_name: g.group_name,
         group_timezone: g.group_timezone
@@ -202,6 +206,14 @@ export function groupDataReducer<S extends GroupState> (
         };
       }
     });
+
+    // Add groupIds to login state if applicable
+    if (state.login) {
+      state.login = {
+        ...state.login,
+        groups: _.uniq(state.login.groups.concat(action.groupIds))
+      };
+    }
   }
 
   return state;
