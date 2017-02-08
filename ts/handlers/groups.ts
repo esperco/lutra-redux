@@ -4,6 +4,7 @@ import { ApiSvc } from "../lib/api";
 import { updateLabelList } from "../lib/event-labels";
 import { LoginState, LoggedInState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
+import { NavSvc } from "../lib/routing";
 import {
   GroupPreferences,
   GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
@@ -339,6 +340,16 @@ export function setGroupLabels(props: {
   }
 
   return Promise.resolve();
+}
+
+
+// Delete groups
+export function deleteGroup(groupId: string, deps: {
+  Svcs: ApiSvc & NavSvc;
+}): Promise<void> {
+  return deps.Svcs.Api.deleteGroup(groupId).then(() => {
+    deps.Svcs.Nav.refresh(true);
+  });
 }
 
 // Fetch group names after logging in

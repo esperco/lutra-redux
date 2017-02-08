@@ -20,11 +20,16 @@ export const GroupNamePlaceholder = "Guardians of the Galaxy";
 export const GroupTimezone = "Timezone";
 
 export const DailyEmail = "Daily Team Summary Email";
-
 export function alertsGoTo(email: string) {
   return <span>
     These alerts will go to <strong>{email}</strong>
   </span>;
+}
+
+export const RemoveGroupBtn = "Deactivate";
+export function removeGroupDescription(group?: string) {
+  return `Deactivate ${group || "this " + Group}? This will remove all ` +
+         `tags and related data. This cannot be undone.`;
 }
 
 export function roleDisplayName(role: GroupRole) {

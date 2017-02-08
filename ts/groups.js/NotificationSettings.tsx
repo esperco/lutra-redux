@@ -8,7 +8,6 @@ import SettingsNav from "./SettingsNav";
 import CheckboxItem from "../components/CheckboxItem";
 import * as Groups from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
-import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { GroupPreferences } from "../states/groups";
 import * as Text from "../text/groups";
@@ -17,7 +16,7 @@ interface Props {
   groupId: string;
   state: LoggedInState;
   dispatch: DispatchFn;
-  Svcs: ApiSvc & NavSvc;
+  Svcs: ApiSvc;
 }
 
 class NotificationSettings extends React.Component<Props, {}> {

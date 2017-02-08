@@ -140,6 +140,12 @@ namespace Api {
     return JsonHttp.put(url);
   }
 
+  export function deleteGroup(groupId: string): Promise<void> {
+    var url = prefix + "/api/group/delete/" + myUid()
+      + "/" + string(groupId);
+    return JsonHttp.delete_(url);
+  }
+
   export function putGroupIndividual(groupid: string, uid: string, opts: {
     role?: string,
     resendNotif?: boolean

@@ -320,8 +320,13 @@ export namespace Nav {
     location.href = path;
   }
 
-  export function refresh() {
-    window.dispatchEvent(new HashChangeEvent("hashchange"))
+  // Hard refresh => refresh browser, vs. hashchange
+  export function refresh(hard=false) {
+    if (hard) {
+      location.reload();
+    } else {
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    }
   }
 }
 
