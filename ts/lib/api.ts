@@ -182,8 +182,16 @@ namespace Api {
   export function removeGroupIndividual(groupid: string, uid: string):
     Promise<void>
   {
-    var url = `${prefix}/api/group/individual-member/${string(myUid())}`
+    var url = `${prefix}/api/group/individual-member/${myUid()}`
       + `/${string(groupid)}/${string(uid)}`;
+    return JsonHttp.delete_(url);
+  }
+
+  export function removeGroupMember(groupid: string, teamid: string):
+    Promise<void>
+  {
+    var url = `${prefix}/api/group/member/${myUid()}`
+      + `/${string(groupid)}/${string(teamid)}`;
     return JsonHttp.delete_(url);
   }
 

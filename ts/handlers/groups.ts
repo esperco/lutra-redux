@@ -6,7 +6,7 @@ import { LoginState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
 import {
   GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
-  GroupAddGIMAction, GroupDeleteGIMAction
+  GroupAddGIMAction, GroupDeleteGIMAction, GroupDeleteTeamAction
 } from "../states/groups";
 import { ok, ready } from "../states/data-status";
 import { compactObject as compact } from "../lib/util";
@@ -157,6 +157,18 @@ export function removeGroupIndividual(
     gim
   });
   return Svcs.Api.removeGroupIndividual(groupId, gim.uid);
+}
+
+export function removeTeam(
+  groupId: string,
+  teamId: string,
+  deps: {
+    dispatch: (a: GroupDeleteTeamAction) => any;
+    Svcs: ApiSvc;
+  }
+): Promise<void> {
+  deps.dispatch({ type: "GROUP_DELETE_TEAM", groupId, teamId });
+  return deps.Svcs.Api.removeGroupMember(groupId, teamId);
 }
 
 

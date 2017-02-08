@@ -24,7 +24,7 @@ const groupMembers1 = {
     email: "email@example.com"
   }],
   group_member_role: "Owner" as ApiT.GroupRole,
-  group_teams: []
+  group_teams: [] as ApiT.GroupMember[]
 };
 
 describe("groupDataReducer", function() {
@@ -322,7 +322,7 @@ describe("groupUpdateReducer", () => {
 
 /* State for GIM testing */
 const groupId = "group-id";
-let s1 = deepFreeze({
+const s1 = deepFreeze({
   ...Groups.initState(),
   groupSummaries: { [groupId]: groupSummary1 },
   groupLabels: { [groupId]: groupLabels1 },
@@ -466,5 +466,20 @@ describe("groupDeleteGIMReducer", () => {
         role: gim.role
       }
     }).groupMembers[groupId].group_individuals).to.deep.equal([]);
+  });
+});
+
+describe("deleteGroupTeamReducer", () => {
+  it("should remove an existing team by teamId", () => {
+    let s2 = _.cloneDeep(s1);
+    s2.groupMembers[groupId].group_teams = [{
+      email: "email@example.com",
+      teamid: "team-id"
+    }];
+
+    expect(Groups.groupDeleteTeamReducer(deepFreeze(s2), {
+      type: "GROUP_DELETE_TEAM",
+      groupId, teamId: "team-id"
+    }).groupMembers[groupId].group_teams).to.deep.equal([]);
   });
 });

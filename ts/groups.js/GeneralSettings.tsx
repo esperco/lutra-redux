@@ -373,6 +373,11 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
           this.renderCalendars(calendars.available, calendars.selected) :
           <div className="spinner" /> }
       </div>
+      <footer>
+        <button onClick={() => this.unshare()}>
+          { Text.GroupDisableCalendarSharing }
+        </button>
+      </footer>
     </Modal>;
   }
 
@@ -392,6 +397,15 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
     this.props.Svcs.Nav.go(generalSettings.href({
       groupId: this.props.groupId
     }));
+  }
+
+  unshare() {
+    Groups.removeTeam(
+      this.props.groupId,
+      this.props.editTeamId,
+      this.props
+    );
+    this.closeModal();
   }
 
   update(cal: GenericCalendar, value: boolean) {

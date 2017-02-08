@@ -11,6 +11,7 @@ export const GroupCalendarSharingYes =
 export const GroupCalendarSharingNo =
   "This user is not sharing any calendars.";
 export const GroupCalendarSharingEdit = "Pick which calendars to share.";
+export const GroupDisableCalendarSharing = "Disable Calendar Sharing";
 
 export const GroupName = "Team Name";
 export const GroupNamePlaceholder = "Guardians of the Galaxy";
