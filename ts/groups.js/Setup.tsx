@@ -1,10 +1,10 @@
 /*
-  This is the main view for the group page
+  This is the new-group / onboarding page
 */
 
 import * as React from 'react';
 import { State, DispatchFn } from './types';
-import GroupNav from "./GroupNav";
+import * as Text from "../text/groups";
 
 class Props {
   state: State;
@@ -13,9 +13,14 @@ class Props {
 
 class Setup extends React.Component<Props, {}> {
   render() {
-    return <div>
-      <GroupNav />
-      Setup page
+    return <div id="group-onboarding" className="container">
+      <h2>{ Text.GroupOnboardingHeader }</h2>
+      { Text.GroupOnboardingDescription }
+      <div>
+        <button className="primary">
+          { Text.GroupOnboardingStart }
+        </button>
+      </div>
     </div>;
   }
 }

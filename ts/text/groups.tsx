@@ -42,3 +42,21 @@ export function roleDescription(role: GroupRole) {
     return "Can edit group settings and delete group";
   return "Can contribute calendar data to this group";
 }
+
+export const GroupOnboardingHeader = "Welcome to Esper for Enterprise";
+export const GroupOnboardingDescription = <div>
+  <p>
+    Esper for Enterprise lets you track meetings across your entire
+    organization. Categorize events, identify costly time sinks,
+    and more.
+  </p>
+  <p>
+    It looks like you're currently not a member of an Esper team. Ask
+    someone on an existing Esper team to invite you, or click
+    the button below to create your own.
+  </p>
+  <p>
+    Need help? <a href="/contact">Click here to contact us.</a>
+  </p>
+</div>;
+export const GroupOnboardingStart = "Get Started";

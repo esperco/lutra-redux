@@ -13,7 +13,6 @@ import * as InviteEmails from "../handlers/invite-emails";
 import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
 import * as TeamCals from "../handlers/team-cals";
-import * as Log from "../lib/log";
 import { compactObject } from "../lib/util";
 
 interface Deps {
@@ -32,6 +31,10 @@ export interface EventListRoute {
   query: QueryFilter;
   period: GenericPeriod;
 };
+
+export function goToSetup(Svcs: Routing.NavSvc) {
+  Svcs.Nav.go(Paths.setup.href({}));
+}
 
 export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
   let groupId = Groups.cleanGroupId(p.groupId, deps.state);
@@ -88,11 +91,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
       })
     });
   } else {
-    Log.e("Missing groupId", p.groupId);
-    deps.dispatch({
-      type: "ROUTE",
-      route: { page: "NotFound" }
-    });
+    goToSetup(deps.Svcs);
   }
 });
 
@@ -137,10 +136,7 @@ export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
   }
 
   else {
-    deps.dispatch({
-      type: "ROUTE",
-      route: { page: "NotFound" }
-    })
+    goToSetup(deps.Svcs);
   }
 });
 
@@ -165,10 +161,7 @@ export const notificationSettings = Paths.notificationSettings.route<Deps>(
   }
 
   else {
-    deps.dispatch({
-      type: "ROUTE",
-      route: { page: "NotFound" }
-    });
+    goToSetup(deps.Svcs);
   }
 });
 
@@ -192,10 +185,7 @@ export const miscSettings = Paths.miscSettings.route<Deps>(
   }
 
   else {
-    deps.dispatch({
-      type: "ROUTE",
-      route: { page: "NotFound" }
-    });
+    goToSetup(deps.Svcs);
   }
 });
 
