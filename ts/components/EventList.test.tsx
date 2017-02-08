@@ -146,7 +146,10 @@ describe("EventDisplay", () => {
       autoConfirmTimeout={1234}
     />);
     let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')({
+    waypoint.prop('onEnter')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "inside",
       previousPosition: "below"
     });
@@ -166,11 +169,17 @@ describe("EventDisplay", () => {
       autoConfirmTimeout={1234}
     />);
     let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')({
+    waypoint.prop('onEnter')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "inside",
       previousPosition: "below"
     });
-    waypoint.prop('onLeave')({
+    waypoint.prop('onLeave')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "above",
       previousPosition: "inside"
     });
@@ -185,7 +194,10 @@ describe("EventDisplay", () => {
     />);
 
     let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')({
+    waypoint.prop('onEnter')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "inside",
       previousPosition: "below"
     });
@@ -201,7 +213,10 @@ describe("EventDisplay", () => {
     />);
 
     let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')({
+    waypoint.prop('onEnter')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "inside",
       previousPosition: "below"
     });

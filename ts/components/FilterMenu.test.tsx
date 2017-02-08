@@ -64,7 +64,7 @@ describe("<FilterMenu />", () => {
   it("allows highlighting with arrow keys", () => {
     let wrapper = getMenu();
     let input = wrapper.find(FilterInput);
-    input.prop('onDown')();
+    input.prop('onDown')!();
     wrapper.update();
     expect(wrapper.find(RadioItem).first().hasClass('active')).to.be.true;
   });

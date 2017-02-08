@@ -104,7 +104,7 @@ describe("<MultiselectFilterMenu />", () => {
   it("allows highlighting with arrow keys", () => {
     let wrapper = getMenu();
     let input = wrapper.find(FilterInput);
-    input.prop('onDown')();
+    input.prop('onDown')!();
     wrapper.update();
     expect(wrapper.find(CheckboxItem).first().hasClass('active')).to.be.true;
   });
@@ -113,8 +113,8 @@ describe("<MultiselectFilterMenu />", () => {
   () => {
     let wrapper = getMenu();
     let input = wrapper.find(FilterInput);
-    input.prop('onDown')();
-    input.prop('onUp')();
+    input.prop('onDown')!();
+    input.prop('onUp')!();
     wrapper.update();
     expect(wrapper.find(CheckboxItem).first().hasClass('active')).to.be.false;
   });
@@ -154,7 +154,7 @@ describe("<MultiselectFilterMenu />", () => {
     it("calls onAdd if we submit when button is highlighted", () => {
       let wrapper = getMenuAfterTyping("ellow 3")
       let input = wrapper.find(FilterInput);
-      input.prop('onSubmit')();
+      input.prop('onSubmit')!();
       expectCalledWith(addSpy, "ellow 3", "enter");
     });
 
@@ -166,7 +166,7 @@ describe("<MultiselectFilterMenu />", () => {
     it("allows highlighting checkboxes with arrow keys", () => {
       let wrapper = getMenuAfterTyping("ellow 3")
       let input = wrapper.find(FilterInput);
-      input.prop('onDown')();
+      input.prop('onDown')!();
       wrapper.update();
       expect(wrapper.find('button').hasClass('active')).to.be.false;
       expect(wrapper.find(CheckboxItem).first().hasClass('active')).to.be.true;
@@ -175,8 +175,8 @@ describe("<MultiselectFilterMenu />", () => {
     it("calls onToggle when we submit when a checkbox is highlighted", () => {
       let wrapper = getMenuAfterTyping("ellow 3")
       let input = wrapper.find(FilterInput);
-      input.prop('onDown')();
-      input.prop('onSubmit')();
+      input.prop('onDown')!();
+      input.prop('onSubmit')!();
       expectCalledWith(toggleSpy, choice1, false, "enter");
     });
 
@@ -184,11 +184,11 @@ describe("<MultiselectFilterMenu />", () => {
     () => {
       let wrapper = getMenuAfterTyping("ellow 3")
       let input = wrapper.find(FilterInput);
-      input.prop('onDown')();
-      input.prop('onDown')();
-      input.prop('onDown')();
-      input.prop('onDown')();
-      input.prop('onDown')();
+      input.prop('onDown')!();
+      input.prop('onDown')!();
+      input.prop('onDown')!();
+      input.prop('onDown')!();
+      input.prop('onDown')!();
       wrapper.update();
       expect(wrapper.find(CheckboxItem).last().hasClass('active')).to.be.true;
     });
@@ -197,9 +197,9 @@ describe("<MultiselectFilterMenu />", () => {
     () => {
       let wrapper = getMenuAfterTyping("ellow 3")
       let input = wrapper.find(FilterInput);
-      input.prop('onDown')();
-      input.prop('onUp')();
-      input.prop('onUp')();
+      input.prop('onDown')!();
+      input.prop('onUp')!();
+      input.prop('onUp')!();
       wrapper.update();
       expect(wrapper.find('button').hasClass('active')).to.be.true;
     });
@@ -255,11 +255,11 @@ describe("<MultiselectFilterMenu />", () => {
     it("allows highlighting and submitting a special choice", () => {
       let wrapper = getMenu();
       let input = wrapper.find(FilterInput);
-      input.prop('onDown')();
+      input.prop('onDown')!();
       wrapper.update();
       expect(wrapper.find(CheckboxItem).at(0).hasClass('active')).to.be.true;
 
-      input.prop('onSubmit')()
+      input.prop('onSubmit')!()
       expectCalledWith(special1Spy, false, "enter");
     });
 
@@ -267,11 +267,11 @@ describe("<MultiselectFilterMenu />", () => {
        "toggle", () => {
       let wrapper = getMenu();
       let input = wrapper.find(FilterInput);
-      input.prop('onDown')();
+      input.prop('onDown')!();
       wrapper.update();
       expect(wrapper.find(CheckboxItem).at(0).hasClass('active')).to.be.true;
 
-      input.prop('onSubmit')()
+      input.prop('onSubmit')!()
       expectCalledWith(special1Spy, false, "enter");
     });
 

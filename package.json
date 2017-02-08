@@ -10,7 +10,7 @@
     "@types/chai": "^3.4.34",
     "@types/classnames": "0.0.32",
     "@types/crypto-js": "^3.1.32",
-    "@types/enzyme": "^2.7.1",
+    "@types/enzyme": "^2.7.4",
     "@types/jquery": "^2.0.39",
     "@types/json-stable-stringify": "^1.0.29",
     "@types/lodash": "^4.14.47",
@@ -71,7 +71,7 @@
     "react-addons-shallow-compare": "^15.4.2",
     "react-addons-test-utils": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-waypoint": "^5.0.0",
+    "react-waypoint": "^5.0.3",
     "redux": "^3.6.0",
     "whatwg-fetch": "^2.0.1"
   },
