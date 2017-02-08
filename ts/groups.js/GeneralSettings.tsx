@@ -19,7 +19,9 @@ import { Modal } from '../components/Modal';
 import * as TeamCals from '../handlers/team-cals';
 import * as Groups from '../handlers/groups';
 import { ApiSvc } from "../lib/api";
-import { GenericCalendar, GroupRole, GroupIndividual } from "../lib/apiT";
+import {
+  GenericCalendar, GroupRole, GroupIndividual, GroupMember
+} from "../lib/apiT";
 import { NavSvc } from "../lib/routing";
 import { OrderedSet, ChoiceSet, validateEmailAddress } from "../lib/util";
 import { Zones } from "../lib/timezones";
@@ -201,29 +203,24 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
   }
 
   render() {
-    let { gim, members, state, groupId, selfGIM } = this.props;
+    let { gim, members, groupId, selfGIM } = this.props;
     let associatedTeam =
       _.find(members.group_teams, (m) => m.email === gim.email);
-    let displayName = associatedTeam ? associatedTeam.name : gim.email;
+    let displayName = associatedTeam ?
+      (associatedTeam.name || associatedTeam.email) :
+      gim.email;
     let choices = new OrderedSet(this.ROLE_LIST, (role) => role.normalized);
 
     let canRemove = gim.uid && (this.props.isSuper ||
       (selfGIM ? selfGIM.uid === gim.uid : false));
-    let canEditCals = gim.uid && (ready(state.login) ?
-      (associatedTeam && associatedTeam.email === state.login.email)
-      : false);
+    let canEditCals = gim.uid && (selfGIM ? selfGIM.uid === gim.uid : false);
 
     return <div className="panel group-member-item">
       <Tooltip target={
         <button
           className="group-calendar"
-          disabled={!(associatedTeam && canEditCals)}
-          onClick={() => associatedTeam &&
-            this.props.Svcs.Nav.go(generalSettings.href({
-              groupId: this.props.groupId,
-              editTeamId: associatedTeam.teamid
-            }))
-          }>
+          disabled={!canEditCals}
+          onClick={() => this.editCals(associatedTeam)}>
             <Icon type={
               associatedTeam ? "calendar-check" : "calendar-empty"}
             />
@@ -267,6 +264,30 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
         </button>
       }
     </div>;
+  }
+
+  // TODO - refactor into handler?
+  editCals(associatedTeam?: GroupMember) {
+    if (associatedTeam) {
+      this.props.Svcs.Nav.go(generalSettings.href({
+        groupId: this.props.groupId,
+        editTeamId: associatedTeam.teamid
+      }))
+    }
+
+    // Create team for self
+    else if (this.props.gim.email === this.props.state.login.email) {
+      Groups.addGroupIndividual(
+        this.props.groupId,
+        this.props.gim.email,
+        this.props
+      ).then((teamId) => {
+        teamId && this.props.Svcs.Nav.go(generalSettings.href({
+          groupId: this.props.groupId,
+          editTeamId: teamId
+        }));
+      });
+    }
   }
 }
 

@@ -106,7 +106,7 @@ export function addGroupIndividual(
     state: GroupState;
     Svcs: ApiSvc;
   }
-): Promise<void> {
+): Promise<string|void> {
   // Dispatch placeholder GIM
   deps.dispatch({
     type: "GROUP_ADD_GIM",
@@ -118,18 +118,25 @@ export function addGroupIndividual(
   });
 
   return deps.Svcs.Api.putGroupIndividualByEmail(groupId, email)
-    .then((resp) => deps.dispatch(compact({
-      type: "GROUP_ADD_GIM" as "GROUP_ADD_GIM",
-      groupId,
-      gim: {
-        email,
-        ...resp.gim
-      },
-      member: resp.opt_gm ? {
-        email,
-        ...resp.opt_gm
-      } : undefined
-    })));
+    .then((resp) => {
+      deps.dispatch(compact({
+        type: "GROUP_ADD_GIM" as "GROUP_ADD_GIM",
+        groupId,
+        gim: {
+          email,
+          ...resp.gim
+        },
+        member: resp.opt_gm ? {
+          email,
+          ...resp.opt_gm
+        } : undefined
+      }));
+
+      if (resp.opt_gm) {
+        return resp.opt_gm.teamid;
+      }
+      return;
+    });
 }
 
 export function removeGroupIndividual(

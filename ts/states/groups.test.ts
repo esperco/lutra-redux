@@ -434,6 +434,30 @@ describe("groupDeleteGIMReducer", () => {
     }).groupMembers[groupId].group_individuals).to.deep.equal([]);
   });
 
+  it("should remove an associated team by email", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    let s2 = {
+      ...s1,
+      groupMembers: {
+        ...s1.groupMembers,
+        [groupId]: {
+          ...s1.groupMembers[groupId],
+          group_teams: [{
+            email: gim.email,
+            teamid: "team-id"
+          }]
+        }
+      }
+    };
+
+    expect(Groups.groupDeleteGIMReducer(deepFreeze(s2), {
+      type: "GROUP_DELETE_GIM", groupId, gim: {
+        email: gim.email,
+        role: gim.role
+      }
+    }).groupMembers[groupId].group_teams).to.deep.equal([]);
+  });
+
   it("should remove an existing GIM by UID", () => {
     let gim = s1.groupMembers[groupId].group_individuals[0];
     expect(Groups.groupDeleteGIMReducer(s1, {

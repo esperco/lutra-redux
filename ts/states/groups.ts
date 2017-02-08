@@ -314,7 +314,9 @@ export function groupDeleteGIMReducer<S extends GroupState>(
           ...current,
           group_individuals: _.filter(current.group_individuals,
             (i) => !((i.uid && i.uid === gim.uid) ||
-                     (i.email && i.email === gim.email)))
+                     (i.email && i.email === gim.email))),
+          group_teams: _.filter(current.group_teams,
+            (t) => !(t.email && t.email === gim.email))
         }
       }
     });
