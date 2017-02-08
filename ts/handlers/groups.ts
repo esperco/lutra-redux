@@ -2,9 +2,10 @@ import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
 import { updateLabelList } from "../lib/event-labels";
-import { LoginState } from "../lib/login";
+import { LoginState, LoggedInState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
 import {
+  GroupPreferences,
   GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
   GroupAddGIMAction, GroupDeleteGIMAction, GroupDeleteTeamAction
 } from "../states/groups";
@@ -97,6 +98,47 @@ export function fetchPreferences(groupid: string, deps: {
   }
   return Promise.resolve();
 }
+
+
+/* Update preferences */
+
+function updatePrefs(
+  groupId: string,
+  update: Partial<GroupPreferences>,
+  deps: {
+    dispatch: (a: GroupUpdateAction) => any;
+    state: GroupState & LoggedInState;
+    Svcs: ApiSvc;
+  }
+): Promise<void> {
+  let current = deps.state.groupPreferences[groupId];
+  if (ready(current)) {
+    deps.dispatch({
+      type: "GROUP_UPDATE",
+      groupId,
+      preferences: update
+    });
+    let newPrefs = {
+      groupid: groupId,
+      uid: deps.state.login.uid,
+      ...current,
+      ...update
+    };
+    return deps.Svcs.Api.putGroupPreferences(groupId, newPrefs);
+  }
+  return Promise.resolve();
+}
+
+export function updateDailyEmail(groupId: string, val: boolean, deps: {
+  dispatch: (a: GroupUpdateAction) => any;
+  state: GroupState & LoggedInState;
+  Svcs: ApiSvc;
+}): Promise<void> {
+  return updatePrefs(groupId, { daily_breakdown: val }, deps);
+}
+
+
+/* Manage group members */
 
 export function addGroupIndividual(
   groupId: string,

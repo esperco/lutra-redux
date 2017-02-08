@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 /*
   Group-specific text
 */
@@ -16,6 +18,14 @@ export const GroupDisableCalendarSharing = "Disable Calendar Sharing";
 export const GroupName = "Team Name";
 export const GroupNamePlaceholder = "Guardians of the Galaxy";
 export const GroupTimezone = "Timezone";
+
+export const DailyEmail = "Daily Team Summary Email";
+
+export function alertsGoTo(email: string) {
+  return <span>
+    These alerts will go to <strong>{email}</strong>
+  </span>;
+}
 
 export function roleDisplayName(role: GroupRole) {
   if (role === "Owner") return "Administrator";
