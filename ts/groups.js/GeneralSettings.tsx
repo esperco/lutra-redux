@@ -6,6 +6,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { generalSettings } from "./paths";
 import { LoggedInState, DispatchFn } from './types';
+import SettingsNav from "./SettingsNav";
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
 import FilterMenu from "../components/FilterMenu";
@@ -73,6 +74,7 @@ class GeneralSettings extends React.Component<Props, {}> {
 
     return <div className="content">
       <div className="container">
+        <SettingsNav {...this.props} />
         <SummaryInfo {...subprops} />
         <GroupMembersInfo {...subprops} />
         <AddMemberButton {...subprops} />

@@ -22,7 +22,7 @@ header, .banner, footer {
   }
 
   // Expand these items relatively slowly, don't shrink
-  > h1, > nav, > button, > a, > input[type=submit], > .btn-set {
+  > h1, > button, > a, > input[type=submit], > .btn-set {
     flex: 1 0 auto;
     min-width: @input-height-base;
   }
@@ -50,9 +50,13 @@ header, .banner, footer {
 }
 
 header {
-  height: @navbar-height;
   border-bottom: 1px solid @border-color;
   box-shadow: @default-box-shadow;
+  min-height: @navbar-height;
+
+  @media screen and (min-width: @screen-sm-min) {
+    height: @navbar-height;
+  }
 }
 
 footer {

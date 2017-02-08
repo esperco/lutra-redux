@@ -144,10 +144,67 @@ export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
   }
 });
 
+// Notification preferences
+export interface NotificationSettingsRoute {
+  page: "GroupNotificationSettings";
+  groupId: string;
+}
+
+export const notificationSettings = Paths.notificationSettings.route<Deps>(
+(p, deps) => {
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupId) {
+    Groups.fetchPreferences(groupId, deps);
+    deps.dispatch({
+      type: "ROUTE",
+      route: {
+        page: "GroupNotificationSettings",
+        groupId
+      }
+    });
+  }
+
+  else {
+    deps.dispatch({
+      type: "ROUTE",
+      route: { page: "NotFound" }
+    });
+  }
+});
+
+// Miscellaneous group settings (like delete group)
+export interface MiscSettingsRoute {
+  page: "GroupMiscSettings";
+  groupId: string;
+}
+
+export const miscSettings = Paths.miscSettings.route<Deps>(
+(p, deps) => {
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupId) {
+    deps.dispatch({
+      type: "ROUTE",
+      route: {
+        page: "GroupMiscSettings",
+        groupId
+      }
+    });
+  }
+
+  else {
+    deps.dispatch({
+      type: "ROUTE",
+      route: { page: "NotFound" }
+    });
+  }
+});
+
 export type RouteTypes =
   EventListRoute|
   SetupRoute|
-  GeneralSettingsRoute;
+  GeneralSettingsRoute|
+  NotificationSettingsRoute|
+  MiscSettingsRoute;
 
 export function init({ dispatch, getState, postTask, Svcs, Conf }: {
   dispatch: (action: Action) => any,
@@ -161,7 +218,9 @@ export function init({ dispatch, getState, postTask, Svcs, Conf }: {
       eventList,
       setup,
       settings,
-      generalSettings
+      generalSettings,
+      notificationSettings,
+      miscSettings
     ],
 
     // Deps

@@ -54,3 +54,19 @@ export const generalSettings = new Path({
   },
   hash: ["settings", ":groupId", "general"]
 })
+
+export const notificationSettings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  hash: ["settings", ":groupId", "notifications"]
+});
+
+export const miscSettings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  hash: ["settings", ":groupId", "misc"]
+})

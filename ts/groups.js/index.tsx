@@ -24,6 +24,8 @@ import GroupEvents from "./GroupEvents";
 import GroupHeader from "./GroupHeader";
 import Setup from "./Setup";
 import GeneralSettings from "./GeneralSettings";
+import NotificationSettings from "./NotificationSettings";
+import MiscSettings from "./MiscSettings";
 
 // Store Types
 import { LoggedInState, Action, PostTaskFn, DispatchFn } from "./types";
@@ -123,6 +125,10 @@ function MainView(props: {
         return <Setup {...props} />;
       case "GroupGeneralSettings":
         return <GeneralSettings {...props} {...props.state.route} />;
+      case "GroupNotificationSettings":
+        return <NotificationSettings {...props} {...props.state.route} />;
+      case "GroupMiscSettings":
+        return <MiscSettings {...props} {...props.state.route} />;
       case "NotFound":
         return <NotFound />;
     }

@@ -139,6 +139,8 @@ class GroupHeader extends React.Component<Props, {}> {
         if (this.props.state.route) {
           switch (this.props.state.route.page) {
             case "GroupGeneralSettings":
+            case "GroupNotificationSettings":
+            case "GroupMiscSettings":
               return (groupId: string) => Paths.generalSettings.href({
                 groupId
               });
