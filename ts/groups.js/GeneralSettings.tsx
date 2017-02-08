@@ -151,13 +151,18 @@ class SummaryInfo extends React.Component<Subprops, {}> {
 class GroupMembersInfo extends React.Component<Subprops, {}> {
   render() {
     let { members } = this.props;
+    let numAdmins = _.filter(members.group_individuals,
+      (i) => i.role === "Owner").length;
+
     return <div className="panel">
       { _.map(members.group_individuals,
         // Render member only if UID exists
         (gim) => <SingleMemberInfo
           key={gim.email || gim.uid}
           {...this.props}
-          gim={gim} />
+          gim={gim}
+          noEdit={numAdmins <= 1 && gim.role === "Owner"}
+        />
       ) }
     </div>;
   }
@@ -166,6 +171,7 @@ class GroupMembersInfo extends React.Component<Subprops, {}> {
 
 interface SingleMemberProps extends Subprops {
   gim: GroupIndividual;
+  noEdit?: boolean;
 }
 
 class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
@@ -211,7 +217,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
       gim.email;
     let choices = new OrderedSet(this.ROLE_LIST, (role) => role.normalized);
 
-    let canRemove = gim.uid && (this.props.isSuper ||
+    let canRemove = gim.uid && !this.props.noEdit && (this.props.isSuper ||
       (selfGIM ? selfGIM.uid === gim.uid : false));
     let canEditCals = gim.uid && (selfGIM ? selfGIM.uid === gim.uid : false);
 
@@ -245,7 +251,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
         Groups.removeGroupIndividual(groupId, gim, this.props)}>
         { canRemove ? <Icon type="remove" /> : null }
       </button>
-      { this.props.isSuper && this.props.gim.uid ?
+      { this.props.isSuper && this.props.gim.uid && !this.props.noEdit?
         <Dropdown
           toggle={<button className="dropdown-toggle group-role-badge">
             { Text.roleDisplayName(gim.role) }
