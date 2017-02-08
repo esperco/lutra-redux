@@ -35,7 +35,7 @@ button, input[type=submit] {
 
 // Default button
 button {
-  color: @text-muted;
+  color: @link-muted;
   border: 0;
   background: transparent;
 
@@ -159,4 +159,13 @@ button {
     margin-left: -@padding-small;
     margin-right: -@padding-small;
   }
+}
+
+/* Style button like input box */
+button.input-style {
+  text-align: left;
+  border: 1px solid @border-color;
+  color: @text-color;
+  font-weight: normal;
+  text-transform: none;
 }

@@ -75,7 +75,10 @@ describe('TreeFall', () => {
     stubJQ(-300, 200, 200);
     let wrapper = getWrapper();
     let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')({
+    waypoint.prop('onEnter')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "inside",
       previousPosition: "above"
     });
@@ -87,7 +90,10 @@ describe('TreeFall', () => {
     stubJQ(-300, 200, 200);
     let wrapper = shallow(<TestClass cats={5} />);
     let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')({
+    waypoint.prop('onEnter')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "inside",
       previousPosition: "above"
     });

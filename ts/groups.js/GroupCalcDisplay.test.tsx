@@ -62,7 +62,10 @@ describe("<GroupCalcDisplay />", () => {
       results={thisResults}
     />);
     let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')({
+    waypoint.prop('onEnter')!({
+      waypointTop: 0,
+      viewportTop: 0,
+      viewportBottom: 0,
       currentPosition: "inside",
       previousPosition: "below"
     });
@@ -88,8 +91,8 @@ describe("<GroupCalcDisplay />", () => {
     let wrapper = mountAndActivate();
     let links = wrapper.find('.bar-chart .bar')
     expect(links).to.have.length(2);
-    expect(links.at(0).prop('style').width).to.equal('100%');
-    expect(links.at(1).prop('style').width).to.equal('50%');
+    expect(links.at(0).prop('style')!.width).to.equal('100%');
+    expect(links.at(1).prop('style')!.width).to.equal('50%');
   });
 
   it("calculates percentages of total for each label", () => {

@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import { expect } from "chai";
 import * as Groups from "./groups";
 import * as ApiT from "../lib/apiT";
+import { deepFreeze } from "../lib/util";
 import makeGroup from "../fakes/groups-fake";
 
 // Some group data for testing
@@ -23,7 +24,7 @@ const groupMembers1 = {
     email: "email@example.com"
   }],
   group_member_role: "Owner" as ApiT.GroupRole,
-  group_teams: []
+  group_teams: [] as ApiT.GroupMember[]
 };
 
 describe("groupDataReducer", function() {
@@ -41,7 +42,8 @@ describe("groupDataReducer", function() {
           "id-2": "FETCHING"
         },
         groupLabels: {},
-        groupMembers: {}
+        groupMembers: {},
+        groupPreferences: {}
       });
     });
 
@@ -56,7 +58,8 @@ describe("groupDataReducer", function() {
         },
         groupMembers: {
           "id-1": "FETCH_ERROR"
-        }
+        },
+        groupPreferences: {}
       };
       let s2 = Groups.groupDataReducer(s1, {
         type: "GROUP_DATA",
@@ -77,7 +80,8 @@ describe("groupDataReducer", function() {
         groupMembers: {
           "id-1": "FETCHING",
           "id-2": "FETCHING"
-        }
+        },
+        groupPreferences: {}
       });
     });
 
@@ -96,7 +100,8 @@ describe("groupDataReducer", function() {
         groupLabels: {
           "id-1": "FETCHING"
         },
-        groupMembers: {}
+        groupMembers: {},
+        groupPreferences: {}
       });
     });
 
@@ -115,7 +120,8 @@ describe("groupDataReducer", function() {
         groupLabels: {},
         groupMembers: {
           "id-1": "FETCHING"
-        }
+        },
+        groupPreferences: {}
       });
     });
   });
@@ -141,7 +147,8 @@ describe("groupDataReducer", function() {
         },
         groupMembers: {
           "id-1": groupMembers1
-        }
+        },
+        groupPreferences: {}
       });
     });
 
@@ -164,7 +171,8 @@ describe("groupDataReducer", function() {
         groupLabels: {
           "id-1": "FETCH_ERROR"
         },
-        groupMembers: {}
+        groupMembers: {},
+        groupPreferences: {}
       });
     });
 
@@ -188,7 +196,8 @@ describe("groupDataReducer", function() {
         groupLabels: {},
         groupMembers: {
           "id-1": "FETCH_ERROR"
-        }
+        },
+        groupPreferences: {}
       });
     });
   });
@@ -218,7 +227,8 @@ describe("groupUpdateReducer", () => {
         }
       },
       groupLabels: {},
-      groupMembers: {}
+      groupMembers: {},
+      groupPreferences: {}
     });
   });
 
@@ -242,7 +252,8 @@ describe("groupUpdateReducer", () => {
         "id-1": "FETCHING"
       },
       groupLabels: {},
-      groupMembers: {}
+      groupMembers: {},
+      groupPreferences: {}
     });
   });
 
@@ -272,7 +283,8 @@ describe("groupUpdateReducer", () => {
       groupLabels: {
         "id-1": newLabels
       },
-      groupMembers: {}
+      groupMembers: {},
+      groupPreferences: {}
     });
   });
 
@@ -301,7 +313,173 @@ describe("groupUpdateReducer", () => {
       groupLabels: {},
       groupMembers: {
         "id-1": newMembers
-      }
+      },
+      groupPreferences: {}
     });
   });
 })
+
+
+/* State for GIM testing */
+const groupId = "group-id";
+const s1 = deepFreeze({
+  ...Groups.initState(),
+  groupSummaries: { [groupId]: groupSummary1 },
+  groupLabels: { [groupId]: groupLabels1 },
+  groupMembers: { [groupId]: groupMembers1 }
+});
+
+describe("groupAddGIMReducer", () => {
+  it("should add new GIM without UID", () => {
+    let gim = {
+      email: "email2@example.com",
+      role: "Member" as "Member"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim
+    });
+
+    expect(s2.groupMembers[groupId].group_individuals).to.deep.equal([
+      s1.groupMembers[groupId].group_individuals[0],
+      gim
+    ]);
+  });
+
+  it("should de-duplicate GIMs by UID", () => {
+    let gim = {
+      uid: s1.groupMembers[groupId].group_individuals[0].uid,
+      email: "email2@example.com",
+      role: "Owner" as "Owner"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim
+    });
+
+    expect(s2.groupMembers[groupId].group_individuals).to.deep.equal([gim]);
+  });
+
+  it("should de-dupicate GIMs by email", () => {
+    let gim1 = {
+      email: "email2@example.com",
+      role: "Member" as "Member"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim: gim1
+    });
+
+    let gim2 = {
+      ...gim1,
+      uid: "uid2"
+    };
+    let s3 = Groups.groupAddGIMReducer(deepFreeze(s2), {
+      type: "GROUP_ADD_GIM", groupId, gim: gim2
+    });
+
+    expect(s3.groupMembers[groupId].group_individuals).to.deep.equal([
+      s1.groupMembers[groupId].group_individuals[0],
+      gim2
+    ]);
+  });
+
+  it("should add an associated team", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    let member = {
+      teamid: "teamid",
+      email: "email@example.com",
+      name: "John Snow"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim, member
+    });
+
+    expect(s2.groupMembers[groupId].group_teams).to.deep.equal([member]);
+  });
+
+  it("should de-duplicate team by teamid", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    let member1 = {
+      teamid: "teamid",
+      name: "John Snow"
+    };
+    let s2 = Groups.groupAddGIMReducer(s1, {
+      type: "GROUP_ADD_GIM", groupId, gim, member: member1
+    });
+
+    let member2 = {
+      ...member1,
+      name: "Bob Johnson"
+    };
+    let s3 = Groups.groupAddGIMReducer(deepFreeze(s2), {
+      type: "GROUP_ADD_GIM", groupId, gim, member: member2
+    });
+    expect(s3.groupMembers[groupId].group_teams).to.deep.equal([member2]);
+  });
+});
+
+describe("groupDeleteGIMReducer", () => {
+  it("should remove an existing GIM", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    expect(Groups.groupDeleteGIMReducer(s1, {
+      type: "GROUP_DELETE_GIM", groupId, gim
+    }).groupMembers[groupId].group_individuals).to.deep.equal([]);
+  });
+
+  it("should remove an existing GIM by email", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    expect(Groups.groupDeleteGIMReducer(s1, {
+      type: "GROUP_DELETE_GIM", groupId, gim: {
+        email: gim.email,
+        role: gim.role
+      }
+    }).groupMembers[groupId].group_individuals).to.deep.equal([]);
+  });
+
+  it("should remove an associated team by email", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    let s2 = {
+      ...s1,
+      groupMembers: {
+        ...s1.groupMembers,
+        [groupId]: {
+          ...s1.groupMembers[groupId],
+          group_teams: [{
+            email: gim.email,
+            teamid: "team-id"
+          }]
+        }
+      }
+    };
+
+    expect(Groups.groupDeleteGIMReducer(deepFreeze(s2), {
+      type: "GROUP_DELETE_GIM", groupId, gim: {
+        email: gim.email,
+        role: gim.role
+      }
+    }).groupMembers[groupId].group_teams).to.deep.equal([]);
+  });
+
+  it("should remove an existing GIM by UID", () => {
+    let gim = s1.groupMembers[groupId].group_individuals[0];
+    expect(Groups.groupDeleteGIMReducer(s1, {
+      type: "GROUP_DELETE_GIM", groupId, gim: {
+        uid: gim.uid,
+        role: gim.role
+      }
+    }).groupMembers[groupId].group_individuals).to.deep.equal([]);
+  });
+});
+
+describe("deleteGroupTeamReducer", () => {
+  it("should remove an existing team by teamId", () => {
+    let s2 = _.cloneDeep(s1);
+    s2.groupMembers[groupId].group_teams = [{
+      email: "email@example.com",
+      teamid: "team-id"
+    }];
+
+    expect(Groups.groupDeleteTeamReducer(deepFreeze(s2), {
+      type: "GROUP_DELETE_TEAM",
+      groupId, teamId: "team-id"
+    }).groupMembers[groupId].group_teams).to.deep.equal([]);
+  });
+});

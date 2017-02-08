@@ -146,6 +146,11 @@ export interface GroupIndividual {
   invite_sent?: string;
 }
 
+export interface GroupInviteResponse {
+  gim: GroupIndividual;
+  opt_gm?: GroupMember;
+}
+
 export interface GroupEventComment {
   id: string;
   author: string;

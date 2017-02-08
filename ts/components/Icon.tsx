@@ -26,6 +26,10 @@ import * as LabelText from "../text/labels";
 export const IconMappings = {
   "accounts": "fa-users",
   "add": "fa-plus",
+  "calendar-check": "fa-calendar-check-o",
+  "calendar-empty": "fa-calendar-o",
+  "calendar": "fa-calendar",
+  "caret-down": "fa-caret-down",
   "cancel": "fa-close",
   "clear": "fa-close",
   "close": "fa-close",
@@ -67,6 +71,10 @@ function getTextForIcon(icon: IconType): string {
   return {
     "accounts": Text.Accounts,
     "add": Text.Add,
+    "calendar-check": Text.CalendarCheck,
+    "calendar-empty": Text.CalendarEmpty,
+    "calendar": Text.Calendar,
+    "caret-down": "", // Intentionally blank, caret has no semantic meaning
     "cancel": Text.Cancel,
     "clear": Text.Clear,
     "close": Text.Close,

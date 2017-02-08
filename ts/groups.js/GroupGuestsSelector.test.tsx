@@ -67,15 +67,15 @@ describe("<GroupGuestsSelector />", () => {
 
   it("renders a taglist with selections based on ASN value", () => {
     let wrapper = getTagList();
-    expect(wrapper.prop('selected').toList()).to.deep.equal([
+    expect(wrapper.prop('selectedChoices').toList()).to.deep.equal([
       guest2Choice, guest3Choice, guest4Choice
     ]);
   });
 
   it("renders an option to select everything", () => {
     let wrapper = getTagList();
-    expect(wrapper.prop('specialChoices')[0].selected).to.be.false;
-    wrapper.prop('specialChoices')[0].onSelect();
+    expect(wrapper.prop('specialChoices')![0].selected).to.be.false;
+    wrapper.prop('specialChoices')![0].onSelect(true, "click");
     expectCalledWith(onChangeSpy, []);
   });
 
@@ -83,8 +83,8 @@ describe("<GroupGuestsSelector />", () => {
   it("checks off select all if selected is empty, and clicking preserves",
   () => {
     let wrapper = getTagList([]);
-    expect(wrapper.prop('specialChoices')[0].selected).to.be.true;
-    wrapper.prop('specialChoices')[0].onSelect();
+    expect(wrapper.prop('specialChoices')![0].selected).to.be.true;
+    wrapper.prop('specialChoices')![0].onSelect(true, "click");
     expectCalledWith(onChangeSpy, []);
   });
 
@@ -119,13 +119,13 @@ describe("<GroupGuestsSelector />", () => {
 
   it("allows us to add new display names", () => {
     let wrapper = getTagList(["Old Name"]);
-    wrapper.prop('onAdd')("New Name", "enter");
+    wrapper.prop('onAdd')!("New Name", "enter");
     expectCalledWith(onChangeSpy, ["Old Name", "New Name"]);
   });
 
   it("submits when dropdown closes", () => {
     let wrapper = getTagList();
-    wrapper.prop('onClose')();
+    wrapper.prop('onClose')!();
     expect(onSubmitSpy.called).to.be.true;
   });
 

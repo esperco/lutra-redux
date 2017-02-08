@@ -10,7 +10,8 @@ interface State {}
 class NotFound extends React.Component<Props, State> {
   render() {
     return <div>
-      404. Page not found.
+      <h2>404</h2>
+      <div>Page not found.</div>
     </div>
   }
 }

@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 
-interface Props {
+export interface Props {
   id?: string;
   className?: string;
   placeholder?: string;

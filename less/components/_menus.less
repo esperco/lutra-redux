@@ -27,6 +27,15 @@
   &:active, &:hover:active, &.active:active {
     background: darken(@text-highlight-bg, 5%);
   }
+
+  &.selected {
+    color: @green_hover;
+    border-color: @green_hover;
+    background-color: lighten(@green, 50%);
+    &:hover {
+      background-color: lighten(@green, 35%);
+    }
+  }
 }
 
 .menu {

@@ -229,6 +229,107 @@ describe("Groups handlers", function() {
     });
   });
 
+  describe("addGroupIndividual", function() {
+    const groupId = "group-id";
+    const email = "email@example.com";
+    const uid = "uid123";
+    const teamid = "team-id";
+    const name = "Team Name";
+
+    function getDeps() {
+      return {
+        dispatch: sandbox.spy(),
+        state: initState(),
+        Svcs: apiSvcFactory()
+      };
+    }
+
+    it("dispatches placeholder on start, again when API call finishes",
+    (done) => {
+      let deps = getDeps();
+      let { dfd, stub } = stubApiPlus(deps.Svcs, "putGroupIndividualByEmail");
+      Groups.addGroupIndividual(groupId, email, deps).then(() => {
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_ADD_GIM",
+          groupId,
+          gim: { uid, email, role: "Member" },
+        });
+      }).then(done, done);
+
+      expectCalledWith(stub, groupId, email);
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_ADD_GIM",
+        groupId,
+        gim: { email, role: "Member" }
+      });
+
+      dfd.resolve({
+        gim: { email, uid, role: "Member" }
+      });
+    });
+
+    it("dispatches team received from API call", (done) => {
+      let deps = getDeps();
+      let { dfd } = stubApiPlus(deps.Svcs, "putGroupIndividualByEmail");
+      Groups.addGroupIndividual(groupId, email, deps).then(() => {
+        expectCalledWith(deps.dispatch, {
+          type: "GROUP_ADD_GIM",
+          groupId,
+          gim: { uid, email, role: "Member" },
+          member: { teamid, name, email } // Note added email
+        });
+      }).then(done, done);
+
+      dfd.resolve({
+        gim: { email, uid, role: "Member" },
+        opt_gm: { teamid, name }
+      });
+    });
+  });
+
+  describe("removeGroupIndividual", function() {
+    const groupId = "group-id";
+    const email = "email@example.com";
+    const uid = "uid123";
+
+    function getDeps() {
+      return {
+        dispatch: sandbox.spy(),
+        state: initState(),
+        Svcs: apiSvcFactory()
+      };
+    }
+
+    it("removes team member from both state and API", () => {
+      let deps = getDeps();
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "removeGroupIndividual");
+      Groups.removeGroupIndividual(groupId, {
+        uid,
+        email,
+        role: "Member"
+      }, deps);
+
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_DELETE_GIM",
+        groupId,
+        gim: { uid, email, role: "Member" }
+      });
+      expectCalledWith(apiSpy, groupId, uid);
+    });
+
+    it("does nothing if GIM has no UID", () => {
+      let deps = getDeps();
+      let apiSpy = sandbox.spy(deps.Svcs.Api.removeGroupIndividual);
+      Groups.removeGroupIndividual(groupId, {
+        email,
+        role: "Member"
+      }, deps);
+
+      expect(apiSpy.called).to.be.false;
+      expect(deps.dispatch.called).to.be.false;
+    });
+  });
+
   describe("initData", function() {
     function getDeps() {
       return {

@@ -6,23 +6,12 @@
 import * as _ from "lodash";
 import * as React from 'react';
 import * as classNames from "classnames";
-import CheckboxItem from "./CheckboxItem";
-import FilterInput from "./FilterInput";
+import FilterInput, { Props as FilterProps } from "./FilterInput";
 import Icon from "./Icon";
+import { Choice } from "./Menu";
+import RadioItem from "./RadioItem";
 import { colorForText } from "../lib/colors";
-import { OrderedSet } from "../lib/util";
-
-
-export interface Choice {
-  // Content will also be wrapped inside checkbox label
-  original: string|JSX.Element;
-
-  // Normalized choices -- menu filters after normalization
-  normalized: string;
-
-  // If color, used as background for tag and checkbox color for list
-  color?: string;
-}
+import { OrderedSet, randomString } from "../lib/util";
 
 // Like choice, but these don't get filtered
 export interface SpecialChoice {
@@ -32,28 +21,20 @@ export interface SpecialChoice {
   color?: string;
 }
 
-export interface Props {
-  // Default choices to show
+export interface BaseProps {
+  // All choices
   choices: OrderedSet<Choice>;
 
-  // Selected choices
-  selected: OrderedSet<Choice>;
-
   /*
-    Optionally, choices that are only partially selected. When partially
-    items are selected, onToggle is called with a value of true (to fully
-    select them).
-
-    May or may not be a subset of selected. The selected prop controls
-    what shows up in a TagList.
+    Typing in something new and submitting it. Optionally
   */
-  partial?: OrderedSet<Choice>;
+  onAdd?: (text: string, method: "click"|"enter") => void;
+  filterProps?: Partial<FilterProps>;
 
-  // Toggling an existing choice
-  onToggle: (choice: Choice, newVal: boolean, method: "click"|"enter") => void;
+  // Validate new values. Return true if valid.
+  validateAdd?: (text: string) => boolean;
 
-  // Typing in something new and hitting enter
-  onAdd: (text: string, method: "click"|"enter") => void;
+  specialChoices?: SpecialChoice[];
 
   /*
     Filter function to use -- defaults to including trim plus lower-case of
@@ -64,8 +45,13 @@ export interface Props {
     Choice|undefined,   // Exact match?
     Choice[]            // Remainder
   ];
+}
 
-  specialChoices?: SpecialChoice[];
+export interface Props extends BaseProps {
+  // Selected choice
+  selected?: Choice;
+
+  onSelect: (choice: Choice, method: "click"|"enter") => void;
 }
 
 export interface State {
@@ -76,13 +62,16 @@ export interface State {
   visibleSpecialChoices: boolean;
 }
 
-export class FilterMenu extends React.Component<Props, State> {
-  constructor(props: Props) {
+// Base class for both FilterMenu and MultiselectFilterMenu
+export abstract class FilterMenuBase<P extends BaseProps>
+       extends React.Component<P, State>
+{
+  constructor(props: P) {
     super(props);
     this.state = this.resetState(props);
   }
 
-  resetState(props: Props): State {
+  resetState(props: P): State {
     return {
       value: "",
       activeIndex: -1,
@@ -107,6 +96,7 @@ export class FilterMenu extends React.Component<Props, State> {
 
     return <div>
       <FilterInput
+        { ...this.props.filterProps }
         value={this.state.value}
         onChange={(value) => this.change(value)}
         onSubmit={() => this.submit()}
@@ -128,45 +118,34 @@ export class FilterMenu extends React.Component<Props, State> {
       { this.state.visibleSpecialChoices && this.props.specialChoices ?
         <div className="menu">
           { _.map(this.props.specialChoices, (c, i) =>
-            <CheckboxItem key={i}
-              className={classNames({
-                active: this.state.activeIndex === specialIndexIncr + i,
-              })}
-              checked={!!c.selected}
-              onChange={(val) => c.onSelect(val, "click")}
-              background={c.color}
-              color={c.color ? colorForText(c.color) : undefined}
-            >
-              { c.displayAs }
-            </CheckboxItem>
-          )
-        }</div> : null }
+            this.renderSpecialChoice(c, i,
+              this.state.activeIndex === specialIndexIncr + i
+            )
+          ) }
+        </div> : null }
 
       { _.isEmpty(this.state.visibleChoices) ? null :
         <div className="menu">
           { _.map(this.state.visibleChoices, (c, i) =>
-            <CheckboxItem key={c.normalized}
-              className={classNames({
-                active: this.state.activeIndex === indexIncr + i,
-                partial: this.selectStatus(c) === "some"
-              })}
-              checked={this.selectStatus(c) !== false}
-              onChange={(val) => this.toggle(c, val)}
-              background={c.color}
-              color={c.color ? colorForText(c.color) : undefined}
-            >
-              { c.original }
-            </CheckboxItem>) }
+            this.renderChoice(c, i,
+              this.state.activeIndex === indexIncr + i
+            )
+          ) }
         </div> }
     </div>;
   }
 
-  selectStatus(c: Choice): boolean|"some" {
-    if (this.props.partial && this.props.partial.has(c)) {
-      return "some";
-    }
-    return !!this.props.selected.has(c);
-  }
+  abstract renderSpecialChoice(
+    c: SpecialChoice,
+    index: number,
+    isActive: boolean
+  ): JSX.Element;
+
+  abstract renderChoice(
+    c: Choice,
+    index: number,
+    isActive: boolean
+  ): JSX.Element;
 
   change(value: string) {
     let [exactMatch, visibleChoices] = this.props.filterFn(value);
@@ -178,55 +157,9 @@ export class FilterMenu extends React.Component<Props, State> {
       activeIndex: !!value.trim() ? 0 : -1,
       visibleChoices,
       visibleSpecialChoices: !value,
-      visibleAdd: !!value.trim() && !exactMatch
+      visibleAdd: !!this.props.onAdd && !!value.trim() && !exactMatch &&
+                  !(this.props.validateAdd && !this.props.validateAdd(value))
     });
-  }
-
-  submit(method: "enter"|"click" = "enter") {
-    let didAdd = (() => {
-      let index = this.state.activeIndex;
-      if (this.state.visibleAdd) {
-        if (index === 0) {
-          this.props.onAdd(this.state.value, method);
-          return true;
-        }
-        index -= 1;
-      }
-
-      if (this.state.visibleSpecialChoices && this.props.specialChoices) {
-        let specialChoice = this.props.specialChoices[index];
-        if (specialChoice) {
-          specialChoice.onSelect(!specialChoice.selected, method);
-          return false;
-        }
-        index -= this.props.specialChoices.length;
-      }
-
-      let choice = this.state.visibleChoices[index];
-      if (choice) {
-        this.props.onToggle(
-          choice,
-          this.selectStatus(choice) !== true,
-          method
-        );
-        return false;
-      }
-      return false;
-    })();
-
-    // Reset state only if adding a label
-    if (didAdd) {
-      this.setState(this.resetState(this.props));
-    }
-  }
-
-  toggle(choice: Choice, val: boolean) {
-    this.props.onToggle(
-      choice,
-      this.selectStatus(choice) !== true,
-      "click"
-    );
-    this.setState(this.resetState(this.props));
   }
 
   prev() {
@@ -250,6 +183,86 @@ export class FilterMenu extends React.Component<Props, State> {
         maxLength - 1
       )
     });
+  }
+
+  submit(method: "enter"|"click" = "enter") {
+    let didAdd = (() => {
+      let index = this.state.activeIndex;
+      if (this.state.visibleAdd && this.props.onAdd) {
+        if (index === 0) {
+          this.props.onAdd(this.state.value, method);
+          return true;
+        }
+        index -= 1;
+      }
+
+      if (this.state.visibleSpecialChoices && this.props.specialChoices) {
+        let specialChoice = this.props.specialChoices[index];
+        if (specialChoice) {
+          specialChoice.onSelect(!specialChoice.selected, method);
+          return false;
+        }
+        index -= this.props.specialChoices.length;
+      }
+
+      let choice = this.state.visibleChoices[index];
+      if (choice) {
+        this.selectChoice(choice, method);
+      }
+
+      return false;
+    })();
+
+    // Reset state only if adding a label
+    if (didAdd) {
+      this.setState(this.resetState(this.props));
+    }
+  }
+
+  abstract selectChoice(choice: Choice, method: "enter"|"click"): void;
+}
+
+
+export class FilterMenu extends FilterMenuBase<Props> {
+  name: string;
+
+  constructor(props: Props) {
+    super(props);
+    this.name = randomString();
+  }
+
+  renderSpecialChoice(
+    c: SpecialChoice,
+    index: number,
+    isActive: boolean
+  ): JSX.Element {
+    return <RadioItem key={index}
+        name={this.name}
+        checked={c.selected}
+        className={isActive ? "active" : ""}
+        onChange={(v) => c.onSelect(v, "click")}
+        background={c.color}
+        color={c.color ? colorForText(c.color) : undefined}>
+      { c.displayAs }
+    </RadioItem>;
+  }
+
+  renderChoice(c: Choice, index: number, isActive: boolean): JSX.Element {
+    return <RadioItem key={c.normalized}
+        name={this.name}
+        checked={!!this.props.selected &&
+                 this.props.selected.normalized === c.normalized}
+        className={isActive ? "active" : ""}
+        onChange={(v) => v && this.selectChoice(c, "click")}
+        background={c.color}
+        color={c.color ? colorForText(c.color) : undefined}>
+      { c.original }
+    </RadioItem>;
+  }
+
+  selectChoice(choice: Choice, method: "enter"|"click") {
+    this.props.onSelect(choice, method);
+    this.setState(this.resetState(this.props));
   }
 }
 

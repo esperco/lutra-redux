@@ -16,7 +16,6 @@ import Dropdown from "../components/Dropdown";
 import Icon from "../components/Icon";
 import GroupSelector from "./GroupSelector";
 import * as CommonPaths from "../lib/paths";
-import { Group as GroupPaths } from "../manage.js/paths";
 import * as TimePaths from "../time.js/paths";
 
 class Props {
@@ -25,6 +24,10 @@ class Props {
   Svcs: ApiSvc;
   Conf: typeof Conf; // Don't use config directly -- let index pass it
                      // for ease of testing
+}
+
+function routeHasGroupId(x: any): x is {groupId: string} {
+  return !!(x && x.groupId);
 }
 
 class GroupHeader extends React.Component<Props, {}> {
@@ -43,10 +46,10 @@ class GroupHeader extends React.Component<Props, {}> {
   // Get active group Id, if any
   getGroupId(): string|undefined {
     let route = this.props.state.route;
-    if (route && route.page === "GroupEvents") {
+    if (routeHasGroupId(route)) {
       return route.groupId;
     }
-    return this.props.state.login.groups[0];
+    return;
   }
 
   // Get active group, if any
@@ -96,7 +99,7 @@ class GroupHeader extends React.Component<Props, {}> {
         { hasExecTeam ? <a href={TimePaths.Home.href({})}>
           <Icon type="person">{ CommonText.ExecLink }</Icon>
         </a> : null }
-        <a href={GroupPaths.General.href({ groupId })}>
+        <a href={Paths.generalSettings.href({ groupId })}>
           <Icon type="settings">{ CommonText.Settings }</Icon>
         </a>
       </nav>
@@ -132,16 +135,26 @@ class GroupHeader extends React.Component<Props, {}> {
   renderGroupsSelector(groupId?: string) {
     let login = this.props.state.login;
     if (login.groups.length > 1) {
-      let path = Paths.eventList;
+      let hrefFn = (() => {
+        if (this.props.state.route) {
+          switch (this.props.state.route.page) {
+            case "GroupGeneralSettings":
+            case "GroupNotificationSettings":
+            case "GroupMiscSettings":
+              return (groupId: string) => Paths.generalSettings.href({
+                groupId
+              });
+          }
+        }
+        return (groupId: string) => Paths.eventList.href({ groupId });
+      })();
+
       return <div className="panel">
         <h4>{ GroupText.Groups }</h4>
         <GroupSelector
           selected={groupId}
           state={this.props.state}
-          getHref={(groupId) => path.href({
-            groupId,
-            eventId: ""
-          })}
+          getHref={hrefFn}
         />
       </div>;
     }

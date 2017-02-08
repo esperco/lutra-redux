@@ -2,10 +2,13 @@ import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
 import { updateLabelList } from "../lib/event-labels";
-import { LoginState } from "../lib/login";
+import { LoginState, LoggedInState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
+import { NavSvc } from "../lib/routing";
 import {
-  GroupState, GroupDataAction, GroupUpdateAction
+  GroupPreferences,
+  GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
+  GroupAddGIMAction, GroupDeleteGIMAction, GroupDeleteTeamAction
 } from "../states/groups";
 import { ok, ready } from "../states/data-status";
 import { compactObject as compact } from "../lib/util";
@@ -66,6 +69,149 @@ export function fetch(groupid: string, opts: {
       });
   }
   return Promise.resolve(undefined);
+}
+
+// Fetch group preferences
+export function fetchPreferences(groupid: string, deps: {
+  dispatch: (a: GroupPreferencesAction) => GroupPreferencesAction;
+  state: GroupState;
+  Svcs: ApiSvc;
+}): Promise<void> {
+  let { Api } = deps.Svcs;
+
+  // Fetch if preferences doesn't exist
+  if (!ok(deps.state.groupPreferences[groupid])) {
+    deps.dispatch(compact<GroupPreferencesAction>({
+      type: "GROUP_PREFS",
+      dataType: "FETCH_START",
+      groupIds: [groupid]
+    }));
+
+    return Api.getGroupPreferences(groupid)
+      .then((prefs) => {
+        deps.dispatch(compact<GroupPreferencesAction>({
+          type: "GROUP_PREFS",
+          dataType: "FETCH_END",
+          groupIds: [groupid],
+          groupPrefs: [prefs]
+        }));
+      });
+  }
+  return Promise.resolve();
+}
+
+
+/* Update preferences */
+
+function updatePrefs(
+  groupId: string,
+  update: Partial<GroupPreferences>,
+  deps: {
+    dispatch: (a: GroupUpdateAction) => any;
+    state: GroupState & LoggedInState;
+    Svcs: ApiSvc;
+  }
+): Promise<void> {
+  let current = deps.state.groupPreferences[groupId];
+  if (ready(current)) {
+    deps.dispatch({
+      type: "GROUP_UPDATE",
+      groupId,
+      preferences: update
+    });
+    let newPrefs = {
+      groupid: groupId,
+      uid: deps.state.login.uid,
+      ...current,
+      ...update
+    };
+    return deps.Svcs.Api.putGroupPreferences(groupId, newPrefs);
+  }
+  return Promise.resolve();
+}
+
+export function updateDailyEmail(groupId: string, val: boolean, deps: {
+  dispatch: (a: GroupUpdateAction) => any;
+  state: GroupState & LoggedInState;
+  Svcs: ApiSvc;
+}): Promise<void> {
+  return updatePrefs(groupId, { daily_breakdown: val }, deps);
+}
+
+
+/* Manage group members */
+
+export function addGroupIndividual(
+  groupId: string,
+  email: string,
+  deps: {
+    dispatch: (a: GroupAddGIMAction) => any;
+    state: GroupState;
+    Svcs: ApiSvc;
+  }
+): Promise<string|void> {
+  // Dispatch placeholder GIM
+  deps.dispatch({
+    type: "GROUP_ADD_GIM",
+    groupId,
+    gim: {
+      email,
+      role: "Member" as "Member"
+    }
+  });
+
+  return deps.Svcs.Api.putGroupIndividualByEmail(groupId, email)
+    .then((resp) => {
+      deps.dispatch(compact({
+        type: "GROUP_ADD_GIM" as "GROUP_ADD_GIM",
+        groupId,
+        gim: {
+          email,
+          ...resp.gim
+        },
+        member: resp.opt_gm ? {
+          email,
+          ...resp.opt_gm
+        } : undefined
+      }));
+
+      if (resp.opt_gm) {
+        return resp.opt_gm.teamid;
+      }
+      return;
+    });
+}
+
+export function removeGroupIndividual(
+  groupId: string,
+  gim: ApiT.GroupIndividual,
+  deps: {
+    dispatch: (a: GroupDeleteGIMAction) => any;
+    state: GroupState;
+    Svcs: ApiSvc;
+  }
+): Promise<void> {
+  if (!gim.uid) return Promise.resolve();
+  let { dispatch, Svcs } = deps;
+
+  dispatch({
+    type: "GROUP_DELETE_GIM",
+    groupId,
+    gim
+  });
+  return Svcs.Api.removeGroupIndividual(groupId, gim.uid);
+}
+
+export function removeTeam(
+  groupId: string,
+  teamId: string,
+  deps: {
+    dispatch: (a: GroupDeleteTeamAction) => any;
+    Svcs: ApiSvc;
+  }
+): Promise<void> {
+  deps.dispatch({ type: "GROUP_DELETE_TEAM", groupId, teamId });
+  return deps.Svcs.Api.removeGroupMember(groupId, teamId);
 }
 
 
@@ -194,6 +340,16 @@ export function setGroupLabels(props: {
   }
 
   return Promise.resolve();
+}
+
+
+// Delete groups
+export function deleteGroup(groupId: string, deps: {
+  Svcs: ApiSvc & NavSvc;
+}): Promise<void> {
+  return deps.Svcs.Api.deleteGroup(groupId).then(() => {
+    deps.Svcs.Nav.refresh(true);
+  });
 }
 
 // Fetch group names after logging in

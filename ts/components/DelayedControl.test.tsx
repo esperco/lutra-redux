@@ -80,7 +80,7 @@ describe("delay", () => {
     let spy = Sinon.spy();
     let wrapper = shallow(getInput(spy));
     let input = wrapper.find(TextInput);
-    input.prop('onSubmit')();
+    input.prop('onSubmit')!();
     expect(rAFStub.called).to.be.true;
     rAFStub.getCall(0).args[0]();
     expectCalledWith(spy, "Init");

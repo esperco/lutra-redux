@@ -3,11 +3,13 @@
 */
 
 import * as DataStatus from "../states/data-status";
+import * as ErrorMsg from "../states/error-msg";
 import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Suggestions from "../states/group-suggestions";
 import * as Groups from "../states/groups";
-import * as ErrorMsg from "../states/error-msg";
+import * as InviteEmails from "../states/invite-emails";
+import * as TeamCalendars from "../states/team-cals";
 import * as Scroll from "../states/scroll";
 import * as Select from "../states/events-select";
 import * as Login from "../lib/login";
@@ -30,8 +32,15 @@ export type Action =
   Events.EventCommentAction|
   Events.EventsInvalidatePeriodAction|
   Groups.GroupDataAction|
+  Groups.GroupPreferencesAction|
   Groups.GroupUpdateAction|
+  Groups.GroupAddGIMAction|
+  Groups.GroupDeleteGIMAction|
+  Groups.GroupDeleteTeamAction|
+  InviteEmails.UpdateInviteStateAction|
   Suggestions.SuggestionsAction|
+  TeamCalendars.TeamCalendarDataAction|
+  TeamCalendars.TeamCalendarUpdateAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
@@ -48,8 +57,10 @@ export interface State extends
   Events.EventsState,
   Groups.GroupState,
   ErrorMsg.ErrorMsgState,
+  InviteEmails.InviteState,
   Scroll.ScrollState,
   Suggestions.SuggestionsState,
+  TeamCalendars.TeamCalendarState,
   Login.LoginState,
   Routing.RouteState<Routes.RouteTypes>,
   Select.EventsSelectState { };

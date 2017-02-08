@@ -38,7 +38,7 @@ export const BooleanParam: ParamType<boolean> = {
   toStr(val: boolean) {
     return val ? "1" : "0";
   }
-}
+};
 
 // See arraySeparator below
 const DefaultArraySeparator = ",";
@@ -266,7 +266,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
 
 /*
   A Route defines a connection between a path and a callback function. Takes
-  the form of a funciton that extracts params from location and takes some
+  the form of a function that extracts params from location and takes some
   addtion dependencies. Returns true if successful.
 */
 type Route<P extends ParamMap, O extends ParamMap, D> = {
@@ -320,8 +320,13 @@ export namespace Nav {
     location.href = path;
   }
 
-  export function refresh() {
-    window.dispatchEvent(new HashChangeEvent("hashchange"))
+  // Hard refresh => refresh browser, vs. hashchange
+  export function refresh(hard=false) {
+    if (hard) {
+      location.reload();
+    } else {
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    }
   }
 }
 

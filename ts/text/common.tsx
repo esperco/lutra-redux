@@ -6,6 +6,9 @@ import * as React from 'react';
 // Icons
 export const Accounts = "Accounts";
 export const Add = "Add";
+export const CalendarCheck = "Calendar shared";
+export const CalendarEmpty = "Not sharing calendars";
+export const Calendar = "Calendars";
 export const Cancel = "Cancel";
 export const Clear = "Clear";
 export const Close = "Close";
@@ -39,6 +42,7 @@ export const Terms = "Terms of Use";
 export const Calculating = <span className="calculating">
   Crunching numbers &hellip;
 </span>;
+export const EmailPlaceholder = "email@example.com";
 export const SelectAll = "Select All";
 export const ClearAll = "Clear Selection";
 

@@ -140,6 +140,67 @@ namespace Api {
     return JsonHttp.put(url);
   }
 
+  export function deleteGroup(groupId: string): Promise<void> {
+    var url = prefix + "/api/group/delete/" + myUid()
+      + "/" + string(groupId);
+    return JsonHttp.delete_(url);
+  }
+
+  export function putGroupIndividual(groupid: string, uid: string, opts: {
+    role?: string,
+    resendNotif?: boolean
+  } = {}): Promise<ApiT.GroupIndividual>
+  {
+    var query = opts.role || opts.resendNotif ? "?" : "";
+    var roleParam = opts.role ? "role=" + opts.role : "";
+    var resendParam = opts.resendNotif ? "resend_notif=true" : "";
+    var paramString = query + (opts.role && opts.resendNotif ?
+                               roleParam + "&" + resendParam :
+                               roleParam + resendParam);
+    var url = prefix + "/api/group/individual-member/" + myUid()
+      + "/" + string(groupid)
+      + "/" + string(uid)
+      + paramString;
+    return JsonHttp.put(url);
+  }
+
+  export function putGroupIndividualByEmail(
+    groupid: string,
+    email: string,
+    opts: {
+      role?: string,
+      resendNotif?: boolean
+    } = {}
+  ): Promise<ApiT.GroupInviteResponse> {
+    var query = opts.role || opts.resendNotif ? "?" : "";
+    var roleParam = opts.role ? "role=" + opts.role : "";
+    var resendParam = opts.resendNotif ? "resend_notif=true" : "";
+    var paramString = query + (opts.role && opts.resendNotif ?
+                               roleParam + "&" + resendParam :
+                               roleParam + resendParam);
+    var url = prefix + "/api/group/individual-member/" + myUid()
+      + "/" + string(groupid)
+      + "/email/" + string(email)
+      + paramString;
+    return JsonHttp.put(url);
+  }
+
+  export function removeGroupIndividual(groupid: string, uid: string):
+    Promise<void>
+  {
+    var url = `${prefix}/api/group/individual-member/${myUid()}`
+      + `/${string(groupid)}/${string(uid)}`;
+    return JsonHttp.delete_(url);
+  }
+
+  export function removeGroupMember(groupid: string, teamid: string):
+    Promise<void>
+  {
+    var url = `${prefix}/api/group/member/${myUid()}`
+      + `/${string(groupid)}/${string(teamid)}`;
+    return JsonHttp.delete_(url);
+  }
+
   export function putGroupLabels(
     groupid: string,
     labels: {labels: string[]}
@@ -157,6 +218,55 @@ namespace Api {
     return JsonHttp.post(url, req);
   }
 
+  export function putGroupTimezone(groupid: string, timezone: string):
+    Promise<ApiT.Group>
+  {
+    var url = `${prefix}/api/group/timezone/${string(myUid())}/`
+      + `${string(groupid)}/${string(timezone)}`;
+    return JsonHttp.put(url);
+  }
+
+
+  /* Group Preferences */
+
+  export function getGroupPreferences(groupid: string):
+    Promise<ApiT.GroupPreferences>
+  {
+    var url = `${prefix}/api/group/preferences/${myUid()}/${string(groupid)}`;
+    return JsonHttp.get(url);
+  }
+
+  export function putGroupPreferences(
+    groupid: string,
+    prefs: ApiT.GroupPreferences
+  ): Promise<void> {
+    var url = `${prefix}/api/group/preferences/${myUid()}/${groupid}`;
+    return JsonHttp.put(url, prefs);
+  }
+
+
+  /* Calendars */
+
+  export function getTimestatsCalendarList(teamid: string):
+    Promise<ApiT.GenericCalendars> {
+    var url =
+      `${prefix}/api/ts/ts-calendars/${myUid()}/${string(teamid)}`;
+    return JsonHttp.get(url);
+  }
+
+  export function getGenericCalendarList(teamid: string):
+    Promise<ApiT.GenericCalendars> {
+    var url = `${prefix}/api/ts/calendars/${myUid()}/${string(teamid)}`;
+    return JsonHttp.get(url);
+  }
+
+  export function putTeamTimestatsCalendars(teamid: string, cals: string[]):
+    Promise<ApiT.Team>
+  {
+    var url = `${prefix}/api/team/${string(myUid())}`
+            + `/${string(teamid)}/ts-calendars`;
+    return JsonHttp.put(url, { calendars: cals });
+  }
 
   /* Events */
 
@@ -228,6 +338,12 @@ namespace Api {
     var url = prefix + "/api/group/event/labels/set-predict/" + myUid()
             + "/" + string(groupId);
     return JsonHttp.post(url, req);
+  }
+
+  /* Invites */
+  export function getInviteEmails() : Promise<ApiT.EmailAddresses> {
+    let url = prefix + "/api/invite/emails/" + myUid();
+    return JsonHttp.get(url);
   }
 }
 

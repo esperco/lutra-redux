@@ -9,8 +9,10 @@ import { GenericPeriod, fromDates } from "../lib/period";
 import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/group-events";
 import * as Select from "../handlers/events-select";
+import * as InviteEmails from "../handlers/invite-emails";
 import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
+import * as TeamCals from "../handlers/team-cals";
 import * as Log from "../lib/log";
 import { compactObject } from "../lib/util";
 
@@ -102,7 +104,107 @@ export const setup = Paths.setup.route<Deps>(function(p, deps) {
   });
 });
 
-export type RouteTypes = EventListRoute|SetupRoute;
+// Doesn't do anything -- just redirect to general settings
+export const settings = Paths.settings.route<Deps>(function(p, deps) {
+  deps.Svcs.Nav.go(Paths.generalSettings.href(p));
+});
+
+// Group info + member list
+export interface GeneralSettingsRoute {
+  page: "GroupGeneralSettings";
+  groupId: string;
+  editTeamId?: string;
+}
+
+export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupId) {
+    Groups.fetch(groupId, { withMembers: true }, deps);
+    if (p.editTeamId) {
+      TeamCals.fetchAvailableCalendars(p.editTeamId, deps);
+      TeamCals.fetchSelectedCalendars(p.editTeamId, deps);
+    }
+    InviteEmails.fetch(deps);
+
+    deps.dispatch({
+      type: "ROUTE",
+      route: {
+        page: "GroupGeneralSettings",
+        groupId,
+        editTeamId: p.editTeamId
+      }
+    })
+  }
+
+  else {
+    deps.dispatch({
+      type: "ROUTE",
+      route: { page: "NotFound" }
+    })
+  }
+});
+
+// Notification preferences
+export interface NotificationSettingsRoute {
+  page: "GroupNotificationSettings";
+  groupId: string;
+}
+
+export const notificationSettings = Paths.notificationSettings.route<Deps>(
+(p, deps) => {
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupId) {
+    Groups.fetchPreferences(groupId, deps);
+    deps.dispatch({
+      type: "ROUTE",
+      route: {
+        page: "GroupNotificationSettings",
+        groupId
+      }
+    });
+  }
+
+  else {
+    deps.dispatch({
+      type: "ROUTE",
+      route: { page: "NotFound" }
+    });
+  }
+});
+
+// Miscellaneous group settings (like delete group)
+export interface MiscSettingsRoute {
+  page: "GroupMiscSettings";
+  groupId: string;
+}
+
+export const miscSettings = Paths.miscSettings.route<Deps>(
+(p, deps) => {
+  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupId) {
+    deps.dispatch({
+      type: "ROUTE",
+      route: {
+        page: "GroupMiscSettings",
+        groupId
+      }
+    });
+  }
+
+  else {
+    deps.dispatch({
+      type: "ROUTE",
+      route: { page: "NotFound" }
+    });
+  }
+});
+
+export type RouteTypes =
+  EventListRoute|
+  SetupRoute|
+  GeneralSettingsRoute|
+  NotificationSettingsRoute|
+  MiscSettingsRoute;
 
 export function init({ dispatch, getState, postTask, Svcs, Conf }: {
   dispatch: (action: Action) => any,
@@ -114,7 +216,11 @@ export function init({ dispatch, getState, postTask, Svcs, Conf }: {
   Routing.init<Deps>(
     [ // Routes
       eventList,
-      setup
+      setup,
+      settings,
+      generalSettings,
+      notificationSettings,
+      miscSettings
     ],
 
     // Deps

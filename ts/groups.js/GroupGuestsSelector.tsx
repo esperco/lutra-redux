@@ -5,7 +5,7 @@
 import * as _ from "lodash";
 import * as React from "react";
 import Icon from "../components/Icon";
-import { Choice } from '../components/FilterMenu';
+import { Choice } from '../components/Menu';
 import { TagList } from "../components/TagList";
 import {
   Guest, GuestSet, filter, newGuest, normalizeGuest
@@ -107,7 +107,7 @@ export class GroupGuestsSelector extends React.Component<{
     return <TagList
       ref={(c) => this._tagList = c}
       choices={choices}
-      selected={selected}
+      selectedChoices={selected}
       filterFn={filterFn}
       onAdd={onAdd}
       onToggle={onToggle}

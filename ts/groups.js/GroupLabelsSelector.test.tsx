@@ -51,37 +51,37 @@ describe("<GroupLabelsSelector />", () => {
 
   it("renders a taglist with selections based on ASN value", () => {
     let wrapper = getTagList();
-    expect(wrapper.prop('selected').toList()).to.deep.equal([
+    expect(wrapper.prop('selectedChoices').toList()).to.deep.equal([
       label2, label3, label4
     ]);
   });
 
   it("renders an option to select everything", () => {
     let wrapper = getTagList();
-    expect(wrapper.prop('specialChoices')[0].selected).to.be.false;
-    wrapper.prop('specialChoices')[0].onSelect();
+    expect(wrapper.prop('specialChoices')![0].selected).to.be.false;
+    wrapper.prop('specialChoices')![0].onSelect(true, "click");
     expectCalledWith(onChangeSpy, { all: true, none: true });
   });
 
   // Expected behavior is to "uncheck" select all by clicking on other choices
   it("checks off select all if true, but clicking does not uncheck", () => {
     let wrapper = getTagList({ all: true, none: true });
-    expect(wrapper.prop('specialChoices')[0].selected).to.be.true;
-    wrapper.prop('specialChoices')[0].onSelect();
+    expect(wrapper.prop('specialChoices')![0].selected).to.be.true;
+    wrapper.prop('specialChoices')![0].onSelect(false, "click");
     expectCalledWith(onChangeSpy, { all: true, none: true });
   });
 
   it("renders an option to select only unlabeled", () => {
     let wrapper = getTagList();
-    expect(wrapper.prop('specialChoices')[1].selected).to.be.false;
-    wrapper.prop('specialChoices')[1].onSelect();
+    expect(wrapper.prop('specialChoices')![1].selected).to.be.false;
+    wrapper.prop('specialChoices')![1].onSelect(true, "click");
     expectCalledWith(onChangeSpy, { none: true });
   });
 
   it("checks off select none if true, but clicking does not uncheck", () => {
     let wrapper = getTagList({ none: true });
-    expect(wrapper.prop('specialChoices')[1].selected).to.be.true;
-    wrapper.prop('specialChoices')[1].onSelect();
+    expect(wrapper.prop('specialChoices')![1].selected).to.be.true;
+    wrapper.prop('specialChoices')![1].onSelect(false, "click");
     expectCalledWith(onChangeSpy, { none: true });
   });
 
@@ -99,7 +99,7 @@ describe("<GroupLabelsSelector />", () => {
 
   it("allows us to add new labels to ASN", () => {
     let wrapper = getTagList({ some: {"Label 2": true} });
-    wrapper.prop('onAdd')("New Label", "click");
+    wrapper.prop('onAdd')!("New Label", "click");
     expectCalledWith(onChangeSpy, {
       some: {
         "Label 2": true,
@@ -116,7 +116,7 @@ describe("<GroupLabelsSelector />", () => {
 
   it("submits when dropdown closes", () => {
     let wrapper = getTagList();
-    wrapper.prop('onClose')();
+    wrapper.prop('onClose')!();
     expect(onSubmitSpy.called).to.be.true;
   });
 });

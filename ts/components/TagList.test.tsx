@@ -28,7 +28,7 @@ describe('<TagList />', () => {
     toggleSpy = Sinon.spy();
     return shallow(<TagList
       choices={choices}
-      selected={selected}
+      selectedChoices={selected}
       onAdd={() => null}
       onToggle={toggleSpy}
       filterFn={() => [undefined, []]}

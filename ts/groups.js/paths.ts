@@ -35,3 +35,38 @@ export const setup = new Path({
   params: {},
   hash: ["setup"]
 });
+
+export const settings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  hash: ["settings", ":groupId"]
+})
+
+export const generalSettings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  optParams: {
+    editTeamId: StringParam // ID for team calendar modal
+  },
+  hash: ["settings", ":groupId", "general"]
+})
+
+export const notificationSettings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  hash: ["settings", ":groupId", "notifications"]
+});
+
+export const miscSettings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  hash: ["settings", ":groupId", "misc"]
+})

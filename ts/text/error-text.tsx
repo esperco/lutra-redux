@@ -33,10 +33,17 @@ export function getText(code: number, details?: ErrorDetails) {
   }
 
   // Default message
-  return "Whoops. Something broke."
+  return GenericError;
 }
+
+export const GenericError = "Whoops. Something broke.";
 
 export const ContactText = <span>
   Contact us
   at <a href="https://esper.com/contact">esper.com/contact</a> for help.
 </span>;
+
+export const GenericErrorMsg = <div>
+  { GenericError }
+  { ContactText }
+</div>;

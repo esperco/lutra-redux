@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import CheckboxItem from "./CheckboxItem";
 import Dropdown from "./Dropdown";
 import FilterInput from "./FilterInput";
-import FilterMenu from "./FilterMenu";
+import MultiselectFilterMenu from "./MultiselectFilterMenu";
 import LabelList from "./LabelList";
 import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
@@ -45,11 +45,11 @@ describe("<LabelList />", () => {
     expect(wrapper.find(".tag")).to.have.length(1);
   })
 
-  it("renders a FilterMenu inside a dropdown", () => {
-    expect(getMenu().find(FilterMenu)).to.have.length(1);
+  it("renders a MultiselectFilterMenu inside a dropdown", () => {
+    expect(getMenu().find(MultiselectFilterMenu)).to.have.length(1);
   });
 
-  it("displays labels in FilterMenu by default", () => {
+  it("displays labels in MultiselectFilterMenu by default", () => {
     let menu = getMenu();
     let checkboxes = menu.find(CheckboxItem);
     expect(checkboxes).to.have.length(2);
@@ -57,7 +57,7 @@ describe("<LabelList />", () => {
     expect(checkboxes.at(1).text()).to.equal(label2.original);
   });
 
-  it("searches searchLabels in FilterMenu", () => {
+  it("searches searchLabels in MultiselectFilterMenu", () => {
     let menu = getMenu();
     let input = menu.find(FilterInput);
     input.prop('onChange')("Cheese");
