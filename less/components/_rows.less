@@ -28,6 +28,12 @@ header, .banner, .row, footer {
     min-width: @input-height-base;
   }
 
+  // Line up individual spans of text
+  > span {
+    line-height: @input-height-base;
+    vertical-align: middle;
+  }
+
   // Reset default margin behavior in _layout
   * + * { margin: 0; }
 
