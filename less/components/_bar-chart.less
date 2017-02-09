@@ -12,13 +12,13 @@
 }
 
 .bar-chart {
-  * + .row { margin-top: @padding-small; }
-  .row * + * { margin-top: 0; }
+  * + .bar-row { margin-top: @padding-small; }
+  .bar-row * + * { margin-top: 0; }
   .name { font-weight: bold; }
 
   @media screen and (min-width: @screen-sm-min) {
     .name { font-weight: normal; }
-    .row {
+    .bar-row {
       display: flex;
       align-items: center;
 
@@ -37,7 +37,7 @@
   }
 
   @media screen and (min-width: @screen-md-min) {
-    .row {
+    .bar-row {
       > :first-child {
         text-align: right;
         flex: (@bar-chart-name-width-md * 1000)
@@ -52,7 +52,7 @@
   }
 
   @media screen and (min-width: @screen-lg-min) {
-    .row {
+    .bar-row {
       > :first-child {
         text-align: right;
         flex: (@bar-chart-name-width-lg * 1000)
@@ -71,7 +71,7 @@
     us specify a bar width of "100%" or something in JS without having to
     worry about how much to space to leave remaining for the number;
   */
-  .row > :last-child {
+  .bar-row > :last-child {
     padding-right: @bar-chart-number-width;
     white-space: nowrap;
     > * {
