@@ -16,6 +16,7 @@ export const GroupCalendarSharingNo =
 export const GroupCalendarSharingEdit = "Pick which calendars to share.";
 export const GroupDisableCalendarSharing = "Disable Calendar Sharing";
 
+export const CreateGroup = "Create New Team";
 export const GroupName = "Team Name";
 export const GroupNamePlaceholder = "Guardians of the Galaxy";
 export const GroupTimezone = "Timezone";

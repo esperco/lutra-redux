@@ -8,7 +8,9 @@ import * as Conf from 'config';
 import { LoggedInState, DispatchFn } from './types';
 import { ready } from "../states/data-status";
 import { ScrollState } from "../states/scroll";
+import { makeNewGroup } from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
+import { NavSvc } from "../lib/routing";
 import * as Paths from "./paths";
 import * as CommonText from "../text/common";
 import * as GroupText from "../text/groups";
@@ -21,7 +23,7 @@ import * as TimePaths from "../time.js/paths";
 class Props {
   state: LoggedInState & ScrollState;
   dispatch: DispatchFn;
-  Svcs: ApiSvc;
+  Svcs: ApiSvc & NavSvc;
   Conf: typeof Conf; // Don't use config directly -- let index pass it
                      // for ease of testing
 }
@@ -95,6 +97,10 @@ class GroupHeader extends React.Component<Props, {}> {
 
       { this.renderGroupsSelector(groupId) }
 
+      <div className="menu">
+        <button onClick={this.create}>{ GroupText.CreateGroup }</button>
+      </div>
+
       <nav className="panel">
         { hasExecTeam ? <a href={TimePaths.Home.href({})}>
           <Icon type="person">{ CommonText.ExecLink }</Icon>
@@ -159,6 +165,13 @@ class GroupHeader extends React.Component<Props, {}> {
       </div>;
     }
     return null;
+  }
+
+  create = () => {
+    makeNewGroup((groupId) => Paths.generalSettings.href({
+      groupId,
+      onboarding: true
+    }), this.props);
   }
 }
 
