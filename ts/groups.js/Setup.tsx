@@ -31,7 +31,9 @@ class Setup extends React.Component<Props, {}> {
 
   start = () => {
     makeNewGroup(
-      (groupId) => Paths.generalSettings.href({ groupId }),
+      (groupId) => Paths.generalSettings.href({
+        groupId, onboarding: true
+      }),
       this.props
     );
   }

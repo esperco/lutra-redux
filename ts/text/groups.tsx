@@ -97,4 +97,12 @@ export function defaultGroupName(name?: string) {
   return `${article} ${adj} ${noun}`;
 }
 
-(self as any).defaultGroupName = defaultGroupName;
+export const GroupNoTeamDescription =
+  "You're currently not sharing any calendars with this team on Esper. " +
+  "Click on the calendar icon next to your name or e-mail in the list " +
+  "below to pick which calendars to share. Or invite other " +
+  "team members to Esper to share their calendars with you.";
+export const NoTeamBtnTooltip =
+  "Please share a calendar with Esper before continuing.";
+export const GroupShareCalendarBtn = "Share";
+export const GroupOnboardingEnd = "Start Using Esper";

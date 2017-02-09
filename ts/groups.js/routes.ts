@@ -113,6 +113,7 @@ export interface GeneralSettingsRoute {
   page: "GroupGeneralSettings";
   groupId: string;
   editTeamId?: string;
+  onboarding?: boolean;
 }
 
 export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
@@ -130,7 +131,8 @@ export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
       route: {
         page: "GroupGeneralSettings",
         groupId,
-        editTeamId: p.editTeamId
+        editTeamId: p.editTeamId,
+        onboarding: p.onboarding
       }
     })
   }
