@@ -1,17 +1,11 @@
-.group-member-item {
-  &.panel {
-    padding: @padding-small;
-  }
+@media screen and (max-width: @screen-xs-max) {
+  .gim.row {
+    flex-wrap: wrap;
 
-  .gim-remove, .group-role-badge {
-    float: right;
-  }
-
-  @media screen and (max-width: @screen-xs-max) {
     .group-role-badge {
-      float: left;
-      text-align: left;
       width: 100%;
+      text-align: left;
+      order: 99;
     }
   }
 }
@@ -25,10 +19,14 @@
   display: inline-block;
   width: 90%;
   vertical-align: top;
-  & > p {
-    margin-top: 0;
-    color: @gray;
-    font-size: 12px;
+
+  > *:first-child {
+    text-transform: uppercase;
+  }
+
+  > p {
+    margin-top: (@padding-small / 2);
+    color: @text-muted;
     font-weight: normal;
   }
 }

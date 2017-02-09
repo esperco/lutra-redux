@@ -1,5 +1,5 @@
 /*
-  This is the view that display notification settings
+  This is the view that displays group notification settings
 */
 
 import * as React from 'react';

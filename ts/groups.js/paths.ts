@@ -54,7 +54,15 @@ export const generalSettings = new Path({
     onboarding: BooleanParam  // Onboarding mode
   },
   hash: ["settings", ":groupId", "general"]
-})
+});
+
+export const labelSettings = new Path({
+  base,
+  params: {
+    groupId: StringParam
+  },
+  hash: ["settings", ":groupId", "labels"]
+});
 
 export const notificationSettings = new Path({
   base,

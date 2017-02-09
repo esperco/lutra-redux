@@ -3,12 +3,14 @@
 */
 import * as React from "react";
 
-export interface Props {
+export interface BaseProps {
   id?: string;
   className?: string;
   placeholder?: string;
   disabled?: boolean;
+}
 
+export interface Props extends BaseProps {
   // The "default" or original value
   value: string;
 

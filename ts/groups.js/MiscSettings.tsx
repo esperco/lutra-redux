@@ -1,9 +1,8 @@
 /*
-  This is the view that display misc settings like removing a group
+  This is the view that displays misc settings like removing a group
 */
 
 import * as React from 'react';
-// import * as _ from 'lodash';
 import { LoggedInState, DispatchFn } from './types';
 import SettingsNav from "./SettingsNav";
 import * as Groups from "../handlers/groups";

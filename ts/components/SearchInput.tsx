@@ -1,5 +1,5 @@
 /*
-  Variant of DelayedInput with search icon and whatnot
+  Variant of TextInput with search icon and whatnot
 */
 
 import * as React from "react";

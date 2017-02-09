@@ -245,7 +245,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
       (selfGIM ? selfGIM.uid === gim.uid : false));
     let canEditCals = gim.uid && (selfGIM ? selfGIM.uid === gim.uid : false);
 
-    return <div className="panel group-member-item">
+    return <div className="row gim">
       <Tooltip target={
         <button
           className="group-calendar"
@@ -269,12 +269,8 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
           editTeamId={this.props.editTeamId}
         /> : null }
 
-      { displayName }
+      <span className="gim-name">{ displayName }</span>
 
-      <button className="gim-remove" disabled={!canRemove} onClick={() =>
-        Groups.removeGroupIndividual(groupId, gim, this.props)}>
-        { canRemove ? <Icon type="remove" /> : null }
-      </button>
       { this.props.isSuper && this.props.gim.uid && !this.props.noEdit?
         <Dropdown
           toggle={<button className="dropdown-toggle group-role-badge">
@@ -293,6 +289,10 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
           { Text.roleDisplayName(gim.role) }
         </button>
       }
+      <button className="gim-remove" disabled={!canRemove} onClick={() =>
+        Groups.removeGroupIndividual(groupId, gim, this.props)}>
+        { canRemove ? <Icon type="remove" /> : null }
+      </button>
     </div>;
   }
 
