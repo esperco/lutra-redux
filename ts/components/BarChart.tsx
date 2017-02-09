@@ -39,7 +39,7 @@ export class BarChart extends React.Component<Props, {}> {
     let style = { width, background: value.color };
     let bar = <span className="bar" style={style} />;
 
-    return <div className="row" key={value.id || randomString()}>
+    return <div className="bar-row" key={value.id || randomString()}>
       <div className="name">{ value.displayAs }</div>
       <div className="value">
         { this.props.tooltip ? <Tooltip
