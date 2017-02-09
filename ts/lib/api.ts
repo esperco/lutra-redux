@@ -123,11 +123,28 @@ namespace Api {
     return JsonHttp.get(url);
   }
 
-  export function createGroup(uid: string, groupUpdate: ApiT.GroupUpdate):
-    Promise<ApiT.Group>
-  {
-    var url = prefix + "/api/group/create/" + myUid()
-      + "/" + string(uid);
+  export function createGroup(
+    groupUpdate: ApiT.GroupUpdate
+  ): Promise<ApiT.Group>;
+  export function createGroup(
+    adminUid: string,
+    groupUpdate: ApiT.GroupUpdate
+  ): Promise<ApiT.Group>;
+  export function createGroup(
+    firstArg: string|ApiT.GroupUpdate,
+    secondArg?: ApiT.GroupUpdate
+  ): Promise<ApiT.Group> {
+    let adminUid: string;
+    let groupUpdate: ApiT.GroupUpdate;
+    if (typeof firstArg === "string") {
+      adminUid = firstArg;
+      groupUpdate = secondArg!;
+    } else {
+      adminUid = myUid();
+      groupUpdate = firstArg;
+    }
+    let url = prefix + "/api/group/create/" + myUid()
+      + "/" + string(adminUid);
     return JsonHttp.post(url, groupUpdate);
   }
 

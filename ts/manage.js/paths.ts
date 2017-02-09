@@ -67,26 +67,6 @@ export namespace Team {
   });
 }
 
-export namespace Group {
-  let subprefix = "group";
-  let params = { groupId: StringParam };
-
-  export const General = new Path({
-    base, params,
-    hash: [subprefix, "general", ":groupId"]
-  });
-
-  export const Labels = new Path({
-    base, params,
-    hash: [subprefix, "labels", ":groupId"]
-  });
-
-  export const Notifications = new Path({
-    base, params,
-    hash: [subprefix, "notifications", ":groupId"]
-  });
-};
-
 export namespace Customer {
   let subprefix = "customer";
   let params = { cusId: StringParam };

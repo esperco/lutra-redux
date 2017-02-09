@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { generalSettings } from "./paths";
+import { generalSettings, eventList } from "./paths";
 import { LoggedInState, DispatchFn } from './types';
 import SettingsNav from "./SettingsNav";
 import CheckboxItem from "../components/CheckboxItem";
@@ -35,6 +35,7 @@ import * as Text from "../text/groups";
 interface Props {
   groupId: string;
   editTeamId?: string;
+  onboarding?: boolean;
   state: LoggedInState;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
@@ -74,10 +75,12 @@ class GeneralSettings extends React.Component<Props, {}> {
 
     return <div className="content">
       <div className="container">
-        <SettingsNav {...this.props} />
+        { this.props.onboarding ? null : <SettingsNav {...this.props} /> }
         <SummaryInfo {...subprops} />
+        <NoTeamMessage {...subprops} />
         <GroupMembersInfo {...subprops} />
         <AddMemberButton {...subprops} />
+        { this.props.onboarding ? <NextButton {...subprops} /> : null }
       </div>
     </div>;
   }
@@ -145,6 +148,25 @@ class SummaryInfo extends React.Component<Subprops, {}> {
           <input type="text" readOnly disabled value={zoneName} />
         }
       </div>
+    </div>;
+  }
+}
+
+
+/*
+  Show message if current user isn't sharing any teams with group
+*/
+class NoTeamMessage extends React.Component<Subprops, {}> {
+  render() {
+    let myEmail = this.props.state.login.email;
+    let myTeam =
+      _.find(this.props.members.group_teams, (t) => t.email === myEmail);
+    if (myTeam) {
+      return null;
+    }
+
+    return <div className="alert info">
+      { Text.GroupNoTeamDescription }
     </div>;
   }
 }
@@ -279,6 +301,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
     if (associatedTeam) {
       this.props.Svcs.Nav.go(generalSettings.href({
         groupId: this.props.groupId,
+        onboarding: this.props.onboarding,
         editTeamId: associatedTeam.teamid
       }))
     }
@@ -292,6 +315,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
       ).then((teamId) => {
         teamId && this.props.Svcs.Nav.go(generalSettings.href({
           groupId: this.props.groupId,
+          onboarding: this.props.onboarding,
           editTeamId: teamId
         }));
       });
@@ -315,9 +339,9 @@ class AddMemberButton extends React.Component<Subprops, {}> {
       return [match, filtered.toList()] as [Choice|undefined, Choice[]];
     };
 
-    return <Dropdown
+    return <div className="invite-member"><Dropdown
       ref={(c) => this._dropdown = c}
-      toggle={<button className="invite-member-btn">
+      toggle={<button>
         { Text.AddMember }
       </button>}
 
@@ -332,7 +356,7 @@ class AddMemberButton extends React.Component<Subprops, {}> {
           validateAdd={validateEmailAddress}
         />
       </div>}
-    />;
+    /></div>;
   }
 
   add(email: string) {
@@ -403,7 +427,8 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
 
   closeModal = () => {
     this.props.Svcs.Nav.go(generalSettings.href({
-      groupId: this.props.groupId
+      groupId: this.props.groupId,
+      onboarding: this.props.onboarding
     }));
   }
 
@@ -424,6 +449,25 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
   }
 }
 
+
+// Go to next screen in onboarding process
+class NextButton extends React.Component<Subprops, {}> {
+  render() {
+    let disabled = !this.props.members.group_teams.length;
+    return <div className="onboarding-end">
+      <p>{ disabled ? Text.NoTeamBtnTooltip : null }</p>
+      <div>
+        <button className="primary" disabled={disabled} onClick={this.next}>
+          { Text.GroupOnboardingEnd }
+        </button>
+      </div>
+    </div>;
+  }
+
+  next = () => {
+    this.props.Svcs.Nav.go(eventList.href({ groupId: this.props.groupId }));
+  }
+}
 
 
 export default GeneralSettings;

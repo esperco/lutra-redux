@@ -4,6 +4,7 @@ import * as Groups from "./groups";
 import * as ApiT from "../lib/apiT";
 import { deepFreeze } from "../lib/util";
 import makeGroup from "../fakes/groups-fake";
+import makeLogin from "../fakes/login-fake";
 
 // Some group data for testing
 const groupSummary1 = {
@@ -150,6 +151,44 @@ describe("groupDataReducer", function() {
         },
         groupPreferences: {}
       });
+    });
+
+    it("adds groupIds to login state if applicable", function() {
+      let s1 = deepFreeze({
+        ...Groups.initState(),
+        login: makeLogin({
+          groups: ["id-0"]
+        })
+      });
+      let g1 = makeGroup(_.extend({
+        groupid: "id-1"
+      }, groupMembers1, groupSummary1, groupLabels1));
+      let s2 = Groups.groupDataReducer(s1, {
+        type: "GROUP_DATA",
+        dataType: "FETCH_END",
+        groupIds: [g1.groupid],
+        groups: [g1]
+      });
+      expect(s2.login.groups).to.deep.equal(["id-0", "id-1"]);
+    });
+
+    it("does not duplicate groupIds in login state", function() {
+      let s1 = deepFreeze({
+        ...Groups.initState(),
+        login: makeLogin({
+          groups: ["id-1"]
+        })
+      });
+      let g1 = makeGroup(_.extend({
+        groupid: "id-1"
+      }, groupMembers1, groupSummary1, groupLabels1));
+      let s2 = Groups.groupDataReducer(s1, {
+        type: "GROUP_DATA",
+        dataType: "FETCH_END",
+        groupIds: [g1.groupid],
+        groups: [g1]
+      });
+      expect(s2.login.groups).to.deep.equal(["id-1"]);
     });
 
     it("marks group labels data as FETCH_ERROR if id provided but data missing",

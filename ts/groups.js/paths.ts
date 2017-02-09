@@ -50,7 +50,8 @@ export const generalSettings = new Path({
     groupId: StringParam
   },
   optParams: {
-    editTeamId: StringParam // ID for team calendar modal
+    editTeamId: StringParam,  // ID for team calendar modal
+    onboarding: BooleanParam  // Onboarding mode
   },
   hash: ["settings", ":groupId", "general"]
 })

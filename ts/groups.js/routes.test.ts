@@ -6,7 +6,6 @@ import { expect } from "chai";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stringify } from "../lib/event-queries";
 import { sandbox } from "../lib/sandbox";
-import { stubLogs } from "../fakes/stubs";
 import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/group-events";
 import * as Groups from "../handlers/groups";
@@ -236,21 +235,17 @@ describe("Routes", function() {
       });
     });
 
-    it("should route to not found if no groups in state", function() {
+    it("should redirect to setup page if no group", function() {
       let deps = getDeps();
       if (deps.state.login) { deps.state.login.groups = []; }
 
+      let navSpy = sandbox.spy(deps.Svcs.Nav, "go");
       let fetchSpy = sandbox.spy(Groups, "fetch");
-      let logSpies = stubLogs();
       Routes.eventList({ pathname, hash: "#!/event-list/group-id-456" }, deps);
 
       // Don't call fetch, go to not found page
       expect(fetchSpy.called).to.be.false;
-      expect(logSpies.error.called).to.be.true;
-      expectCalledWith(deps.dispatch, {
-        type: "ROUTE",
-        route: { page: "NotFound" }
-      });
+      expectCalledWith(navSpy, "/groups#!/setup");
     });
   });
 
