@@ -77,7 +77,7 @@ class GeneralSettings extends React.Component<Props, {}> {
       <div className="container">
         { this.props.onboarding ? null : <SettingsNav {...this.props} /> }
         <SummaryInfo {...subprops} />
-        { this.props.onboarding ? <NoTeamMessage {...subprops} /> : null }
+        <NoTeamMessage {...subprops} />
         <GroupMembersInfo {...subprops} />
         <AddMemberButton {...subprops} />
         { this.props.onboarding ? <NextButton {...subprops} /> : null }

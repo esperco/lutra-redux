@@ -3,6 +3,7 @@
 */
 import * as _ from "lodash";
 import * as React from "react";
+import { generalSettings } from "./paths";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
@@ -20,6 +21,7 @@ import { StoreData, ready } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/group-events";
 import { Loading } from "../text/data-status";
 import * as CommonText from "../text/common";
+import * as GroupText from "../text/groups";
 
 interface Props {
   groupId: string;
@@ -88,8 +90,23 @@ export class GroupEventsList extends React.Component<Props, State> {
       }
     }
 
+    /*
+      Check if all events are loaded. Don't display certain elemetns if
+      no events or if not loaded.
+    */
+    let total = 0;
+    let loaded = iter(this.props, this.props.state, () => total += 1);
+
     return <div className="group-events-list">
-      { this.renderSelectAll() }
+      { /*
+          Render select all only if all events are here since we can't really
+          select all if we don't know which events to selet.
+        */
+        loaded && total > 0 ? this.renderSelectAll() : null }
+
+      { loaded && !total ?
+        GroupText.noContentMessage(generalSettings.href({ groupId })) :
+        null }
 
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i}
@@ -120,19 +137,12 @@ export class GroupEventsList extends React.Component<Props, State> {
         </div> :
 
         /* Select all button at end too */
-        this.renderSelectAll()
+        (loaded && total > 0 ? this.renderSelectAll() : null)
       }
     </div>;
   }
 
   renderSelectAll() {
-    /*
-      Render select all only if all events are here since we can't really
-      select all if we don't know which events to selet.
-    */
-    let ready = iter(this.props, this.props.state, () => null);
-    if (! ready) return null;
-
     // Some selected -> de-select
     if (_.size(this.props.state.selectedEvents) > 0) {
       if (this.props.clearAllHrefFn) {

@@ -107,3 +107,12 @@ export const NoTeamBtnTooltip =
   "Please share a calendar with Esper before continuing.";
 export const GroupShareCalendarBtn = "Share";
 export const GroupOnboardingEnd = "Start Using Esper";
+
+export function noContentMessage(href: string) {
+  return <div className="no-content-msg">
+    Missing calendar events? You may need to share your calendar
+    with Esper or invite others to share their's. <a href={href}>
+      Go to the settings page to see calendar sharing options.
+    </a>
+  </div>;
+}
