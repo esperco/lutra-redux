@@ -1,14 +1,15 @@
 /*
-  Fixed one-line header, footers, and banners
+  Fixed one-line header, footers, banners, and other horizontal elements
 */
 @banner-height: @navbar-height;
 
-header, .banner, footer {
+header, .banner, .row, footer {
   display: flex;
   background: @panel-bg;
   align-items: center;
-
+  min-height: @navbar-height;
   padding: 0 @padding-base;
+
   .rowbar-layout > & {
     padding: 0 @padding-base;
   }
@@ -25,6 +26,12 @@ header, .banner, footer {
   > h1, > button, > a, > input[type=submit], > .btn-set {
     flex: 1 0 auto;
     min-width: @input-height-base;
+  }
+
+  // Line up individual spans of text
+  > span {
+    line-height: @input-height-base;
+    vertical-align: middle;
   }
 
   // Reset default margin behavior in _layout
@@ -54,10 +61,18 @@ header, .banner, footer {
   }
 }
 
+.row {
+  padding: @padding-small @padding-base;
+}
+
+.row + .row {
+  margin-top: 0;
+  border-top: 1px solid @border-color;
+}
+
 header {
   border-bottom: 1px solid @border-color;
   box-shadow: @default-box-shadow;
-  min-height: @navbar-height;
   overflow: hidden;
   text-overflow: ellipsis;
 

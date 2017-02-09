@@ -6,6 +6,7 @@ import * as React from 'react';
 // Icons
 export const Accounts = "Accounts";
 export const Add = "Add";
+export const Archive = "Archive";
 export const CalendarCheck = "Calendar shared";
 export const CalendarEmpty = "Not sharing calendars";
 export const Calendar = "Calendars";
@@ -48,3 +49,8 @@ export const ClearAll = "Clear Selection";
 
 // Navigation
 export const ExecLink = "Esper for Individuals";
+
+// Settings
+export const GeneralSettingsHeading = "General";
+export const MiscSettingsHeading = "Miscellaneous";
+export const NotificationSettingsHeading = "Notifications";

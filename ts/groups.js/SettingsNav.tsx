@@ -7,6 +7,9 @@ import * as classNames from 'classnames';
 import * as Paths from "./paths";
 import { State, DispatchFn } from './types';
 import Icon from "../components/Icon";
+import { ready } from "../states/data-status";
+import { LabelSettingsHeading } from "../text/labels";
+import * as Text from "../text/common";
 
 class Props {
   groupId: string;
@@ -19,6 +22,9 @@ class SettingsNav extends React.Component<Props, {}> {
     let route = this.props.state.route;
     let page = route && route.page;
     let { groupId } = this.props;
+    let members = this.props.state.groupMembers[groupId]
+    let isAdmin = ready(members) && members.group_member_role === "Owner";
+
     return <header>
       <a href={Paths.eventList.href({ groupId })}>
         <Icon type="previous" />
@@ -27,20 +33,26 @@ class SettingsNav extends React.Component<Props, {}> {
         <a className={classNames("settings-link", {
           active: page === "GroupGeneralSettings"
         })} href={Paths.generalSettings.href({ groupId })}>
-          General
+          { Text.GeneralSettingsHeading }
+       </a>
+
+       <a className={classNames("settings-link", {
+          active: page === "GroupLabelSettings"
+        })} href={Paths.labelSettings.href({ groupId })}>
+          { LabelSettingsHeading }
        </a>
 
        <a className={classNames("settings-link", {
           active: page === "GroupNotificationSettings"
         })} href={Paths.notificationSettings.href({ groupId })}>
-          Notifications
+          { Text.NotificationSettingsHeading }
         </a>
 
-        <a className={classNames("settings-link", {
+        { isAdmin ? <a className={classNames("settings-link", {
           active: page === "GroupMiscSettings"
         })} href={Paths.miscSettings.href({ groupId })}>
-          Misc
-        </a>
+          { Text.MiscSettingsHeading }
+        </a> : null }
       </nav>
     </header>;
   }

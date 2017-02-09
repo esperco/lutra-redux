@@ -26,6 +26,7 @@ import * as LabelText from "../text/labels";
 export const IconMappings = {
   "accounts": "fa-users",
   "add": "fa-plus",
+  "archive": "fa-archive",
   "calendar-check": "fa-calendar-check-o",
   "calendar-empty": "fa-calendar-o",
   "calendar": "fa-calendar",
@@ -71,6 +72,7 @@ function getTextForIcon(icon: IconType): string {
   return {
     "accounts": Text.Accounts,
     "add": Text.Add,
+    "archive": Text.Archive,
     "calendar-check": Text.CalendarCheck,
     "calendar-empty": Text.CalendarEmpty,
     "calendar": Text.Calendar,

@@ -21,8 +21,9 @@
 
   // Nested panels (and certain other elements) don't stack
   // (look like tiles instead)
-  .panel, header, footer, nav, .menu, .content {
-    padding: @padding-base;
+  .panel, header, footer, nav, .menu, .content, .row {
+    padding-left: @padding-base;
+    padding-right: @padding-base;
     border-width: 0;
     border-radius: 0;
     margin-left: -@padding-base;
@@ -48,6 +49,11 @@
     }
   }
 
+  // Extra padding
+  .panel, nav, .menu, .content {
+    padding: @padding-base;
+  }
+
   /*
     Override * + * selector. No margin-top necessary because these elements
     have padding already.
@@ -62,7 +68,7 @@
 
   // These elements always have a border on top when following something
   * {
-    + .panel, + footer, + header {
+    + .panel, + footer, + header, + .row {
       border-top: 1px solid @border-color;
     }
   }
@@ -131,7 +137,7 @@
   }
 
   // Specific styling for certain elements
-  input {
+  input, button.input-style {
     width: 100%;
   }
 

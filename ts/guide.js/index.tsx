@@ -10,6 +10,7 @@ import RadioItem from "../components/RadioItem"
 import Dropdown from "../components/Dropdown";
 import Modal from "../components/Modal";
 import Tooltip from "../components/Tooltip";
+import ColorPicker from "../components/ColorPicker";
 import { RangeSelector } from "../components/CalendarSelectors";
 
 // Selectors
@@ -160,6 +161,28 @@ ReactDOM.render(<div>
            "avoid clipping the borders of the window."}
   />
 </div>, $("#tooltip-demo").get(0));
+
+
+/* Color picker */
+class ColorPickerDemo extends React.Component<{}, {
+  value?: string;
+}> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {};
+  }
+
+  render() {
+    return <ColorPicker
+      value={this.state.value}
+      onChange={(value) => this.setState({ value })}
+    />;
+  }
+}
+
+ReactDOM.render(<div>
+  <ColorPickerDemo />
+</div>, $("#color-picker-demo").get(0))
 
 
 /* Calendars */

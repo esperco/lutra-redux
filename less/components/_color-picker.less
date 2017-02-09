@@ -1,0 +1,54 @@
+.color-box {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  height: @input-height-small;
+  line-height: @input-height-small;
+  width: @input-height-small;
+}
+
+button .color-box {
+  border-radius: @border-radius-small;
+  box-shadow: @default-box-shadow;
+}
+
+.color-picker {
+  * + * { margin-top: 0; }
+
+  display: flex;
+  flex-flow: row wrap;
+  margin: -@padding-small / 2;
+
+  label {
+    margin: @padding-small / 2;
+    flex-grow: 1;
+
+    // Hide real radio button -- sort of, can't display: none because we want it
+    // to be focusable
+    input[type=radio] {
+      position: absolute; // Get it out of the flow
+      opacity: 0;
+    }
+
+    // Simulate browser outline on pseudo-radio when real one is focused
+    input[type=radio]:focus + .color-box {
+      outline: 1px dotted #212121;
+      outline: 5px auto -webkit-focus-ring-color;
+    }
+
+    input[type=radio]:checked + .color-box::before {
+      content: "\2714";
+      opacity: 1;
+    }
+
+    .color-box {
+      min-width: @input-height-small;
+      width: 100%;
+    }
+  }
+
+  // Fill up remainder of box if extra row
+  .remainder {
+    flex-grow: 1000;
+  }
+}
