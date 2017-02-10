@@ -42,7 +42,10 @@ var config = {
     ],
 
     // Playground / Style-guide
-    guide: "./guide.js"
+    guide: "./guide.js",
+
+    // Single event pages + Esper link landing
+    events: "./events.js"
   },
 
   output: {
