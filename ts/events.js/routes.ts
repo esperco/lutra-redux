@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import * as Paths from "./paths";
 import * as Now from "../now.js/paths";
 import * as Groups from "../groups.js/paths";
+import * as Time from "../time.js/paths";
 import * as Routing from "../lib/routing";
 import { Action, State } from "./types";
 import { AnalyticsSvc } from "../lib/analytics";
@@ -32,12 +33,17 @@ export const event = Paths.event.route<Deps>(function(p, deps) {
       }));
     }
 
-    // Else if one one group and no teams
+    // Else if one group and no teams
     else if (teams.length === 0 && groups.length === 1) {
       deps.Svcs.Nav.go(Groups.eventList.href({
         groupId: groups[0],
         eventId
       }));
+    }
+
+    // Else if no group or teams at all
+    else if (teams.length === 0 && groups.length === 0) {
+      deps.Svcs.Nav.go(Time.Home.href({}));
     }
 
     // Dispatch route changes
