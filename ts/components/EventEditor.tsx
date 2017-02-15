@@ -15,7 +15,10 @@ import Icon from "./Icon";
 import LabelList from "./LabelList";
 import Tooltip from "./Tooltip";
 
-interface Props {
+// Viewing event in editor will confirm its labels after this time in ms
+const DEFAULT_AUTO_CONFIRM_TIMEOUT = 1500;
+
+export interface Props {
   event: StoreData<ApiT.GenericCalendarEvent>|undefined;
   members: StoreData<GroupMembers>|undefined;
   labels: LabelSet;         // For LabelList
@@ -26,11 +29,55 @@ interface Props {
   onHide: (hidden: boolean) => void;
   onCommentPost: (eventId: string, text: string) => Promise<any>;
   onCommentDelete: (eventId: string, commentId: string) => void;
+  onConfirm?: () => void;
+  autoConfirmTimeout?: number;
   labelHrefFn?: (x: ApiT.LabelInfo) => string;
   guestHrefFn?: (x: ApiT.Attendee) => string;
 }
 
 export class EventEditor extends React.Component<Props, {}> {
+  _timeout?: number;
+
+  /* Tie auto-conf in event editor to component lifecycle */
+
+  componentDidMount() {
+    this.setConfirmTimeout();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.event !== this.props.event) {
+      this.clearConfirmTimeout();
+    }
+    this.setConfirmTimeout();
+  }
+
+  componentWillUnmount() {
+    this.clearConfirmTimeout();
+  }
+
+  // Once event has been viewed. Auto-confirm after a short timeout.
+  setConfirmTimeout = () => {
+    if (ready(this.props.event) &&
+      typeof this._timeout === "undefined" &&
+      this.props.autoConfirmTimeout !== Infinity &&
+      !this.props.event.labels_confirmed)
+    {
+      this._timeout = setTimeout(this.confirm,
+        this.props.autoConfirmTimeout || DEFAULT_AUTO_CONFIRM_TIMEOUT);
+    }
+  }
+
+  clearConfirmTimeout = () => {
+    if (typeof this._timeout !== "undefined") {
+      clearTimeout(this._timeout);
+      delete this._timeout;
+    }
+  }
+
+  confirm = () => {
+    this.props.onConfirm && this.props.onConfirm();
+  }
+
   render() {
     if (! ok(this.props.event)) {
       return <div className="event-editor">

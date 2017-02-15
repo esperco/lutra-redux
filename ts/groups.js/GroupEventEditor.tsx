@@ -49,6 +49,10 @@ export class GroupEventEditor extends React.Component<Props, {}> {
         eventIds: eventId ? [eventId] : [],
         label, active, context
       }, this.props)}
+      onConfirm={() => Events.setGroupEventLabels({
+        groupId: this.props.groupId,
+        eventIds: eventId ? [eventId] : []
+      }, this.props)}
       onForceInstance={() => Events.setGroupEventLabels({
         groupId: this.props.groupId,
         eventIds: eventId ? [eventId] : []
