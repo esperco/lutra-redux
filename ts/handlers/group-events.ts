@@ -82,8 +82,21 @@ interface QueryRequest {
   };
 }
 
+interface IdRequest {
+  type: "FETCH_ID";
+  eventId: string;
+  deps: {
+    Svcs: ApiSvc;
+    dispatch: (a: EventsDataAction) => any;
+  };
+
+  // Opt callback if event.id fetched differs from what is fetched.
+  // See description for fetchById
+  onNewId?: (eventId: string) => void;
+}
+
 type FetchRequest = (
-  QueryRequest
+  QueryRequest|IdRequest
 ) & {
   priority: number; // Higher priority requests get processed first
 };
@@ -243,6 +256,9 @@ export function processFetchRequests(
     case "FETCH_QUERY":
       return processQueryRequest(groupId, first, first.deps)
         .then(() => queue.slice(1));
+    case "FETCH_ID":
+      return processIdRequest(groupId, first, first.deps)
+        .then(() => queue.slice(1));
   }
 }
 
@@ -289,6 +305,40 @@ export function processQueryRequest(
       });
     }
   );
+}
+
+export function processIdRequest(
+  groupId: string,
+  req: IdRequest,
+  deps: {
+    dispatch: (a: EventsDataAction) => any;
+    Svcs: ApiSvc
+  }
+): Promise<void> {
+  return deps.Svcs.Api.getGroupEvent(groupId, req.eventId).then((e) => {
+    // Mismatched ID -> callback (e.g. redirect if necessary)
+    if (e && e.id !== req.eventId && req.onNewId) {
+      // Additional dispatch to correct ID because we don't want a flash of
+      // something like "Event Not Found" when switching IDs
+      deps.dispatch({
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_IDS_START",
+        groupId,
+        eventIds: [e.id]
+      });
+      req.onNewId(e.id);
+    }
+
+    // If ID mis-match, has the effect of setitng old ID to error state (
+    // (which is fine, since it'll trigger a re-fetch whenever user hits back)
+    deps.dispatch({
+      type: "GROUP_EVENTS_DATA",
+      dataType: "FETCH_IDS_END",
+      groupId,
+      eventIds: [req.eventId],
+      events: e ? [e] : []
+    });
+  });
 }
 
 // Use in sorting function to sort based on start, then end times
@@ -464,18 +514,56 @@ function invalidDay(
 }
 
 
-/* Fetch events by IDs */
+/* Fetch events by an ID */
 
-// TODO -- Need API endpoint for this though
-export function fetchByIds(props: {
+export function fetchById(props: {
   groupId: string;
-  eventIds: string[];
+  eventId: string;
 }, deps: {
   dispatch: (a: EventsDataAction) => any;
   state: EventsState;
   Svcs: ApiSvc;
-}) {
+}, opts: {
+  /*
+    Callback if the group ID we fetch is different from the one we specified.
+    This can happen because we may fetch a single non-merged event and
+    get back the merged group event, which has a different ID.
+  */
+  onNewId?: (eventId: string) => void;
 
+  // Force fetch even if already in progress
+  force?: boolean;
+} = {}) {
+  /*
+    Check if fetch already in progress or if we have data already
+    Don't do anything if so (unless force is on)
+  */
+  let eventMap = deps.state.groupEvents[props.groupId] || {};
+  if (!opts.force && ok(eventMap[props.eventId])) {
+    return Promise.resolve();
+  }
+
+  // Dispatch fetching message
+  deps.dispatch({
+    type: "GROUP_EVENTS_DATA",
+    dataType: "FETCH_IDS_START",
+    groupId: props.groupId,
+    eventIds: [props.eventId]
+  });
+
+  /*
+    Indvidual event fetches should be high priority (since they should
+    be less work than batch requests) - multiply time to ensure higher
+    than query requests.
+  */
+  let priority = (new Date()).getTime() * 2;
+  let queue = EventQueues.get(props.groupId);
+  return queue.enqueue({
+    type: "FETCH_ID",
+    eventId: props.eventId,
+    onNewId: opts.onNewId,
+    priority, deps
+  });
 }
 
 

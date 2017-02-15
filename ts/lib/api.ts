@@ -303,6 +303,23 @@ namespace Api {
     return JsonHttp.postGet(url, q);
   }
 
+  /*
+    Try to get group event -- return null if it does not exist
+  */
+  export function getGroupEvent(groupId: string, eventId: string):
+    Promise<ApiT.GenericCalendarEvent|null>
+  {
+    let url = prefix + "/api/group/ts/event/" + myUid()
+            + "/" + string(groupId) + "/" + string(eventId);
+    return JsonHttp.get(url, (err) => {
+      if (isAjaxError(err) && err.details &&
+          err.details.tag === "No_such_group_event") {
+        return null;
+      }
+      throw err;
+    });
+  }
+
   export function getGroupEventComments(groupId: string, eventId: string):
     Promise<ApiT.GroupEventCommentList>
   {
@@ -369,3 +386,5 @@ export interface ApiSvc {
 }
 
 export default Api;
+
+(self as any).Api = Api;

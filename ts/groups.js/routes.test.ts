@@ -116,6 +116,25 @@ describe("Routes", function() {
       });
     });
 
+    it("should fetch single event before fetching query", () => {
+      let deps = getDeps();
+      let calls: string[] = [];
+      sandbox.stub(Events, "fetchById", () => {
+        calls.push("getGroupEvent");
+        return new Promise(() => {});
+      });
+      sandbox.stub(Events, "fetchGroupEvents", () => {
+        calls.push("postForGroupEvents");
+        return new Promise(() => {});
+      });
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?" +
+              "showFilters=1&eventId=abc&period=w,2400,2401"
+      }, deps);
+      expect(calls).to.deep.equal(["getGroupEvent", "postForGroupEvents"]);
+    });
+
     it("should dispatch action to select a single event ID", () => {
       let deps = getDeps();
       Routes.eventList({

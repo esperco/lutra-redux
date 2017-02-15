@@ -43,6 +43,9 @@ export type ErrorDetails = {
        "DEFAULT" // Default exists so we can exhaustively check all known tags
                  // and not have TypeScript assume all cases have been checked
 }|{
+  tag: "No_such_group_event",
+  value: string; // Event ID
+}|{
   tag: "Login_required",
   value: {
     uid: string;

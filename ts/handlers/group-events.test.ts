@@ -1,7 +1,7 @@
 import {
-  fetchGroupEvents, setGroupEventLabels, EventQueues, processLabelRequests,
-  processQueueRequest, processCommentRequests, processDeleteCommentRequest,
-  postGroupEventComment, deleteGroupEventComment
+  fetchGroupEvents, fetchById, setGroupEventLabels, EventQueues,
+  processLabelRequests, processQueueRequest, processCommentRequests,
+  processDeleteCommentRequest, postGroupEventComment, deleteGroupEventComment
 } from "./group-events";
 import { LabelQueues as GroupLabelQueues } from "./groups";
 import { expect } from "chai";
@@ -288,24 +288,105 @@ describe("Group Events handlers", function() {
     });
   });
 
-  // TODO: Pending new API calls
-  //
-  // describe("fetchByIds", () => {
-  //   // Common vars
-  //   const eventIds = ["e1", "e2"];
-  //   // const event1 = makeEvent({ id: "e1" });
-  //   // const event2 = makeEvent({ id: "e2" });
+  describe("fetchById", () => {
+    // Common vars
+    const event1 = makeEvent({ id: "e1" });
+    const event2 = makeEvent({ id: "e2" });
+    function getDeps() {
+      return {
+        dispatch: sandbox.spy(),
+        state: {
+          ...initState(),
+          ...initGroupState()
+        },
+        Svcs: apiSvcFactory()
+      };
+    }
 
-  //   it("dispatches FETCH_IDS_START", () => {
-  //     let deps = getDeps();
-  //     fetchByIds({ groupId, eventIds }, deps);
-  //     expectCalledWith(deps.dispatch, {
-  //       type: "GROUP_EVENTS_DATA",
-  //       dataType: "FETCH_IDS_START",
-  //       groupId, eventIds
-  //     });
-  //   });
-  // });
+    it("dispatches FETCH_IDS_START", () => {
+      let deps = getDeps();
+      fetchById({ groupId, eventId: event1.id }, deps);
+      expectCalledWith(deps.dispatch, {
+        type: "GROUP_EVENTS_DATA",
+        dataType: "FETCH_IDS_START",
+        groupId,
+        eventIds: [event1.id]
+      });
+    });
+
+    it("makes an API call to fetch event if none available", () => {
+      let deps = getDeps();
+      let spy = sandbox.spy(deps.Svcs.Api, "getGroupEvent");
+      fetchById({ groupId, eventId: event1.id }, deps);
+      expectCalledWith(spy, groupId, event1.id);
+    });
+
+    it("does not make an API call if event already exists", () => {
+      let deps = getDeps();
+      deps.state.groupEvents = {
+        [groupId]: {
+          [event1.id]: event1
+        }
+      };
+
+      let spy = sandbox.spy(deps.Svcs.Api, "getGroupEvent");
+      fetchById({ groupId, eventId: event1.id }, deps);
+      expect(spy.called).to.be.false;
+      expect(deps.dispatch.called).to.be.false;
+    });
+
+    describe("when API call returns event with same ID", () => {
+      function getDeps2() {
+        let deps = getDeps();
+        stubApiRet(deps.Svcs, "getGroupEvent", event1);
+        return deps;
+      }
+
+      it("dispatches returned event", (done) => {
+        let deps = getDeps2();
+        let onNewId = Sinon.spy();
+        fetchById({ groupId, eventId: event1.id }, deps, { onNewId }).then(
+        () => {
+          expectCalledWith(deps.dispatch, {
+            type: "GROUP_EVENTS_DATA",
+            dataType: "FETCH_IDS_END",
+            groupId,
+            eventIds: [event1.id],
+            events: [event1]
+          });
+
+          // onNewId not called
+          expect(onNewId.called).to.be.false;
+        }).then(done, done);
+      });
+    });
+
+    describe("when API call returns event with different ID", () => {
+      function getDeps2() {
+        let deps = getDeps();
+        stubApiRet(deps.Svcs, "getGroupEvent", event2);
+        return deps;
+      }
+
+      it("dispatches returned event and calls onNewId function", (done) => {
+        let deps = getDeps2();
+        let onNewId = Sinon.spy();
+        fetchById({ groupId, eventId: event1.id }, deps, { onNewId }).then(
+        () => {
+          expectCalledWith(deps.dispatch, {
+            type: "GROUP_EVENTS_DATA",
+            dataType: "FETCH_IDS_END",
+            groupId,
+            eventIds: [event1.id],
+            events: [event2]
+          });
+
+          // onNewId called
+          expectCalledWith(onNewId, event2.id);
+        }).then(done, done);
+      });
+    });
+  });
 
   describe("setGroupEventLabels", () => {
     function getDeps() {
