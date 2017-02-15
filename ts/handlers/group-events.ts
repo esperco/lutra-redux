@@ -329,7 +329,7 @@ export function processIdRequest(
       req.onNewId(e.id);
     }
 
-    // If ID mis-match, has the effect of setitng old ID to error state (
+    // If ID mis-match, has the effect of setting old ID to error state (
     // (which is fine, since it'll trigger a re-fetch whenever user hits back)
     deps.dispatch({
       type: "GROUP_EVENTS_DATA",

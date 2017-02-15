@@ -66,14 +66,17 @@ namespace Api {
     return JsonHttp.batch(fn, prefix + "/http-batch-request");
   }
 
+  // NB: Gets personal teams only by default
   export function getLoginInfo(): Promise<ApiT.LoginResponse> {
-    var url = prefix + "/api/login/" + myUid() + "/info";
+    var url = prefix + "/api/login/" + myUid() + "/info" +
+      "?filter_groups_only=false";
     return JsonHttp.get(url);
   }
 
   // Like getLoginInfo, but retries after fixing clock offset
   export function getLoginInfoWithRetry(): Promise<ApiT.LoginResponse> {
-    var url = prefix + "/api/login/" + myUid() + "/info";
+    var url = prefix + "/api/login/" + myUid() + "/info" +
+      "?filter_groups_only=false";
     return JsonHttp.get(url, (err) => {
       if (isAjaxError(err) && err.details &&
           err.details.tag === "Invalid_authentication_headers") {

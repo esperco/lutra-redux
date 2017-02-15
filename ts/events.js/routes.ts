@@ -1,4 +1,7 @@
+import * as _ from "lodash";
 import * as Paths from "./paths";
+import * as Now from "../now.js/paths";
+import * as Groups from "../groups.js/paths";
 import * as Routing from "../lib/routing";
 import { Action, State } from "./types";
 import { AnalyticsSvc } from "../lib/analytics";
@@ -16,15 +19,37 @@ export interface EventRoute {
 };
 
 export const event = Paths.event.route<Deps>(function(p, deps) {
-  if (p.eventId) {
+  if (p.eventId && deps.state.login) {
+    let { teams, groups } = deps.state.login;
+    let eventId = p.eventId;
+    teams = _.filter(teams, (t) => !t.groups_only);
+
+    // If only one team and no groups ...
+    if (teams.length === 1 && groups.length === 0) {
+      deps.Svcs.Nav.go(Now.Event.href({
+        eventId,
+        team: teams[0].teamid
+      }));
+    }
+
+    // Else if one one group and no teams
+    else if (teams.length === 0 && groups.length === 1) {
+      deps.Svcs.Nav.go(Groups.eventList.href({
+        groupId: groups[0],
+        eventId
+      }));
+    }
+
     // Dispatch route changes
-    deps.dispatch({
-      type: "ROUTE",
-      route: {
-        page: "Event",
-        eventId: p.eventId
-      }
-    });
+    else {
+      deps.dispatch({
+        type: "ROUTE",
+        route: {
+          page: "Event",
+          eventId
+        }
+      });
+    }
   }
 });
 
