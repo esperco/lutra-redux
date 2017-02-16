@@ -288,6 +288,20 @@ namespace Api {
     return JsonHttp.put(url, { calendars: cals });
   }
 
+  /* Preferences */
+
+  export function getPreferences(teamid: string):
+  Promise<ApiT.Preferences> {
+    let url = prefix + "/api/preferences/" + myUid() + "/" + string(teamid);
+    return JsonHttp.get(url);
+  }
+
+  export function putPreferences(teamid: string, prefs: ApiT.Preferences):
+  Promise<void> {
+    let url = prefix + "/api/preferences/" + myUid() + "/" + string(teamid);
+    return JsonHttp.put(url, prefs);
+  }
+
   /* Events */
 
   export function postForTeamEvents(teamId: string, q: ApiT.CalendarRequest):
