@@ -49,6 +49,7 @@ export const ClearAll = "Clear Selection";
 
 // Navigation
 export const ExecLink = "Esper for Individuals";
+export const GroupsLink = "Esper for Enterprise";
 
 // Settings
 export const GeneralSettingsHeading = "General";

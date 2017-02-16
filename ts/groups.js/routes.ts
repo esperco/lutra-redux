@@ -37,8 +37,10 @@ export function goToSetup(Svcs: Routing.NavSvc) {
 }
 
 export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
-  let groupId = Groups.cleanGroupId(p.groupId, deps.state);
-  if (groupId) {
+  let groupIdMaybe = Groups.cleanGroupId(p.groupId, deps.state);
+  if (groupIdMaybe) {
+    let groupId = groupIdMaybe;
+
     // Default period = today + 6 (7 days total)
     let period = p.period || fromDates(
       new Date(),
@@ -51,14 +53,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
       participant: p.participant,
       minCost: p.minCost
     });
-
     let props = { groupId, period, query };
-    let p1 = Groups.fetch(groupId,
-      { withLabels: true, withMembers: true }, deps);
-    let p2 = Events.fetchGroupEvents(props, deps);
-    let promise = Promise.all([p1, p2]);
-    Calcs.startGroupCalc(props, { ...deps, promise });
-    Suggestions.loadSuggestions(props, { ...deps, promise });
 
     // Toggle selection based on URL - select without eventId => select all
     if (p.selectMode === true && !p.eventId) {
@@ -73,11 +68,26 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
         eventId: p.eventId,
         value: typeof p.selectMode === 'undefined' ? true : p.selectMode
       }, deps);
+
+      // Trigger single fetch too -- redirect if ID ends up being different
+      Events.fetchById({ groupId, eventId: p.eventId }, deps, {
+        onNewId: (eventId: string) => deps.Svcs.Nav.go(
+          Paths.eventList.href({ ...p, groupId, eventId })
+        )
+      });
     }
 
     else {
       Select.clearAll(groupId, deps);
     }
+
+    // Fetch bulk data (note that individual event fetching goes first)
+    let p1 = Groups.fetch(groupId,
+      { withLabels: true, withMembers: true }, deps);
+    let p2 = Events.fetchGroupEvents(props, deps);
+    let promise = Promise.all([p1, p2]);
+    Calcs.startGroupCalc(props, { ...deps, promise });
+    Suggestions.loadSuggestions(props, { ...deps, promise });
 
     // Dispatch route changes
     deps.dispatch({
