@@ -25,7 +25,7 @@ export class ColorPicker extends React.Component<Props, {}> {
 
   renderOne(color: string) {
     let id = this._name + "_" + color.replace('#','').replace(' ', '');
-    return <label className="color" htmlFor={id}>
+    return <label key={id} className="color" htmlFor={id}>
       <input
         id={id}
         type="radio"
