@@ -18,6 +18,7 @@ import Tooltip from '../components/Tooltip';
 import { Dropdown } from '../components/Dropdown';
 import { Modal } from '../components/Modal';
 import * as TeamCals from '../handlers/team-cals';
+import * as TeamPrefs from "../handlers/team-prefs";
 import * as Groups from '../handlers/groups';
 import { ApiSvc } from "../lib/api";
 import {
@@ -31,6 +32,7 @@ import { ok, ready } from '../states/data-status';
 import { GenericErrorMsg } from "../text/error-text";
 import { EmailPlaceholder } from "../text/common";
 import * as Text from "../text/groups";
+import * as MiscText from "../text/misc";
 
 interface Props {
   groupId: string;
@@ -401,6 +403,7 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
     return <Modal header={<Icon type="calendar">Share calendars</Icon>}
                   onClose={this.closeModal}>
       <div className="content">
+        { this.renderEsperLinkToggle() }
         { ready(calendars.available) && ready(calendars.selected) ?
           this.renderCalendars(calendars.available, calendars.selected) :
           <div className="spinner" /> }
@@ -413,13 +416,34 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
     </Modal>;
   }
 
+  renderEsperLinkToggle() {
+    let prefs = this.props.state.teamPreferences[this.props.editTeamId];
+    if (ready(prefs)) {
+      return <div className="panel menu">
+        {/* Default Esper link to true */}
+        <CheckboxItem
+          checked={prefs.event_link !== false}
+          onChange={(v) => this.updateLink(v)}>
+          <span>{ MiscText.EsperLink }</span>
+          <p className="description">
+            { MiscText.EsperLinkDescription }
+          </p>
+        </CheckboxItem>
+      </div>;
+    }
+
+    return <div className="panel">
+      <div className="placeholder" />
+    </div>;
+  }
+
   renderCalendars(available: GenericCalendar[], selected: GenericCalendar[]) {
     return <div className="panel menu">
       { _.map(available,
         (c) => <CheckboxItem key={c.id}
           checked={!!_.find(selected,
             (s) => s.id === c.id)}
-          onChange={(v) => this.update(c, v)}>
+          onChange={(v) => this.updateCal(c, v)}>
           { c.title }
         </CheckboxItem>)}
     </div>;
@@ -441,10 +465,16 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
     this.closeModal();
   }
 
-  update(cal: GenericCalendar, value: boolean) {
+  updateCal(cal: GenericCalendar, value: boolean) {
     TeamCals.toggleCalendar({
       teamId: this.props.editTeamId,
       cal, value
+    }, this.props);
+  }
+
+  updateLink(val: boolean) {
+    TeamPrefs.update(this.props.editTeamId, {
+      event_link: val
     }, this.props);
   }
 }

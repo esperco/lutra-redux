@@ -1,10 +1,15 @@
 import * as _ from "lodash";
+import * as PrefHandlers from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
 import { GenericCalendar } from "../lib/apiT";
 import { QueueMap } from "../lib/queue";
 import {
   TeamCalendarState, TeamCalendarDataAction, TeamCalendarUpdateAction
 } from "../states/team-cals";
+import {
+  UpdateAction as TeamPreferencesUpdateAction,
+  TeamPreferencesState
+} from "../states/team-preferences";
 import { ok, ready } from "../states/data-status";
 
 export function fetchAvailableCalendars(teamId: string, deps: {
@@ -89,13 +94,21 @@ export function toggleCalendar(props: {
   cal: GenericCalendar;
   value: boolean; // True => add, false => remove
 }, deps: {
-  dispatch: (a: TeamCalendarUpdateAction) => any;
-  state: TeamCalendarState;
+  dispatch: (a: TeamCalendarUpdateAction|TeamPreferencesUpdateAction) => any;
+  state: TeamCalendarState & TeamPreferencesState;
   Svcs: ApiSvc;
 }) {
   let { dispatch, state, Svcs } = deps;
   let cals = state.teamCalendars[props.teamId];
   if (cals && ready(cals.selected)) {
+    // Auto-set Esper link if applicable
+    let prefs = state.teamPreferences[props.teamId];
+    if (ready(prefs) && typeof prefs.event_link === "undefined") {
+      PrefHandlers.update(props.teamId, {
+        event_link: true
+      }, deps);
+    }
+
     let selected = props.value ?
       _(cals.selected).concat([props.cal]).uniqBy((c) => c.id).value() :
       _.filter(cals.selected, (c) => c.id !== props.cal.id);

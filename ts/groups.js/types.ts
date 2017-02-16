@@ -10,6 +10,7 @@ import * as Suggestions from "../states/group-suggestions";
 import * as Groups from "../states/groups";
 import * as InviteEmails from "../states/invite-emails";
 import * as TeamCalendars from "../states/team-cals";
+import * as TeamPreferences from "../states/team-preferences";
 import * as Scroll from "../states/scroll";
 import * as Select from "../states/events-select";
 import * as Login from "../lib/login";
@@ -41,6 +42,8 @@ export type Action =
   Suggestions.SuggestionsAction|
   TeamCalendars.TeamCalendarDataAction|
   TeamCalendars.TeamCalendarUpdateAction|
+  TeamPreferences.DataAction|
+  TeamPreferences.UpdateAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
@@ -61,6 +64,7 @@ export interface State extends
   Scroll.ScrollState,
   Suggestions.SuggestionsState,
   TeamCalendars.TeamCalendarState,
+  TeamPreferences.TeamPreferencesState,
   Login.LoginState,
   Routing.RouteState<Routes.RouteTypes>,
   Select.EventsSelectState { };

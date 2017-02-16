@@ -13,6 +13,7 @@ import * as InviteEmails from "../handlers/invite-emails";
 import * as Suggestions from "../handlers/group-suggestions";
 import * as Groups from "../handlers/groups"
 import * as TeamCals from "../handlers/team-cals";
+import * as TeamPrefs from "../handlers/team-prefs";
 import { compactObject } from "../lib/util";
 
 interface Deps {
@@ -133,6 +134,7 @@ export const generalSettings = Paths.generalSettings.route<Deps>((p, deps) => {
     if (p.editTeamId) {
       TeamCals.fetchAvailableCalendars(p.editTeamId, deps);
       TeamCals.fetchSelectedCalendars(p.editTeamId, deps);
+      TeamPrefs.fetch(p.editTeamId, deps);
     }
     InviteEmails.fetch(deps);
 

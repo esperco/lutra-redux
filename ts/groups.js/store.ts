@@ -17,6 +17,7 @@ import * as InviteEmails from "../states/invite-emails";
 import * as Groups from "../states/groups";
 import * as Scroll from "../states/scroll";
 import * as TeamCalendars from "../states/team-cals";
+import * as TeamPreferences from "../states/team-preferences";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import initState from "./init-state";
@@ -64,6 +65,10 @@ export const store = createStore(
         return TeamCalendars.teamCalendarDataReducer(state, action);
       case "TEAM_CALENDAR_UPDATE":
         return TeamCalendars.teamCalendarUpdateReducer(state, action);
+      case "TEAM_PREFERENCES_DATA":
+        return TeamPreferences.dataReducer(state, action);
+      case "TEAM_PREFERENCES_UPDATE":
+        return TeamPreferences.updateReducer(state, action);
       case "TOGGLE_EVENT_SELECTION":
         return Select.reduceEventToggling(state, action);
       case "UPDATE_INVITE_EMAILS":

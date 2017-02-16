@@ -4,6 +4,7 @@ import * as Calcs from "../states/group-calcs";
 import * as Events from "../states/group-events";
 import * as Groups from "../states/groups";
 import * as TeamCalendars from "../states/team-cals";
+import * as TeamPreferences from "../states/team-preferences";
 import * as Suggestions from "../states/group-suggestions";
 import * as Select from "../states/events-select";
 
@@ -19,6 +20,7 @@ export default function initState(): State {
     ...Calcs.initState(),
     ...Select.initState(),
     ...Suggestions.initState(),
-    ...TeamCalendars.initState()
+    ...TeamCalendars.initState(),
+    ...TeamPreferences.initState()
   };
 }
