@@ -388,6 +388,12 @@ namespace JsonHttp {
     return jsonHttp("PUT", path, true, body, errCb);
   }
 
+  export function patch(path: string,
+                        body?: any,
+                        errCb?: ErrCb<any>) {
+    return jsonHttp("PATCH", path, true, body, errCb);
+  }
+
   export function delete_(path: string, errCb?: ErrCb<any>) {
     return jsonHttp("DELETE", path, true, null, errCb);
   }

@@ -6,6 +6,7 @@ import { makeGroup } from "../fakes/groups-fake";
 import { testLabel } from "../fakes/labels-fake";
 import { initState } from "../states/groups";
 import { sandbox } from "../lib/sandbox";
+import { GroupSummary } from "../states/groups";
 
 describe("Groups handlers", function() {
   describe("fetch", function() {
@@ -59,7 +60,7 @@ describe("Groups handlers", function() {
 
     it("should not dispatch a GROUP_DATA event if data already OK", function() {
       let deps = getDeps();
-      deps.state.groupSummaries = { "id-1": makeGroup({ groupid: "id-1" }) };
+      deps.state.groupSummaries = { "id-1": makeGroup({ groupid: "id-1" }) as GroupSummary };
       Groups.fetch("id-1", {}, deps);
       expect(deps.dispatch.called).to.be.false;
     });
@@ -67,7 +68,7 @@ describe("Groups handlers", function() {
     it("should dispatch a GROUP_DATA event if data partially OK", function() {
       let deps = getDeps();
       Groups.fetch("id-1", { withLabels: true }, deps);
-      deps.state.groupSummaries = { "id-1": makeGroup({ groupid: "id-1" }) };
+      deps.state.groupSummaries = { "id-1": makeGroup({ groupid: "id-1" }) as GroupSummary };
       expect(deps.dispatch.called).to.be.true;
     });
 

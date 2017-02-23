@@ -12,14 +12,20 @@ describe("<GroupSelector />", () => {
       // We just need ids here
       groups: ["id-1", "id-2"]
     } as any;
-    state.groupSummaries= {
+    state.groupSummaries = {
       "id-1": {
         group_name: "Group 1",
-        group_timezone: "America/Los_Angeles"
+        group_timezone: "America/Los_Angeles",
+        group_tb: true,
+        group_tb_guests_min: 2,
+        group_tb_guests_max: 18
       },
       "id-2": {
         group_name: "Group 2",
-        group_timezone: "America/Los_Angeles"
+        group_timezone: "America/Los_Angeles",
+        group_tb: true,
+        group_tb_guests_min: 2,
+        group_tb_guests_max: 18
       }
     };
 

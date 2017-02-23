@@ -131,6 +131,17 @@ export interface Group extends GroupUpdate {
 export interface GroupUpdate {
   group_name: string;
   group_timezone: string;
+  group_tb?: boolean;
+  group_tb_guests_min?: number;
+  group_tb_guests_max?: number;
+}
+
+export interface GroupUpdatePatch {
+  group_name?: string;
+  group_timezone?: string;
+  group_tb?: boolean;
+  group_tb_guests_min?: number;
+  group_tb_guests_max?: number;
 }
 
 export interface GroupMember {

@@ -241,6 +241,64 @@ export function removeTeam(
 }
 
 
+/* Setting number of Timebomb guests */
+
+interface TimebombGuestsUpdate {
+  value: number;
+  Svcs: ApiSvc;
+}
+
+// Use last value in queue for each group
+export const TimebombMinQueue = new QueueMap<TimebombGuestsUpdate>(
+  (groupId, q) => {
+    let { Svcs, value } = _.last(q);
+    return Svcs.Api.patchGroupDetails(groupId, {
+      group_tb_guests_min: value
+    }).then(() => []);
+});
+
+export function setTimebombMinGuests(groupId: string, value: number, deps: {
+  dispatch: (a: GroupUpdateAction) => any;
+  state: GroupState;
+  Svcs: ApiSvc;
+}) {
+  if (value < 0) return Promise.reject(new Error("Invalid name"));
+  deps.dispatch({
+    type: "GROUP_UPDATE",
+    groupId,
+    summary: {
+      group_tb_guests_min: value
+    }
+  });
+  return TimebombMinQueue.get(groupId).enqueue({ value, ...deps });
+}
+
+// Use last value in queue for each group
+export const TimebombMaxQueue = new QueueMap<TimebombGuestsUpdate>(
+  (groupId, q) => {
+    let { Svcs, value } = _.last(q);
+    return Svcs.Api.patchGroupDetails(groupId, {
+      group_tb_guests_max: value
+    }).then(() => []);
+});
+
+export function setTimebombMaxGuests(groupId: string, value: number, deps: {
+  dispatch: (a: GroupUpdateAction) => any;
+  state: GroupState;
+  Svcs: ApiSvc;
+}) {
+  if (value < 0) return Promise.reject(new Error("Invalid name"));
+  deps.dispatch({
+    type: "GROUP_UPDATE",
+    groupId,
+    summary: {
+      group_tb_guests_max: value
+    }
+  });
+  return TimebombMaxQueue.get(groupId).enqueue({ value, ...deps });
+}
+
+
 /* Rename Groups */
 
 interface RenameUpdate {
@@ -323,6 +381,23 @@ export function processGroupLabelUpdates(
   }
 
   return Promise.resolve([]);
+}
+
+export function patchGroupDetails(props: ApiT.GroupUpdatePatch &
+                                         { groupId: string },
+                                  deps: {
+  dispatch: (a: GroupUpdateAction) => any;
+  state: GroupState;
+  Svcs: ApiSvc;
+}) {
+  let { dispatch, Svcs } = deps;
+  Svcs.Api.patchGroupDetails(props.groupId, props).then((summary) => {
+    dispatch({
+      type: "GROUP_UPDATE",
+      groupId: props.groupId,
+      summary
+    });
+  });
 }
 
 export const LabelQueues = new QueueMap(processGroupLabelUpdates);
