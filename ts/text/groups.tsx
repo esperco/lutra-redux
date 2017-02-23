@@ -108,7 +108,7 @@ export const NoTeamBtnTooltip =
 export const GroupShareCalendarBtn = "Share";
 export const GroupOnboardingEnd = "Start Using Esper";
 
-export const TimebombEnable = "Enable email confirmation of meetings";
+export const TimebombEnable = "Enable \"move to email\" for meetings";
 export const TimebombDescribe = <p>
   2-4 days before a meeting, Esper will send an e-mail to all meeting guests
   asking them to confirm that they want to attend. If no one confirms, Esper
