@@ -10,6 +10,9 @@ import { ok, ready, StoreMap } from "./data-status";
 export interface GroupSummary {
   group_name: string;
   group_timezone: string;
+  group_tb: boolean;
+  group_tb_guests_min: number;
+  group_tb_guests_max: number;
 }
 
 export interface GroupLabels {
@@ -183,7 +186,10 @@ export function groupDataReducer<S extends GroupState & LoginState> (
 
       groupSummaries[g.groupid] = {
         group_name: g.group_name,
-        group_timezone: g.group_timezone
+        group_timezone: g.group_timezone,
+        group_tb: !!g.group_tb,
+        group_tb_guests_min: g.group_tb_guests_min || 2,
+        group_tb_guests_max: g.group_tb_guests_max || 18
       };
 
       if (g.group_labels) {

@@ -126,6 +126,13 @@ namespace Api {
     return JsonHttp.get(url);
   }
 
+  export function patchGroupDetails(groupid: string, p: ApiT.GroupUpdatePatch):
+    Promise<ApiT.Group>
+  {
+    var url = `${prefix}/api/group/details/${myUid()}/${string(groupid)}`;
+    return JsonHttp.patch(url, p);
+  }
+
   export function createGroup(
     groupUpdate: ApiT.GroupUpdate
   ): Promise<ApiT.Group>;

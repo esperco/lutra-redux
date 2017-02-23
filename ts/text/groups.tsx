@@ -108,6 +108,12 @@ export const NoTeamBtnTooltip =
 export const GroupShareCalendarBtn = "Share";
 export const GroupOnboardingEnd = "Start Using Esper";
 
+export const TimebombEnable = "Enable timebomb email notifications";
+export const TimebombMinGuests =
+  "Minimum number of guests in an event for timebomb activation";
+export const TimebombMaxGuests =
+  "Maximum number of guests in an event for timebomb activation";
+
 export function noContentMessage(href: string) {
   return <div className="no-content-msg">
     Missing calendar events? You may need to share your calendar
