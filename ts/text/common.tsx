@@ -55,3 +55,9 @@ export const GroupsLink = "Esper for Enterprise";
 export const GeneralSettingsHeading = "General";
 export const MiscSettingsHeading = "Miscellaneous";
 export const NotificationSettingsHeading = "Notifications";
+
+export const AlphaModeMsg = <div>
+  This experimental feature is still in beta testing.
+  Please send feedback
+  to <a href="mailto:support@esper.com">support@esper.com</a>.
+</div>;

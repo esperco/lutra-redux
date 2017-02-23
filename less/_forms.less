@@ -85,6 +85,12 @@ label + input, label + textarea, label + select, label + button.input-style {
     min-width: 0;
   }
 
+  // Don't expand certain "small" inputs
+  > input[type=number] {
+    flex-grow: 0.1;
+    min-width: 6rem;
+  }
+
   // Correct for extra padding introduced by child elements
   margin: -@padding-base / 2;
   * + & {

@@ -10,6 +10,7 @@ import * as Groups from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
+import { AlphaModeMsg } from "../text/common";
 import * as Text from "../text/groups";
 
 interface Props {
@@ -30,9 +31,15 @@ class MiscSettings extends React.Component<Props, {}> {
       <div className="container">
         <SettingsNav {...this.props} />
         <div className="panel">
+          <div className="alert info">
+            { AlphaModeMsg }
+          </div>
           <CheckboxItem checked={tbEnabled}
                         onChange={(val) => this.setTimebomb(val)}>
             { Text.TimebombEnable }
+            <div className="description">
+              { Text.TimebombDescribe }
+            </div>
           </CheckboxItem>
           <div className="form-row">
             <label htmlFor="tb-min-guests">
