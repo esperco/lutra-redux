@@ -108,11 +108,18 @@ export const NoTeamBtnTooltip =
 export const GroupShareCalendarBtn = "Share";
 export const GroupOnboardingEnd = "Start Using Esper";
 
-export const TimebombEnable = "Enable timebomb email notifications";
+export const TimebombEnable = "Enable \"move to email\" for meetings";
+export const TimebombDescribe = <p>
+  2-4 days before a meeting, Esper will send an e-mail to all meeting guests
+  asking them to confirm that they want to attend. If no one confirms, Esper
+  will remove the meeting from everyone's calendar 24 hours before the event
+  and send an e-mail to all guests that the meeting has been "moved to email".
+  If at least one person confirms, the meeting will proceed as planned.
+</p>;
 export const TimebombMinGuests =
-  "Minimum number of guests in an event for timebomb activation";
+  "Minimum number of guests in event to activate";
 export const TimebombMaxGuests =
-  "Maximum number of guests in an event for timebomb activation";
+  "Maximum number of guests in event to activate";
 
 export function noContentMessage(href: string) {
   return <div className="no-content-msg">

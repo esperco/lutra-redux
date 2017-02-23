@@ -102,7 +102,9 @@ var config = {
         )
       },
 
-      { test: /\.tsx?$/, loader: "ts-loader" },
+      { test: /\.tsx?$/,
+        loader: "ts-loader",
+        exclude: [/\.(test)\.tsx?$/] },
 
       { test: /\.json$/, loader: "json-loader" },
 
