@@ -191,6 +191,13 @@ namespace Api {
     return JsonHttp.put(url);
   }
 
+  export function putSelfTeamAsGroupMember(groupId: string):
+    Promise<ApiT.GroupMember>
+  {
+    var url = `${prefix}/api/group/self-team/${myUid()}/${string(groupId)}`;
+    return JsonHttp.put(url);
+  }
+
   export function putGroupIndividualByEmail(
     groupid: string,
     email: string,

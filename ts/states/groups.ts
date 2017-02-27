@@ -100,6 +100,12 @@ export interface GroupDeleteGIMAction {
   gim: ApiT.GroupIndividual;
 }
 
+export interface GroupAddTeamAction {
+  type: "GROUP_ADD_TEAM";
+  groupId: string;
+  member: ApiT.GroupMember;
+}
+
 export interface GroupDeleteTeamAction {
   type: "GROUP_DELETE_TEAM";
   groupId: string;
@@ -341,6 +347,30 @@ export function groupDeleteGIMReducer<S extends GroupState>(
                      (i.email && i.email === gim.email))),
           group_teams: _.filter(current.group_teams,
             (t) => !(t.email && t.email === gim.email))
+        }
+      }
+    });
+  }
+
+  return state;
+}
+
+export function groupAddTeamReducer<S extends GroupState>(
+  state: S,
+  action: GroupAddTeamAction
+): S {
+  let { groupId, member } = action;
+  let current = state.groupMembers[groupId];
+
+  if (ready(current)) {
+    let group_teams = _.clone(current.group_teams);
+    group_teams.push(member);
+    return _.extend({}, state, {
+      groupMembers: {
+        ...state.groupMembers,
+        [groupId]: {
+          ...current,
+          group_teams
         }
       }
     });

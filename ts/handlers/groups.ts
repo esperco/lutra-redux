@@ -10,7 +10,8 @@ import { compactObject as compact } from "../lib/util";
 import {
   GroupPreferences,
   GroupState, GroupDataAction, GroupUpdateAction, GroupPreferencesAction,
-  GroupAddGIMAction, GroupDeleteGIMAction, GroupDeleteTeamAction
+  GroupAddGIMAction, GroupDeleteGIMAction, GroupAddTeamAction,
+  GroupDeleteTeamAction
 } from "../states/groups";
 import { ok, ready } from "../states/data-status";
 import { defaultGroupName } from "../text/groups";
@@ -166,6 +167,20 @@ export function updateDailyEmail(groupId: string, val: boolean, deps: {
 
 
 /* Manage group members */
+
+export function addSelfTeam(groupId: string, deps: {
+  dispatch: (a: GroupAddTeamAction) => any;
+  Svcs: ApiSvc;
+}): Promise<ApiT.GroupMember> {
+  return deps.Svcs.Api.putSelfTeamAsGroupMember(groupId).then((member) => {
+    deps.dispatch({
+      type: "GROUP_ADD_TEAM",
+      groupId,
+      member
+    });
+    return member;
+  })
+}
 
 export function addGroupIndividual(
   groupId: string,

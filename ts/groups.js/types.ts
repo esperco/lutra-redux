@@ -36,6 +36,7 @@ export type Action =
   Groups.GroupPreferencesAction|
   Groups.GroupUpdateAction|
   Groups.GroupAddGIMAction|
+  Groups.GroupAddTeamAction|
   Groups.GroupDeleteGIMAction|
   Groups.GroupDeleteTeamAction|
   InviteEmails.UpdateInviteStateAction|
