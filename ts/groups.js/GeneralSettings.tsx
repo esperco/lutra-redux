@@ -310,15 +310,14 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
 
     // Create team for self
     else if (this.props.gim.email === this.props.state.login.email) {
-      Groups.addGroupIndividual(
+      Groups.addSelfTeam(
         this.props.groupId,
-        this.props.gim.email,
         this.props
-      ).then((teamId) => {
-        teamId && this.props.Svcs.Nav.go(generalSettings.href({
+      ).then((gm) => {
+        this.props.Svcs.Nav.go(generalSettings.href({
           groupId: this.props.groupId,
           onboarding: this.props.onboarding,
-          editTeamId: teamId
+          editTeamId: gm.teamid
         }));
       });
     }
