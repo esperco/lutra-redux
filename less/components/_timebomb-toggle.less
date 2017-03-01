@@ -1,0 +1,19 @@
+.timebomb-toggle {
+  h4 { text-align: center; }
+
+  .options {
+    display: flex;
+    flex-flow: row nowrap;
+
+    * + * { margin-top: 0; }
+    > * {
+      text-align: center;
+      flex: 1 1 1em;
+    }
+
+    .pseudo-radio { margin-right: 0; }
+    .pseudo-radio + * {
+      display: block;
+    }
+  }
+}
