@@ -2,6 +2,8 @@ import * as React from "react";
 import Icon from "./Icon";
 import * as Text from "../text/timebomb";
 
+const MAX_PAGES = 3;
+
 export class SlideShow extends React.Component<{}, {page: number}> {
   constructor(props: {}) {
     super(props);
@@ -38,11 +40,15 @@ export class SlideShow extends React.Component<{}, {page: number}> {
     }
 
     return <div className="slide-show container">
-      <button className="left-arrow" onClick={() => this.previousPage()}>
+      <button className="left-arrow"
+          disabled={this.state.page <= 1}
+          onClick={() => this.previousPage()}>
         <Icon type="previous" />
       </button>
       {page}
-      <button className="right-arrow" onClick={() => this.nextPage()}>
+      <button className="right-arrow"
+          disabled={this.state.page >= MAX_PAGES}
+          onClick={() => this.nextPage()}>
         <Icon type="next" />
       </button>
     </div>;
@@ -57,7 +63,7 @@ export class SlideShow extends React.Component<{}, {page: number}> {
   }
 
   nextPage() {
-    if (this.state.page < 3 ) {
+    if (this.state.page < MAX_PAGES ) {
       this.setState({
         page: this.state.page + 1
       });
