@@ -108,14 +108,6 @@ export const NoTeamBtnTooltip =
 export const GroupShareCalendarBtn = "Share";
 export const GroupOnboardingEnd = "Start Using Esper";
 
-export const TimebombOnboarding1 =
-  "Esper gets rid of wasteful meetings on your calendar.";
-export const TimebombOnboarding2 =
-  "We'll send emails to all guests beforehand: \"Is this meeting still on?\"";
-export const TimebombOnboarding3 =
-  "If nobody says \"Yes, it is still on\", then we'll move this meeting to " +
-  "email. Time saved!";
-
 export const TimebombEnable = "Enable \"move to email\" for meetings";
 export const TimebombDescribe = <p>
   2-4 days before a meeting, Esper will send an e-mail to all meeting guests

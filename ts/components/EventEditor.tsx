@@ -5,14 +5,17 @@ import * as classNames from "classnames";
 import * as ApiT from "../lib/apiT";
 import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import fmtText from "../lib/fmt-text";
+import { hasTag } from "../lib/util";
 import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
 import * as LabelText from "../text/labels";
+import * as TimebombText from "../text/timebomb";
 import { ok, ready, StoreData } from "../states/data-status";
 import { GroupMembers } from "../states/groups";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
+import TimebombToggle from "./TimebombToggle";
 import Tooltip from "./Tooltip";
 
 // Viewing event in editor will confirm its labels after this time in ms
@@ -30,6 +33,7 @@ export interface Props {
   onCommentPost: (eventId: string, text: string) => Promise<any>;
   onCommentDelete: (eventId: string, commentId: string) => void;
   onConfirm?: () => void;
+  onTimebombToggle?: (eventId: string, value: boolean) => void;
   autoConfirmTimeout?: number;
   labelHrefFn?: (x: ApiT.LabelInfo) => string;
   guestHrefFn?: (x: ApiT.Attendee) => string;
@@ -171,6 +175,11 @@ export class EventEditor extends React.Component<Props, {}> {
             LabelText.InstanceLabelsDescription }
         </div> : null }
 
+      { this.props.onTimebombToggle ?
+        <TimebombStatus event={event}
+          onToggle={this.props.onTimebombToggle} /> :
+        null }
+
       <GuestList guests={event.guests} hrefFn={this.props.guestHrefFn} />
 
       <CommentList eventId={event.id}
@@ -183,6 +192,43 @@ export class EventEditor extends React.Component<Props, {}> {
   }
 }
 
+export class TimebombStatus extends React.Component<{
+  event: ApiT.GenericCalendarEvent;
+  onToggle: (eventId: string, value: boolean) => void;
+}, {}> {
+  render() {
+    let { event } = this.props;
+    if (! event.timebomb) {
+      return null;
+    }
+
+    if (hasTag("Stage0", event.timebomb)) {
+      return <div className="panel">
+        <h4>{ TimebombText.TimebombHeader }</h4>
+        <TimebombToggle {...this.props} />
+      </div>
+    }
+
+    else if (hasTag("Stage1", event.timebomb)) {
+      return <div className="alert info">
+        { TimebombText.PendingConfirmation }
+      </div>;
+    }
+
+    // Stage 2 confirmed
+    else if (event.timebomb[1] === "Event_confirmed") {
+      return <div className="alert success">
+        { TimebombText.Confirmed }
+      </div>;
+    }
+
+    // Stage 2 canceled
+    return <div className="alert warning">
+      { TimebombText.Canceled }
+    </div>;
+  }
+}
+
 export class GuestList extends React.Component<{
   guests?: ApiT.Attendee[]
   hrefFn?: (x: ApiT.Attendee) => string;
@@ -192,7 +238,7 @@ export class GuestList extends React.Component<{
       return null;
     }
 
-    return <div className="guest-list">
+    return <div className="guest-list panel">
       <h4>{ EventText.Attendees }</h4>
       { _.map(this.props.guests || [], (g, i) => this.renderGuest(g, i)) }
     </div>;

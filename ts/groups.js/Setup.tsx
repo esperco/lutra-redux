@@ -9,6 +9,7 @@ import { NavSvc } from "../lib/routing";
 import * as Paths from "./paths";
 import { LoggedInState, DispatchFn } from './types';
 import * as Text from "../text/groups";
+import * as TimebombText from "../text/timebomb";
 import Icon from "../components/Icon";
 
 class Props {
@@ -58,19 +59,19 @@ class SlideShow extends React.Component<{}, {page: number}> {
     switch (this.state.page) {
       case 1:
         page = <div>
-          <p>{ Text.TimebombOnboarding1 }</p>
+          <p>{ TimebombText.Onboarding1 }</p>
           <img src="/img/Group10.svg" />
         </div>;
         break;
       case 2:
         page = <div>
-          <p>{ Text.TimebombOnboarding2 }</p>
+          <p>{ TimebombText.Onboarding2 }</p>
           <img src="/img/Group8.svg" />
         </div>;
         break;
       case 3:
         page = <div>
-          <p>{ Text.TimebombOnboarding3 }</p>
+          <p>{ TimebombText.Onboarding3 }</p>
           <img src="/img/Group9.svg" />
         </div>;
         break;

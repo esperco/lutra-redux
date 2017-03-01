@@ -346,3 +346,11 @@ export class ChoiceSet<T extends Choice> extends OrderedSet<T> {
     super(lst, (l) => l.normalized);
   }
 }
+
+// Variant typeguard helper pending resolution of
+// https://github.com/Microsoft/TypeScript/issues/14339
+export function hasTag<T extends string>(tag: T, variant: [string, any])
+  : variant is [T, any]
+{
+  return variant[0] === tag;
+}
