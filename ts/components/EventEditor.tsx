@@ -16,6 +16,7 @@ import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
 import Modal from "./Modal";
+import SlideShow from "./TimebombSlideshow";
 import TimebombToggle from "./TimebombToggle";
 import Tooltip from "./Tooltip";
 
@@ -256,7 +257,7 @@ export class TimebombStatus extends React.Component<TimebombStatusProps, {
     return <Modal header={TimebombText.TimebombHelpHeader}
         onClose={() => this.setState({ showHelpModal: false })}>
       <div className="panel">
-        { TimebombText.TimebombDescribe }
+        <SlideShow />
       </div>
     </Modal>;
   }
