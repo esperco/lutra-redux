@@ -21,7 +21,7 @@ import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
 import { GenericPeriod, Period, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
-import { OrderedSet, compactObject } from "../lib/util";
+import { OrderedSet, compactObject, hasTag } from "../lib/util";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import { CalcStartAction } from "../states/group-calcs";
@@ -68,9 +68,19 @@ interface DeleteCommentRequest {
   };
 }
 
+interface SetTimebombRequest {
+  type: "SET_TIMEBOMB";
+  eventId: string;
+  value: boolean;
+  deps: {
+    Svcs: ApiSvc;
+  }
+}
+
 type PushRequest = LabelRequest
   |CommentRequest
-  |DeleteCommentRequest;
+  |DeleteCommentRequest
+  |SetTimebombRequest;
 
 interface QueryRequest {
   type: "FETCH_QUERY";
@@ -132,7 +142,11 @@ export function processQueueRequest(
 }
 
 export function isPushRequest(r: QueueRequest): r is PushRequest {
-  return _.includes(["LABEL", "COMMENT", "DELETE_COMMENT"], r.type);
+  return _.includes([
+    "LABEL",
+    "COMMENT", "DELETE_COMMENT",
+    "SET_TIMEBOMB"
+  ], r.type);
 }
 
 /*
@@ -146,6 +160,7 @@ export function processPushRequests(
   let labelReqs: LabelRequest[] = [];
   let commentReqs: CommentRequest[] = [];
   let deleteCommentReqs: DeleteCommentRequest[] = [];
+  let timebombReqs: SetTimebombRequest[] = [];
   _.each(queue, (req) => {
     switch (req.type) {
       case "LABEL":
@@ -154,13 +169,16 @@ export function processPushRequests(
         commentReqs.push(req); break;
       case "DELETE_COMMENT":
         deleteCommentReqs.push(req); break;
+      case "SET_TIMEBOMB":
+        timebombReqs.push(req); break;
     }
   });
 
   return Promise.all([
     processLabelRequests(groupId, labelReqs),
     processCommentRequests(groupId, commentReqs),
-    processDeleteCommentRequest(groupId, deleteCommentReqs)
+    processDeleteCommentRequest(groupId, deleteCommentReqs),
+    processTimebombRequests(groupId, timebombReqs)
   ]).then(() => []);
 }
 
@@ -223,6 +241,32 @@ export function processCommentRequests(
           text: r.text
         }))
   )));
+}
+
+/*
+  Batch all timebomb settings in single API call and dispatch when done.
+*/
+export function processTimebombRequests(
+  groupId: string,
+  reqs: SetTimebombRequest[]
+): Promise<any> {
+  let last = _.last(reqs);
+  if (! last) return Promise.resolve();
+  let { Svcs } = last.deps;
+
+  // Left to right, more recent timebomb request for eventId overrides older.
+  let tbStates: Record<string, boolean> = {};
+  _.each(reqs, (r) => tbStates[r.eventId] = r.value);
+
+  return Svcs.Api.batch(() => {
+    let promises: Promise<any>[] = [];
+    _.each(tbStates, (setTb, eventId) => {
+      if (eventId) {
+        promises.push(Svcs.Api.setGroupTimebomb(groupId, eventId, setTb));
+      }
+    });
+    return Promise.all(promises);
+  });
 }
 
 // Batch all comment deletes in a single API call
@@ -722,6 +766,39 @@ export function deleteGroupEventComment(props: {
   return queue.enqueue({
     type: "DELETE_COMMENT",
     commentId: props.commentId,
+    deps
+  });
+}
+
+export function toggleTimebomb(props: {
+  groupId: string;
+  eventId: string;
+  value: boolean;
+}, deps: {
+  dispatch: (a: EventsUpdateAction) => any;
+  state: EventsState;
+  Svcs: ApiSvc;
+}) {
+  let event = (deps.state.groupEvents[props.groupId] || {})[props.eventId];
+  if (ready(event) && event.timebomb) {
+    if (hasTag("Stage0", event.timebomb)) {
+      deps.dispatch({
+        type: "GROUP_EVENTS_UPDATE",
+        groupId: props.groupId,
+        eventIds: [props.eventId],
+        timebomb: ["Stage0", {
+          ...event.timebomb[1],
+          set_timebomb: props.value
+        }]
+      });
+    }
+  }
+
+  let queue = EventQueues.get(props.groupId);
+  return queue.enqueue({
+    type: "SET_TIMEBOMB",
+    eventId: props.eventId,
+    value: props.value,
     deps
   });
 }

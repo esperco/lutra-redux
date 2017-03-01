@@ -405,7 +405,28 @@ namespace Api {
     return JsonHttp.post(url, req);
   }
 
+
+  /* Timebomb */
+
+  export function setGroupTimebomb(
+    groupId: string, eventId: string, value: boolean
+  ) : Promise<void> {
+    let url = prefix + `/api/group/set-timebomb/${myUid()}` +
+      `/${string(groupId)}/${string(eventId)}`;
+    return JsonHttp.put(url, { value } as ApiT.BoolRequest);
+  }
+
+  export function setTeamTimebomb(
+    teamId: string, eventId: string, value: boolean
+  ) : Promise<void> {
+    let url = prefix + `/api/team/set-timebomb/${myUid()}` +
+      `/${string(teamId)}/${string(eventId)}`;
+    return JsonHttp.put(url, { value } as ApiT.BoolRequest);
+  }
+
+
   /* Invites */
+
   export function getInviteEmails() : Promise<ApiT.EmailAddresses> {
     let url = prefix + "/api/invite/emails/" + myUid();
     return JsonHttp.get(url);

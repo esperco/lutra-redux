@@ -76,6 +76,13 @@ export class GroupEventEditor extends React.Component<Props, {}> {
           commentId
         }, {...this.props})
       }
+      onTimebombToggle={(eventId, value) =>
+        Events.toggleTimebomb({
+          groupId: this.props.groupId,
+          eventId,
+          value
+        }, this.props)
+      }
       labelHrefFn={this.props.labelHrefFn}
       guestHrefFn={this.props.guestHrefFn}
     />
