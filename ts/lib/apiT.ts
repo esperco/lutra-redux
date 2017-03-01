@@ -70,6 +70,14 @@ export interface ClientError {
   error_details: ErrorDetails;
 }
 
+export interface BoolRequest {
+  value: boolean;
+}
+
+export interface BoolResponse {
+  result: boolean;
+}
+
 export interface ClockResponse {
   timestamp: string;
 }
@@ -268,6 +276,17 @@ export interface HashtagState {
   approved?: boolean;
 }
 
+export type TimebombState =
+  ["Stage0", {
+    set_timebomb: boolean;
+    set_by: string;  // Timestamp
+  }]|
+  ["Stage1", {
+    confirmed: boolean;
+    confirm_by: string; // Timestamp
+  }]|
+  ["Stage2", "Event_confirmed"|"Event_canceled"]
+
 export interface MergedEventSource {
   eventid: string;
   recurring_event_id?: string;
@@ -306,6 +325,7 @@ export interface GenericCalendarEvent {
   hidden?: boolean;
   recurrence?: Recurrence;
   recurring_event_id?: string;
+  timebomb?: TimebombState;
   merged?: MergedEventExtra;
 }
 

@@ -108,6 +108,7 @@ export interface EventsUpdateAction {
   addLabels?: ApiT.LabelInfo[];
   rmLabels?: ApiT.LabelInfo[];
   hidden?: boolean;
+  timebomb?: ApiT.TimebombState;
 }
 
 export interface EventCommentPostAction {
@@ -331,7 +332,10 @@ function reduceEventUpdate(
     has_recurring_labels: !!recurring,
 
     // Update hide
-    hidden: _.isUndefined(action.hidden) ? event.hidden : action.hidden
+    hidden: _.isUndefined(action.hidden) ? event.hidden : action.hidden,
+
+    // Update timebomb
+    timebomb: _.isUndefined(action.timebomb) ? event.timebomb : action.timebomb
   });
 }
 
