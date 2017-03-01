@@ -14,14 +14,14 @@ export const TimebombMinGuests =
 export const TimebombMaxGuests =
   "Maximum number of guests in event to activate by default";
 
-export const TimebombHeader = "Your Vote";
+export const TimebombHeader = "Your Preference";
 export const TimebombOn = "Email";
 export const TimebombOff = "In Person";
-export const TimebombLate = "Voting period has expired";
+export const TimebombLate = "Time to change preference has expired";
 export const Canceled = "Meeting canceled (moved to email)";
 export const Confirmed = "Meeting confirmed (in person)";
 export const ConfirmLate = "Confirmation period has expired";
-export const PendingConfirmation = "Pending confirmation (check your email)";
+export const PendingConfirmation = "Pending confirmation (check email)";
 
 export const Onboarding1 =
   "Esper gets rid of wasteful meetings on your calendar.";
