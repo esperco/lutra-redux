@@ -25,7 +25,7 @@ class Setup extends React.Component<Props, {}> {
 
       <SlideShow />
 
-      <div>
+      <div className="onboarding-start-row">
         <button className="primary" onClick={this.start}>
           { Text.GroupOnboardingStart }
         </button>

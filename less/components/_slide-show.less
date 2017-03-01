@@ -11,10 +11,17 @@
     flex-grow: 1;
   }
 
-  img {
-    max-width: 250px;
+  @media screen and (max-width: @screen-xs-max) {
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    padding: 0;
+
+    img {
+      max-width: 100%;
+    }
   }
 }
+
 
 .left-arrow {
   flex-basis: 1em;
