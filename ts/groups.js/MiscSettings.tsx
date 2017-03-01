@@ -10,8 +10,10 @@ import * as Groups from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
+import { GroupSummary } from "../states/groups";
 import { AlphaModeMsg } from "../text/common";
 import * as Text from "../text/groups";
+import * as TBText from "../text/timebomb";
 
 interface Props {
   groupId: string;
@@ -23,50 +25,58 @@ interface Props {
 class MiscSettings extends React.Component<Props, {}> {
   render() {
     let summary = this.props.state.groupSummaries[this.props.groupId];
-    let name = ready(summary) ? summary.group_name : undefined;
-    let tbEnabled = ready(summary) ? summary.group_tb : undefined;
-    let tbMinGuests = ready(summary) ? summary.group_tb_guests_min : undefined;
-    let tbMaxGuests = ready(summary) ? summary.group_tb_guests_max : undefined;
     return <div className="content">
       <div className="container">
         <SettingsNav {...this.props} />
-        <div className="panel">
-          <div className="alert info">
-            { AlphaModeMsg }
-          </div>
-          <CheckboxItem checked={tbEnabled}
-                        onChange={(val) => this.setTimebomb(val)}>
-            { Text.TimebombEnable }
-            <div className="description">
-              { Text.TimebombDescribe }
-            </div>
-          </CheckboxItem>
-          <div className="form-row">
-            <label htmlFor="tb-min-guests">
-              { Text.TimebombMinGuests }
-            </label>
-            <input id="tb-min-guests" type="number" value={tbMinGuests}
-                   min="0" onChange={(e) => this.setTimebombMinGuests(e)} />
-          </div>
-          <div className="form-row">
-            <label htmlFor="tb-max-guests">
-              { Text.TimebombMaxGuests }
-            </label>
-            <input id="tb-max-guests" type="number" value={tbMaxGuests}
-                   min="0" onChange={(e) => this.setTimebombMaxGuests(e)} />
-          </div>
+        { ready(summary) ?
+          this.renderContent(summary) :
+          <div className="spinner" /> }
+      </div>
+    </div>;
+  }
+
+  renderContent(summary: GroupSummary) {
+    let name = summary.group_name;
+    let tbEnabled = summary.group_tb;
+    let tbMinGuests = summary.group_tb_guests_min;
+    let tbMaxGuests = summary.group_tb_guests_max;
+    return <div>
+      <div className="panel">
+        <div className="alert info">
+          { AlphaModeMsg }
         </div>
-        <div className="panel">
-          <div className="alert danger">
-            { Text.removeGroupDescription(name) }
+        <CheckboxItem checked={tbEnabled}
+                      onChange={(val) => this.setTimebomb(val)}>
+          { TBText.TimebombEnable }
+          <div className="description">
+            { TBText.TimebombDescribe }
           </div>
-          <div>
-            <button className="danger" onClick={
-              () => Groups.deleteGroup(this.props.groupId, this.props)
-            }>
-              { Text.RemoveGroupBtn }
-            </button>
-          </div>
+        </CheckboxItem>
+        <div className="form-row">
+          <label htmlFor="tb-min-guests">
+            { TBText.TimebombMinGuests }
+          </label>
+          <input id="tb-min-guests" type="number" value={tbMinGuests}
+                  min="0" onChange={(e) => this.setTimebombMinGuests(e)} />
+        </div>
+        <div className="form-row">
+          <label htmlFor="tb-max-guests">
+            { TBText.TimebombMaxGuests }
+          </label>
+          <input id="tb-max-guests" type="number" value={tbMaxGuests}
+                  min="0" onChange={(e) => this.setTimebombMaxGuests(e)} />
+        </div>
+      </div>
+      <div className="panel">
+        <div className="alert danger">
+          { Text.removeGroupDescription(name) }
+        </div>
+        <div>
+          <button className="danger" onClick={
+            () => Groups.deleteGroup(this.props.groupId, this.props)
+          }>
+            { Text.RemoveGroupBtn }
+          </button>
         </div>
       </div>
     </div>;
