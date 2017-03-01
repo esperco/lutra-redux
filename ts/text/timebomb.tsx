@@ -30,3 +30,6 @@ export const Onboarding2 =
 export const Onboarding3 =
   "If nobody says \"Yes, it is still on\", then we'll move this meeting to " +
   "email. Time saved!";
+
+export const TimebombHelpHeader = "Move to Email";
+

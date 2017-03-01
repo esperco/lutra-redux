@@ -15,6 +15,7 @@ import { GroupMembers } from "../states/groups";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
+import Modal from "./Modal";
 import TimebombToggle from "./TimebombToggle";
 import Tooltip from "./Tooltip";
 
@@ -192,10 +193,26 @@ export class EventEditor extends React.Component<Props, {}> {
   }
 }
 
-export class TimebombStatus extends React.Component<{
+
+interface TimebombStatusProps {
   event: ApiT.GenericCalendarEvent;
   onToggle: (eventId: string, value: boolean) => void;
-}, {}> {
+}
+
+export class TimebombStatus extends React.Component<TimebombStatusProps, {
+  showHelpModal: boolean;
+}> {
+  constructor(props: TimebombStatusProps) {
+    super(props);
+    this.state = { showHelpModal: false };
+  }
+
+  componentWillReceiveProps(newProps: TimebombStatusProps) {
+    if (newProps.event.id !== this.props.event.id) {
+      this.setState({ showHelpModal: false });
+    }
+  }
+
   render() {
     let { event } = this.props;
     if (! event.timebomb) {
@@ -203,8 +220,15 @@ export class TimebombStatus extends React.Component<{
     }
 
     if (hasTag("Stage0", event.timebomb)) {
-      return <div className="panel">
-        <h4>{ TimebombText.TimebombHeader }</h4>
+      return <div className="panel timebomb-status">
+        <h4>
+          { TimebombText.TimebombHeader }
+          <button onClick={() => this.setState({ showHelpModal: true })}>
+            <Icon type="help" />
+          </button>
+        </h4>
+        { this.state.showHelpModal ?
+          this.renderHelpModal() : null }
         <TimebombToggle {...this.props} />
       </div>
     }
@@ -226,6 +250,15 @@ export class TimebombStatus extends React.Component<{
     return <div className="alert warning">
       { TimebombText.Canceled }
     </div>;
+  }
+
+  renderHelpModal() {
+    return <Modal header={TimebombText.TimebombHelpHeader}
+        onClose={() => this.setState({ showHelpModal: false })}>
+      <div className="panel">
+        { TimebombText.TimebombDescribe }
+      </div>
+    </Modal>;
   }
 }
 
