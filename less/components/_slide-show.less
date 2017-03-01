@@ -1,0 +1,33 @@
+/*
+  Styling for the slide show in groups onboarding.
+*/
+
+.slide-show {
+  display: flex;
+  text-align: center;
+  height: 350px;
+
+  & > div {
+    flex-grow: 1;
+  }
+
+  @media screen and (max-width: @screen-xs-max) {
+    margin-left: -@padding-base;
+    margin-right: -@padding-base;
+    padding: 0;
+
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+
+.left-arrow {
+  flex-basis: 1em;
+}
+
+.right-arrow {
+  margin: 0;
+  flex-basis: 1em;
+}
