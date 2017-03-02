@@ -90,9 +90,8 @@ export class TimebombToggle extends React.Component<Props, {
 
       // Stage 2 confirmed
       else if (event.timebomb[1] === "Event_confirmed") {
-        ret = <div className="alert success">
-          { Text.Confirmed }
-        </div>;
+        return null; // Don't show confirmed status for now,
+                     // same as if no timebomb at all
       }
 
       // Stage 2 canceled
