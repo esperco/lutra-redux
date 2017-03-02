@@ -5,18 +5,14 @@ import * as classNames from "classnames";
 import * as ApiT from "../lib/apiT";
 import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import fmtText from "../lib/fmt-text";
-import { hasTag } from "../lib/util";
 import * as CommonText from "../text/common";
 import * as EventText from "../text/events";
 import * as LabelText from "../text/labels";
-import * as TimebombText from "../text/timebomb";
 import { ok, ready, StoreData } from "../states/data-status";
 import { GroupMembers } from "../states/groups";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
-import Modal from "./Modal";
-import SlideShow from "./TimebombSlideshow";
 import TimebombToggle from "./TimebombToggle";
 import Tooltip from "./Tooltip";
 
@@ -178,7 +174,7 @@ export class EventEditor extends React.Component<Props, {}> {
         </div> : null }
 
       { this.props.onTimebombToggle ?
-        <TimebombStatus event={event}
+        <TimebombToggle event={event}
           onToggle={this.props.onTimebombToggle} /> :
         null }
 
@@ -191,75 +187,6 @@ export class EventEditor extends React.Component<Props, {}> {
                    onCommentPost={this.props.onCommentPost}
                    onCommentDelete={this.props.onCommentDelete} />
     </div>
-  }
-}
-
-
-interface TimebombStatusProps {
-  event: ApiT.GenericCalendarEvent;
-  onToggle: (eventId: string, value: boolean) => void;
-}
-
-export class TimebombStatus extends React.Component<TimebombStatusProps, {
-  showHelpModal: boolean;
-}> {
-  constructor(props: TimebombStatusProps) {
-    super(props);
-    this.state = { showHelpModal: false };
-  }
-
-  componentWillReceiveProps(newProps: TimebombStatusProps) {
-    if (newProps.event.id !== this.props.event.id) {
-      this.setState({ showHelpModal: false });
-    }
-  }
-
-  render() {
-    let { event } = this.props;
-    if (! event.timebomb) {
-      return null;
-    }
-
-    if (hasTag("Stage0", event.timebomb)) {
-      return <div className="panel timebomb-status">
-        <h4>
-          { TimebombText.TimebombHeader }
-          <button onClick={() => this.setState({ showHelpModal: true })}>
-            <Icon type="help" />
-          </button>
-        </h4>
-        { this.state.showHelpModal ?
-          this.renderHelpModal() : null }
-        <TimebombToggle {...this.props} />
-      </div>
-    }
-
-    else if (hasTag("Stage1", event.timebomb)) {
-      return <div className="alert info">
-        { TimebombText.PendingConfirmation }
-      </div>;
-    }
-
-    // Stage 2 confirmed
-    else if (event.timebomb[1] === "Event_confirmed") {
-      return <div className="alert success">
-        { TimebombText.Confirmed }
-      </div>;
-    }
-
-    // Stage 2 canceled
-    return <div className="alert warning">
-      { TimebombText.Canceled }
-    </div>;
-  }
-
-  renderHelpModal() {
-    return <Modal header={TimebombText.TimebombHelpHeader}
-        onClose={() => this.setState({ showHelpModal: false })}>
-      <div className="panel">
-        <SlideShow />
-      </div>
-    </Modal>;
   }
 }
 

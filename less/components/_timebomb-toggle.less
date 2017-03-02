@@ -1,11 +1,13 @@
-.timebomb-status {
+.timebomb-toggle {
   text-align: center;
 
-  .options { margin-top: @padding-small; }
-}
+  .alert {
+    font-size: @font-size-small;
+  }
 
-.timebomb-toggle {
   .options {
+    margin-top: @padding-small;
+    font-size: @font-size-small;
     display: flex;
     flex-flow: row nowrap;
 
@@ -20,4 +22,10 @@
       display: block;
     }
   }
+}
+
+.event-list .timebomb-toggle .alert {
+  margin-left: -@padding-small / 2;
+  border-top-left-radius: @border-radius-base;
+  border-bottom-left-radius: @border-radius-base;
 }
