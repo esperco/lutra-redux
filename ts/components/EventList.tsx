@@ -241,11 +241,22 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
               /> : null }
           </div>
 
-          { event.guests && event.guests.length ? <span className="guests">
-            { EventText.attendeeMsgShort(
-              _.map(event.guests, (g) => g.display_name || g.email)
-            ) }
+          { event.location ? <span className="location">
+            { event.location.length > 25 ?
+              <span>{ event.location.slice(0, 22) }&hellip;</span> :
+              event.location }
           </span> : null }
+
+          { event.guests && event.guests.length ?
+            <Tooltip
+              target={<span className="guests">
+                <Icon type="person" />
+                { event.guests.length }
+              </span>}
+              title={EventText.attendeeMsgShort(
+                _.map(event.guests, (g) => g.display_name || g.email)
+              )}
+            /> : null }
 
           { event.merged && event.merged.cost ?
             <span className={"cost cost-" + event.merged.cost }>
