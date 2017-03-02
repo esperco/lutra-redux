@@ -7,6 +7,8 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 
+const DEFAULT_SCROLL_THRESHOLD = 100; // Px
+
 /*
   Type for passive event listener.
   See https://github.com/Microsoft/TypeScript/issues/9548
@@ -28,6 +30,12 @@ type WhatWGAddEventListener = (
 
 interface Props extends React.HTMLProps<HTMLDivElement> {
   onScrollChange: (direction: "up"|"down") => void;
+  threshold?: number;
+    /*
+      How much of a scroll change before we trigger? Recommend > 0 in the
+      case of sticky headers since header appearance may inadvertently trigger
+      scroll event
+    */
   children?: JSX.Element|JSX.Element[]|string;
 }
 
@@ -68,6 +76,12 @@ export class ScrollContainer extends React.Component<Props, {}> {
     if (this._div) {
       let current = this._div.scrollTop;
       let last = this._lastScrollTop || 0;
+      let threshold = this.props.threshold || DEFAULT_SCROLL_THRESHOLD;
+      if (Math.abs(current - last) < threshold) {
+        return;
+      }
+
+      // Store to track new min threshold
       this._lastScrollTop = current;
 
       // Scroll down

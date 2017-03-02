@@ -37,14 +37,14 @@ describe('ScrollContainer', () => {
 
   it("calls onScrollChange with direction on initial scroll", () => {
     let spy = Sinon.spy();
-    let wrapper = mount(<ScrollContainer onScrollChange={spy} />);
+    let wrapper = mount(<ScrollContainer threshold={0} onScrollChange={spy} />);
     scroll(wrapper, 100);
     expectCalledWith(spy, "down");
   });
 
   it("does not call onScrollChange twice after multiple downs", () => {
     let spy = Sinon.spy();
-    let wrapper = mount(<ScrollContainer onScrollChange={spy} />);
+    let wrapper = mount(<ScrollContainer threshold={0} onScrollChange={spy} />);
     scroll(wrapper, 100);
     scroll(wrapper, 100);
     expect(spy.callCount).to.equal(1);
@@ -52,7 +52,7 @@ describe('ScrollContainer', () => {
 
   it("does not call onScrollChange twice after multiple ups", () => {
     let spy = Sinon.spy();
-    let wrapper = mount(<ScrollContainer onScrollChange={spy} />);
+    let wrapper = mount(<ScrollContainer threshold={0} onScrollChange={spy} />);
     scroll(wrapper, 1000); // Scroll down first to make room to go up
     spy.reset();
 
@@ -63,7 +63,7 @@ describe('ScrollContainer', () => {
 
   it("calls onScrollChange after scroll changes from down to up", () => {
     let spy = Sinon.spy();
-    let wrapper = mount(<ScrollContainer onScrollChange={spy} />);
+    let wrapper = mount(<ScrollContainer threshold={0} onScrollChange={spy} />);
 
     scroll(wrapper, 100);
     scroll(wrapper, -100);
@@ -74,7 +74,7 @@ describe('ScrollContainer', () => {
 
   it("calls onScrollChange after scroll changes from up to down", () => {
     let spy = Sinon.spy();
-    let wrapper = mount(<ScrollContainer onScrollChange={spy} />);
+    let wrapper = mount(<ScrollContainer threshold={0} onScrollChange={spy} />);
     scroll(wrapper, 100);
     spy.reset();
 
@@ -82,6 +82,18 @@ describe('ScrollContainer', () => {
     scroll(wrapper, 100);
     expect(spy.callCount).to.equal(2);
     expectCalledWith(spy, "up");
+    expectCalledWith(spy, "down");
+  });
+
+  it("does not trigger until scroll greater than threshold", () => {
+    let spy = Sinon.spy();
+    let wrapper = mount(<ScrollContainer
+      threshold={100}
+      onScrollChange={spy}
+    />);
+    scroll(wrapper, 51);
+    expect(spy.called).to.be.false;
+    scroll(wrapper, 51);
     expectCalledWith(spy, "down");
   });
 });
