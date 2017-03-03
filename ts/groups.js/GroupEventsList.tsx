@@ -9,7 +9,7 @@ import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
 import TreeFall from "../components/TreeFall";
 import Waypoint from "../components/Waypoint";
-import * as Events from "../handlers/group-events";
+import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet, useRecurringLabels } from "../lib/event-labels";
@@ -18,7 +18,7 @@ import { iter } from "../lib/event-query-iter";
 import { GenericPeriod, toDays, dateForDay } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { StoreData, ready } from "../states/data-status";
-import { EventMap, QueryResult } from "../states/group-events";
+import { EventMap, QueryResult } from "../states/events";
 import { Loading } from "../text/data-status";
 import * as CommonText from "../text/common";
 import * as GroupText from "../text/groups";
@@ -45,7 +45,7 @@ interface State {
   daysToShow: number;
 }
 
-export class GroupEventsList extends React.Component<Props, State> {
+export class eventsList extends React.Component<Props, State> {
   // Sparsely-populated array. Indices refer to the period type's day-index
   _refs: QueryDay[];
 
@@ -68,8 +68,8 @@ export class GroupEventsList extends React.Component<Props, State> {
 
   render() {
     let { groupId, state, period, query } = this.props;
-    let queryState = state.groupEventQueries[groupId] || [];
-    let eventMap = state.groupEvents[groupId] || {};
+    let queryState = state.eventQueries[groupId] || [];
+    let eventMap = state.events[groupId] || {};
 
     let { start, end } = toDays(period);
     let endToShow = Math.min(start + this.state.daysToShow - 1, end);
@@ -85,7 +85,7 @@ export class GroupEventsList extends React.Component<Props, State> {
     /* Determine if any recurring events are selected */
     let selectedRecurringIds: {[recurringId: string]: true} = {};
     for (let key in this.props.state.selectedEvents) {
-      let events = this.props.state.groupEvents[groupId] || {};
+      let events = this.props.state.events[groupId] || {};
       let event = events[key];
       if (ready(event) && useRecurringLabels(event)) {
         selectedRecurringIds[event.recurring_event_id] = true;
@@ -97,7 +97,11 @@ export class GroupEventsList extends React.Component<Props, State> {
       no events or if not loaded.
     */
     let total = 0;
-    let loaded = iter(this.props, this.props.state, () => total += 1);
+    let loaded = iter(
+      { ...this.props, calgroupId: this.props.groupId },
+      this.props.state,
+      () => total += 1
+    );
 
     return <div className="group-events-list">
       { /*
@@ -201,7 +205,8 @@ export class GroupEventsList extends React.Component<Props, State> {
                       value: boolean) =>
   {
     Events.toggleTimebomb({
-      groupId: this.props.groupId,
+      calgroupId: this.props.groupId,
+      calgroupType: "group",
       eventId,
       value
     }, this.props);
@@ -280,4 +285,4 @@ class QueryDay extends TreeFall<DayProps, {}> {
   }
 }
 
-export default GroupEventsList;
+export default eventsList;

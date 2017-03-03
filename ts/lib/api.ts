@@ -335,8 +335,23 @@ namespace Api {
   }
 
   /*
-    Try to get group event -- return null if it does not exist
+    Try to get event for a given calgroup, return null if does not exist
   */
+
+  export function getTeamEvent(teamId: string, eventId: string):
+    Promise<ApiT.GenericCalendarEvent|null>
+  {
+    var url = `${prefix}/api/ts/event/${myUid()}`
+      + `/${string(eventId)}`
+      + `?teamid=${string(teamId)}`;
+    return JsonHttp.get(url).then((t: ApiT.EventLookupResponse) => {
+      if (t.result && t.result.teamid === teamId) {
+        return t.result.event
+      }
+      return null;
+    });
+  }
+
   export function getGroupEvent(groupId: string, eventId: string):
     Promise<ApiT.GenericCalendarEvent|null>
   {
@@ -435,6 +450,20 @@ namespace Api {
   : Promise<void> {
     let url = `${prefix}/api/group/unconfirm-event/`
             + `${myUid()}/${string(groupId)}/${string(eventId)}`;
+    return JsonHttp.put(url);
+  }
+
+  export function confirmTeamEvent(teamId: string, eventId: string)
+  : Promise<void> {
+    let url = `${prefix}/api/team/confirm-event/`
+            + `${myUid()}/${string(teamId)}/${string(eventId)}`;
+    return JsonHttp.put(url);
+  }
+
+  export function unconfirmTeamEvent(teamId: string, eventId: string)
+  : Promise<void> {
+    let url = `${prefix}/api/team/unconfirm-event/`
+            + `${myUid()}/${string(teamId)}/${string(eventId)}`;
     return JsonHttp.put(url);
   }
 

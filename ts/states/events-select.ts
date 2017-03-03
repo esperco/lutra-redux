@@ -4,7 +4,7 @@
 import * as _ from 'lodash';
 import { useRecurringLabels } from "../lib/event-labels";
 import { ready } from "./data-status";
-import { EventsState } from "./group-events";
+import { EventsState } from "./events";
 
 export interface EventsSelectState {
   // Event ID to true
@@ -14,7 +14,7 @@ export interface EventsSelectState {
 // Clear -> clear all prior events before toggling
 export type ToggleEventAction = {
   type: "TOGGLE_EVENT_SELECTION";
-  groupId: string;
+  calgroupId: string;
   clear?: true;
   eventIds: Record<string, boolean>;
 }
@@ -31,7 +31,7 @@ export function reduceEventToggling<S extends EventsSelectState & EventsState> (
       delete selectedEvents[eventId];
 
       // Delete all recurrences as well
-      let eventMap = state.groupEvents[action.groupId] || {};
+      let eventMap = state.events[action.calgroupId] || {};
       let event = eventMap[eventId];
       if (ready(event) && useRecurringLabels(event)) {
         for (let id in selectedEvents) {

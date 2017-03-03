@@ -9,11 +9,11 @@ import * as ApiT from "./apiT";
 import { GenericPeriod, toDays } from "../lib/period";
 import { QueryFilter, stringify } from "./event-queries";
 import { ready } from "../states/data-status";
-import { EventsState } from "../states/group-events";
+import { EventsState } from "../states/events";
 
 export function iter(
   props: {
-    groupId: string;
+    calgroupId: string;
     query: QueryFilter;
     period: GenericPeriod;
   },
@@ -27,7 +27,7 @@ export function iter(
     Iterate through each event for each day in query -- breaks and returns
     null if data isn't ready yet
   */
-  let queryDays = state.groupEventQueries[props.groupId] || [];
+  let queryDays = state.eventQueries[props.calgroupId] || [];
   let { start, end } = toDays(props.period);
   let key = stringify(props.query);
   for (let i = start; i <= end; i++) {
@@ -36,7 +36,7 @@ export function iter(
 
     for (let j in queryResults.eventIds) {
       let id = queryResults.eventIds[j];
-      let event = (state.groupEvents[props.groupId] || {})[id];
+      let event = (state.events[props.calgroupId] || {})[id];
       if (! ready(event)) return false;
 
       // Don't process same event twice

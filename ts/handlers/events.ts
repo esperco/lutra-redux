@@ -29,7 +29,7 @@ import { CalcStartAction } from "../states/group-calcs";
 import {
   EventsState, EventCommentAction, EventsDataAction, EventsUpdateAction,
   EventsInvalidatePeriodAction, QueryMap
-} from "../states/group-events";
+} from "../states/events";
 import { QueryCalcTask } from "../tasks/group-query-calc"
 
 
@@ -39,6 +39,7 @@ import { QueryCalcTask } from "../tasks/group-query-calc"
 
 interface LabelRequest {
   type: "LABEL";
+  calgroupType: "group"; // Team not supported yet
   setLabels: {
     id: string;
     labels?: string[];
@@ -52,6 +53,7 @@ interface LabelRequest {
 
 interface CommentRequest {
   type: "COMMENT";
+  calgroupType: "group"; // Team not supported
   eventId: string;
   text: string;
   deps: {
@@ -62,6 +64,7 @@ interface CommentRequest {
 
 interface DeleteCommentRequest {
   type: "DELETE_COMMENT";
+  calgroupType: "group"; // Team not supported
   commentId: string;
   deps: {
     Svcs: ApiSvc;
@@ -72,6 +75,7 @@ interface DeleteCommentRequest {
 interface SetTimebombRequest {
   type: "SET_TIMEBOMB";
   stage: "Stage0"|"Stage1"|"Stage2";
+  calgroupType: "group"|"team";
   eventId: string;
   value: boolean;
   deps: {
@@ -86,6 +90,7 @@ type PushRequest = LabelRequest
 
 interface QueryRequest {
   type: "FETCH_QUERY";
+  calgroupType: "group"|"team";
   period: GenericPeriod;
   query: QueryFilter;
   deps: {
@@ -96,6 +101,7 @@ interface QueryRequest {
 
 interface IdRequest {
   type: "FETCH_ID";
+  calgroupType: "group"|"team";
   eventId: string;
   deps: {
     Svcs: ApiSvc;
@@ -126,7 +132,7 @@ type QueueRequest = PushRequest|FetchRequest;
   modify data being fetched (so comments and labels first).
 */
 export function processQueueRequest(
-  groupId: string,
+  calgroupId: string,
   queue: QueueRequest[]
 ): Promise<QueueRequest[]> {
   let pushRequests: PushRequest[] = [];
@@ -136,11 +142,11 @@ export function processQueueRequest(
   });
 
   if (pushRequests.length) {
-    return processPushRequests(groupId, pushRequests)
+    return processPushRequests(calgroupId, pushRequests)
       .then((req: QueueRequest[]) => req.concat(fetchRequests));
   }
 
-  return processFetchRequests(groupId, fetchRequests);
+  return processFetchRequests(calgroupId, fetchRequests);
 }
 
 export function isPushRequest(r: QueueRequest): r is PushRequest {
@@ -156,7 +162,7 @@ export function isPushRequest(r: QueueRequest): r is PushRequest {
   separate by type and run in parallel.
 */
 export function processPushRequests(
-  groupId: string,
+  calgroupId: string,
   queue: PushRequest[]
 ): Promise<PushRequest[]> {
   let labelReqs: LabelRequest[] = [];
@@ -177,10 +183,10 @@ export function processPushRequests(
   });
 
   return Promise.all([
-    processLabelRequests(groupId, labelReqs),
-    processCommentRequests(groupId, commentReqs),
-    processDeleteCommentRequest(groupId, deleteCommentReqs),
-    processTimebombRequests(groupId, timebombReqs)
+    processLabelRequests(calgroupId, labelReqs),
+    processCommentRequests(calgroupId, commentReqs),
+    processDeleteCommentRequest(calgroupId, deleteCommentReqs),
+    processTimebombRequests(calgroupId, timebombReqs)
   ]).then(() => []);
 }
 
@@ -189,7 +195,7 @@ export function processPushRequests(
   few API calls as possible.
 */
 export function processLabelRequests(
-  groupId: string,
+  calgroupId: string,
   queue: LabelRequest[],
 ): Promise<any> {
   let last = _.last(queue);
@@ -217,7 +223,7 @@ export function processLabelRequests(
     _.each(q.predictLabels, (id) => predictLabels.push(id));
   });
 
-  return Api.setPredictGroupLabels(groupId, {
+  return Api.setPredictGroupLabels(calgroupId, {
     set_labels: _.values(setLabels),
     predict_labels: predictLabels.toList()
   });
@@ -225,7 +231,7 @@ export function processLabelRequests(
 
 // Batch all comment posts in a single API call and dispatch when done
 export function processCommentRequests(
-  groupId: string,
+  calgroupId: string,
   reqs: CommentRequest[]
 ): Promise<any> {
   let last = _.last(reqs);
@@ -234,10 +240,10 @@ export function processCommentRequests(
 
   return Svcs.Api.batch(() => Promise.all(
     _.map(reqs, (r) =>
-      Svcs.Api.postGroupEventComment(groupId, r.eventId, { body: r.text })
+      Svcs.Api.postGroupEventComment(calgroupId, r.eventId, { body: r.text })
         .then((comment) => dispatch({
-          type: "GROUP_EVENT_COMMENT_POST",
-          groupId,
+          type: "EVENT_COMMENT_POST",
+          calgroupId,
           eventId: r.eventId,
           commentId: comment.id,
           text: r.text
@@ -249,12 +255,14 @@ export function processCommentRequests(
   Batch all timebomb settings in single API call and dispatch when done.
 */
 export function processTimebombRequests(
-  groupId: string,
+  calgroupId: string,
   reqs: SetTimebombRequest[]
 ): Promise<any> {
   let last = _.last(reqs);
   if (! last) return Promise.resolve();
+  let { calgroupType } = last;
   let { Svcs } = last.deps;
+
 
   // Left to right, more recent timebomb request for eventId overrides older.
   let tbStates: Record<string, [boolean, "Stage0"|"Stage1"|"Stage2"]> = {};
@@ -264,13 +272,21 @@ export function processTimebombRequests(
     let promises: Promise<any>[] = [];
     _.each(tbStates, (setTb, eventId) => {
       if (eventId && setTb[1] === "Stage0") {
-        promises.push(Svcs.Api.setGroupTimebomb(groupId, eventId, setTb[0]));
+        let apiFn = calgroupType === "group" ?
+          Svcs.Api.setGroupTimebomb : Svcs.Api.setTeamTimebomb;
+        promises.push(apiFn(calgroupId, eventId, setTb[0]));
       }
       else if (eventId && setTb[1] === "Stage1" && setTb[0]) {
-        promises.push(Svcs.Api.confirmGroupEvent(groupId, eventId));
+        let apiFn = calgroupType === "group" ?
+          Svcs.Api.confirmGroupEvent :
+          Svcs.Api.confirmTeamEvent;
+        promises.push(apiFn(calgroupId, eventId));
       }
       else if (eventId && setTb[1] === "Stage1" && !setTb[0]) {
-        promises.push(Svcs.Api.unconfirmGroupEvent(groupId, eventId));
+        let apiFn = calgroupType === "group" ?
+          Svcs.Api.unconfirmGroupEvent :
+          Svcs.Api.unconfirmTeamEvent;
+        promises.push(apiFn(calgroupId, eventId));
       }
     });
     return Promise.all(promises);
@@ -279,7 +295,7 @@ export function processTimebombRequests(
 
 // Batch all comment deletes in a single API call
 export function processDeleteCommentRequest(
-  groupId: string,
+  calgroupId: string,
   reqs: DeleteCommentRequest[]
 ): Promise<any> {
   let last = _.last(reqs);
@@ -287,7 +303,7 @@ export function processDeleteCommentRequest(
   let { Api } = last.deps.Svcs;
 
   return Api.batch(() => Promise.all(_.map(reqs,
-    (r) => Api.deleteGroupEventComment(groupId, r.commentId)
+    (r) => Api.deleteGroupEventComment(calgroupId, r.commentId)
   )));
 }
 
@@ -297,7 +313,7 @@ export function processDeleteCommentRequest(
   at) gets processed first.
 */
 export function processFetchRequests(
-  groupId: string,
+  calgroupId: string,
   queue: FetchRequest[]
 ): Promise<FetchRequest[]> {
   queue = _.sortBy(queue, (q) => -q.priority);
@@ -306,17 +322,17 @@ export function processFetchRequests(
 
   switch (first.type) {
     case "FETCH_QUERY":
-      return processQueryRequest(groupId, first, first.deps)
+      return processQueryRequest(calgroupId, first, first.deps)
         .then(() => queue.slice(1));
     case "FETCH_ID":
-      return processIdRequest(groupId, first, first.deps)
+      return processIdRequest(calgroupId, first, first.deps)
         .then(() => queue.slice(1));
   }
 }
 
 // Process a single query request
 export function processQueryRequest(
-  groupId: string,
+  calgroupId: string,
   req: QueryRequest,
   deps: {
     dispatch: (a: EventsDataAction) => any;
@@ -324,11 +340,14 @@ export function processQueryRequest(
   }
 ): Promise<void> {
   let { period, query } = req;
-  let props = { groupId, period, query };
+  let props = { calgroupId, period, query };
   let [start, end] = bounds(period);
   let request = toAPI(start, end, query);
+  let apiFn = req.calgroupType === "group" ?
+    deps.Svcs.Api.postForGroupEvents :
+    deps.Svcs.Api.postForTeamEvents;
 
-  return deps.Svcs.Api.postForGroupEvents(props.groupId, request).then(
+  return apiFn(props.calgroupId, request).then(
     (result) => {
       /*
         NB: We currently have to sort through each calendar result in
@@ -342,7 +361,7 @@ export function processQueryRequest(
       events.sort(sortFn);
 
       deps.dispatch({
-        type: "GROUP_EVENTS_DATA",
+        type: "EVENTS_DATA",
         dataType: "FETCH_QUERY_END",
         events, ...props
       });
@@ -351,7 +370,7 @@ export function processQueryRequest(
     // Dispatch error action otherwise
     (err) => {
       deps.dispatch({
-        type: "GROUP_EVENTS_DATA",
+        type: "EVENTS_DATA",
         dataType: "FETCH_QUERY_FAIL",
         ...props
       });
@@ -360,22 +379,26 @@ export function processQueryRequest(
 }
 
 export function processIdRequest(
-  groupId: string,
+  calgroupId: string,
   req: IdRequest,
   deps: {
     dispatch: (a: EventsDataAction) => any;
     Svcs: ApiSvc
   }
 ): Promise<void> {
-  return deps.Svcs.Api.getGroupEvent(groupId, req.eventId).then((e) => {
+  let apiFn = req.calgroupType === "group" ?
+    deps.Svcs.Api.getGroupEvent :
+    deps.Svcs.Api.getTeamEvent;
+
+  return apiFn(calgroupId, req.eventId).then((e) => {
     // Mismatched ID -> callback (e.g. redirect if necessary)
     if (e && e.id !== req.eventId && req.onNewId) {
       // Additional dispatch to correct ID because we don't want a flash of
       // something like "Event Not Found" when switching IDs
       deps.dispatch({
-        type: "GROUP_EVENTS_DATA",
+        type: "EVENTS_DATA",
         dataType: "FETCH_IDS_START",
-        groupId,
+        calgroupId,
         eventIds: [e.id]
       });
       req.onNewId(e.id);
@@ -384,9 +407,9 @@ export function processIdRequest(
     // If ID mis-match, has the effect of setting old ID to error state (
     // (which is fine, since it'll trigger a re-fetch whenever user hits back)
     deps.dispatch({
-      type: "GROUP_EVENTS_DATA",
+      type: "EVENTS_DATA",
       dataType: "FETCH_IDS_END",
-      groupId,
+      calgroupId,
       eventIds: [req.eventId],
       events: e ? [e] : []
     });
@@ -417,8 +440,9 @@ export const EventQueues = new QueueMap<QueueRequest>(processQueueRequest);
   Enqueues a fetch request. Divides the request up into smaller chunks
   (if applicable).
 */
-export function fetchGroupEvents(props: {
-  groupId: string;
+export function fetchEvents(props: {
+  calgroupId: string;
+  calgroupType: "group"|"team";
   period: GenericPeriod;
   query: QueryFilter;
 }, deps: {
@@ -430,9 +454,9 @@ export function fetchGroupEvents(props: {
   let periods = rangesToUpdate(props, deps);
   if (periods.length) {
     deps.dispatch({
-      type: "GROUP_EVENTS_DATA",
+      type: "EVENTS_DATA",
       dataType: "FETCH_QUERY_START",
-      groupId: props.groupId,
+      calgroupId: props.calgroupId,
       query: props.query,
       periods
     });
@@ -443,13 +467,14 @@ export function fetchGroupEvents(props: {
     since tasks in queue may contain calls to fetch data for this period.
   */
   if (_.isEmpty(periods)) {
-    return EventQueues.get(props.groupId).promise();
+    return EventQueues.get(props.calgroupId).promise();
   }
 
   let priority = (new Date()).getTime();
   return Promise.all(_.map(periods, (period) =>
-    EventQueues.get(props.groupId).enqueue({
+    EventQueues.get(props.calgroupId).enqueue({
       type: "FETCH_QUERY",
+      calgroupType: props.calgroupType,
       query: props.query,
       period, deps, priority
     })
@@ -461,7 +486,7 @@ export function fetchGroupEvents(props: {
   Returns an empty list if nothing to do.
 */
 function rangesToUpdate(props: {
-  groupId: string;
+  calgroupId: string;
   period: GenericPeriod;
   query: QueryFilter;
 }, deps: {
@@ -501,18 +526,18 @@ function rangesToUpdate(props: {
   for which a fetch is necessary.
 */
 function rangeToUpdate(props: {
-  groupId: string;
+  calgroupId: string;
   period: Period<"day">;
   query: QueryFilter;
 }, deps: {
   state: EventsState;
   Conf?: { cacheDuration?: number; maxDaysFetch?: number; }
 }): Period<"day">|null {
-  let { groupId, period, query } = props;
+  let { calgroupId, period, query } = props;
   let { state, Conf } = deps;
   let { start, end } = toDays(period);
   let queryKey = stringify(query);
-  let queryDays = state.groupEventQueries[groupId];
+  let queryDays = state.eventQueries[calgroupId];
   if (queryDays) {
     let minDay: number|undefined;
     for (let i = start; i <= end; i++) {
@@ -569,7 +594,8 @@ function invalidDay(
 /* Fetch events by an ID */
 
 export function fetchById(props: {
-  groupId: string;
+  calgroupId: string;
+  calgroupType: "group"|"team";
   eventId: string;
 }, deps: {
   dispatch: (a: EventsDataAction) => any;
@@ -590,16 +616,16 @@ export function fetchById(props: {
     Check if fetch already in progress or if we have data already
     Don't do anything if so (unless force is on)
   */
-  let eventMap = deps.state.groupEvents[props.groupId] || {};
+  let eventMap = deps.state.events[props.calgroupId] || {};
   if (!opts.force && ok(eventMap[props.eventId])) {
     return Promise.resolve();
   }
 
   // Dispatch fetching message
   deps.dispatch({
-    type: "GROUP_EVENTS_DATA",
+    type: "EVENTS_DATA",
     dataType: "FETCH_IDS_START",
-    groupId: props.groupId,
+    calgroupId: props.calgroupId,
     eventIds: [props.eventId]
   });
 
@@ -609,9 +635,10 @@ export function fetchById(props: {
     than query requests.
   */
   let priority = (new Date()).getTime() * 2;
-  let queue = EventQueues.get(props.groupId);
+  let queue = EventQueues.get(props.calgroupId);
   return queue.enqueue({
     type: "FETCH_ID",
+    calgroupType: props.calgroupType,
     eventId: props.eventId,
     onNewId: opts.onNewId,
     priority, deps
@@ -650,6 +677,7 @@ export function setGroupEventLabels(props: {
   // For label API call
   let request: LabelRequest = {
     type: "LABEL",
+    calgroupType: "group",
     setLabels: [],
     predictLabels: [],
     deps
@@ -657,7 +685,7 @@ export function setGroupEventLabels(props: {
 
   // Apply label change to each event in list
   _.each(props.eventIds, (id) => {
-    let event = (deps.state.groupEvents[props.groupId] || {})[id];
+    let event = (deps.state.events[props.groupId] || {})[id];
     if (ready(event)) {
       let apiId: string; // ID to use for API call
 
@@ -700,8 +728,8 @@ export function setGroupEventLabels(props: {
 
   // Dispatch changes to store
   deps.dispatch(compactObject({
-    type: "GROUP_EVENTS_UPDATE" as "GROUP_EVENTS_UPDATE",
-    groupId: props.groupId,
+    type: "EVENTS_UPDATE" as "EVENTS_UPDATE",
+    calgroupId: props.groupId,
     eventIds: soloIds.toList(),
     recurringEventIds: recurringIds.toList(),
     addLabels: props.label && props.active ? [props.label] : [],
@@ -753,6 +781,7 @@ export function postGroupEventComment(props: {
   let { eventId, text } = props;
   return queue.enqueue({
     type: "COMMENT",
+    calgroupType: "group",
     eventId, text, deps
   });
 }
@@ -766,20 +795,24 @@ export function deleteGroupEventComment(props: {
   Svcs: ApiSvc;
 }) {
   deps.dispatch({
-    type: "GROUP_EVENT_COMMENT_DELETE",
-    ...props
+    type: "EVENT_COMMENT_DELETE",
+    calgroupId: props.groupId,
+    eventId: props.eventId,
+    commentId: props.commentId
   });
 
   let queue = EventQueues.get(props.groupId);
   return queue.enqueue({
     type: "DELETE_COMMENT",
+    calgroupType: "group",
     commentId: props.commentId,
     deps
   });
 }
 
 export function toggleTimebomb(props: {
-  groupId: string;
+  calgroupId: string;
+  calgroupType: "group"|"team";
   eventId: string;
   value: boolean;
 }, deps: {
@@ -787,13 +820,13 @@ export function toggleTimebomb(props: {
   state: EventsState & LoginState;
   Svcs: ApiSvc;
 }) {
-  let event = (deps.state.groupEvents[props.groupId] || {})[props.eventId];
+  let event = (deps.state.events[props.calgroupId] || {})[props.eventId];
   if (ready(event) && event.timebomb) {
     let { dispatch, state } = deps;
     if (hasTag("Stage0", event.timebomb)) {
-      dispatch({
-        type: "GROUP_EVENTS_UPDATE",
-        groupId: props.groupId,
+      deps.dispatch({
+        type: "EVENTS_UPDATE",
+        calgroupId: props.calgroupId,
         eventIds: [props.eventId],
         timebomb: ["Stage0", {
           ...event.timebomb[1],
@@ -807,8 +840,8 @@ export function toggleTimebomb(props: {
         _.concat(event.timebomb[1].confirmed_list, uid) :
         _.filter(event.timebomb[1].confirmed_list, (u) => u !== uid);
       dispatch({
-        type: "GROUP_EVENTS_UPDATE",
-        groupId: props.groupId,
+        type: "EVENTS_UPDATE",
+        calgroupId: props.calgroupId,
         eventIds: [props.eventId],
         timebomb: ["Stage1", {
           ...event.timebomb[1],
@@ -816,10 +849,11 @@ export function toggleTimebomb(props: {
         }]
       });
     }
-    let queue = EventQueues.get(props.groupId);
+    let queue = EventQueues.get(props.calgroupId);
     return queue.enqueue({
       type: "SET_TIMEBOMB",
       stage: event.timebomb[0],
+      calgroupType: props.calgroupType,
       eventId: props.eventId,
       value: props.value,
       deps
@@ -831,14 +865,14 @@ export function toggleTimebomb(props: {
 
 // Refresh current view with a given set of periods
 export function refresh(props: {
-  groupId: string,
+  calgroupId: string,
   period: GenericPeriod
 }, deps: {
   dispatch: (a: EventsInvalidatePeriodAction) => any;
   Svcs: NavSvc;
 }) {
   deps.dispatch({
-    type: "GROUP_EVENTS_INVALIDATE_PERIOD",
+    type: "EVENTS_INVALIDATE_PERIOD",
     ...props
   });
   deps.Svcs.Nav.refresh();

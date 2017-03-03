@@ -11,7 +11,7 @@ import iter from "../lib/event-query-iter";
 import { CalcEndAction, CalcResults } from "../states/group-calcs";
 import { ready } from "../states/data-status";
 import { GroupState } from "../states/groups";
-import { EventsState } from "../states/group-events";
+import { EventsState } from "../states/events";
 
 export interface QueryCalcTask {
   type: "GROUP_QUERY_CALC";
@@ -48,7 +48,7 @@ export function handleGroupQueryCalc(
     guestSetFromGroupMembers(members, false) : // False -> exclude GIMs
     new GuestSet([]);
 
-  let complete = iter(task, state, (event) => {
+  let complete = iter({ ...task, calgroupId: task.groupId }, state, (event) => {
     let seconds = getSeconds(event, {
       truncateStart: startTime,
       truncateEnd: endTime

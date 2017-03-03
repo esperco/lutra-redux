@@ -11,8 +11,8 @@ import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Select from "../states/events-select";
 import * as Calcs from "../states/group-calcs";
-import * as Events from "../states/group-events";
-import * as Suggestions from "../states/group-suggestions";
+import * as Events from "../states/events";
+import * as Suggestions from "../states/suggestions";
 import * as InviteEmails from "../states/invite-emails";
 import * as Groups from "../states/groups";
 import * as Scroll from "../states/scroll";
@@ -48,20 +48,20 @@ export const store = createStore(
         return Groups.groupDeleteTeamReducer(state, action);
       case "GROUP_PREFS":
         return Groups.groupPreferencesReducer(state, action);
-      case "GROUP_EVENTS_DATA":
+      case "EVENTS_DATA":
         return Events.eventsDataReducer(state, action);
-      case "GROUP_EVENTS_UPDATE":
+      case "EVENTS_UPDATE":
         return Events.eventsUpdateReducer(state, action);
-      case "GROUP_EVENTS_INVALIDATE_PERIOD":
+      case "EVENTS_INVALIDATE_PERIOD":
         return Events.invalidatePeriodReducer(state, action);
-      case "GROUP_EVENT_COMMENT_POST":
+      case "EVENT_COMMENT_POST":
         return Events.eventCommentPostReducer(state, action);
-      case "GROUP_EVENT_COMMENT_DELETE":
+      case "EVENT_COMMENT_DELETE":
         return Events.eventCommentDeleteReducer(state, action);
       case "GROUP_CALC_START":
       case "GROUP_CALC_END":
         return Calcs.calcReducer(state, action);
-      case "GROUP_SUGGESTIONS":
+      case "SUGGESTIONS":
         return Suggestions.suggestReducer(state, action);
       case "TEAM_CALENDAR_DATA":
         return TeamCalendars.teamCalendarDataReducer(state, action);

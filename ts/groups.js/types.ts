@@ -5,8 +5,8 @@
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Calcs from "../states/group-calcs";
-import * as Events from "../states/group-events";
-import * as Suggestions from "../states/group-suggestions";
+import * as Events from "../states/events";
+import * as Suggestions from "../states/suggestions";
 import * as Groups from "../states/groups";
 import * as InviteEmails from "../states/invite-emails";
 import * as TeamCalendars from "../states/team-cals";
@@ -18,7 +18,7 @@ import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
 import { UpdateStoreTask } from "../tasks/update-store";
 import { QueryCalcTask } from "../tasks/group-query-calc";
-import { QuerySuggestTask } from "../tasks/group-suggest-iter";
+import { QuerySuggestTask } from "../tasks/suggest-iter";
 
 /*
   Actions are updates to the Redux store -- they are processed by both

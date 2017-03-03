@@ -7,7 +7,7 @@ import { expectCalledWith } from "../lib/expect-helpers";
 import { stringify } from "../lib/event-queries";
 import { sandbox } from "../lib/sandbox";
 import * as Calcs from "../handlers/group-calcs";
-import * as Events from "../handlers/group-events";
+import * as Events from "../handlers/events";
 import * as Groups from "../handlers/groups";
 import initState from "./init-state";
 import * as Routes from "./routes";
@@ -92,12 +92,13 @@ describe("Routes", function() {
 
     it("should call fetch with query vals", function() {
       let deps = getDeps();
-      let spy = sandbox.spy(Events, "fetchGroupEvents");
+      let spy = sandbox.spy(Events, "fetchEvents");
       Routes.eventList({ pathname,
         hash: "#!/event-list/group-id-123?period=w,2400,2401&labels=0,1,"
       }, deps);
       expectCalledWith(spy, {
-        groupId: "group-id-123",
+        calgroupId: "group-id-123",
+        calgroupType: "group",
         period: { interval: "week", start: 2400, end: 2401 },
         query: { labels: { none: true }}
       }, deps);
@@ -123,7 +124,7 @@ describe("Routes", function() {
         calls.push("getGroupEvent");
         return new Promise(() => {});
       });
-      sandbox.stub(Events, "fetchGroupEvents", () => {
+      sandbox.stub(Events, "fetchEvents", () => {
         calls.push("postForGroupEvents");
         return new Promise(() => {});
       });
@@ -144,7 +145,7 @@ describe("Routes", function() {
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",
-        groupId: "group-id-123",
+        calgroupId: "group-id-123",
         clear: true,
         eventIds: { abc: true }
       });
@@ -152,8 +153,8 @@ describe("Routes", function() {
 
     function getDepsForSelectAll() {
       let deps = getDeps();
-      deps.state.groupEventQueries["group-id-123"] = [];
-      let queryDays = deps.state.groupEventQueries["group-id-123"];
+      deps.state.eventQueries["group-id-123"] = [];
+      let queryDays = deps.state.eventQueries["group-id-123"];
       queryDays[10000] = {
         [stringify({})]: {
           query: {},
@@ -169,7 +170,7 @@ describe("Routes", function() {
         }
       };
 
-      deps.state.groupEvents["group-id-123"] = {
+      deps.state.events["group-id-123"] = {
         id1: makeEvent({ id: "id1" }),
         id2: makeEvent({ id: "id2" }),
         id3: makeEvent({ id: "id3" }),
@@ -187,7 +188,7 @@ describe("Routes", function() {
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",
-        groupId: "group-id-123",
+        calgroupId: "group-id-123",
         clear: true,
         eventIds: { id1: true, id2: true, id3: true }
       });
@@ -201,7 +202,7 @@ describe("Routes", function() {
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",
-        groupId: "group-id-123",
+        calgroupId: "group-id-123",
         eventIds: { id4: true }
       });
     });
@@ -214,7 +215,7 @@ describe("Routes", function() {
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",
-        groupId: "group-id-123",
+        calgroupId: "group-id-123",
         eventIds: { id4: false }
       });
     });
@@ -227,7 +228,7 @@ describe("Routes", function() {
       }, deps);
       expectCalledWith(deps.dispatch, {
         type: "TOGGLE_EVENT_SELECTION",
-        groupId: "group-id-123",
+        calgroupId: "group-id-123",
         clear: true,
         eventIds: {}
       });

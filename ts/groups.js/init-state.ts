@@ -1,11 +1,11 @@
 import { State } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as Calcs from "../states/group-calcs";
-import * as Events from "../states/group-events";
+import * as Events from "../states/events";
 import * as Groups from "../states/groups";
 import * as TeamCalendars from "../states/team-cals";
 import * as TeamPreferences from "../states/team-preferences";
-import * as Suggestions from "../states/group-suggestions";
+import * as Suggestions from "../states/suggestions";
 import * as Select from "../states/events-select";
 
 /*

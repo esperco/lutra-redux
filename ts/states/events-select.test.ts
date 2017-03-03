@@ -2,10 +2,10 @@ import { expect } from "chai";
 import makeEvent from "../fakes/events-fake";
 import { deepFreeze } from "../lib/util";
 import { initState, reduceEventToggling } from "./events-select";
-import { initState as initGroupState } from "./group-events";
+import { initState as initGroupState } from "./events";
 
 describe("reduceEventToggling", () => {
-  const groupId = "group-id";
+  const calgroupId = "group-id";
   const e1 = makeEvent({ id: "e1" });
   const e2 = makeEvent({ id: "e2" });
   const e3 = makeEvent({ id: "e3" });
@@ -13,8 +13,8 @@ describe("reduceEventToggling", () => {
   const s1 = {
     ...initState(),
     ...initGroupState(),
-    groupEvents: {
-      [groupId]: {
+    events: {
+      [calgroupId]: {
         [e1.id]: e1,
         [e2.id]: e2,
         [e3.id]: e3
@@ -25,7 +25,7 @@ describe("reduceEventToggling", () => {
   it("allows for selection of multiple events", () => {
     let s2 = reduceEventToggling(deepFreeze(s1), {
       type: "TOGGLE_EVENT_SELECTION",
-      groupId,
+      calgroupId,
       eventIds: {
         [e1.id]: true
       }
@@ -34,7 +34,7 @@ describe("reduceEventToggling", () => {
 
     let s3 = reduceEventToggling(deepFreeze(s2), {
       type: "TOGGLE_EVENT_SELECTION",
-      groupId,
+      calgroupId,
       eventIds: {
         [e2.id]: true,
         [e3.id]: true
@@ -60,7 +60,7 @@ describe("reduceEventToggling", () => {
 
     let s3 = reduceEventToggling(deepFreeze(s2), {
       type: "TOGGLE_EVENT_SELECTION",
-      groupId,
+      calgroupId,
       eventIds: {
         [e2.id]: false,
         [e3.id]: false
@@ -82,7 +82,7 @@ describe("reduceEventToggling", () => {
 
     let s3 = reduceEventToggling(deepFreeze(s2), {
       type: "TOGGLE_EVENT_SELECTION",
-      groupId,
+      calgroupId,
       clear: true,
       eventIds: {}
     });
@@ -99,7 +99,7 @@ describe("reduceEventToggling", () => {
 
     let s3 = reduceEventToggling(deepFreeze(s2), {
       type: "TOGGLE_EVENT_SELECTION",
-      groupId,
+      calgroupId,
       clear: true,
       eventIds: { [e2.id]: true }
     });
@@ -119,15 +119,15 @@ describe("reduceEventToggling", () => {
     const s2: typeof s1 = {
       ...initState(),
       ...initGroupState(),
-      groupEvents: {
-        [groupId]: {
+      events: {
+        [calgroupId]: {
           [e4.id]: e4,
           [e5.id]: e5,
           [e6.id]: e6
         }
       },
       groupRecurringEvents: {
-        [groupId]: {
+        [calgroupId]: {
           [recurring_event_id]: {
             [e4.id]: true,
             [e5.id]: true,
@@ -145,7 +145,7 @@ describe("reduceEventToggling", () => {
        "if not detached from master event", () => {
       let s3 = reduceEventToggling(deepFreeze(s2), {
         type: "TOGGLE_EVENT_SELECTION",
-        groupId,
+        calgroupId,
         eventIds: { [e5.id]: false }
       });
 

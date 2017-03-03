@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import * as React from "react";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import MultiEventEditor from "../components/MultiEventEditor";
-import * as Events from "../handlers/group-events";
+import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
@@ -31,7 +31,7 @@ export class GroupMultiEventEditor extends React.Component<Props, {}> {
   render() {
     let { groupId, labels, searchLabels, state, query, period } = this.props;
     let context = { query, period };
-    let eventMap = state.groupEvents[groupId] || {};
+    let eventMap = state.events[groupId] || {};
     let events = _(state.selectedEvents)
       .map((v: true, k: string) => eventMap[k])
       .filter(ready)

@@ -5,13 +5,13 @@ import { QueryFilter } from "../lib/event-queries";
 import { iter } from "../lib/event-query-iter";
 import { GenericPeriod } from "../lib/period";
 import { ToggleEventAction, EventsSelectState } from "../states/events-select";
-import { EventsState } from "../states/group-events";
+import { EventsState } from "../states/events";
 
 /*
   Toggle a single event.
 */
 export function toggleEventId(props: {
-  groupId: string;
+  calgroupId: string;
   eventId: string;
   value: boolean;
   clear?: boolean;
@@ -21,7 +21,7 @@ export function toggleEventId(props: {
 }) {
   let action: ToggleEventAction = {
     type: "TOGGLE_EVENT_SELECTION",
-    groupId: props.groupId,
+    calgroupId: props.calgroupId,
     eventIds: { [props.eventId]: props.value }
   };
   if (props.clear) action.clear = true;
@@ -29,12 +29,12 @@ export function toggleEventId(props: {
 }
 
 // Clear selection
-export function clearAll(groupId: string, deps: {
+export function clearAll(calgroupId: string, deps: {
   dispatch: (a: ToggleEventAction) => void;
 }) {
   deps.dispatch({
     type: "TOGGLE_EVENT_SELECTION",
-    groupId,
+    calgroupId,
     clear: true,
     eventIds: {}
   });
@@ -42,7 +42,7 @@ export function clearAll(groupId: string, deps: {
 
 // Selects all events in a query
 export function selectAll(props: {
-  groupId: string;
+  calgroupId: string;
   query: QueryFilter;
   period: GenericPeriod;
 }, deps: {
@@ -58,7 +58,7 @@ export function selectAll(props: {
   // Dispatch selection changes
   deps.dispatch({
     type: "TOGGLE_EVENT_SELECTION",
-    groupId: props.groupId,
+    calgroupId: props.calgroupId,
     clear: true,
     eventIds
   });
