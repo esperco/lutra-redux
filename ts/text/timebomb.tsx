@@ -3,7 +3,7 @@ import * as React from 'react';
 export const TimebombEnable =
   "Enable \"move to email\" for meetings by default";
 export const TimebombDescribe = <p>
-  2-4 days before a meeting, Esper will send an e-mail to all meeting guests
+  2 weekdays before a meeting, Esper will send an e-mail to all meeting guests
   asking them to confirm that they want to attend. If no one confirms, Esper
   will remove the meeting from everyone's calendar 24 hours before the event
   and send an e-mail to all guests that the meeting has been "moved to email".
