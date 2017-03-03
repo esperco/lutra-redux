@@ -12,16 +12,31 @@
 }
 
 .event-list .event {
-  > * + * {
-    margin-top: @padding-small;
+  padding: @padding-base - (@padding-small / 2);
+  display: flex;
+  flex-flow: row wrap;
+
+  > * {
+    flex: 1000 1000 1em;
+    min-width: 300px;
+    margin-top: 0;
+    padding: @padding-small / 2;
+  }
+
+  > .event-primary-action {
+    flex-grow: 1;
+    min-width: 250px;
+
+    &:empty { display: none; }
+  }
+
+  > .placeholder {
+    flex: 0 0 auto;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @media screen and (min-width: @screen-sm-min) {
-      display: inline-block;
-      margin-right: @padding-small;
-    }
-
+    display: inline-block;
+    margin-right: @padding-small;
     label { display: inline; }
   }
 
@@ -43,43 +58,56 @@
     .event-editor .no-title;
   }
 
-  .time {
-    .event-editor .time;
+  .event-body > * + * {
+    margin-top: @padding-small;
+  }
+
+  .event-info {
+    font-size: @font-size-small;
+    color: @text-muted;
+
+    > * {
+      display: inline-block;
+      margin-top: 0;
+
+      &::before {
+        content: "\2022";
+        display: inline-block;
+        text-align: center;
+        width: @padding-base;
+      }
+
+      &:first-child::before {
+        display: none;
+      }
+    }
   }
 
   .hide-btn {
-    float: right;
+    color: @text-muted;
     margin-top: 0;
-    position: relative;
-    top: -@padding-small;
-    right: -@padding-base;
     font-weight: normal;
   }
 
-  .hide-btn:first-child + * {
+  .hide-btn + * {
     margin-top: 0
   }
 
-  .guests {
-    font-size: @font-size-small;
-  }
-
-  .cost {
-    display: inline-block;
-    min-width: 4em; // So $ line up.
-  }
-
-  .cost-1 {
+  .cost::before {
     color: @text-muted;
   }
 
-  .cost-2 {
-    color: @degree-2;
-  }
+  // .cost-1 {
+  //   color: @text-muted;
+  // }
 
-  .cost-3 {
-    color: @degree-3;
-  }
+  // .cost-2 {
+  //   color: @degree-2;
+  // }
+
+  // .cost-3 {
+  //   color: @degree-3;
+  // }
 
   .cost-4 {
     color: @degree-4;

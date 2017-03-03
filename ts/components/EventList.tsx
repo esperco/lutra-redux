@@ -8,6 +8,7 @@ import * as ApiT from "../lib/apiT";
 import CheckboxItem from "./CheckboxItem";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
+import TimebombToggle from "./TimebombToggle";
 import Tooltip from "./Tooltip";
 import Waypoint from "./Waypoint";
 import * as classNames from "classnames";
@@ -31,6 +32,10 @@ export interface SharedProps {
   ) => void;
   onHideChange: (eventIds: string[], hidden: boolean) => void;
   onConfirm?: (eventIds: string[]) => void;
+
+  // NB: Batch timebomb toggle not supported yet
+  onTimebombToggle?: (eventId: string, value: boolean) => void;
+
   autoConfirmTimeout?: number;
   onToggleSelect?: (eventId: string, val: boolean) => void;
 }
@@ -199,80 +204,103 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
       hidden: event.hidden === true,
       "has-predictions": event.labels_predicted
     })}>
-      <button className="hide-btn" onClick={() => this.toggleHide()}>
-        { event.hidden ? CommonText.Show : CommonText.Hide }
-      </button>
+      <div className="event-body">
+        <h4>
+          {
+            this.props.onToggleSelect ?
+            <CheckboxItem checked={this.props.selected} onChange={this.select}>
+              <span className="sr-only">{ EventText.Select }</span>
+            </CheckboxItem> : null
+          } {
+            this.props.eventHrefFn ?
+            <a href={this.props.eventHrefFn(event)}
+              onClick={() => this.confirm(true)}>
+              { title }
+            </a> : title
+          }
+        </h4>
 
-      <h4>
-        {
-          this.props.onToggleSelect ?
-          <CheckboxItem checked={this.props.selected} onChange={this.select}>
-            <span className="sr-only">{ EventText.Select }</span>
-          </CheckboxItem> : null
-        } {
-          this.props.eventHrefFn ?
-          <a href={this.props.eventHrefFn(event)}
-            onClick={() => this.confirm(true)}>
-            { title }
-          </a> : title
-        }
-      </h4>
+        <button className="hide-btn" onClick={() => this.toggleHide()}>
+          { event.hidden ? CommonText.Show : CommonText.Hide }
+        </button>
 
-      <div className="time">
-        <span className="start">
-          { moment(event.start).format("h:mm a") }
-        </span>{" to "}<span className="end">
-          { moment(event.end).format("h:mm a") }
-        </span>{" "}
+        <div className="event-info">
+          <div className="time">
+            <span className="start">
+              { moment(event.start).format("h:mm a") }
+            </span>{" to "}<span className="end">
+              { moment(event.end).format("h:mm a") }
+            </span>{" "}
 
-        { event.recurring_event_id ?
-          <Tooltip
-            target={<span className="recurring">
-              <Icon type="repeat" />
-            </span>}
-            title={EventText.Recurring}
-          /> : null }
-      </div>
+            { event.recurring_event_id ?
+              <Tooltip
+                target={<span className="recurring">
+                  <Icon type="repeat" />
+                </span>}
+                title={EventText.Recurring}
+              /> : null }
+          </div>
 
-      { event.guests && event.guests.length ? <div className="guests">
-        { event.merged && event.merged.cost ?
-          <span className={"cost cost-" + event.merged.cost }>
-            { _.repeat("$", event.merged.cost) }
+          { event.location ? <span className="location">
+            { event.location.length > 25 ?
+              <span>{ event.location.slice(0, 22) }&hellip;</span> :
+              event.location }
           </span> : null }
 
-        { EventText.attendeeMsgShort(
-          _.map(event.guests, (g) => g.display_name || g.email)
-        ) }
-      </div> : null }
+          { event.guests && event.guests.length ?
+            <Tooltip
+              target={<span className="guests">
+                <Icon type="person" />
+                { event.guests.length }
+              </span>}
+              title={EventText.attendeeMsgShort(
+                _.map(event.guests, (g) => g.display_name || g.email)
+              )}
+            /> : null }
 
-      { !event.labels_confirmed ?
-        <span className="confirm-waypoint">
-          <Waypoint
-            fireOnRapidScroll={false}
-            onEnter={this.setConfirmTimeout}
-            onLeave={this.clearConfirmTimeout}
+          { event.merged && event.merged.cost ?
+            <span className={"cost cost-" + event.merged.cost }>
+              { _.repeat("$", event.merged.cost) }
+            </span> : null }
+        </div>
+
+        { !event.labels_confirmed ?
+          <span className="confirm-waypoint">
+            <Waypoint
+              fireOnRapidScroll={false}
+              onEnter={this.setConfirmTimeout}
+              onLeave={this.clearConfirmTimeout}
+            />
+          </span> : null }
+
+        <div className="event-actions">
+          <LabelList
+            labels={this.props.labels}
+            searchLabels={this.props.searchLabels}
+            events={[event]}
+            onChange={this.props.onChange}
+            labelHrefFn={this.props.labelHrefFn}
           />
-        </span> : null }
 
-      <div className="event-actions">
-        <LabelList
-          labels={this.props.labels}
-          searchLabels={this.props.searchLabels}
-          events={[event]}
-          onChange={this.props.onChange}
-          labelHrefFn={this.props.labelHrefFn}
-        />
+          { event.comments.length ?
+            <span className="comment-count">
+              { this.props.eventHrefFn ?
+                <a href={this.props.eventHrefFn(event)}>
+                  <Icon type="comments">
+                    { event.comments.length }
+                  </Icon>
+                </a> : <Icon type="comments" /> }
+            </span>
+            : null }
+        </div>
+      </div>
 
-        { event.comments.length ?
-          <span className="comment-count">
-            { this.props.eventHrefFn ?
-              <a href={this.props.eventHrefFn(event)}>
-                <Icon type="comments">
-                  { event.comments.length }
-                </Icon>
-              </a> : <Icon type="comments" /> }
-          </span>
-          : null }
+      <div className="event-primary-action">
+        { this.props.onTimebombToggle ?
+          <TimebombToggle
+            event={event}
+            onToggle={this.props.onTimebombToggle}
+          /> : null }
       </div>
     </div>;
   }
