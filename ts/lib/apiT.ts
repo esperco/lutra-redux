@@ -282,7 +282,7 @@ export type TimebombState =
     set_by: string;  // Timestamp
   }]|
   ["Stage1", {
-    confirmed: boolean;
+    confirmed_list: string[];
     confirm_by: string; // Timestamp
   }]|
   ["Stage2", "Event_confirmed"|"Event_canceled"]

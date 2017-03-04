@@ -21,6 +21,7 @@ import * as EventText from "../text/events";
 const DEFAULT_AUTO_CONFIRM_TIMEOUT = 3000;
 
 export interface SharedProps {
+  loggedInUid?: string;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
   labels: LabelSet;          // For LabelList
@@ -298,6 +299,7 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
       <div className="event-primary-action">
         { this.props.onTimebombToggle ?
           <TimebombToggle
+            loggedInUid={this.props.loggedInUid}
             event={event}
             onToggle={this.props.onTimebombToggle}
           /> : null }

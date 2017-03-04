@@ -20,6 +20,7 @@ import Tooltip from "./Tooltip";
 const DEFAULT_AUTO_CONFIRM_TIMEOUT = 1500;
 
 export interface Props {
+  loggedInUid?: string;
   event: StoreData<ApiT.GenericCalendarEvent>|undefined;
   members: StoreData<GroupMembers>|undefined;
   labels: LabelSet;         // For LabelList
@@ -174,7 +175,8 @@ export class EventEditor extends React.Component<Props, {}> {
         </div> : null }
 
       { this.props.onTimebombToggle ?
-        <TimebombToggle event={event}
+        <TimebombToggle loggedInUid={this.props.loggedInUid}
+          event={event}
           onToggle={this.props.onTimebombToggle} /> :
         null }
 

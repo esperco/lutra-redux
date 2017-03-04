@@ -11,8 +11,10 @@ import Tooltip from "./Tooltip";
 import * as ApiT from "../lib/apiT";
 import { hasTag } from "../lib/util";
 import * as Text from "../text/timebomb";
+import * as _ from "lodash";
 
 interface Props {
+  loggedInUid: string|undefined;
   event: ApiT.GenericCalendarEvent;
 
   // true -> set timebomb (move to email), false -> unset (in person)
@@ -39,11 +41,35 @@ export class TimebombToggle extends React.Component<Props, {
       return null;
     }
 
-    if (hasTag("Stage0", event.timebomb)) {
+    if (hasTag("Stage2", event.timebomb)) {
+      let ret: JSX.Element;
+
+      // Stage 2 confirmed
+      if (event.timebomb[1] === "Event_confirmed") {
+        return null; // Don't show confirmed status for now,
+                     // same as if no timebomb at all
+      }
+
+      // Stage 2 canceled
+      else {
+        ret = <div className="alert warning">
+          { Text.Canceled }
+        </div>;
+      }
+
+      return <TimebombContainer>
+        { ret }
+      </TimebombContainer>;
+    }
+
+    else {
       let name = event.id + "-timebomb";
-      let active = event.timebomb[1].set_timebomb;
-      let disabled = moment(event.timebomb[1].set_by)
-        .isSameOrBefore(new Date());
+      let active = hasTag("Stage0" , event.timebomb) ?
+        event.timebomb[1].set_timebomb :
+        !!_.find(event.timebomb[1].confirmed_list, this.props.loggedInUid);
+      let disabled = hasTag("Stage0", event.timebomb) ?
+        moment(event.timebomb[1].set_by).isSameOrBefore(new Date()) :
+        moment(event.timebomb[1].confirm_by).isSameOrBefore(new Date());
       let ret = <TimebombContainer>
         <h4>
           { Text.TimebombHeader }
@@ -77,33 +103,6 @@ export class TimebombToggle extends React.Component<Props, {
       } else {
         return ret;
       }
-    }
-
-    else {
-      let ret: JSX.Element;
-
-      if (hasTag("Stage1", event.timebomb)) {
-        ret = <div className="alert info">
-          { Text.PendingConfirmation }
-        </div>;
-      }
-
-      // Stage 2 confirmed
-      else if (event.timebomb[1] === "Event_confirmed") {
-        return null; // Don't show confirmed status for now,
-                     // same as if no timebomb at all
-      }
-
-      // Stage 2 canceled
-      else {
-        ret = <div className="alert warning">
-          { Text.Canceled }
-        </div>;
-      }
-
-      return <TimebombContainer>
-        { ret }
-      </TimebombContainer>;
     }
   }
 

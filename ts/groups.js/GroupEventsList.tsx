@@ -75,6 +75,8 @@ export class GroupEventsList extends React.Component<Props, State> {
     let endToShow = Math.min(start + this.state.daysToShow - 1, end);
     let queryDays = queryState.slice(start, endToShow + 1);
     let queryKey = stringify(query);
+    let loggedInUid =
+      this.props.state.login ? this.props.state.login.uid : undefined;
 
     // Only show more if we're not busy fetching stuff
     let canShowMore = endToShow < end &&
@@ -111,6 +113,7 @@ export class GroupEventsList extends React.Component<Props, State> {
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i}
           ref={(c) => this._refs[start + i] = c}
+          loggedInUid={loggedInUid}
           result={d[queryKey]}
           selectedEventIds={this.props.state.selectedEvents}
           selectedRecurringIds={selectedRecurringIds}
@@ -194,7 +197,9 @@ export class GroupEventsList extends React.Component<Props, State> {
     }, this.props);
   }
 
-  onTimebombToggle = (eventId: string, value: boolean) => {
+  onTimebombToggle = (eventId: string,
+                      value: boolean) =>
+  {
     Events.toggleTimebomb({
       groupId: this.props.groupId,
       eventId,
@@ -222,6 +227,7 @@ export class GroupEventsList extends React.Component<Props, State> {
 
 interface DayProps extends SharedProps {
   day: number; // Period day index
+  loggedInUid?: string;
   result: StoreData<QueryResult>;
   selectedEventIds: Record<string, true>;
   selectedRecurringIds: Record<string, true>;

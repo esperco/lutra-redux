@@ -21,6 +21,7 @@ import { QueryFilter, stringify, toAPI } from "../lib/event-queries";
 import { GenericPeriod, Period, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
+import { LoginState } from "../lib/login";
 import { OrderedSet, compactObject, hasTag } from "../lib/util";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
@@ -70,6 +71,7 @@ interface DeleteCommentRequest {
 
 interface SetTimebombRequest {
   type: "SET_TIMEBOMB";
+  stage: "Stage0"|"Stage1"|"Stage2";
   eventId: string;
   value: boolean;
   deps: {
@@ -255,14 +257,20 @@ export function processTimebombRequests(
   let { Svcs } = last.deps;
 
   // Left to right, more recent timebomb request for eventId overrides older.
-  let tbStates: Record<string, boolean> = {};
-  _.each(reqs, (r) => tbStates[r.eventId] = r.value);
+  let tbStates: Record<string, [boolean, "Stage0"|"Stage1"|"Stage2"]> = {};
+  _.each(reqs, (r) => tbStates[r.eventId] = [r.value, r.stage]);
 
   return Svcs.Api.batch(() => {
     let promises: Promise<any>[] = [];
     _.each(tbStates, (setTb, eventId) => {
-      if (eventId) {
-        promises.push(Svcs.Api.setGroupTimebomb(groupId, eventId, setTb));
+      if (eventId && setTb[1] === "Stage0") {
+        promises.push(Svcs.Api.setGroupTimebomb(groupId, eventId, setTb[0]));
+      }
+      else if (eventId && setTb[1] === "Stage1" && setTb[0]) {
+        promises.push(Svcs.Api.confirmGroupEvent(groupId, eventId));
+      }
+      else if (eventId && setTb[1] === "Stage1" && !setTb[0]) {
+        promises.push(Svcs.Api.unconfirmGroupEvent(groupId, eventId));
       }
     });
     return Promise.all(promises);
@@ -776,13 +784,14 @@ export function toggleTimebomb(props: {
   value: boolean;
 }, deps: {
   dispatch: (a: EventsUpdateAction) => any;
-  state: EventsState;
+  state: EventsState & LoginState;
   Svcs: ApiSvc;
 }) {
   let event = (deps.state.groupEvents[props.groupId] || {})[props.eventId];
   if (ready(event) && event.timebomb) {
+    let { dispatch, state } = deps;
     if (hasTag("Stage0", event.timebomb)) {
-      deps.dispatch({
+      dispatch({
         type: "GROUP_EVENTS_UPDATE",
         groupId: props.groupId,
         eventIds: [props.eventId],
@@ -792,15 +801,32 @@ export function toggleTimebomb(props: {
         }]
       });
     }
+    else if (hasTag("Stage1", event.timebomb) && state.login) {
+      let uid = state.login.uid;
+      let confirmed_list = props.value ?
+        _.concat(event.timebomb[1].confirmed_list, uid) :
+        _.filter(event.timebomb[1].confirmed_list, (u) => u !== uid);
+      dispatch({
+        type: "GROUP_EVENTS_UPDATE",
+        groupId: props.groupId,
+        eventIds: [props.eventId],
+        timebomb: ["Stage1", {
+          ...event.timebomb[1],
+          confirmed_list
+        }]
+      });
+    }
+    let queue = EventQueues.get(props.groupId);
+    return queue.enqueue({
+      type: "SET_TIMEBOMB",
+      stage: event.timebomb[0],
+      eventId: props.eventId,
+      value: props.value,
+      deps
+    });
   }
 
-  let queue = EventQueues.get(props.groupId);
-  return queue.enqueue({
-    type: "SET_TIMEBOMB",
-    eventId: props.eventId,
-    value: props.value,
-    deps
-  });
+  return Promise.resolve();
 }
 
 // Refresh current view with a given set of periods
