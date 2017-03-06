@@ -9,7 +9,7 @@ import * as Log from "../lib/log";
 import { dispatch, getState } from "./store";
 import { Action, Task } from "./types";
 import { handleGroupQueryCalc } from "../tasks/group-query-calc";
-import { handleGroupQuerySuggest } from "../tasks/group-suggest-iter";
+import { handleQuerySuggest } from "../tasks/suggest-iter";
 
 /*
   Helper initialization
@@ -41,8 +41,8 @@ function handleTask(task: Task): Action|void {
       break;
     case "GROUP_QUERY_CALC":
       return handleGroupQueryCalc(task, getState());
-    case "GROUP_QUERY_SUGGESTIONS":
-      return handleGroupQuerySuggest(task, getState());
+    case "QUERY_SUGGESTIONS":
+      return handleQuerySuggest(task, getState());
     default:
       Log.e("Unknown task type", task);
   }

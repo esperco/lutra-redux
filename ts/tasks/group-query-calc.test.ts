@@ -4,7 +4,7 @@ import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
 import * as ApiT from "../lib/apiT";
 import { fromDates } from "../lib/period";
-import { makeQueryState, EventsState } from "../states/group-events";
+import { makeQueryState, EventsState } from "../states/events";
 import { GroupState, initState } from "../states/groups";
 import { handleGroupQueryCalc } from "./group-query-calc";
 
@@ -108,7 +108,7 @@ describe("handleGroupQueryCalc", () => {
           }]
         }
       },
-      groupEvents: {
+      events: {
         [groupId]: {
           e1: _.cloneDeep(e1),
           e2: _.cloneDeep(e2),
@@ -117,9 +117,9 @@ describe("handleGroupQueryCalc", () => {
         }
       },
 
-      groupRecurringEvents: {},
+      recurringEvents: {},
 
-      groupEventQueries: {
+      eventQueries: {
         [groupId]: makeQueryState(
           period, query, ["e1", "e2", "e3"],
           makeQueryState(period, notQuery, ["e4"])
@@ -147,7 +147,7 @@ describe("handleGroupQueryCalc", () => {
   });
 
   it("returns falsy if query includes missing events", () => {
-    state.groupEvents[groupId]["e2"] = "FETCHING";
+    state.events[groupId]["e2"] = "FETCHING";
     expect(handleGroupQueryCalc({
       type: "GROUP_QUERY_CALC",
       groupId,
@@ -203,7 +203,7 @@ describe("handleGroupQueryCalc", () => {
   });
 
   it("truncates long events based on period", () => {
-    let event = state.groupEvents[groupId]["e1"] as ApiT.GenericCalendarEvent;
+    let event = state.events[groupId]["e1"] as ApiT.GenericCalendarEvent;
     let e1Duration = 4 * 24 * 60 * 60;
     event.start = "2016-09-01";
     event.end   = "2016-11-01";
@@ -253,9 +253,9 @@ describe("handleGroupQueryCalc", () => {
   });
 
   it("ignores hidden events", () => {
-    let event1 = state.groupEvents[groupId]["e1"] as ApiT.GenericCalendarEvent;
+    let event1 = state.events[groupId]["e1"] as ApiT.GenericCalendarEvent;
     event1.hidden = true;
-    let event3 = state.groupEvents[groupId]["e3"] as ApiT.GenericCalendarEvent;
+    let event3 = state.events[groupId]["e3"] as ApiT.GenericCalendarEvent;
     event3.hidden = true;
     expect(handleGroupQueryCalc({
       type: "GROUP_QUERY_CALC",

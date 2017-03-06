@@ -1,9 +1,9 @@
 import { QueryFilter } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
-import { QuerySuggestTask } from "../tasks/group-suggest-iter";
+import { QuerySuggestTask } from "../tasks/suggest-iter";
 
 export function loadSuggestions(props: {
-  groupId: string;
+  calgroupId: string;
   period: GenericPeriod;
   query: QueryFilter;
 }, deps: {
@@ -13,7 +13,7 @@ export function loadSuggestions(props: {
   promise?: Promise<any>;
 }): Promise<void> {
   let postTask = () => deps.postTask({
-    type: "GROUP_QUERY_SUGGESTIONS",
+    type: "QUERY_SUGGESTIONS",
     ...props
   });
 

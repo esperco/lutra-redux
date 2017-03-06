@@ -2,11 +2,11 @@ import { expect } from "chai";
 import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
 import { fromDates } from "../lib/period";
-import { makeQueryState, EventsState } from "../states/group-events";
-import { handleGroupQuerySuggest } from "./group-suggest-iter";
+import { makeQueryState, EventsState } from "../states/events";
+import { handleQuerySuggest } from "./suggest-iter";
 
-describe("handleGroupQuerySuggest", () => {
-  const groupId = "my-group-id";
+describe("handleQuerySuggest", () => {
+  const calgroupId = "my-group-id";
   const query = { contains: "Test" };
   const notQuery = { contains: "Test 2" };
   const period = fromDates(
@@ -20,8 +20,8 @@ describe("handleGroupQuerySuggest", () => {
   var state: EventsState;
   beforeEach(() => {
     state = {
-      groupEvents: {
-        [groupId]: {
+      events: {
+        [calgroupId]: {
           e1: makeEvent({ // In Query
             id: "e1",
             start: "2016-10-01T08:00:00.000",
@@ -63,9 +63,9 @@ describe("handleGroupQuerySuggest", () => {
           })
         }
       },
-      groupRecurringEvents: {},
-      groupEventQueries: {
-        [groupId]: makeQueryState(
+      recurringEvents: {},
+      eventQueries: {
+        [calgroupId]: makeQueryState(
           period, query, ["e1", "e2"],
           makeQueryState(period, notQuery, ["e3"])
         )
@@ -75,12 +75,12 @@ describe("handleGroupQuerySuggest", () => {
 
   it("returns an action with normalized labels and guests for all events",
   () => {
-    expect(handleGroupQuerySuggest({
-      type: "GROUP_QUERY_SUGGESTIONS",
-      groupId, query, period
+    expect(handleQuerySuggest({
+      type: "QUERY_SUGGESTIONS",
+      calgroupId, query, period
     }, state)).to.deep.equal({
-      type: "GROUP_SUGGESTIONS",
-      groupId,
+      type: "SUGGESTIONS",
+      calgroupId,
       labels: {
         [label1.normalized]: label1,
         [label2.normalized]: label2
@@ -102,13 +102,13 @@ describe("handleGroupQuerySuggest", () => {
 
   it("will still return data if some events are still FETCHING",
   () => {
-    state.groupEvents[groupId]["e2"] = "FETCHING";
-    expect(handleGroupQuerySuggest({
-      type: "GROUP_QUERY_SUGGESTIONS",
-      groupId, query, period
+    state.events[calgroupId]["e2"] = "FETCHING";
+    expect(handleQuerySuggest({
+      type: "QUERY_SUGGESTIONS",
+      calgroupId, query, period
     }, state)).to.deep.equal({
-      type: "GROUP_SUGGESTIONS",
-      groupId,
+      type: "SUGGESTIONS",
+      calgroupId,
       labels: {
         [label1.normalized]: label1
       },

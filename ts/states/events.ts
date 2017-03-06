@@ -1,3 +1,8 @@
+/*
+  Shared state management code for storing both events by groupId
+  or a teamId.
+*/
+
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
@@ -31,58 +36,58 @@ export interface RecurringEventMap {
 }
 
 export interface EventsState {
-  // groupId to another map
-  groupEvents: {
+  // groupId or teamId to another map
+  events: {
     [index: string]: EventMap;
   };
 
-  // groupId to another map
-  groupRecurringEvents: {
+  // groupId or teamId to another map
+  recurringEvents: {
     [index: string]: RecurringEventMap;
   };
 
-  // groupId to another map
-  groupEventQueries: {
+  // groupId or teamId to another map
+  eventQueries: {
     [index: string]: EventsQueryState;
   };
 }
 
 export interface EventsFetchQueryRequestAction {
-  type: "GROUP_EVENTS_DATA";
+  type: "EVENTS_DATA";
   dataType: "FETCH_QUERY_START";
-  groupId: string;
+  calgroupId: string;
   periods: GenericPeriod[];
   query: QueryFilter;
 }
 
 export interface EventsFetchQueryResponseAction {
-  type: "GROUP_EVENTS_DATA";
+  type: "EVENTS_DATA";
   dataType: "FETCH_QUERY_END";
-  groupId: string;
+  calgroupId: string;
   period: GenericPeriod;
   query: QueryFilter;
   events: ApiT.GenericCalendarEvent[];
 }
 
 export interface EventsFetchQueryFailAction {
-  type: "GROUP_EVENTS_DATA";
+  type: "EVENTS_DATA";
   dataType: "FETCH_QUERY_FAIL";
-  groupId: string;
+  calgroupId: string;
   period: GenericPeriod;
   query: QueryFilter;
 }
 
 export interface EventsFetchIdsRequestAction {
-  type: "GROUP_EVENTS_DATA";
+  type: "EVENTS_DATA";
   dataType: "FETCH_IDS_START";
-  groupId: string;
+  calgroupId: string;
   eventIds: string[];
 }
 
 export interface EventsFetchIdsResponseAction {
-  type: "GROUP_EVENTS_DATA";
+  type: "EVENTS_DATA";
   dataType: "FETCH_IDS_END";
-  groupId: string;
+  calgroupId: string;
   eventIds: string[];
   events: ApiT.GenericCalendarEvent[];
 }
@@ -95,14 +100,14 @@ export type EventsDataAction =
   EventsFetchIdsResponseAction;
 
 export interface EventsInvalidatePeriodAction {
-  type: "GROUP_EVENTS_INVALIDATE_PERIOD";
-  groupId: string;
+  type: "EVENTS_INVALIDATE_PERIOD";
+  calgroupId: string;
   period: GenericPeriod;
 }
 
 export interface EventsUpdateAction {
-  type: "GROUP_EVENTS_UPDATE";
-  groupId: string;
+  type: "EVENTS_UPDATE";
+  calgroupId: string;
   eventIds: string[];
   recurringEventIds?: string[];
   addLabels?: ApiT.LabelInfo[];
@@ -112,18 +117,18 @@ export interface EventsUpdateAction {
 }
 
 export interface EventCommentPostAction {
-  type: "GROUP_EVENT_COMMENT_POST";
+  type: "EVENT_COMMENT_POST";
   commentId: string;
   eventId: string;
-  groupId: string;
+  calgroupId: string;
   text: string;
 }
 
 export interface EventCommentDeleteAction {
-  type: "GROUP_EVENT_COMMENT_DELETE";
+  type: "EVENT_COMMENT_DELETE";
   commentId: string;
   eventId: string;
-  groupId: string;
+  calgroupId: string;
 }
 
 export type EventCommentAction =
@@ -135,19 +140,19 @@ export function eventsDataReducer<S extends EventsState> (
 ) {
   state = _.clone(state);
   let queryDays = () => {
-    state.groupEventQueries = _.clone(state.groupEventQueries);
-    return (state.groupEventQueries[action.groupId] =
-      _.clone(state.groupEventQueries[action.groupId]) || []);
+    state.eventQueries = _.clone(state.eventQueries);
+    return (state.eventQueries[action.calgroupId] =
+      _.clone(state.eventQueries[action.calgroupId]) || []);
   };
   let eventMap = () => {
-    state.groupEvents = _.clone(state.groupEvents);
-    return (state.groupEvents[action.groupId] =
-      _.clone(state.groupEvents[action.groupId]) || {});
+    state.events = _.clone(state.events);
+    return (state.events[action.calgroupId] =
+      _.clone(state.events[action.calgroupId]) || {});
   };
   let recurringMap = () => {
-    state.groupRecurringEvents = _.clone(state.groupRecurringEvents);
-    return (state.groupRecurringEvents[action.groupId] =
-      _.clone(state.groupRecurringEvents[action.groupId]) || {});
+    state.recurringEvents = _.clone(state.recurringEvents);
+    return (state.recurringEvents[action.calgroupId] =
+      _.clone(state.recurringEvents[action.calgroupId]) || {});
   };
 
   switch (action.dataType) {
@@ -174,8 +179,8 @@ export function eventsDataReducer<S extends EventsState> (
 export function eventsUpdateReducer<S extends EventsState>(
   state: S, action: EventsUpdateAction
 ): S {
-  let { groupId, eventIds, recurringEventIds } = action;
-  let eventsMap = state.groupEvents[groupId] || {};
+  let { calgroupId, eventIds, recurringEventIds } = action;
+  let eventsMap = state.events[calgroupId] || {};
   let eventsMapUpdate: Partial<EventMap> = {};
   let daysToUpdateMap: { [index: number]: true } = {};
 
@@ -194,7 +199,7 @@ export function eventsUpdateReducer<S extends EventsState>(
 
   // Reduce recurring ids to individual ids and process
   _.each(recurringEventIds || [], (recurId) => {
-    _.each(state.groupRecurringEvents[groupId][recurId], (v, k) => {
+    _.each(state.recurringEvents[calgroupId][recurId], (v, k) => {
       if (v && k) {
         setEventsToUpdate(eventsMap[k], true);
       }
@@ -206,13 +211,13 @@ export function eventsUpdateReducer<S extends EventsState>(
 
   let daysToUpdate = _(daysToUpdateMap).keys().map((n) => parseInt(n)).value();
   let update: Partial<EventsState> = {
-    groupEvents: {
-      ...state.groupEvents,
-      [groupId]: { ...eventsMap, ...eventsMapUpdate }
+    events: {
+      ...state.events,
+      [calgroupId]: { ...eventsMap, ...eventsMapUpdate }
     },
 
     // Actual invalidation happens here
-    ...invalidateDays(state, action.groupId, daysToUpdate)
+    ...invalidateDays(state, action.calgroupId, daysToUpdate)
   };
   return _.extend({}, state, update);
 }
@@ -237,18 +242,18 @@ function setDaysToUpdate(
 export function invalidatePeriodReducer<S extends EventsState>(
   state: S, action: EventsInvalidatePeriodAction
 ): S {
-  let { groupId } = action;
+  let { calgroupId } = action;
   let { start, end } = toDays(action.period);
 
   /*
     Get earliest event on start day (if any) and latest event on end day
     (if any) and use those to see if we should invalidate beyond period.
   */
-  _.each(state.groupEventQueries[groupId][start], (result) => {
+  _.each(state.eventQueries[calgroupId][start], (result) => {
     if (ready(result)) {
       let firstEvent: ApiT.GenericCalendarEvent|undefined;
       _.find(result.eventIds, (id) => {
-        let event = (state.groupEvents[groupId] || {})[id];
+        let event = (state.events[calgroupId] || {})[id];
         if (ready(event)) {
           firstEvent = event;
           return true;
@@ -264,11 +269,11 @@ export function invalidatePeriodReducer<S extends EventsState>(
   });
 
   // Do the same for the last event
-  _.each(state.groupEventQueries[groupId][end], (result) => {
+  _.each(state.eventQueries[calgroupId][end], (result) => {
     if (ready(result)) {
       let lastEvent: ApiT.GenericCalendarEvent|undefined;
       _.findLast(result.eventIds, (id) => {
-        let event = (state.groupEvents[groupId] || {})[id];
+        let event = (state.events[calgroupId] || {})[id];
         if (ready(event)) {
           lastEvent = event;
           return true;
@@ -284,7 +289,7 @@ export function invalidatePeriodReducer<S extends EventsState>(
   });
 
   // Apply updated start and end days to invalidation
-  let update = invalidateDays(state, groupId, _.range(start, end + 1));
+  let update = invalidateDays(state, calgroupId, _.range(start, end + 1));
   return _.extend({}, state, update);
 }
 
@@ -292,7 +297,7 @@ export function invalidatePeriodReducer<S extends EventsState>(
 function invalidateDays(
   state: EventsState, groupId: string, days: number[]
 ): Partial<EventsState> {
-  let queryDays = state.groupEventQueries[groupId] || [];
+  let queryDays = state.eventQueries[groupId] || [];
   let queryDaysUpdate: EventsQueryState = [];
   _.each(days, (i) => {
     queryDaysUpdate[i] = _.mapValues(queryDays[i] || {},
@@ -300,8 +305,8 @@ function invalidateDays(
     );
   });
   return {
-    groupEventQueries: {
-      ...state.groupEventQueries,
+    eventQueries: {
+      ...state.eventQueries,
       [groupId]: mergeQueryStates(queryDays, queryDaysUpdate)
     }
   };
@@ -376,8 +381,8 @@ export function makeQueryState(
 export function eventCommentPostReducer<S extends EventsState & LoginState>(
   state: S, action: EventCommentPostAction
 ): S {
-  let { commentId, groupId, eventId, text } = action;
-  let eventsMap = state.groupEvents[groupId] || {};
+  let { commentId, calgroupId, eventId, text } = action;
+  let eventsMap = state.events[calgroupId] || {};
   let login = state.login;
   let eventsMapUpdate: Partial<EventMap> = {};
   let event = eventsMap[eventId];
@@ -395,9 +400,9 @@ export function eventCommentPostReducer<S extends EventsState & LoginState>(
 
 
   let update: Partial<EventsState> = {
-    groupEvents: {
-      ...state.groupEvents,
-      [groupId]: { ...eventsMap, ...eventsMapUpdate }
+    events: {
+      ...state.events,
+      [calgroupId]: { ...eventsMap, ...eventsMapUpdate }
     }
   };
   return _.extend({}, state, update);
@@ -406,8 +411,8 @@ export function eventCommentPostReducer<S extends EventsState & LoginState>(
 export function eventCommentDeleteReducer<S extends EventsState>(
   state: S, action: EventCommentDeleteAction
 ): S {
-  let { commentId, eventId, groupId } = action;
-  let eventsMap = state.groupEvents[groupId] || {};
+  let { commentId, eventId, calgroupId } = action;
+  let eventsMap = state.events[calgroupId] || {};
   let eventsMapUpdate: Partial<EventMap> = {};
   let event = eventsMap[eventId];
 
@@ -417,9 +422,9 @@ export function eventCommentDeleteReducer<S extends EventsState>(
   }
 
   let update: Partial<EventsState> = {
-    groupEvents: {
-      ...state.groupEvents,
-      [groupId]: { ...eventsMap, ...eventsMapUpdate }
+    events: {
+      ...state.events,
+      [calgroupId]: { ...eventsMap, ...eventsMapUpdate }
     }
   }
 
@@ -535,9 +540,9 @@ function reduceFetchIdsResponse(
 
 export function initState(): EventsState {
   return {
-    groupEvents: {},
-    groupRecurringEvents: {},
-    groupEventQueries: {}
+    events: {},
+    recurringEvents: {},
+    eventQueries: {}
   };
 }
 

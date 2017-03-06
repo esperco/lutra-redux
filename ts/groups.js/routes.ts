@@ -7,10 +7,10 @@ import { ApiSvc } from "../lib/api";
 import { QueryFilter, reduce } from "../lib/event-queries";
 import { GenericPeriod, fromDates } from "../lib/period";
 import * as Calcs from "../handlers/group-calcs";
-import * as Events from "../handlers/group-events";
+import * as Events from "../handlers/events";
 import * as Select from "../handlers/events-select";
 import * as InviteEmails from "../handlers/invite-emails";
-import * as Suggestions from "../handlers/group-suggestions";
+import * as Suggestions from "../handlers/suggestions";
 import * as Groups from "../handlers/groups"
 import * as TeamCals from "../handlers/team-cals";
 import * as TeamPrefs from "../handlers/team-prefs";
@@ -41,6 +41,8 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
   let groupIdMaybe = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupIdMaybe) {
     let groupId = groupIdMaybe;
+    let calgroupId = groupId;
+    let calgroupType = "group" as "group";
 
     // Default period = today + 6 (7 days total)
     let period = p.period || fromDates(
@@ -55,40 +57,41 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
       minCost: p.minCost
     });
     let props = { groupId, period, query };
+    let calgroupProps = { calgroupId, calgroupType, period, query };
 
     // Toggle selection based on URL - select without eventId => select all
     if (p.selectMode === true && !p.eventId) {
-      Select.selectAll(props, deps);
+      Select.selectAll(calgroupProps, deps);
     }
 
     // Select with event ID => select one
     else if (p.eventId) {
       Select.toggleEventId({
-        groupId,
+        calgroupId,
         clear: typeof p.selectMode === 'undefined',
         eventId: p.eventId,
         value: typeof p.selectMode === 'undefined' ? true : p.selectMode
       }, deps);
 
       // Trigger single fetch too -- redirect if ID ends up being different
-      Events.fetchById({ groupId, eventId: p.eventId }, deps, {
-        onNewId: (eventId: string) => deps.Svcs.Nav.go(
-          Paths.eventList.href({ ...p, groupId, eventId })
-        )
-      });
+      Events.fetchById({ calgroupId, calgroupType, eventId: p.eventId },
+        deps,
+        { onNewId: (eventId: string) => deps.Svcs.Nav.go(
+            Paths.eventList.href({ ...p, groupId, eventId })) }
+      );
     }
 
     else {
-      Select.clearAll(groupId, deps);
+      Select.clearAll(calgroupId, deps);
     }
 
     // Fetch bulk data (note that individual event fetching goes first)
     let p1 = Groups.fetch(groupId,
       { withLabels: true, withMembers: true }, deps);
-    let p2 = Events.fetchGroupEvents(props, deps);
+    let p2 = Events.fetchEvents(calgroupProps, deps);
     let promise = Promise.all([p1, p2]);
     Calcs.startGroupCalc(props, { ...deps, promise });
-    Suggestions.loadSuggestions(props, { ...deps, promise });
+    Suggestions.loadSuggestions(calgroupProps, { ...deps, promise });
 
     // Dispatch route changes
     deps.dispatch({

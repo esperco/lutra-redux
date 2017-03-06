@@ -17,7 +17,7 @@ import GroupEventEditor from "./GroupEventEditor";
 import GroupMultiEventEditor from "./GroupMultiEventEditor";
 import GroupEventsList from "./GroupEventsList";
 import GroupFiltersSelector from "./GroupFiltersSelector";
-import * as Events from "../handlers/group-events";
+import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { guestSetFromGroupMembers, GuestSet } from "../lib/event-guests";
@@ -214,7 +214,7 @@ class GroupEvents extends React.Component<Props, {}> {
   getLabels() {
     let { groupId, state } = this.props;
     let groupLabels = state.groupLabels[groupId];
-    let labelSuggestions = state.groupLabelSuggestions[groupId] || {};
+    let labelSuggestions = state.labelSuggestions[groupId] || {};
     let labels = new LabelSet(
       ready(groupLabels) ? groupLabels.group_labels : []
     );
@@ -230,7 +230,7 @@ class GroupEvents extends React.Component<Props, {}> {
     let groupMembers = state.groupMembers[groupId];
     let guests = ready(groupMembers) ?
       guestSetFromGroupMembers(groupMembers) : new GuestSet([]);
-    let guestSuggestions = _.values(state.groupGuestSuggestions[groupId]);
+    let guestSuggestions = _.values(state.guestSuggestions[groupId]);
     guests.push(...guestSuggestions);
     guests.sort();
     return guests;
@@ -301,7 +301,7 @@ class GroupEvents extends React.Component<Props, {}> {
 
   refresh = () => {
     let { groupId, period } = this.props;
-    Events.refresh({ groupId, period }, this.props);
+    Events.refresh({ calgroupId: groupId, period }, this.props);
   }
 }
 

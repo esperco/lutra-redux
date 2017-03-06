@@ -11,7 +11,7 @@ export interface LabelSuggestionTable {
 }
 
 export interface LabelSuggestionsState {
-  [groupId: string]: LabelSuggestionTable;
+  [calgroupId: string]: LabelSuggestionTable;
 }
 
 export interface GuestSuggestionTable {
@@ -19,17 +19,17 @@ export interface GuestSuggestionTable {
 }
 
 export interface GuestSuggestionsState {
-  [groupId: string]: GuestSuggestionTable;
+  [calgroupId: string]: GuestSuggestionTable;
 }
 
 export interface SuggestionsState {
-  groupLabelSuggestions: LabelSuggestionsState;
-  groupGuestSuggestions: GuestSuggestionsState;
+  labelSuggestions: LabelSuggestionsState;
+  guestSuggestions: GuestSuggestionsState;
 }
 
 export interface SuggestionsAction {
-  type: "GROUP_SUGGESTIONS";
-  groupId: string;
+  type: "SUGGESTIONS";
+  calgroupId: string;
   labels?: LabelSuggestionTable;
   guests?: GuestSuggestionTable;
 }
@@ -38,24 +38,24 @@ export interface SuggestionsAction {
 export function suggestReducer<S extends SuggestionsState>(
   state: S, action: SuggestionsAction
 ): S {
-  let { groupId, guests, labels } = action;
+  let { calgroupId, guests, labels } = action;
   let update: Partial<SuggestionsState> = {};
 
   if (labels) {
-    update.groupLabelSuggestions = {
-      ...state.groupLabelSuggestions,
-      [groupId]: {
-        ...state.groupLabelSuggestions[groupId],
+    update.labelSuggestions = {
+      ...state.labelSuggestions,
+      [calgroupId]: {
+        ...state.labelSuggestions[calgroupId],
         ...labels
       }
     };
   }
 
   if (guests) {
-    update.groupGuestSuggestions = {
-      ...state.groupGuestSuggestions,
-      [groupId]: {
-        ...state.groupGuestSuggestions[groupId],
+    update.guestSuggestions = {
+      ...state.guestSuggestions,
+      [calgroupId]: {
+        ...state.guestSuggestions[calgroupId],
         ...guests
       }
     };
@@ -66,8 +66,8 @@ export function suggestReducer<S extends SuggestionsState>(
 
 export function initState(): SuggestionsState {
   return {
-    groupGuestSuggestions: {},
-    groupLabelSuggestions: {}
+    guestSuggestions: {},
+    labelSuggestions: {}
   }
 }
 

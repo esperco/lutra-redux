@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import * as React from "react";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import EventEditor from "../components/EventEditor";
-import * as Events from "../handlers/group-events";
+import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
@@ -30,7 +30,7 @@ interface Props {
 export class GroupEventEditor extends React.Component<Props, {}> {
   render() {
     let eventId = _.keys(this.props.state.selectedEvents)[0];
-    let eventMap = this.props.state.groupEvents[this.props.groupId] || {};
+    let eventMap = this.props.state.events[this.props.groupId] || {};
     let members = this.props.state.groupMembers[this.props.groupId];
     let loggedInUid =
       this.props.state.login ? this.props.state.login.uid : undefined;
@@ -81,7 +81,8 @@ export class GroupEventEditor extends React.Component<Props, {}> {
       }
       onTimebombToggle={(eventId, value) =>
         Events.toggleTimebomb({
-          groupId: this.props.groupId,
+          calgroupId: this.props.groupId,
+          calgroupType: "group",
           eventId,
           value
         }, this.props)

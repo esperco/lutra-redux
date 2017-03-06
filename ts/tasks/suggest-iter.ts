@@ -9,18 +9,18 @@ import iter from "../lib/event-query-iter";
 import { compactObject } from "../lib/util";
 import {
   LabelSuggestionTable, GuestSuggestionTable, SuggestionsAction
-} from "../states/group-suggestions";
-import { EventsState } from "../states/group-events";
+} from "../states/suggestions";
+import { EventsState } from "../states/events";
 
 export interface QuerySuggestTask {
-  type: "GROUP_QUERY_SUGGESTIONS";
-  groupId: string;
+  type: "QUERY_SUGGESTIONS";
+  calgroupId: string;
   query: QueryFilter;
   period: GenericPeriod;
 };
 
 // Handle task, return action maybe
-export function handleGroupQuerySuggest(
+export function handleQuerySuggest(
   task: QuerySuggestTask,
   state: EventsState
 ): SuggestionsAction|void {
@@ -45,8 +45,8 @@ export function handleGroupQuerySuggest(
   });
 
   return {
-    type: "GROUP_SUGGESTIONS",
-    groupId: task.groupId,
+    type: "SUGGESTIONS",
+    calgroupId: task.calgroupId,
     labels, guests
   };
 }
