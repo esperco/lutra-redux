@@ -6,7 +6,6 @@ import { EventList, EventDisplay, PlaceholderEvent } from "./EventList";
 import Tooltip from './Tooltip';
 import Waypoint from './Waypoint';
 import makeEvent from "../fakes/events-fake";
-import { testLabel } from "../fakes/labels-fake";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { LabelSet } from "../lib/event-labels";
 import { stub as stubGlobal } from '../lib/sandbox';
@@ -80,6 +79,23 @@ describe("EventList", () => {
     expect(eventDisplay).to.have.length(2);
   });
 
+  it("updates confirmation status when EventDisplay fires " +
+     "onExplicitConfirm firing", () => {
+    let e1a = { ...e1, hidden: true, labels_confirmed: false };
+    let wrapper = shallow(<EventList
+      events={[e1a]} { ...defaultsProps }
+    />);
+    let eventDisplay = wrapper.find(EventDisplay);
+
+    // Simulate clicking the show button
+    eventDisplay.prop('onHideChange')([e1.id], false);
+    eventDisplay.prop('onExplicitConfirm')(e1.id);
+    wrapper.setProps({ events: [e1] })
+    wrapper.update();
+    let updatedEventDisplay = wrapper.find(EventDisplay);
+    expect(updatedEventDisplay.prop('unconfirmed')).to.not.be.ok;
+  });
+
   it("renders hidden, confirmed events after clicking button", () => {
     let e1a = { ...e1, hidden: true, labels_confirmed: true };
     let wrapper = shallow(<EventList
@@ -121,10 +137,16 @@ describe("EventDisplay", () => {
     });
   });
 
-  it("renders a waypoint and adds CSS class if event needs confirmation",
+  const defaultsProps2 = {
+    ...defaultsProps,
+    onExplicitConfirm: () => null
+  };
+
+  it("renders a waypoint and adds CSS class if unconfirmed prop set",
   () => {
     let wrapper = shallow(<EventDisplay
-      event={unconfirmedevent} { ...defaultsProps }
+      event={unconfirmedevent} { ...defaultsProps2 }
+      unconfirmed={true}
     />);
     expect(wrapper.find(Waypoint)).to.have.length(1);
     expect(wrapper.hasClass('unconfirmed')).to.be.true;
@@ -132,7 +154,8 @@ describe("EventDisplay", () => {
 
   it("doesn't render a waypoint or add CSS class if already confirmed", () => {
     let wrapper = shallow(<EventDisplay
-      event={confirmedEvent} { ...defaultsProps }
+      event={confirmedEvent} { ...defaultsProps2 }
+      unconfirmed={false}
     />);
     expect(wrapper.find(Waypoint)).to.have.length(0);
     expect(wrapper.hasClass('unconfirmed')).to.be.false;
@@ -141,7 +164,7 @@ describe("EventDisplay", () => {
   it("sets a timeout to confirm when waypoint is viewed", () => {
     let spy = Sinon.spy();
     let wrapper = shallow(<EventDisplay
-      event={unconfirmedevent} { ...defaultsProps }
+      event={unconfirmedevent} { ...defaultsProps2 }
       onConfirm={spy}
       autoConfirmTimeout={1234}
     />);
@@ -164,7 +187,7 @@ describe("EventDisplay", () => {
   it("clears the timeout if we exit before timer clears", () => {
     let spy = Sinon.spy();
     let wrapper = shallow(<EventDisplay
-      event={unconfirmedevent} { ...defaultsProps }
+      event={unconfirmedevent} { ...defaultsProps2 }
       onConfirm={spy}
       autoConfirmTimeout={1234}
     />);
@@ -190,7 +213,7 @@ describe("EventDisplay", () => {
 
   it("clears the timeout on unmount", () => {
     let wrapper = shallow(<EventDisplay
-      event={unconfirmedevent} { ...defaultsProps }
+      event={unconfirmedevent} { ...defaultsProps2 }
     />);
 
     let waypoint = wrapper.find(Waypoint);
@@ -206,51 +229,14 @@ describe("EventDisplay", () => {
     expect(timeouts[0].cleared).to.be.ok;
   });
 
-  it("continues display confirmed CSS even after timeout fires and event " +
-     "is confirmed", () => {
+  it("calls onExplicitConfirm for unconfirmed event when clicked", () => {
+    let spy = Sinon.spy();
     let wrapper = shallow(<EventDisplay
-      event={unconfirmedevent} { ...defaultsProps }
+      event={unconfirmedevent} { ...defaultsProps2 }
+      unconfirmed={true}
+      onExplicitConfirm={spy}
     />);
-
-    let waypoint = wrapper.find(Waypoint);
-    waypoint.prop('onEnter')!({
-      waypointTop: 0,
-      viewportTop: 0,
-      viewportBottom: 0,
-      currentPosition: "inside",
-      previousPosition: "below"
-    });
-    timeouts[0].fn();
-    wrapper.setProps({
-      event: { ...unconfirmedevent, labels_confirmed: true, }
-    });
-
-    wrapper.update();
-    expect(wrapper.hasClass('unconfirmed')).to.be.true;
-  });
-
-  it("clears confirmed visual state when event title is clicked", () => {
-    let wrapper = shallow(<EventDisplay
-      event={unconfirmedevent} { ...defaultsProps }
-    />);
-    let title = wrapper.find('a').first();
-    title.simulate('click');
-    wrapper.update();
-    expect(wrapper.hasClass('unconfirmed')).to.not.be.ok;
-  });
-
-  it("clears confirmed visual state if labels change", () => {
-    let wrapper = shallow(<EventDisplay
-      event={unconfirmedevent} { ...defaultsProps }
-    />);
-    wrapper.setProps({
-      event: {
-        ...unconfirmedevent,
-        labels_confirmed: true,
-        labels: [testLabel("TEST")]
-      }
-    });
-    wrapper.update();
-    expect(wrapper.hasClass('unconfirmed')).to.not.be.ok;
+    wrapper.simulate('click');
+    expect(spy.called).to.be.true;
   });
 });
