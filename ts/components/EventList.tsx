@@ -49,49 +49,61 @@ export interface ListProps extends SharedProps {
 
 interface ListState {
   /*
-    By default, we minimize hidden events (unless those events need
-    confirmation) within a given list and show a notice to the user that
-    we've done so. This state variable stores a record of event IDs that are
-    hidden and should not be rendered.
+    Unconfirmed events are depicted with a different style. We may auto-
+    confirm that event but don't want to change the appearance of the event
+    until the user explicitly confirms.
 
-    Events are hidden only on first render. Subsequent updates should not hide
-    more events because we want the user to be able to re-toggle a hidden event
-    back to shown if they hide it.
+    This state variable stores a record of event IDs that are unconfirmed
+    as of mount (or the first time we see that event)
+
+    NB: We store unconfirmed status in the list component's state rather
+    than the individual event's state because we need to know confirmation
+    status for which hidden events to show (we don't hide unconfirmed hidden
+    events because we want the user to visually inspect before we
+    auto-confirm).
   */
-  hiddenEvents?: Record<string, true>;
+  unconfirmed: Record<string, boolean>;
+
+  // Sould we show hidden events?
+  showHiddenEvents: boolean;
 }
 
 export class EventList extends React.Component<ListProps, ListState> {
   constructor(props: ListProps) {
     super(props);
     this.state = {
-      hiddenEvents: this.getHiddenEvents(props)
+      unconfirmed: this.getUnconfirmed(props),
+      showHiddenEvents: false
     };
   }
 
   componentWillReceiveProps(newProps: ListProps) {
-    // Update hidden events iff it hasn't been set already
-    if (! this.state.hiddenEvents) {
-      this.setState({
-        hiddenEvents: this.getHiddenEvents(newProps)
-      });
-    }
+    // Use callback to avoid issues with setState being called multiple times
+    // and clobbering result of this.explicitConfirm
+    this.setState((s) => ({
+      ...s,
+      /*
+        Merge with existing implicit hidden (need explicit action from
+        sub-component to remove from this state var).
+      */
+      unconfirmed: {
+        ...this.getUnconfirmed(newProps),
+        ...s.unconfirmed
+      }
+    }));
   }
 
   /*
-    Returns the event ID recordwe're hiding for a given prop set (or undefined
-    if events aren't ready yet.
+    Returns the event ID record of unconfirmed events in props
   */
-  getHiddenEvents(props: ListProps) {
+  getUnconfirmed(props: ListProps) {
     let ret: Record<string, true> = {};
     for (let i in props.events) {
       let event = props.events[i];
-
-      // Not ready -> return undefined, don't update hidden state
-      if (! ready(event)) { return; }
-
-      if (event.hidden && event.labels_confirmed) {
-        ret[event.id] = true;
+      if (ready(event)) {
+        if (!event.labels_confirmed) {
+          ret[event.id] = true;
+        }
       }
     }
     return ret;
@@ -115,14 +127,18 @@ export class EventList extends React.Component<ListProps, ListState> {
   }
 
   renderHiddenEventMsg() {
-    let numHiddenEvents = _.size(this.state.hiddenEvents || {});
+    let numHiddenEvents = _.filter(this.props.events,
+      (e) => ready(e) && e.hidden && !this.state.unconfirmed[e.id]
+    ).length;
     if (! numHiddenEvents) return null;
 
     return <div className="hidden-events panel">
       <Tooltip
         title={EventText.HiddenEventsDescription}
-        target={<button onClick={() => this.showHiddenEvents()}>
-          { EventText.hiddenEventsMsg(numHiddenEvents) }
+        target={<button onClick={() => this.toggleHiddenEvents()}>
+          { this.state.showHiddenEvents ?
+            EventText.HideHidden :
+            EventText.hiddenEventsMsg(numHiddenEvents) }
         </button>}
       />
     </div>;
@@ -138,54 +154,46 @@ export class EventList extends React.Component<ListProps, ListState> {
     if (ev === "FETCHING") {
       return <PlaceholderEvent key={index} />;
     }
-    if (this.state.hiddenEvents && this.state.hiddenEvents[ev.id]) {
-      return null; // Hidden
+    if (ev.hidden && !this.state.unconfirmed[ev.id] &&
+        !this.state.showHiddenEvents) {
+      return null;
     }
     return <EventDisplay key={ev.id} event={ev}
       { ...this.props }
+      unconfirmed={!!this.state.unconfirmed[ev.id]}
+      onExplicitConfirm={this.explicitConfirm}
       selected={this.isSelected(ev)}
     />;
   }
 
-  showHiddenEvents() {
+  toggleHiddenEvents() {
     this.setState({
-      hiddenEvents: {}
+      ...this.state,
+      showHiddenEvents: !this.state.showHiddenEvents
     });
+  }
+
+  explicitConfirm = (eventId: string) => {
+    this.setState((s) => ({
+      ...s,
+      unconfirmed: {
+        ...s.unconfirmed,
+        [eventId]: false
+      }
+    }));
   }
 }
 
 
 export interface EventProps extends SharedProps {
   event: ApiT.GenericCalendarEvent;
+  onExplicitConfirm: (eventId: string) => void;
+  unconfirmed?: boolean; // Use in lieu of event.labels_confirmed
   selected?: boolean;
 }
 
-interface EventState {
-  // Track confirmation in state because we want to persist indications
-  // of confirmation even after auto-confirming
-  confirmed: boolean;
-}
-
-export class EventDisplay extends React.Component<EventProps, EventState> {
+export class EventDisplay extends React.Component<EventProps, {}> {
   _timeout?: number;
-
-  constructor(props: EventProps) {
-    super(props);
-    this.state = {
-      confirmed: !!props.event.labels_confirmed
-    };
-  }
-
-  // Change display to confirmed if result of labeling action
-  componentWillReceiveProps(newProps: EventProps) {
-    if (!this.state.confirmed && newProps.event.labels_confirmed) {
-      let newLabelLength = (newProps.event.labels || []).length;
-      let oldLabelLength = (this.props.event.labels || []).length;
-      if (newLabelLength !== oldLabelLength) {
-        this.setState({ confirmed: true })
-      }
-    }
-  }
 
   // Don't fire confirmation timeout if we skipped past it really fast
   componentWillUnmount() {
@@ -201,10 +209,10 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
       <span className="no-title">{ EventText.NoTitle }</span>;
 
     return <div className={classNames("event", "panel", {
-      unconfirmed: !this.state.confirmed,
+      unconfirmed: !!this.props.unconfirmed,
       hidden: event.hidden === true,
       "has-predictions": event.labels_predicted
-    })}>
+    })} onClick={() => this.confirm(true)}>
       <div className="event-body">
         <h4>
           {
@@ -214,8 +222,7 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
             </CheckboxItem> : null
           } {
             this.props.eventHrefFn ?
-            <a href={this.props.eventHrefFn(event)}
-              onClick={() => this.confirm(true)}>
+            <a href={this.props.eventHrefFn(event)}>
               { title }
             </a> : title
           }
@@ -274,7 +281,7 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
             />
           </span> : null }
 
-        <div className="event-actions">
+        { event.hidden ? null : <div className="event-actions">
           <LabelList
             labels={this.props.labels}
             searchLabels={this.props.searchLabels}
@@ -293,17 +300,18 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
                 </a> : <Icon type="comments" /> }
             </span>
             : null }
-        </div>
+        </div> }
       </div>
 
-      <div className="event-primary-action">
-        { this.props.onTimebombToggle ?
-          <TimebombToggle
-            loggedInUid={this.props.loggedInUid}
-            event={event}
-            onToggle={this.props.onTimebombToggle}
-          /> : null }
-      </div>
+      { this.props.event.hidden ? null :
+        <div className="event-primary-action">
+          { this.props.onTimebombToggle ?
+            <TimebombToggle
+              loggedInUid={this.props.loggedInUid}
+              event={event}
+              onToggle={this.props.onTimebombToggle}
+            /> : null }
+        </div> }
     </div>;
   }
 
@@ -314,8 +322,8 @@ export class EventDisplay extends React.Component<EventProps, EventState> {
   }
 
   confirm(explicit=false) {
-    if (explicit && !this.state.confirmed) {
-      this.setState({ confirmed: true });
+    if (explicit && this.props.unconfirmed) {
+      this.props.onExplicitConfirm(this.props.event.id);
     }
 
     let { event } = this.props;

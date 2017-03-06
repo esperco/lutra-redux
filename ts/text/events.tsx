@@ -110,6 +110,8 @@ export function hiddenEventsMsg(n?: number) {
   return `${n} hidden ${events(n)}`;
 }
 
+export const HideHidden = "Don't show hidden events";
+
 export function eventsSelected(n?: number) {
   return `${n} ${events(n)} selected`;
 }
