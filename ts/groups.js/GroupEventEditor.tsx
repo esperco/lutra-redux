@@ -32,6 +32,8 @@ export class GroupEventEditor extends React.Component<Props, {}> {
     let eventId = _.keys(this.props.state.selectedEvents)[0];
     let eventMap = this.props.state.groupEvents[this.props.groupId] || {};
     let members = this.props.state.groupMembers[this.props.groupId];
+    let loggedInUid =
+      this.props.state.login ? this.props.state.login.uid : undefined;
     let { labels, searchLabels } = this.props;
     let context = {
       query: this.props.query,
@@ -39,6 +41,7 @@ export class GroupEventEditor extends React.Component<Props, {}> {
     };
 
     return <EventEditor
+      loggedInUid={loggedInUid}
       event={eventMap[eventId]}
       members={members}
       labels={labels}

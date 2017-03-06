@@ -424,6 +424,20 @@ namespace Api {
     return JsonHttp.put(url, { value } as ApiT.BoolRequest);
   }
 
+  export function confirmGroupEvent(groupId: string, eventId: string)
+  : Promise<void> {
+    let url = `${prefix}/api/group/confirm-event/`
+            + `${myUid()}/${string(groupId)}/${string(eventId)}`;
+    return JsonHttp.put(url);
+  }
+
+  export function unconfirmGroupEvent(groupId: string, eventId: string)
+  : Promise<void> {
+    let url = `${prefix}/api/group/unconfirm-event/`
+            + `${myUid()}/${string(groupId)}/${string(eventId)}`;
+    return JsonHttp.put(url);
+  }
+
 
   /* Invites */
 
