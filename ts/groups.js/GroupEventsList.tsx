@@ -45,7 +45,7 @@ interface State {
   daysToShow: number;
 }
 
-export class eventsList extends React.Component<Props, State> {
+export class EventsList extends React.Component<Props, State> {
   // Sparsely-populated array. Indices refer to the period type's day-index
   _refs: QueryDay[];
 
@@ -285,4 +285,4 @@ class QueryDay extends TreeFall<DayProps, {}> {
   }
 }
 
-export default eventsList;
+export default EventsList;
