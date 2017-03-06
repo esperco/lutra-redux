@@ -132,13 +132,13 @@ export class EventList extends React.Component<ListProps, ListState> {
     ).length;
     if (! numHiddenEvents) return null;
 
-    if (this.state.showHiddenEvents) return null;
-
     return <div className="hidden-events panel">
       <Tooltip
         title={EventText.HiddenEventsDescription}
-        target={<button onClick={() => this.showHiddenEvents()}>
-          { EventText.hiddenEventsMsg(numHiddenEvents) }
+        target={<button onClick={() => this.toggleHiddenEvents()}>
+          { this.state.showHiddenEvents ?
+            EventText.HideHidden :
+            EventText.hiddenEventsMsg(numHiddenEvents) }
         </button>}
       />
     </div>;
@@ -166,8 +166,11 @@ export class EventList extends React.Component<ListProps, ListState> {
     />;
   }
 
-  showHiddenEvents() {
-    this.setState({ ...this.state, showHiddenEvents: true });
+  toggleHiddenEvents() {
+    this.setState({
+      ...this.state,
+      showHiddenEvents: !this.state.showHiddenEvents
+    });
   }
 
   explicitConfirm = (eventId: string) => {

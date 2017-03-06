@@ -108,6 +108,23 @@ describe("EventList", () => {
     let eventDisplay = wrapper.find(EventDisplay);
     expect(eventDisplay).to.have.length(2);
   });
+
+  it("re-hides hidden, confirmed events if button is clicked twice", () => {
+    let e1a = { ...e1, hidden: true, labels_confirmed: true };
+    let wrapper = shallow(<EventList
+      events={[e1a, e2]} { ...defaultsProps }
+    />);
+    let button = shallow(wrapper.find(Tooltip).prop('target'));
+    button.simulate('click');
+    wrapper.update();
+
+    button = shallow(wrapper.find(Tooltip).prop('target'));
+    button.simulate('click');
+    wrapper.update();
+
+    let eventDisplay = wrapper.find(EventDisplay);
+    expect(eventDisplay).to.have.length(1);
+  });
 });
 
 describe("EventDisplay", () => {
