@@ -20,6 +20,8 @@ import { store, dispatch, getState } from "./store";
 import App from "../components/App";
 import NotFound from "../components/NotFound";
 import Loading from "../components/Loading";
+import ScrollContainer from "../components/ScrollContainer";
+import Header from "./TBHeader";
 import EventList from "./TBEventList";
 import Settings from "./TBSettings";
 
@@ -56,9 +58,13 @@ store.subscribe(() => {
 
   ReactDOM.render(
     <App {...props} >
-      <div className="content">
+      <Header {...props} />
+      <ScrollContainer className="content"
+        onScrollChange={(direction) => props.dispatch({
+          type: "SCROLL", direction
+        })}>
         <MainView {...props} />
-      </div>
+      </ScrollContainer>
     </App>,
     document.getElementById("main")
   );
