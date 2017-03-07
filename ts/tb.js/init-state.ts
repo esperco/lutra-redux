@@ -1,6 +1,8 @@
 import { State } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as Events from "../states/events";
+import * as TeamCalendars from "../states/team-cals";
+import * as TeamPreferences from "../states/team-preferences";
 
 /*
   Exports a correctly typed state object.
@@ -9,6 +11,8 @@ import * as Events from "../states/events";
 export default function initState(): State {
   return {
     ...DataStatus.initState(),
-    ...Events.initState()
+    ...Events.initState(),
+    ...TeamCalendars.initState(),
+    ...TeamPreferences.initState()
   };
 }

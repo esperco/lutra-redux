@@ -8,6 +8,8 @@ import * as Events from "../states/events";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
 import * as Routes from "./routes";
+import * as TeamCalendars from "../states/team-cals";
+import * as TeamPreferences from "../states/team-preferences";
 
 /*
   Actions are updates to the Redux store -- they are processed by both
@@ -17,6 +19,10 @@ export type Action =
   DataStatus.DataAction|
   Events.EventsDataAction|
   Events.EventsUpdateAction|
+  TeamCalendars.TeamCalendarDataAction|
+  TeamCalendars.TeamCalendarUpdateAction|
+  TeamPreferences.DataAction|
+  TeamPreferences.UpdateAction|
   Login.LoginAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
@@ -29,6 +35,8 @@ export interface State extends
   DataStatus.DataState,
   Events.EventsState,
   ErrorMsg.ErrorMsgState,
+  TeamCalendars.TeamCalendarState,
+  TeamPreferences.TeamPreferencesState,
   Login.LoginState,
   Routing.RouteState<Routes.RouteTypes> { };
 

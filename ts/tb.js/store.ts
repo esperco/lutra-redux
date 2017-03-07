@@ -10,6 +10,8 @@ import * as ErrorMsg from "../states/error-msg";
 import * as Events from "../states/events";
 import * as Login from "../lib/login";
 import * as Routing from "../lib/routing";
+import * as TeamCalendars from "../states/team-cals";
+import * as TeamPreferences from "../states/team-preferences";
 import initState from "./init-state";
 
 // Check for redux dev tools extension
@@ -28,6 +30,14 @@ export const store = createStore(
         return Events.eventsDataReducer(state, action);
       case "EVENTS_UPDATE":
         return Events.eventsUpdateReducer(state, action);
+      case "TEAM_CALENDAR_DATA":
+        return TeamCalendars.teamCalendarDataReducer(state, action);
+      case "TEAM_CALENDAR_UPDATE":
+        return TeamCalendars.teamCalendarUpdateReducer(state, action);
+      case "TEAM_PREFERENCES_DATA":
+        return TeamPreferences.dataReducer(state, action);
+      case "TEAM_PREFERENCES_UPDATE":
+        return TeamPreferences.updateReducer(state, action);
       case "DATA_START":
       case "DATA_END":
         return DataStatus.dataReducer(state, action);

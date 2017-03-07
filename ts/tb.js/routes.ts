@@ -8,6 +8,9 @@ import * as ApiT from "../lib/apiT";
 import { GenericPeriod, fromDates } from "../lib/period";
 import * as Events from "../handlers/events";
 import * as Teams from "../handlers/teams";
+import * as TeamCals from "../handlers/team-cals";
+import * as TeamPrefs from "../handlers/team-prefs";
+import { ready } from "../states/data-status";
 
 interface Deps {
   dispatch: (action: Action) => any,
@@ -75,8 +78,16 @@ export const checkForTeam = function(deps: Deps): ApiT.Team|undefined {
 // Function that redirects to settings if no calendars found
 export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
   let team = checkForTeam(deps);
-  if (team && team.team_timestats_calendars &&
-      team.team_timestats_calendars.length) return team;
+  if (team) {
+    // Two sources of calendar info -> teamcalendars has priority
+    let cals = deps.state.teamCalendars[team.teamid];
+    let hasCals = cals && ready(cals.selected) ?
+      !!cals.selected.length :
+      team.team_timestats_calendars && !!team.team_timestats_calendars.length;
+    if (hasCals) return team;
+  }
+
+  // No cals, go to onboarding
   deps.Svcs.Nav.go(Paths.settings.href({ onboarding: true }));
   return;
 }
@@ -96,6 +107,11 @@ export interface SettingsRoute {
 export const settings = Paths.settings.route<Deps>(function(p, deps) {
   let team = checkForTeam(deps);
   if (! team) return;
+
+  // Fetch info for user's team
+  TeamCals.fetchAvailableCalendars(team.teamid, deps);
+  TeamCals.fetchSelectedCalendars(team.teamid, deps);
+  TeamPrefs.fetch(team.teamid, deps);
 
   deps.dispatch({
     type: "ROUTE",
