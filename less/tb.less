@@ -2,6 +2,12 @@
 @import "./components/_calendar";
 @import "./components/_day-box";
 @import "./components/_event-list";
+@import "./components/_period-selectors";
 @import "./components/_slide-show";
 @import "./components/_team-settings";
 @import "./components/_timebomb-toggle";
+
+// Hide header in timebomb-only product
+.event-list .event .timebomb-toggle, .timebomb-toggle {
+  h4 { display: none; }
+}

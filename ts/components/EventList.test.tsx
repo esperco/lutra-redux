@@ -88,7 +88,7 @@ describe("EventList", () => {
     let eventDisplay = wrapper.find(EventDisplay);
 
     // Simulate clicking the show button
-    eventDisplay.prop('onHideChange')([e1.id], false);
+    eventDisplay.prop('onHideChange')!([e1.id], false);
     eventDisplay.prop('onExplicitConfirm')(e1.id);
     wrapper.setProps({ events: [e1] })
     wrapper.update();
