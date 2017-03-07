@@ -21,6 +21,7 @@ import App from "../components/App";
 import NotFound from "../components/NotFound";
 import Loading from "../components/Loading";
 import EventList from "./TBEventList";
+import Settings from "./TBSettings";
 
 // Store Types
 import { LoggedInState, DispatchFn } from "./types";
@@ -74,6 +75,8 @@ function MainView(props: {
     switch(props.state.route.page) {
       case "EventList":
         return <EventList {...props} {...props.state.route} />;
+      case "Settings":
+        return <Settings {...props} {...props.state.route} />;
       case "NotFound":
         return <NotFound />;
     }

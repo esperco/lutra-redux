@@ -5,14 +5,15 @@ import { State as StoreState, DispatchFn } from './types';
 
 interface Props {
   team: ApiT.Team;
+  onboarding?: boolean;
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc;
   Conf?: { maxDaysFetch?: number; };
 }
 
-export default class TBEventList extends React.Component<Props, {}> {
+export default class TBSettings extends React.Component<Props, {}> {
   render() {
-    return <div>Hello { this.props.team.team_name }</div>;
+    return <div>{ this.props.onboarding ? "Onboarding" : "Settings" }</div>;
   }
 }
