@@ -2,6 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
+import Icon from "../components/Icon";
 import TeamCalendarsSelector from "../components/TeamCalendarsSelector";
 import TextInput from "../components/TextInput";
 import { TimebombSettings } from "../components/TimebombSettings";
@@ -12,6 +13,7 @@ import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
 import { ready } from '../states/data-status';
 import * as Text from "../text/team";
+import * as Paths from "./paths";
 import { LoggedInState, DispatchFn } from './types';
 
 interface Props {
@@ -26,13 +28,27 @@ interface Props {
 export default class TBSettings extends React.Component<Props, {}> {
   render() {
     return <div className="container">
+      <h2>
+        <a href={Paths.eventList.href({})}>
+          <Icon type="previous" />
+        </a>
+        { Text.SettingsHeading }
+      </h2>
+
       <div className="panel">
         <GeneralSettings {...this.props} />
       </div>
 
+      <h3>{ Text.CalHeading }</h3>
+      <p className="description">
+        { Text.CalDescription }
+      </p>
+
       <div className="panel">
         <CalendarsSelector {...this.props} />
       </div>
+
+      <h3>{ Text.MiscHeading }</h3>
 
       <div className="panel">
         <TimebombDefaults {...this.props} />
