@@ -98,6 +98,14 @@ namespace Api {
     return JsonHttp.post(url, body);
   }
 
+  export function setTeamName(teamId: string, name: string):
+    Promise<void> {
+    return JsonHttp.put(prefix + "/api/team-name/" + myUid()
+      + "/" + string(teamId)
+      + "/" + string(name),
+      "");
+  }
+
 
   /* Groups */
 

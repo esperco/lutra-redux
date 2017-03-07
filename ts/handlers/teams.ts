@@ -7,6 +7,7 @@ import * as moment from "moment-timezone";
 import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
 import { LoginAction, LoginState } from "../lib/login";
+import { QueueMap } from "../lib/queue";
 
 export function getSelfExecTeam(deps: {
   state: LoginState;
@@ -55,4 +56,34 @@ export function ensureSelfExecTeam(deps: {
     });
     return team;
   });
+}
+
+// Renaming team -- just use last queued result
+export const RenameQueue = new QueueMap<{
+  name: string;
+  Svcs: ApiSvc;
+}>((teamId, q) => {
+  let { name, Svcs } = _.last(q);
+  return Svcs.Api.setTeamName(teamId, name).then(() => []);
+});
+
+export function renameTeam(teamId: string, name: string, deps: {
+  state: LoginState;
+  dispatch: (a: LoginAction) => void;
+  Svcs: ApiSvc;
+}) {
+  let { state, Svcs, dispatch } = deps;
+  if (! state.login) throw new Error("Must be logged in");
+  let login = state.login;
+  let teamIndex = _.findIndex(login.teams, (t) => t.teamid === teamId);
+  if (teamIndex >= 0) {
+    let team = login.teams[teamIndex];
+    let teams = _.clone(login.teams);
+    teams[teamIndex] = { ...team, team_name: name };
+    dispatch({
+      type: "LOGIN",
+      info: { ...login, teams }
+    });
+  }
+  RenameQueue.get(teamId).enqueue({ name, Svcs });
 }

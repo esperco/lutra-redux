@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
+import { LoginState } from "../lib/login";
 import { QueueMap } from "../lib/queue";
 import * as PrefsState from "../states/team-preferences";
 import { ok, ready } from "../states/data-status";
@@ -55,7 +56,7 @@ export function update(
   update: Partial<ApiT.Preferences>,
   deps: {
     dispatch: (action: PrefsState.UpdateAction) => void;
-    state: PrefsState.TeamPreferencesState
+    state: PrefsState.TeamPreferencesState;
     Svcs: ApiSvc
   }
 ) {
@@ -74,3 +75,30 @@ export function update(
   return Promise.resolve();
 }
 
+export function toggleDailyAgenda(
+  teamId: string,
+  val: boolean,
+  deps: {
+    dispatch: (action: PrefsState.UpdateAction) => void;
+    state: PrefsState.TeamPreferencesState & LoginState;
+    Svcs: ApiSvc;
+  }
+) {
+  if (! deps.state.login) throw new Error("Not logged in");
+
+  let prefs = deps.state.teamPreferences[teamId];
+  if (! ready(prefs)) throw new Error("Prefs not ready yet");
+
+  let email = deps.state.login.email;
+  let current = prefs.email_types.daily_agenda.recipients
+  let recipients = val ? _.union(current, [email]) : _.without(current, email);
+  return update(teamId, {
+    email_types: {
+      ...prefs.email_types,
+      daily_agenda: {
+        ...prefs.email_types.daily_agenda,
+        recipients
+      }
+    }
+  }, deps);
+}

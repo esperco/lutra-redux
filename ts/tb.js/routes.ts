@@ -25,12 +25,13 @@ interface Deps {
 export interface EventListRoute {
   page: "EventList";
   period: GenericPeriod;
-  team: ApiT.Team;
+  teamId: string;
 };
 
 export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
   let team = checkForCalendar(deps);
   if (! team) return;
+  let teamId = team.teamid;
 
   // Default period = today + 6 (7 days total)
   let period = p.period || fromDates(
@@ -50,7 +51,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
     type: "ROUTE",
     route: {
       page: "EventList",
-      period, team
+      period, teamId
     }
   });
 });
@@ -100,13 +101,14 @@ export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
 
 export interface SettingsRoute {
   page: "Settings";
-  team: ApiT.Team;
+  teamId: string;
   onboarding?: boolean;
 }
 
 export const settings = Paths.settings.route<Deps>(function(p, deps) {
   let team = checkForTeam(deps);
   if (! team) return;
+  let teamId = team.teamid;
 
   // Fetch info for user's team
   TeamCals.fetchAvailableCalendars(team.teamid, deps);
@@ -117,7 +119,7 @@ export const settings = Paths.settings.route<Deps>(function(p, deps) {
     type: "ROUTE",
     route: {
       page: "Settings",
-      team,
+      teamId,
       onboarding: p.onboarding
     }
   });
