@@ -430,6 +430,9 @@ export interface Preferences {
   slack_address?: SlackAddress;
   timestats_notify?: TimestatsNotifyPrefs;
   event_link?: boolean;
+  tb?: boolean;
+  tb_guests_min: number;
+  tb_guests_max: number;
   general: GeneralPrefs;
   notes: string;
 }

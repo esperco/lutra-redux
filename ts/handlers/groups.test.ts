@@ -96,7 +96,7 @@ describe("Groups handlers", function() {
 
   describe("renameGroup", function() {
     afterEach(() => {
-      Groups.RenameQueue.reset();
+      Groups.PatchQueue.reset();
     });
 
     function getDeps() {
@@ -119,9 +119,11 @@ describe("Groups handlers", function() {
 
     it("fires an API call to rename group", function() {
       let deps = getDeps();
-      let apiSpy = sandbox.spy(deps.Svcs.Api, "renameGroup");
+      let apiSpy = sandbox.spy(deps.Svcs.Api, "patchGroupDetails");
       Groups.renameGroup("id-1", "New Group Name", deps);
-      expectCalledWith(apiSpy, "id-1", "New Group Name");
+      expectCalledWith(apiSpy, "id-1", {
+        group_name: "New Group Name"
+      });
     });
   });
 

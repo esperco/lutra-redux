@@ -5,7 +5,7 @@
 import * as React from 'react';
 import { LoggedInState, DispatchFn } from './types';
 import SettingsNav from "./SettingsNav";
-import { CheckboxItem } from "../components/CheckboxItem";
+import { TBSettings, TimebombSettings } from "../components/TimebombSettings";
 import * as Groups from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
@@ -13,7 +13,6 @@ import { ready } from "../states/data-status";
 import { GroupSummary } from "../states/groups";
 import { AlphaModeMsg } from "../text/common";
 import * as Text from "../text/groups";
-import * as TBText from "../text/timebomb";
 
 interface Props {
   groupId: string;
@@ -37,36 +36,19 @@ class MiscSettings extends React.Component<Props, {}> {
 
   renderContent(summary: GroupSummary) {
     let name = summary.group_name;
-    let tbEnabled = summary.group_tb;
-    let tbMinGuests = summary.group_tb_guests_min;
-    let tbMaxGuests = summary.group_tb_guests_max;
+    let tb = {
+      enabled: summary.group_tb,
+      minGuests: summary.group_tb_guests_min,
+      maxGuests: summary.group_tb_guests_max
+    };
     return <div>
       <div className="panel">
         <div className="alert info">
           { AlphaModeMsg }
         </div>
-        <CheckboxItem checked={tbEnabled}
-                      onChange={(val) => this.setTimebomb(val)}>
-          { TBText.TimebombEnable }
-          <div className="description">
-            { TBText.TimebombDescribe }
-          </div>
-        </CheckboxItem>
-        <div className="form-row">
-          <label htmlFor="tb-min-guests">
-            { TBText.TimebombMinGuests }
-          </label>
-          <input id="tb-min-guests" type="number" value={tbMinGuests}
-                  min="0" onChange={(e) => this.setTimebombMinGuests(e)} />
-        </div>
-        <div className="form-row">
-          <label htmlFor="tb-max-guests">
-            { TBText.TimebombMaxGuests }
-          </label>
-          <input id="tb-max-guests" type="number" value={tbMaxGuests}
-                  min="0" onChange={(e) => this.setTimebombMaxGuests(e)} />
-        </div>
+        <TimebombSettings value={tb} onChange={this.setTb} />
       </div>
+
       <div className="panel">
         <div className="alert danger">
           { Text.removeGroupDescription(name) }
@@ -82,21 +64,12 @@ class MiscSettings extends React.Component<Props, {}> {
     </div>;
   }
 
-  setTimebomb(val: boolean) {
-    Groups.patchGroupDetails({
-      groupId: this.props.groupId,
-      group_tb: val
+  setTb = (tb: TBSettings) => {
+    Groups.patchGroupDetails(this.props.groupId, {
+      group_tb: tb.enabled,
+      group_tb_guests_min: tb.minGuests,
+      group_tb_guests_max: tb.maxGuests
     }, this.props);
-  }
-
-  setTimebombMinGuests(event: React.FormEvent<HTMLInputElement>) {
-    let min = Number.parseInt(event.currentTarget.value);
-    Groups.setTimebombMinGuests(this.props.groupId, min, this.props);
-  }
-
-  setTimebombMaxGuests(event: React.FormEvent<HTMLInputElement>) {
-    let max = Number.parseInt(event.currentTarget.value);
-    Groups.setTimebombMaxGuests(this.props.groupId, max, this.props);
   }
 }
 
