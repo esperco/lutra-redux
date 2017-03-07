@@ -256,76 +256,38 @@ export function removeTeam(
 }
 
 
-/* Setting number of Timebomb guests */
+/* Patch group details */
 
-interface TimebombGuestsUpdate {
-  value: number;
+interface GroupPatch {
+  patch: ApiT.GroupUpdatePatch;
   Svcs: ApiSvc;
 }
 
-// Use last value in queue for each group
-export const TimebombMinQueue = new QueueMap<TimebombGuestsUpdate>(
-  (groupId, q) => {
-    let { Svcs, value } = _.last(q);
-    return Svcs.Api.patchGroupDetails(groupId, {
-      group_tb_guests_min: value
-    }).then(() => []);
+// Combines patch queries into single API call
+export const PatchQueue = new QueueMap<GroupPatch>((groupId, q) => {
+  let { Svcs } = _.last(q);
+  let patch = _.reduce(q,
+    (result, v) => ({ ...result, ...v.patch }),
+    {} as ApiT.GroupUpdatePatch);
+  return Svcs.Api.patchGroupDetails(groupId, patch).then(() => []);
 });
 
-export function setTimebombMinGuests(groupId: string, value: number, deps: {
-  dispatch: (a: GroupUpdateAction) => any;
-  state: GroupState;
-  Svcs: ApiSvc;
-}) {
-  if (value < 0) return Promise.reject(new Error("Invalid name"));
-  deps.dispatch({
+export function patchGroupDetails(groupId: string,
+  patch: ApiT.GroupUpdatePatch,
+  deps: {
+    dispatch: (a: GroupUpdateAction) => any;
+    state: GroupState;
+    Svcs: ApiSvc;
+  })
+{
+  let { dispatch, Svcs } = deps;
+  dispatch({
     type: "GROUP_UPDATE",
     groupId,
-    summary: {
-      group_tb_guests_min: value
-    }
+    summary: patch
   });
-  return TimebombMinQueue.get(groupId).enqueue({ value, ...deps });
+  return PatchQueue.get(groupId).enqueue({ patch, Svcs });
 }
-
-// Use last value in queue for each group
-export const TimebombMaxQueue = new QueueMap<TimebombGuestsUpdate>(
-  (groupId, q) => {
-    let { Svcs, value } = _.last(q);
-    return Svcs.Api.patchGroupDetails(groupId, {
-      group_tb_guests_max: value
-    }).then(() => []);
-});
-
-export function setTimebombMaxGuests(groupId: string, value: number, deps: {
-  dispatch: (a: GroupUpdateAction) => any;
-  state: GroupState;
-  Svcs: ApiSvc;
-}) {
-  if (value < 0) return Promise.reject(new Error("Invalid name"));
-  deps.dispatch({
-    type: "GROUP_UPDATE",
-    groupId,
-    summary: {
-      group_tb_guests_max: value
-    }
-  });
-  return TimebombMaxQueue.get(groupId).enqueue({ value, ...deps });
-}
-
-
-/* Rename Groups */
-
-interface RenameUpdate {
-  name: string;
-  Svcs: ApiSvc;
-}
-
-// Use last name in queue for each group
-export const RenameQueue = new QueueMap<RenameUpdate>((groupId, q) => {
-  let { Svcs, name } = _.last(q);
-  return Svcs.Api.renameGroup(groupId, name).then(() => []);
-});
 
 export function renameGroup(groupId: string, name: string, deps: {
   dispatch: (a: GroupUpdateAction) => any;
@@ -333,14 +295,9 @@ export function renameGroup(groupId: string, name: string, deps: {
   Svcs: ApiSvc;
 }) {
   if (! name) return Promise.reject(new Error("Invalid name"));
-  deps.dispatch({
-    type: "GROUP_UPDATE",
-    groupId,
-    summary: {
-      group_name: name
-    }
-  });
-  return RenameQueue.get(groupId).enqueue({ name, ...deps });
+  return patchGroupDetails(groupId, {
+    group_name: name
+  }, deps);
 }
 
 
@@ -396,23 +353,6 @@ export function processGroupLabelUpdates(
   }
 
   return Promise.resolve([]);
-}
-
-export function patchGroupDetails(props: ApiT.GroupUpdatePatch &
-                                         { groupId: string },
-                                  deps: {
-  dispatch: (a: GroupUpdateAction) => any;
-  state: GroupState;
-  Svcs: ApiSvc;
-}) {
-  let { dispatch, Svcs } = deps;
-  Svcs.Api.patchGroupDetails(props.groupId, props).then((summary) => {
-    dispatch({
-      type: "GROUP_UPDATE",
-      groupId: props.groupId,
-      summary
-    });
-  });
 }
 
 export const LabelQueues = new QueueMap(processGroupLabelUpdates);

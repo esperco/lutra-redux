@@ -18,9 +18,12 @@
 
   > * {
     flex: 1000 1000 1em;
-    min-width: 300px;
     margin-top: 0;
     padding: @padding-small / 2;
+
+    @media screen and (min-width: @screen-sm-min) {
+      min-width: 300px;
+    }
   }
 
   > .event-primary-action {

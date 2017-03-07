@@ -45,7 +45,10 @@ var config = {
     guide: "./guide.js",
 
     // Single event pages + Esper link landing
-    events: "./events.js"
+    events: "./events.js",
+
+    // Timebomb for your own team
+    tb: "./tb.js"
   },
 
   output: {

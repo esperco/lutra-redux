@@ -24,14 +24,14 @@ export interface SharedProps {
   loggedInUid?: string;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
-  labels: LabelSet;          // For LabelList
-  searchLabels: LabelSet;    // For LabelList
-  onChange: (
+  labels?: LabelSet;          // For LabelList
+  searchLabels?: LabelSet;    // For LabelList
+  onChange?: (
     eventIds: string[],
     x: ApiT.LabelInfo,
     active: boolean
   ) => void;
-  onHideChange: (eventIds: string[], hidden: boolean) => void;
+  onHideChange?: (eventIds: string[], hidden: boolean) => void;
   onConfirm?: (eventIds: string[]) => void;
 
   // NB: Batch timebomb toggle not supported yet
@@ -97,6 +97,9 @@ export class EventList extends React.Component<ListProps, ListState> {
     Returns the event ID record of unconfirmed events in props
   */
   getUnconfirmed(props: ListProps) {
+    // Ignore unconfirmed status if no way to confirm
+    if (! props.onConfirm) return {};
+
     let ret: Record<string, true> = {};
     for (let i in props.events) {
       let event = props.events[i];
@@ -127,6 +130,9 @@ export class EventList extends React.Component<ListProps, ListState> {
   }
 
   renderHiddenEventMsg() {
+    // Ignore if no way to toggle hidden events
+    if (! this.props.onHideChange) return null;
+
     let numHiddenEvents = _.filter(this.props.events,
       (e) => ready(e) && e.hidden && !this.state.unconfirmed[e.id]
     ).length;
@@ -228,9 +234,10 @@ export class EventDisplay extends React.Component<EventProps, {}> {
           }
         </h4>
 
-        <button className="hide-btn" onClick={() => this.toggleHide()}>
-          { event.hidden ? CommonText.Show : CommonText.Hide }
-        </button>
+        { this.props.onHideChange ?
+          <button className="hide-btn" onClick={() => this.toggleHide()}>
+            { event.hidden ? CommonText.Show : CommonText.Hide }
+          </button> : null }
 
         <div className="event-info">
           <div className="time">
@@ -281,25 +288,26 @@ export class EventDisplay extends React.Component<EventProps, {}> {
             />
           </span> : null }
 
-        { event.hidden ? null : <div className="event-actions">
-          <LabelList
-            labels={this.props.labels}
-            searchLabels={this.props.searchLabels}
-            events={[event]}
-            onChange={this.props.onChange}
-            labelHrefFn={this.props.labelHrefFn}
-          />
+        { event.hidden || !this.props.labels || !this.props.onChange ? null :
+          <div className="event-actions">
+            <LabelList
+              labels={this.props.labels}
+              searchLabels={this.props.searchLabels}
+              events={[event]}
+              onChange={this.props.onChange}
+              labelHrefFn={this.props.labelHrefFn}
+            />
 
-          { event.comments.length ?
-            <span className="comment-count">
-              { this.props.eventHrefFn ?
-                <a href={this.props.eventHrefFn(event)}>
-                  <Icon type="comments">
-                    { event.comments.length }
-                  </Icon>
-                </a> : <Icon type="comments" /> }
-            </span>
-            : null }
+            { event.comments.length ?
+              <span className="comment-count">
+                { this.props.eventHrefFn ?
+                  <a href={this.props.eventHrefFn(event)}>
+                    <Icon type="comments">
+                      { event.comments.length }
+                    </Icon>
+                  </a> : <Icon type="comments" /> }
+              </span>
+              : null }
         </div> }
       </div>
 
@@ -349,6 +357,7 @@ export class EventDisplay extends React.Component<EventProps, {}> {
   }
 
   toggleHide() {
+    this.props.onHideChange &&
     this.props.onHideChange([this.props.event.id], !this.props.event.hidden);
   }
 }

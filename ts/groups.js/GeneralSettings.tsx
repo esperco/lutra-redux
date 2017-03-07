@@ -13,10 +13,11 @@ import FilterMenu from "../components/FilterMenu";
 import Icon from '../components/Icon';
 import { Menu, Choice } from '../components/Menu';
 import TextInput from "../components/TextInput";
-import TimezoneSelector, { toZoneName } from '../components/TimezoneSelector';
+import TimezoneDropdown from '../components/TimezoneDropdown';
 import Tooltip from '../components/Tooltip';
 import { Dropdown } from '../components/Dropdown';
 import { Modal } from '../components/Modal';
+import TeamCalendarsSelector from "../components/TeamCalendarsSelector"
 import * as TeamCals from '../handlers/team-cals';
 import * as TeamPrefs from "../handlers/team-prefs";
 import * as Groups from '../handlers/groups';
@@ -26,7 +27,6 @@ import {
 } from "../lib/apiT";
 import { NavSvc } from "../lib/routing";
 import { OrderedSet, ChoiceSet, validateEmailAddress } from "../lib/util";
-import { Zones } from "../lib/timezones";
 import { GroupMembers, GroupSummary } from '../states/groups';
 import { ok, ready } from '../states/data-status';
 import { GenericErrorMsg } from "../text/error-text";
@@ -98,23 +98,7 @@ interface Subprops extends Props {
 
 class SummaryInfo extends React.Component<Subprops, {}> {
   render() {
-    let { groupId, summary, isSuper, dispatch, Svcs } = this.props;
-    let timezone = _.find(Zones, (z) => z.id === summary.group_timezone);
-    let zoneName = timezone ? timezone.display : "";
-
-    let onSelect = (choice: Choice) => {
-      let group_timezone = toZoneName(choice).id;
-
-      // TODO: Move to handler
-      Svcs.Api.putGroupTimezone(groupId, group_timezone).then(() =>
-        dispatch({
-          type: "GROUP_UPDATE",
-          groupId,
-          summary: { group_timezone }
-        })
-      );
-    };
-
+    let { groupId, isSuper } = this.props;
     return <div className="panel">
       <div className="form-row">
         <label htmlFor="group-name">
@@ -132,23 +116,18 @@ class SummaryInfo extends React.Component<Subprops, {}> {
           />
         }) }
       </div>
+
       <div className="form-row">
         <label htmlFor="group-timezone">
           { Text.GroupTimezone }
         </label>
-        { isSuper ?
-          <Dropdown
-            toggle={<button className="input-style">
-              {zoneName}
-            </button>}
-            menu={<div className="dropdown-menu">
-              <TimezoneSelector
-                selected={this.props.summary.group_timezone}
-                onSelect={onSelect} />
-            </div>}
-          /> :
-          <input type="text" readOnly disabled value={zoneName} />
-        }
+        <TimezoneDropdown
+          disabled={!isSuper}
+          value={this.props.summary.group_timezone}
+          onChange={(z) => Groups.patchGroupDetails(this.props.groupId, {
+            group_timezone: z
+          }, this.props)}
+        />
       </div>
     </div>;
   }
@@ -437,14 +416,15 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
   }
 
   renderCalendars(available: GenericCalendar[], selected: GenericCalendar[]) {
-    return <div className="panel menu">
-      { _.map(available,
-        (c) => <CheckboxItem key={c.id}
-          checked={!!_.find(selected,
-            (s) => s.id === c.id)}
-          onChange={(v) => this.updateCal(c, v)}>
-          { c.title }
-        </CheckboxItem>)}
+    return <div className="panel">
+      <TeamCalendarsSelector
+        available={available}
+        selected={selected}
+        onChange={(cal, value) => TeamCals.toggleCalendar({
+          teamId: this.props.editTeamId,
+          cal, value
+        }, this.props)}
+      />
     </div>;
   }
 
@@ -462,13 +442,6 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
       this.props
     );
     this.closeModal();
-  }
-
-  updateCal(cal: GenericCalendar, value: boolean) {
-    TeamCals.toggleCalendar({
-      teamId: this.props.editTeamId,
-      cal, value
-    }, this.props);
   }
 
   updateLink(val: boolean) {

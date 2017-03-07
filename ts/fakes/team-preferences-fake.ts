@@ -13,6 +13,8 @@ export function makePrefs(prefs: Partial<ApiT.Preferences>): ApiT.Preferences {
         send_time: { hour: 0, minute: 0 }
       },
     },
+    tb_guests_min: 2,
+    tb_guests_max: 18,
     general: { current_timezone: "America/Los_Angeles" },
     notes: ""
   };

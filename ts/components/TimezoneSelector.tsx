@@ -24,7 +24,7 @@ export function toZoneName(c: Choice): ZoneName {
 
 interface Props {
   selected: string;
-  onSelect: (choice: Choice, method: "click"|"enter") => void;
+  onSelect: (val: string, method: "click"|"enter") => void;
 }
 
 class TimezoneSelector extends React.Component<Props, {}> {
@@ -58,7 +58,7 @@ class TimezoneSelector extends React.Component<Props, {}> {
       choices={choices}
       selected={selected}
       filterFn={filterFn}
-      onSelect={this.props.onSelect}
+      onSelect={(c, method) => this.props.onSelect(toZoneName(c).id, method)}
     />;
   }
 }

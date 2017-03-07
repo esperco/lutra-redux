@@ -89,6 +89,23 @@ namespace Api {
     });
   }
 
+  /* Teams */
+
+  export function createTeam(body: ApiT.TeamCreationRequest)
+    : Promise<ApiT.Team>
+  {
+    let url = prefix + "/api/team-create/" + myUid();
+    return JsonHttp.post(url, body);
+  }
+
+  export function setTeamName(teamId: string, name: string):
+    Promise<void> {
+    return JsonHttp.put(prefix + "/api/team-name/" + myUid()
+      + "/" + string(teamId)
+      + "/" + string(name),
+      "");
+  }
+
 
   /* Groups */
 
