@@ -17,6 +17,7 @@ import TimezoneSelector, { toZoneName } from '../components/TimezoneSelector';
 import Tooltip from '../components/Tooltip';
 import { Dropdown } from '../components/Dropdown';
 import { Modal } from '../components/Modal';
+import TeamCalendarsSelector from "../components/TeamCalendarsSelector"
 import * as TeamCals from '../handlers/team-cals';
 import * as TeamPrefs from "../handlers/team-prefs";
 import * as Groups from '../handlers/groups';
@@ -437,14 +438,15 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
   }
 
   renderCalendars(available: GenericCalendar[], selected: GenericCalendar[]) {
-    return <div className="panel menu">
-      { _.map(available,
-        (c) => <CheckboxItem key={c.id}
-          checked={!!_.find(selected,
-            (s) => s.id === c.id)}
-          onChange={(v) => this.updateCal(c, v)}>
-          { c.title }
-        </CheckboxItem>)}
+    return <div className="panel">
+      <TeamCalendarsSelector
+        available={available}
+        selected={selected}
+        onChange={(cal, value) => TeamCals.toggleCalendar({
+          teamId: this.props.editTeamId,
+          cal, value
+        }, this.props)}
+      />
     </div>;
   }
 
@@ -462,13 +464,6 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
       this.props
     );
     this.closeModal();
-  }
-
-  updateCal(cal: GenericCalendar, value: boolean) {
-    TeamCals.toggleCalendar({
-      teamId: this.props.editTeamId,
-      cal, value
-    }, this.props);
   }
 
   updateLink(val: boolean) {
