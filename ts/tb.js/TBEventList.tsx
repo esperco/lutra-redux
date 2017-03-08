@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
-import PeriodSelector from "../components/PeriodSelector";
+import FixedPeriodSelector from "../components/FixedPeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
 import TreeFall from "../components/TreeFall";
 import * as Events from "../handlers/events";
@@ -29,7 +29,6 @@ interface Props {
 
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
-    let now = new Date();
     let { teamId: calgroupId, state, period } = this.props;
     let queryState = state.eventQueries[calgroupId] || [];
     let eventMap = state.events[calgroupId] || {};
@@ -47,22 +46,12 @@ export default class TBEventList extends React.Component<Props, {}> {
       () => total += 1
     );
 
-    return <div className="rowbar-layout">
+    return <div id="tb-event-list" className="rowbar-layout">
       <header>
         {/* Select which period to show events for */}
-        <PeriodSelector
+        <FixedPeriodSelector
           value={this.props.period}
           onChange={this.onPeriodChange}
-          presets={[{
-            displayAs: PeriodText.Today,
-            value: fromDates(now, now)
-          }, {
-            displayAs: PeriodText.ThisWeek,
-            value: fromDates("week", now, now)
-          }, {
-            displayAs: PeriodText.ThisMonth,
-            value: fromDates("month", now, now)
-          }]}
         />
       </header>
 

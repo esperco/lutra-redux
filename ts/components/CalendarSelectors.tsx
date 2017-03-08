@@ -7,26 +7,20 @@ import * as moment from "moment";
 import * as classNames from "classnames";
 import Icon from "./Icon";
 
-interface RangeProps {
-  value?: [Date, Date]; // Current selection, if any
-  initialView?: Date;       // Date in currently viewed month
-  onChange: (range: [Date, Date]) => void;
+/* Select a single day */
+
+interface DaySelectorProps {
+  value?: Date;
+  onChange: (date: Date) => void;
 }
 
-interface RangeState {
+interface DaySelectorState {
   view: Date;   // Date in currently viewed month
-  start?: Date; // If one date is selected and we need an end
-  hover?: Date; // The date user is hovering over, if any
 }
 
-export class RangeSelector extends React.Component<RangeProps, RangeState> {
-  constructor(props: RangeProps) {
-    super(props);
-    this.state = {
-      view: props.initialView || new Date()
-    };
-  }
-
+abstract class CalSelectorBase<P, S extends DaySelectorState>
+    extends React.Component<P, S>
+{
   render() {
     let weeks = iterWeeksInMonth(this.state.view,
       (weekStart, weekEnd) => this.renderWeek(weekStart, weekEnd)
@@ -52,6 +46,70 @@ export class RangeSelector extends React.Component<RangeProps, RangeState> {
     return <div className="week" key={start.getTime()}>
       { iterDaysInRange(start, end, (d) => this.renderDay(d))}
     </div>;
+  }
+
+  abstract renderDay(date: Date): JSX.Element;
+
+  // Increment view by month
+  incr(i: number) {
+    this.setState({
+      view: moment(this.state.view).clone().add(i, 'month').toDate()
+    });
+  }
+}
+
+export class DaySelector extends
+    CalSelectorBase<DaySelectorProps, DaySelectorState>
+{
+  constructor(props: DaySelectorProps) {
+    super(props);
+    this.state = {
+      view: props.value || new Date()
+    };
+  }
+
+  renderDay(date: Date) {
+    let active = this.props.value &&
+      this.props.value.getTime() === date.getTime();
+    let classes = classNames("day", {
+      start: active,
+      end: active,
+      active,
+      "in-month": moment(date).isSame(this.state.view, "month"),
+      today: moment(date).isSame(new Date(), 'day')
+    });
+    return <button
+      key={date.getTime()}
+      className={classes}
+      onClick={() => this.props.onChange(date)}>
+      { moment(date).format("D") }
+    </button>;
+  }
+}
+
+
+/* Select a range of days */
+
+interface RangeProps {
+  value?: [Date, Date]; // Current selection, if any
+  initialView?: Date;       // Date in currently viewed month
+  onChange: (range: [Date, Date]) => void;
+}
+
+interface RangeState {
+  view: Date;   // Date in currently viewed month
+  start?: Date; // If one date is selected and we need an end
+  hover?: Date; // The date user is hovering over, if any
+}
+
+export class RangeSelector extends
+    CalSelectorBase<RangeProps, RangeState>
+{
+  constructor(props: RangeProps) {
+    super(props);
+    this.state = {
+      view: props.initialView || new Date()
+    };
   }
 
   renderDay(date: Date) {
@@ -132,14 +190,6 @@ export class RangeSelector extends React.Component<RangeProps, RangeState> {
     }
 
     return null;
-  }
-
-  // Increment view by month
-  incr(i: number) {
-    this.setState({
-      ...this.state,
-      view: moment(this.state.view).clone().add(i, 'month').toDate()
-    });
   }
 }
 
