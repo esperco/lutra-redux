@@ -210,13 +210,19 @@ export class EventDisplay extends React.Component<EventProps, {}> {
 
   render() {
     let { event } = this.props;
+    let past = moment(event.end).isBefore(new Date());
+
+    // NB: Treat events as hidden only if some way to change that status
+    let hidden = event.hidden === true && !!this.props.onHideChange;
+
     let title = event.title ?
       <span>{ event.title }</span> :
       <span className="no-title">{ EventText.NoTitle }</span>;
 
     return <div className={classNames("event", "panel", {
       unconfirmed: !!this.props.unconfirmed,
-      hidden: event.hidden === true,
+      hidden,
+      past,
       "has-predictions": event.labels_predicted
     })} onClick={() => this.confirm(true)}>
       <div className="event-body">
@@ -236,7 +242,7 @@ export class EventDisplay extends React.Component<EventProps, {}> {
 
         { this.props.onHideChange ?
           <button className="hide-btn" onClick={() => this.toggleHide()}>
-            { event.hidden ? CommonText.Show : CommonText.Hide }
+            { hidden ? CommonText.Show : CommonText.Hide }
           </button> : null }
 
         <div className="event-info">
@@ -288,7 +294,7 @@ export class EventDisplay extends React.Component<EventProps, {}> {
             />
           </span> : null }
 
-        { event.hidden || !this.props.labels || !this.props.onChange ? null :
+        { hidden || !this.props.labels || !this.props.onChange ? null :
           <div className="event-actions">
             <LabelList
               labels={this.props.labels}
@@ -311,7 +317,7 @@ export class EventDisplay extends React.Component<EventProps, {}> {
         </div> }
       </div>
 
-      { this.props.event.hidden ? null :
+      { hidden ? null :
         <div className="event-primary-action">
           { this.props.onTimebombToggle ?
             <TimebombToggle
