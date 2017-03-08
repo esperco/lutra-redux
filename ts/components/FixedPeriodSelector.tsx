@@ -31,7 +31,9 @@ export class FixedPeriodSelector extends React.Component<Props, {}> {
         ref={(c) => this._dropdown = c}
         keepOpen={true}
         toggle={<button>
+          <Icon type="calendar" />
           { fmtPeriod(this.props.value) }
+          <Icon type="caret-down" />
         </button>}
         menu={<div className="dropdown-menu period-selector-menu">
           <DaySelector
