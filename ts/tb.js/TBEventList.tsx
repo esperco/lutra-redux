@@ -15,6 +15,7 @@ import { NavSvc } from "../lib/routing";
 import { StoreData } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/events";
 import * as Text from "../text/common";
+import { noContentMessage } from "../text/team";
 import * as Paths from "./paths";
 import { State as StoreState, DispatchFn } from './types';
 
@@ -62,7 +63,7 @@ export default class TBEventList extends React.Component<Props, {}> {
         })}>
         <div className="container">
           { loaded && !total ?
-            <div>Empty</div> : null }
+            <div>{ noContentMessage(Paths.settings.href({})) }</div> : null }
 
           { _.map(queryDays, (d, i) =>
             <QueryDay key={i} day={start + i}
