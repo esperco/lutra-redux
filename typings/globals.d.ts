@@ -1,6 +1,5 @@
 /* Global types we're having trouble picking up elsewhere */
 
-/// <reference path="../node_modules/@types/whatwg-fetch/index.d.ts" />
 /// <reference path="../node_modules/@types/segment-analytics/index.d.ts" />
 
 // Set by Webpack
