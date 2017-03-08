@@ -1,5 +1,8 @@
 /*
   Wraps react-waypoint module in proper ES6 form
 */
-import Waypoint = require('react-waypoint');
+
+// Technically incorrect per ES6 standard but builds with Webpack transpiler
+import * as Waypoint from 'react-waypoint';
+
 export default Waypoint;

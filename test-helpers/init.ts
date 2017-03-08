@@ -33,4 +33,4 @@ function createDOM() {
   } as any;
 }
 
-export = createDOM();
+export default createDOM();
