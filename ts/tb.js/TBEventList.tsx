@@ -10,11 +10,11 @@ import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { iter } from "../lib/event-query-iter";
 import { stringify } from "../lib/event-queries";
-import { GenericPeriod, toDays, dateForDay, fromDates } from "../lib/period";
+import { GenericPeriod, toDays, dateForDay, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { StoreData } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/events";
-import * as PeriodText from "../text/periods";
+import * as Text from "../text/common";
 import * as Paths from "./paths";
 import { State as StoreState, DispatchFn } from './types';
 
@@ -73,6 +73,12 @@ export default class TBEventList extends React.Component<Props, {}> {
               onTimebombToggle={this.onTimebombToggle}
             />
           ) }
+
+          <div className="load-more">
+            <button onClick={
+              () => this.onPeriodChange(add(this.props.period, 1))
+            }>{ Text.More }</button>
+          </div>
         </div>
       </ScrollContainer>
     </div>;
