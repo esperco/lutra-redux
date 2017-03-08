@@ -3,15 +3,9 @@
   can test front-end code entirely within Node. This is run *BEFORE*
   Mocha is initialized.
 */
-
-// Type declarations for Node code
-declare var require: (module: string) => any;
-declare var global: Window;
-declare global {
-  interface Document {
-    parentWindow: Window;
-  }
-}
+require("ts-node").register({
+  project: "./test-helpers/tsconfig.test.json",
+});
 
 // Create a DOM for React and other libs to play with
 function createDOM() {
@@ -25,12 +19,12 @@ function createDOM() {
     '<body></body></html>';
 
   var jsdom = require('jsdom').jsdom;
-  (<any> global).document = jsdom(baseDOM);
-  (<any> global).window = (<any> document).defaultView;
-  (<any> global).self = window;
-  (<any> global).navigator = {
+  global.document = jsdom(baseDOM);
+  global.window = document.defaultView;
+  global.self = window;
+  global.navigator = {
     userAgent: 'node.js'
-  } as any;
+  };
 }
 
-export default createDOM();
+module.exports = createDOM();
