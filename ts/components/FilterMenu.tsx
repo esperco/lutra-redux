@@ -82,6 +82,8 @@ export abstract class FilterMenuBase<P extends BaseProps>
   }
 
   render() {
+    let props: BaseProps = this.props;
+
     // Incr values are used to determine whether an item is highlighted
     // because of this.state.activeIndex
     let specialIndexIncr = 0;
@@ -91,7 +93,7 @@ export abstract class FilterMenuBase<P extends BaseProps>
       indexIncr += 1;
     }
     if (this.state.visibleSpecialChoices) {
-      indexIncr += (this.props.specialChoices || []).length;
+      indexIncr += (props.specialChoices || []).length;
     }
 
     return <div>
@@ -115,9 +117,9 @@ export abstract class FilterMenuBase<P extends BaseProps>
         </button>
       </div> : null }
 
-      { this.state.visibleSpecialChoices && this.props.specialChoices ?
+      { this.state.visibleSpecialChoices && props.specialChoices ?
         <div className="menu">
-          { _.map(this.props.specialChoices, (c, i) =>
+          { _.map(props.specialChoices, (c, i) =>
             this.renderSpecialChoice(c, i,
               this.state.activeIndex === specialIndexIncr + i
             )
@@ -152,13 +154,14 @@ export abstract class FilterMenuBase<P extends BaseProps>
     if (exactMatch) {
       visibleChoices = [exactMatch].concat(visibleChoices);
     }
+    let props: BaseProps = this.props;
     this.setState({
       value,
       activeIndex: !!value.trim() ? 0 : -1,
       visibleChoices,
       visibleSpecialChoices: !value,
-      visibleAdd: !!this.props.onAdd && !!value.trim() && !exactMatch &&
-                  !(this.props.validateAdd && !this.props.validateAdd(value))
+      visibleAdd: !!props.onAdd && !!value.trim() && !exactMatch &&
+                  !(props.validateAdd && !props.validateAdd(value))
     });
   }
 
@@ -170,9 +173,10 @@ export abstract class FilterMenuBase<P extends BaseProps>
   }
 
   next() {
+    let props: BaseProps = this.props;
     let maxLength = this.state.visibleChoices.length;
-    if (this.state.visibleSpecialChoices && this.props.specialChoices) {
-      maxLength += this.props.specialChoices.length;
+    if (this.state.visibleSpecialChoices && props.specialChoices) {
+      maxLength += props.specialChoices.length;
     }
     if (this.state.visibleAdd) {
       maxLength += 1;
@@ -186,23 +190,24 @@ export abstract class FilterMenuBase<P extends BaseProps>
   }
 
   submit(method: "enter"|"click" = "enter") {
+    let props: BaseProps = this.props;
     let didAdd = (() => {
       let index = this.state.activeIndex;
-      if (this.state.visibleAdd && this.props.onAdd) {
+      if (this.state.visibleAdd && props.onAdd) {
         if (index === 0) {
-          this.props.onAdd(this.state.value, method);
+          props.onAdd(this.state.value, method);
           return true;
         }
         index -= 1;
       }
 
-      if (this.state.visibleSpecialChoices && this.props.specialChoices) {
-        let specialChoice = this.props.specialChoices[index];
+      if (this.state.visibleSpecialChoices && props.specialChoices) {
+        let specialChoice = props.specialChoices[index];
         if (specialChoice) {
           specialChoice.onSelect(!specialChoice.selected, method);
           return false;
         }
-        index -= this.props.specialChoices.length;
+        index -= props.specialChoices.length;
       }
 
       let choice = this.state.visibleChoices[index];

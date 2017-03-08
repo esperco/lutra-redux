@@ -29,8 +29,7 @@ staging: prod
 
 test:
 	mocha --recursive --reporter spec --bail \
-  --require test-helpers/init.ts \
-  --compilers ts:ts-node/register,tsx:ts-node/register \
+  --require test-helpers/init.js \
 	$(TEST_TARGET)
 
 prod:

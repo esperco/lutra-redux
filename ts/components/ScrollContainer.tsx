@@ -4,7 +4,6 @@
   direction changes (e.g. scrolling down multiple times only results in
   one callback).
 */
-import * as _ from 'lodash';
 import * as React from 'react';
 
 const DEFAULT_SCROLL_THRESHOLD = 100; // Px
@@ -45,8 +44,14 @@ export class ScrollContainer extends React.Component<Props, {}> {
   _lastScrollTop: number;
 
   render() {
-    let divProps = _.clone(this.props);
-    delete divProps.onScrollChange;
+    // Hack because there's no easy TypeScript way to say "minus this prop"
+    let divProps: React.HTMLProps<HTMLDivElement> = {};
+    for (let key in this.props) {
+      if (key === "onScrollChange" || key === "threshold") continue;
+      let propName = key as keyof React.HTMLProps<HTMLDivElement>;
+      divProps[propName] = this.props[propName];
+    }
+
     return <div {...divProps} ref={(c) => this._div = c}>
       { this.props.children }
     </div>;

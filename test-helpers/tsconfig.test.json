@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig",
+  "compilerOptions": {
+    "module": "commonjs"
+  },
+  "include": [
+    "../typings/**/*",
+    "../ts/**/*"
+  ],
+  "exclude": [
+    "../node_modules"
+  ]
+}

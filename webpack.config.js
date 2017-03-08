@@ -63,7 +63,7 @@ var config = {
 
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".json"],
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
 
     alias: {
       // Special config path based on environment
@@ -72,13 +72,13 @@ var config = {
   },
 
   module: {
-    loaders: [
+    rules: [
       { test: /\.html?$/,
         loader: PathRewriterPlugin.rewriteAndEmit({
           name: "[path][name]",
           context: "html",
           includeHash: true,
-          loader: 'nunjucks-html?' + JSON.stringify({
+          loader: 'nunjucks-html-loader?' + JSON.stringify({
             searchPaths: [ path.join(__dirname, "html") ],
 
             // Nunjucks / Jinja context
@@ -90,46 +90,66 @@ var config = {
         })
       },
 
-      { test: /\.less?$/,
-        loader: ExtractTextPlugin.extract("style-loader",
-          "css?" + (prodLike ? "minimize" : "") + "sourceMap" +
-          "!postcss?sourceMap" +
-          "!less?sourceMap"
-        )
-      },
+      // CSS / LESS
+      { test: /(\.css|\.less)$/,
+        loader: ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: [{
+            loader: "css-loader",
+            options: {
+              minimize: prodLike,
+              sourceMap: true
+            }
+          }, {
+            loader: 'postcss-loader',
+            options: {
+              plugins: function () { return [autoprefixer({
+                browsers: ['last 3 versions']
+              })]; },
+              sourceMap: true
+            }
+          }, {
+            loader: 'less-loader',
+            options: { sourceMap: true }
+          }]
+        }) },
 
-      { test: /\.css?$/,
-        loader: ExtractTextPlugin.extract("style-loader",
-          "css?" + (prodLike ? "minimize" : "") + "sourceMap" +
-          "!postcss?sourceMap"
-        )
-      },
-
-      { test: /\.tsx?$/,
-        loader: "ts-loader",
-        exclude: [/\.(test)\.tsx?$/] },
-
-      { test: /\.json$/, loader: "json-loader" },
+      // TypeScript
+      { test: /\.ts(x?)$/,
+       exclude: /node_modules/,
+       use: [{
+         loader: 'ts-loader',
+         options: { sourceMap: true }
+       }] },
 
       // Static assets
       { test: /.*/,
-        loader: "file?context=assets&name=[path][name].[ext]",
+        use: [{
+          loader: 'file-loader',
+          options: {
+            context: "assets",
+            name: "[path][name].[ext]"
+          }
+        }],
         include: [ path.resolve(__dirname, "./assets") ]
         // exclude: /\.html$/
       },
 
       { test: /\.(woff|woff2|eot|ttf|svg)(\?.*)?$/,
-        loader: "file?context=node_modules&name=fonts/[name].[ext]",
+        use: [{
+          loader: 'file-loader',
+          options: {
+            context: "node_modules",
+            name: "fonts/[name].[ext]"
+          }
+        }],
         include: [ path.resolve(__dirname, "./node_modules") ]
-      }
-    ],
+      },
 
-    preLoaders: [
-      /*
-        All output '.js' files will have any sourcemaps re-processed by
-        'source-map-loader'.
-      */
-      { test: /\.js$/, loader: "source-map-loader" }
+      // Source map extraction
+      { test: /\.js$/,
+        use: ["source-map-loader"],
+        enforce: "pre" }
     ]
   },
 
@@ -147,35 +167,40 @@ var config = {
       }
     }),
 
-    new ExtractTextPlugin(
-      "css/[name]--" + (prodLike ? "[contenthash]" : "dev") + ".css",
-      { allChunks: true }),
+    new ExtractTextPlugin({
+      filename: "css/[name]--" + (prodLike ? "[contenthash]" : "dev") + ".css",
+      allChunks: true
+    }),
+
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
       filename: "js/[name]--" + (prodLike ? "[chunkhash]" : "dev") + ".js"
     }),
+
     new PathRewriterPlugin()
   ],
 
-  postcss: function () {
-    return [autoprefixer({
-      browsers: ['last 3 versions']
-    })];
-  },
-
   devServer: {
     historyApiFallback: true
-  },
-
-  worker: {
-    output: {
-      filename: "js/[name].worker--" +
-        (prodLike ? "[chunkhash]" : "dev") + ".js",
-      chunkFilename: "js/[name].worker--" +
-        (prodLike ? "[chunkhash]" : "dev") + ".js"
-    }
   }
 };
+
+// Back-compat config
+config.plugins.push(new webpack.LoaderOptionsPlugin({
+  options: {
+    context: '/',
+    output: config.output,
+    worker: {
+      output: {
+        filename: "js/[name].worker--" +
+          (prodLike ? "[chunkhash]" : "dev") + ".js",
+        chunkFilename: "js/[name].worker--" +
+          (prodLike ? "[chunkhash]" : "dev") + ".js"
+      }
+    }
+  }
+}));
+
 
 if (! prodLike) {
   /*
@@ -194,6 +219,9 @@ if (! prodLike) {
 
 if (prodLike) {
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    screw_ie8: true,
+    sourceMap: true,
+
     // Disable warnings about un-reachable conditions and what not. Most
     // of those are intentional (e.g. via webpack.DefinePlugin)
     compress: {warnings: false}
