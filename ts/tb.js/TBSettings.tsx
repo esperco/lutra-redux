@@ -11,6 +11,7 @@ import * as Teams from "../handlers/teams";
 import * as TeamCals from "../handlers/team-cals";
 import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
+import { NavSvc } from "../lib/routing";
 import { ready } from '../states/data-status';
 import * as Text from "../text/team";
 import * as Paths from "./paths";
@@ -20,7 +21,7 @@ export interface Props {
   teamId: string;
   state: LoggedInState;
   dispatch: DispatchFn;
-  Svcs: ApiSvc;
+  Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
 }
 

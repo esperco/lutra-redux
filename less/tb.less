@@ -7,9 +7,28 @@
 @import "./components/_team-settings";
 @import "./components/_timebomb-toggle";
 
+@media screen and (min-width: @screen-sm-min) {
+  .container > h2:first-child {
+    margin-top: @padding-lg;
+  }
+}
+
 // Hide header in timebomb-only product
 .event-list .event .timebomb-toggle, .timebomb-toggle {
   h4 { display: none; }
+}
+
+// Onboarding
+.onboarding-next {
+  display: flex;
+
+  > * {
+    flex-grow: 1;
+  }
+
+  > span > button {
+    width: 100%;
+  }
 }
 
 // Timebomb event page styling

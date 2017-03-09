@@ -23,6 +23,7 @@ import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
 import Header from "./TBHeader";
 import EventList from "./TBEventList";
+import CalSetup from "./TBCalSetup";
 import Settings from "./TBSettings";
 
 // Store Types
@@ -83,6 +84,8 @@ function MainView(props: {
         return <EventList {...props} {...props.state.route} />;
       case "Settings":
         return <Settings {...props} {...props.state.route} />;
+      case "CalSetup":
+        return <CalSetup {...props} {...props.state.route} />;
       case "NotFound":
         return <NotFound />;
     }

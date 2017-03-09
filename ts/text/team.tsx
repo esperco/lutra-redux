@@ -4,6 +4,8 @@ import * as React from "react";
 export const SettingsHeading = "Settings";
 export const CalHeading = "Calendars";
 export const CalDescription = "Which calendars should Esper have access to?";
+export const OnboardingCalDescription = CalDescription +
+  " Don't worry. You can change this later!";
 export const MiscHeading = "Miscellaneous";
 
 export const TeamName = "Name";
@@ -23,3 +25,6 @@ export function noContentMessage(href: string) {
     </a>
   </div>;
 }
+
+export const NoCalsMsg =
+  "Please share a calendar with Esper before continuing.";
