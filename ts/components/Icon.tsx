@@ -29,7 +29,7 @@ export const IconMappings = {
   "archive": "fa-archive",
   "calendar-check": "fa-calendar-check-o",
   "calendar-empty": "fa-calendar-o",
-  "calendar": "fa-calendar",
+  "calendar": "fa-calendar-o",
   "caret-down": "fa-caret-down",
   "cancel": "fa-close",
   "clear": "fa-close",

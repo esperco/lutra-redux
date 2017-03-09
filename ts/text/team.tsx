@@ -1,3 +1,5 @@
+import * as React from "react";
+
 // Team settings
 export const SettingsHeading = "Settings";
 export const CalHeading = "Calendars";
@@ -12,3 +14,12 @@ export const DailyAgenda = "Daily Agenda Email";
 export const DailyAgendaDescription =
   "An early morning summary of your day. Reminds you which events " +
   "are still a go."
+
+export function noContentMessage(href: string) {
+  return <div className="no-content-msg">
+    Missing calendar events? You may need to share your calendar
+    with Esper. <a href={href}>
+      Go to the settings page to share your calendar.
+    </a>
+  </div>;
+}

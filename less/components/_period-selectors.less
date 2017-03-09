@@ -7,6 +7,14 @@ header {
       min-width: 1em;
       overflow-x: hidden;
       text-overflow: ellipsis;
+
+      > .icon-label:first-child {
+        margin-right: @padding-small;
+      }
+
+      > .icon-label:last-child {
+        margin-left: @padding-small;
+      }
     }
 
     > *:first-child { // Left button

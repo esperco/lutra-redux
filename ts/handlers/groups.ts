@@ -316,7 +316,7 @@ interface GroupLabelUpdate {
 export function processGroupLabelUpdates(
   groupId: string,
   queue: GroupLabelUpdate[],
-) {
+): Promise<GroupLabelUpdate[]> {
   // Use Svcs from first item
   let { Api } = queue[0].Svcs;
 
@@ -349,7 +349,7 @@ export function processGroupLabelUpdates(
     )))
 
     // Clear queue
-    .then(() => []);
+    .then((): GroupLabelUpdate[] => []);
   }
 
   return Promise.resolve([]);

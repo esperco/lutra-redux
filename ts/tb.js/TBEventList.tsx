@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
-import PeriodSelector from "../components/PeriodSelector";
+import FixedPeriodSelector from "../components/FixedPeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
 import TreeFall from "../components/TreeFall";
 import * as Events from "../handlers/events";
@@ -10,11 +10,12 @@ import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { iter } from "../lib/event-query-iter";
 import { stringify } from "../lib/event-queries";
-import { GenericPeriod, toDays, dateForDay, fromDates } from "../lib/period";
+import { GenericPeriod, toDays, dateForDay, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { StoreData } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/events";
-import * as PeriodText from "../text/periods";
+import * as Text from "../text/common";
+import { noContentMessage } from "../text/team";
 import * as Paths from "./paths";
 import { State as StoreState, DispatchFn } from './types';
 
@@ -29,7 +30,6 @@ interface Props {
 
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
-    let now = new Date();
     let { teamId: calgroupId, state, period } = this.props;
     let queryState = state.eventQueries[calgroupId] || [];
     let eventMap = state.events[calgroupId] || {};
@@ -47,22 +47,12 @@ export default class TBEventList extends React.Component<Props, {}> {
       () => total += 1
     );
 
-    return <div className="rowbar-layout">
+    return <div id="tb-event-list" className="rowbar-layout">
       <header>
         {/* Select which period to show events for */}
-        <PeriodSelector
+        <FixedPeriodSelector
           value={this.props.period}
           onChange={this.onPeriodChange}
-          presets={[{
-            displayAs: PeriodText.Today,
-            value: fromDates(now, now)
-          }, {
-            displayAs: PeriodText.ThisWeek,
-            value: fromDates("week", now, now)
-          }, {
-            displayAs: PeriodText.ThisMonth,
-            value: fromDates("month", now, now)
-          }]}
         />
       </header>
 
@@ -73,7 +63,7 @@ export default class TBEventList extends React.Component<Props, {}> {
         })}>
         <div className="container">
           { loaded && !total ?
-            <div>Empty</div> : null }
+            <div>{ noContentMessage(Paths.settings.href({})) }</div> : null }
 
           { _.map(queryDays, (d, i) =>
             <QueryDay key={i} day={start + i}
@@ -84,6 +74,12 @@ export default class TBEventList extends React.Component<Props, {}> {
               onTimebombToggle={this.onTimebombToggle}
             />
           ) }
+
+          <div className="load-more">
+            <button onClick={
+              () => this.onPeriodChange(add(this.props.period, 1))
+            }>{ Text.More }</button>
+          </div>
         </div>
       </ScrollContainer>
     </div>;

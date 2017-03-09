@@ -47,7 +47,7 @@ describe("<PeriodSelector />", () => {
     />);
 
     // Initial view is first month in selection
-    let initialView = rangeSelector.prop('initialView');
+    let initialView = rangeSelector.prop('initialView') as Date;
     expect(moment(initialView).isSame(new Date("2016-09-01"), "month"))
       .to.be.true;
 
