@@ -16,9 +16,8 @@ import * as Text from "../text/team";
 import * as Paths from "./paths";
 import { LoggedInState, DispatchFn } from './types';
 
-interface Props {
+export interface Props {
   teamId: string;
-  onboarding?: boolean;
   state: LoggedInState;
   dispatch: DispatchFn;
   Svcs: ApiSvc;
@@ -105,7 +104,7 @@ const GeneralSettings = (props: Props) => {
 }
 
 
-const CalendarsSelector = (props: Props) => {
+export const CalendarsSelector = (props: Props) => {
   let calState = props.state.teamCalendars[props.teamId] || {};
   let { available, selected } = calState;
   if (! ready(available) || !ready(selected)) {
@@ -139,11 +138,8 @@ const TimebombDefaults = (props: Props) => {
     </div>;
   }
 
-  let enabled = props.onboarding ?
-    (typeof prefs.tb === "undefined" ? true : !!prefs.tb) :
-    !! prefs.tb;
   let val = {
-    enabled,
+    enabled: !!prefs.tb,
     minGuests: prefs.tb_guests_min,
     maxGuests: prefs.tb_guests_max
   };

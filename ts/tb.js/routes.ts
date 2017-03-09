@@ -76,6 +76,36 @@ export const checkForTeam = function(deps: Deps): ApiT.Team|undefined {
   return;
 }
 
+
+/*
+  Calendar setup page
+*/
+
+export interface CalSetupRoute {
+  page: "CalSetup";
+  teamId: string;
+}
+
+export const calSetup = Paths.calSetup.route<Deps>(function(p, deps) {
+  let team = checkForTeam(deps);
+  if (! team) return;
+  let teamId = team.teamid;
+
+  // Fetch info for user's team
+  TeamCals.fetchAvailableCalendars(teamId, deps);
+  TeamCals.fetchSelectedCalendars(teamId, deps);
+  TeamPrefs.fetch(teamId, deps);
+
+  deps.dispatch({
+    type: "ROUTE",
+    route: {
+      page: "CalSetup",
+      teamId
+    }
+  });
+});
+
+
 // Function that redirects to settings if no calendars found
 export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
   let team = checkForTeam(deps);
@@ -89,7 +119,7 @@ export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
   }
 
   // No cals, go to onboarding
-  deps.Svcs.Nav.go(Paths.settings.href({ onboarding: true }));
+  deps.Svcs.Nav.go(Paths.calSetup.href({}));
   return;
 }
 
@@ -102,7 +132,6 @@ export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
 export interface SettingsRoute {
   page: "Settings";
   teamId: string;
-  onboarding?: boolean;
 }
 
 export const settings = Paths.settings.route<Deps>(function(p, deps) {
@@ -119,14 +148,14 @@ export const settings = Paths.settings.route<Deps>(function(p, deps) {
     type: "ROUTE",
     route: {
       page: "Settings",
-      teamId,
-      onboarding: p.onboarding
+      teamId
     }
   });
 });
 
 export type RouteTypes =
   EventListRoute|
+  CalSetupRoute|
   SettingsRoute;
 
 export function init({ dispatch, getState, Svcs, Conf }: {
@@ -139,6 +168,7 @@ export function init({ dispatch, getState, Svcs, Conf }: {
     [ // Routes
       eventList,
       setup,
+      calSetup,
       settings
     ],
 
