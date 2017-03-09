@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { ok, ready, StoreData } from "./data-status";
+import { EventsState, resetForCalgroupId } from "./events";
 
 export interface TeamPreferencesState {
   teamPreferences: Record<string, StoreData<ApiT.Preferences>>;
@@ -57,13 +58,15 @@ export function dataReducer<S extends TeamPreferencesState> (
   });
 }
 
-export function updateReducer<S extends TeamPreferencesState>(
+export function updateReducer
+  <S extends TeamPreferencesState & Partial<EventsState>>
+(
   state: S, action: UpdateAction
 ): S {
   let { teamId, preferences: update } = action;
   let current = state.teamPreferences[teamId];
   if (ready(current)) {
-    return _.extend({}, state, {
+    return _.extend({}, state, resetForCalgroupId(teamId, state), {
       teamPreferences: {
         ...state.teamPreferences,
         [teamId]: { ...current, ...update }

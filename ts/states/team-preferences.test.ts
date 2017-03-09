@@ -1,8 +1,10 @@
 import { expect } from "chai";
+import makeEvent from "../fakes/events-fake";
 import makePrefs from "../fakes/team-preferences-fake";
 import * as ApiT from "../lib/apiT";
 import { deepFreeze } from "../lib/util";
 import { StoreData } from "./data-status";
+import * as Events from "./events";
 import * as Prefs from "./team-preferences";
 
 describe("Team preferences state", () => {
@@ -88,6 +90,38 @@ describe("Team preferences state", () => {
         event_link: true
       }));
     });
-    Prefs.updateReducer
+
+    it("resets event state", () => {
+      let eventId = "event-id";
+      let eventsState = Events.initState();
+      eventsState.events = {
+        [teamId]: {
+          [eventId]: makeEvent({ id: eventId })
+        }
+      };
+      eventsState.eventQueries = {
+        [teamId]: [{
+          "{}": {
+            query: {},
+            eventIds: [eventId],
+            updatedOn: new Date()
+          }
+        }]
+      };
+
+      let s1 = deepFreeze({
+        ...makeState(makePrefs({ tb: false })),
+        ...Events.initState(),
+      });
+      let s2 = Prefs.updateReducer(s1, {
+        type: "TEAM_PREFERENCES_UPDATE",
+        teamId, preferences: { tb: true }
+      });
+      expect(s2.teamPreferences[teamId]).to.deep.equal(makePrefs({
+        tb: true
+      }));
+      expect(s2.events[teamId]).to.deep.equal({});
+      expect(s2.eventQueries[teamId]).to.deep.equal([]);
+    });
   });
 });

@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { LoginState } from "../lib/login";
 import { ok, ready, StoreMap } from "./data-status";
+import { EventsState, resetForCalgroupId } from "./events";
 
 /*
   Groups have optional group labels and member data -- store these separately
@@ -231,17 +232,21 @@ export function groupDataReducer<S extends GroupState & LoginState> (
   return state;
 }
 
-export function groupUpdateReducer<S extends GroupState> (
+export function groupUpdateReducer
+<S extends GroupState & Partial<EventsState>> (
   state: S, action: GroupUpdateAction
 ): S {
   let { groupId } = action;
-  let update: Partial<GroupState> = {};
+  let update: Partial<GroupState & EventsState> = {};
   if (action.summary) {
     let current = state.groupSummaries[groupId];
     if (ready(current)) {
-      update.groupSummaries = {
-        ...state.groupSummaries,
-        [groupId]: { ...current, ...action.summary }
+      update = {
+        ...resetForCalgroupId(groupId, state),
+        groupSummaries: {
+          ...state.groupSummaries,
+          [groupId]: { ...current, ...action.summary }
+        }
       };
     }
   }

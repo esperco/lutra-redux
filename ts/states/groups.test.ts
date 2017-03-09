@@ -3,6 +3,7 @@ import { expect } from "chai";
 import * as Groups from "./groups";
 import * as ApiT from "../lib/apiT";
 import { deepFreeze } from "../lib/util";
+import makeEvent from "../fakes/events-fake";
 import makeGroup from "../fakes/groups-fake";
 import makeLogin from "../fakes/login-fake";
 
@@ -271,6 +272,53 @@ describe("groupUpdateReducer", () => {
       groupLabels: {},
       groupMembers: {},
       groupPreferences: {}
+    });
+  });
+
+  it("resets event state if timebomb changed", function() {
+    let eventId = "event-id";
+    let s1 = {
+      ...Groups.initState(),
+      groupSummaries: {
+        "id-1": groupSummary1
+      },
+      events: {
+        "id-1": {
+          [eventId]: makeEvent({ id: eventId })
+        }
+      },
+      eventQueries: {
+        "id-1": [{
+          "{}": {
+            query: {},
+            eventIds: [eventId],
+            updatedOn: new Date()
+          }
+        }]
+      }
+    };
+    let s2 = Groups.groupUpdateReducer(s1, {
+      type: "GROUP_UPDATE",
+      groupId: "id-1",
+      summary: {
+        group_tb: !groupSummary1.group_tb,
+        group_tb_guests_max: groupSummary1.group_tb_guests_max + 1
+      }
+    });
+    expect(s2).to.deep.equal({
+      groupSummaries: {
+        "id-1": {
+          ...groupSummary1,
+          group_tb: !groupSummary1.group_tb,
+          group_tb_guests_max: groupSummary1.group_tb_guests_max + 1
+        }
+      },
+      groupLabels: {},
+      groupMembers: {},
+      groupPreferences: {},
+      events: { "id-1": {} },
+      eventQueries: { "id-1": [] },
+      recurringEvents: { "id-1": {} }
     });
   });
 
