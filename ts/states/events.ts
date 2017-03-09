@@ -538,6 +538,41 @@ function reduceFetchIdsResponse(
   });
 }
 
+/*
+  Editing calgroup may change some of the defaults returned for an event when
+  fetched from the server. Use this function to reset all event data for a
+  given calgroupId.
+*/
+export function resetForCalgroupId(
+  calgroupId: string,
+  state: Partial<EventsState>
+) {
+  /*
+    Updating group settings may affect the "default" data we get back for
+    different events, so invalidate everything if group changes.
+  */
+  if (state.eventQueries || state.events || state.recurringEvents) {
+    return {
+      ...state,
+      eventQueries: {
+        ...state.eventQueries,
+        [calgroupId]: []
+      },
+
+      events: {
+        ...state.events,
+        [calgroupId]: {}
+      },
+
+      recurringEvents: {
+        ...state.recurringEvents,
+        [calgroupId]: {}
+      }
+    };
+  }
+  return state;
+}
+
 export function initState(): EventsState {
   return {
     events: {},
