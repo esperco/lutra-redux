@@ -129,3 +129,4 @@ export const PeopleHoursByLabelTitle = "Team Person Hours by Tag";
 
 export const Refresh = "Refresh event data";
 export const Select = "Select this event";
+export const MoreEvents = "Load more events";

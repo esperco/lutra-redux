@@ -22,8 +22,10 @@ import NotFound from "../components/NotFound";
 import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
 import Header from "./TBHeader";
-import EventList from "./TBEventList";
+import Events from "./TBEvents";
 import CalSetup from "./TBCalSetup";
+import PickEventSetup from "./TBPickEventSetup";
+import EventDetailsSetup from "./TBEventDetailsSetup";
 import Settings from "./TBSettings";
 
 // Store Types
@@ -80,12 +82,16 @@ function MainView(props: {
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
-      case "EventList":
-        return <EventList {...props} {...props.state.route} />;
+      case "Events":
+        return <Events {...props} {...props.state.route} />;
       case "Settings":
         return <Settings {...props} {...props.state.route} />;
       case "CalSetup":
         return <CalSetup {...props} {...props.state.route} />;
+      case "PickEventSetup":
+        return <PickEventSetup {...props} {...props.state.route} />;
+      case "EventDetailsSetup":
+        return <EventDetailsSetup {...props} {...props.state.route} />;
       case "NotFound":
         return <NotFound />;
     }

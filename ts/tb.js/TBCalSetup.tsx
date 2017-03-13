@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import * as React from "react";
 import Tooltip from "../components/Tooltip";
 import { ready } from "../states/data-status";
@@ -11,8 +12,9 @@ export const TBCalSetup = (props: Props) => {
   let hasCals = !!teamCals &&
     ready(teamCals.selected) &&
     teamCals.selected.length > 0;
+  let isSaving = !_.isEmpty(props.state.apiCalls);
 
-  return <div className="container">
+  return <div className="container onboarding">
     <h2>{ Text.CalHeading }</h2>
     <p className="description">
       { Text.OnboardingCalDescription }
@@ -22,10 +24,10 @@ export const TBCalSetup = (props: Props) => {
       <CalendarsSelector {...props} />
     </div>
 
-    <div className="onboarding-next">
-      { hasCals ?
+    <div className="onboarding-footer">
+      { hasCals && !isSaving ?
         <NextButton onClick={
-          () => props.Svcs.Nav.go(Paths.eventList.href({}))
+          () => props.Svcs.Nav.go(Paths.pickEventSetup.href({}))
         } /> :
         <Tooltip
           target={<span><NextButton disabled /></span>}

@@ -72,27 +72,6 @@
     margin-top: @padding-small;
   }
 
-  .event-info {
-    font-size: @font-size-small;
-    color: @text-muted;
-
-    > * {
-      display: inline-block;
-      margin-top: 0;
-
-      &::before {
-        content: "\2022";
-        display: inline-block;
-        text-align: center;
-        width: @padding-base;
-      }
-
-      &:first-child::before {
-        display: none;
-      }
-    }
-  }
-
   .hide-btn {
     color: @text-muted;
     margin-top: 0;
@@ -143,6 +122,27 @@
 
     .tag-list {
       flex: 1 1 auto;
+    }
+  }
+}
+
+.event-info {
+  font-size: @font-size-small;
+  color: @text-muted;
+
+  > * {
+    display: inline-block;
+    margin-top: 0;
+
+    &::before {
+      content: "\2022";
+      display: inline-block;
+      text-align: center;
+      width: @padding-base;
+    }
+
+    &:first-child::before {
+      display: none;
     }
   }
 }

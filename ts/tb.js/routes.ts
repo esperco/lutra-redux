@@ -22,13 +22,13 @@ interface Deps {
 
 /* EventList is our main route */
 
-export interface EventListRoute {
-  page: "EventList";
+export interface EventsRoute {
+  page: "Events";
   period: GenericPeriod;
   teamId: string;
 };
 
-export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
+export const events = Paths.events.route<Deps>(function(p, deps) {
   let team = checkForCalendar(deps);
   if (! team) return;
   let teamId = team.teamid;
@@ -50,7 +50,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
   deps.dispatch({
     type: "ROUTE",
     route: {
-      page: "EventList",
+      page: "Events",
       period, teamId
     }
   });
@@ -64,7 +64,7 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
 
 export const setup = Paths.setup.route<Deps>(function(p, deps) {
   Teams.ensureSelfExecTeam(deps).then((team) => {
-    deps.Svcs.Nav.go(Paths.settings.href({ onboarding: true }));
+    deps.Svcs.Nav.go(Paths.calSetup.href({}));
   });
 });
 
@@ -125,6 +125,93 @@ export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
 
 
 /*
+  Pick event setup route --> onboarding step where we ask user to pick an
+  event to enable timebomb for
+*/
+
+export interface PickEventSetupRoute {
+  page: "PickEventSetup";
+  teamId: string;
+  period: GenericPeriod;
+}
+
+export const pickEventSetup = Paths.pickEventSetup.route<Deps>(
+function(p, deps) {
+  let team = checkForCalendar(deps);
+  if (! team) return;
+  let teamId = team.teamid;
+
+  /*
+    Default period = 2 days from now + 6 days -- start 2 days from now
+    because that's the earliest we can set a time bomb.
+  */
+  let period = p.period || fromDates(
+    moment(new Date()).add(2, 'days').toDate(),
+    moment(new Date()).add(8, 'days').toDate()
+  );
+
+  // Fetch events
+  Events.fetchEvents({
+    calgroupId: team.teamid,
+    calgroupType: "team",
+    period, query: {}
+  }, deps);
+
+  deps.dispatch({
+    type: "ROUTE",
+    route: {
+      page: "PickEventSetup",
+      teamId, period
+    }
+  });
+});
+
+
+/*
+  Event detail route -- after user picks an event during onboarding, we
+  provide additional info about how Timebomb works
+*/
+
+export interface EventDetailsSetupRoute {
+  page: "EventDetailsSetup",
+  teamId: string;
+  eventId: string;
+  period?: GenericPeriod;
+}
+
+export const eventDetailSetup = Paths.eventDetailsSetup.route<Deps>(
+function(p, deps) {
+  let team = checkForCalendar(deps);
+  if (! team) return;
+  let teamId = team.teamid;
+  let { eventId, period } = p;
+
+  /*
+    Make sure we have event details (should have already been fetched earlier,
+    but check again just in case).
+  */
+  Events.fetchById({
+    calgroupId: teamId,
+    calgroupType: "team",
+    eventId
+  }, deps);
+
+  // Default timebomb on?
+  TeamPrefs.fetch(teamId, deps);
+
+  deps.dispatch({
+    type: "ROUTE",
+    route: {
+      page: "EventDetailsSetup",
+      teamId,
+      eventId,
+      period
+    }
+  });
+});
+
+
+/*
   Settings is both one of our onboarding screens and place to actually
   change settings for stuff.
 */
@@ -154,8 +241,10 @@ export const settings = Paths.settings.route<Deps>(function(p, deps) {
 });
 
 export type RouteTypes =
-  EventListRoute|
+  EventsRoute|
   CalSetupRoute|
+  PickEventSetupRoute|
+  EventDetailsSetupRoute|
   SettingsRoute;
 
 export function init({ dispatch, getState, Svcs, Conf }: {
@@ -166,9 +255,11 @@ export function init({ dispatch, getState, Svcs, Conf }: {
 }) {
   Routing.init<Deps>(
     [ // Routes
-      eventList,
+      events,
       setup,
       calSetup,
+      pickEventSetup,
+      eventDetailSetup,
       settings
     ],
 
@@ -176,6 +267,6 @@ export function init({ dispatch, getState, Svcs, Conf }: {
     () => ({ dispatch, state: getState(), Svcs, Conf }),
 
     // Opts
-    { home: () => Paths.eventList.href({}) }
+    { home: () => Paths.events.href({}) }
   );
 }

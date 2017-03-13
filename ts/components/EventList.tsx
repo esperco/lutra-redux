@@ -245,45 +245,7 @@ export class EventDisplay extends React.Component<EventProps, {}> {
             { hidden ? CommonText.Show : CommonText.Hide }
           </button> : null }
 
-        <div className="event-info">
-          <div className="time">
-            <span className="start">
-              { moment(event.start).format("h:mm a") }
-            </span>{" to "}<span className="end">
-              { moment(event.end).format("h:mm a") }
-            </span>{" "}
-
-            { event.recurring_event_id ?
-              <Tooltip
-                target={<span className="recurring">
-                  <Icon type="repeat" />
-                </span>}
-                title={EventText.Recurring}
-              /> : null }
-          </div>
-
-          { event.location ? <span className="location">
-            { event.location.length > 25 ?
-              <span>{ event.location.slice(0, 22) }&hellip;</span> :
-              event.location }
-          </span> : null }
-
-          { event.guests && event.guests.length ?
-            <Tooltip
-              target={<span className="guests">
-                <Icon type="person" />
-                { event.guests.length }
-              </span>}
-              title={EventText.attendeeMsgShort(
-                _.map(event.guests, (g) => g.display_name || g.email)
-              )}
-            /> : null }
-
-          { event.merged && event.merged.cost ?
-            <span className={"cost cost-" + event.merged.cost }>
-              { _.repeat("$", event.merged.cost) }
-            </span> : null }
-        </div>
+        <EventInfo event={event} />
 
         { !event.labels_confirmed ?
           <span className="confirm-waypoint">
@@ -366,6 +328,54 @@ export class EventDisplay extends React.Component<EventProps, {}> {
     this.props.onHideChange &&
     this.props.onHideChange([this.props.event.id], !this.props.event.hidden);
   }
+}
+
+
+export interface EventInfoProps {
+  event: ApiT.GenericCalendarEvent;
+  includeDay?: boolean;
+}
+
+export function EventInfo({ event, includeDay }: EventInfoProps) {
+  return <div className="event-info">
+    <div className="time">
+      <span className="start">
+        { moment(event.start).format(includeDay ? "MMM D, h:mm a" : "h:mm a") }
+      </span>{" to "}<span className="end">
+        { moment(event.end).format("h:mm a") }
+      </span>{" "}
+
+      { event.recurring_event_id ?
+        <Tooltip
+          target={<span className="recurring">
+            <Icon type="repeat" />
+          </span>}
+          title={EventText.Recurring}
+        /> : null }
+    </div>
+
+    { event.location ? <span className="location">
+      { event.location.length > 25 ?
+        <span>{ event.location.slice(0, 22) }&hellip;</span> :
+        event.location }
+    </span> : null }
+
+    { event.guests && event.guests.length ?
+      <Tooltip
+        target={<span className="guests">
+          <Icon type="person" />
+          { event.guests.length }
+        </span>}
+        title={EventText.attendeeMsgShort(
+          _.map(event.guests, (g) => g.display_name || g.email)
+        )}
+      /> : null }
+
+    { event.merged && event.merged.cost ?
+      <span className={"cost cost-" + event.merged.cost }>
+        { _.repeat("$", event.merged.cost) }
+      </span> : null }
+  </div>;
 }
 
 export function PlaceholderEvent({} : {}) {

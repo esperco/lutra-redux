@@ -29,7 +29,7 @@ export default class TBSettings extends React.Component<Props, {}> {
   render() {
     return <div className="container">
       <h2>
-        <a href={Paths.eventList.href({})}>
+        <a href={Paths.events.href({})}>
           <Icon type="previous" />
         </a>
         { Text.SettingsHeading }
