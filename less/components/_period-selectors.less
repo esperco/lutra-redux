@@ -22,11 +22,25 @@ header {
     > *:first-child { // Left button
       flex: 1000 1000 auto;
       text-align: right;
+
+      @media screen and (max-width: @screen-xs-max) {
+        text-align: center;
+        padding-left: 0;
+        padding-right: 0;
+        min-width: 2em;
+      }
     }
 
     > *:last-child { // Right button
       flex: 1000 1000 auto;
       text-align: left;
+
+      @media screen and (max-width: @screen-xs-max) {
+        text-align: center;
+        padding-left: 0;
+        padding-right: 0;
+        min-width: 2em;
+      }
     }
   }
 }
