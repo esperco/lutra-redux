@@ -1,8 +1,20 @@
 /*
-  This is the entry point and main file for events.js. It should log
+  This is the entry point and main file for /events. It should log
   in our user (if possible), retrieve initial data, and either render
   a view for the event or redirect as appropriate.
 */
+
+// This causes Webpack to load everything in the assets dir during the build
+require.context("assets", true, /.*$/);
+
+// LESS
+require("less/events.less");
+
+// HTML files
+require("html/events.html");
+
+
+////////////////////////////////////////
 
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />

@@ -28,7 +28,7 @@ var VERSION = version();
 
 var config = {
   entry: {
-    groups: "./groups.js",
+    groups: "./ts/groups.js/index.tsx",
     vendor: [
       './js/promise-fetch',
       'crypto-js/sha1',
@@ -42,13 +42,13 @@ var config = {
     ],
 
     // Playground / Style-guide
-    guide: "./guide.js",
+    guide: "./ts/guide.js/index.tsx",
 
     // Single event pages + Esper link landing
-    events: "./events.js",
+    events: "./ts/events.js/index.tsx",
 
     // Timebomb for your own team
-    tb: "./tb.js"
+    tb: "./ts/tb.js/index.tsx"
   },
 
   output: {
@@ -67,7 +67,13 @@ var config = {
 
     alias: {
       // Special config path based on environment
-      config: path.join(__dirname, 'config', NODE_ENV)
+      config: path.join(__dirname, 'config', NODE_ENV),
+
+      // Shortcuts for requires
+      assets: path.join(__dirname, 'assets'),
+      html: path.join(__dirname, 'html'),
+      less: path.join(__dirname, 'less'),
+      js: path.join(__dirname, 'js')
     }
   },
 
