@@ -100,7 +100,7 @@ export class EventsList extends React.Component<Props, State> {
     let loaded = iter(
       { ...this.props, calgroupId: this.props.groupId },
       this.props.state,
-      () => total += 1
+      () => { total += 1; }
     );
 
     return <div className="group-events-list">

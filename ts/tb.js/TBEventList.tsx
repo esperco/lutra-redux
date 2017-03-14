@@ -48,7 +48,7 @@ export default class TBEventList extends React.Component<Props, {}> {
     let loaded = iter(
       { ...this.props, calgroupId, query: {} },
       this.props.state,
-      () => total += 1
+      () => { total += 1; }
     );
 
     return <div className="tb-event-list">
