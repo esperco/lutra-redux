@@ -11,17 +11,17 @@ import * as Teams from "../handlers/teams";
 import * as TeamCals from "../handlers/team-cals";
 import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
+import { NavSvc } from "../lib/routing";
 import { ready } from '../states/data-status';
 import * as Text from "../text/team";
 import * as Paths from "./paths";
 import { LoggedInState, DispatchFn } from './types';
 
-interface Props {
+export interface Props {
   teamId: string;
-  onboarding?: boolean;
   state: LoggedInState;
   dispatch: DispatchFn;
-  Svcs: ApiSvc;
+  Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
 }
 
@@ -29,7 +29,7 @@ export default class TBSettings extends React.Component<Props, {}> {
   render() {
     return <div className="container">
       <h2>
-        <a href={Paths.eventList.href({})}>
+        <a href={Paths.events.href({})}>
           <Icon type="previous" />
         </a>
         { Text.SettingsHeading }
@@ -105,7 +105,7 @@ const GeneralSettings = (props: Props) => {
 }
 
 
-const CalendarsSelector = (props: Props) => {
+export const CalendarsSelector = (props: Props) => {
   let calState = props.state.teamCalendars[props.teamId] || {};
   let { available, selected } = calState;
   if (! ready(available) || !ready(selected)) {
@@ -139,11 +139,8 @@ const TimebombDefaults = (props: Props) => {
     </div>;
   }
 
-  let enabled = props.onboarding ?
-    (typeof prefs.tb === "undefined" ? true : !!prefs.tb) :
-    !! prefs.tb;
   let val = {
-    enabled,
+    enabled: !!prefs.tb,
     minGuests: prefs.tb_guests_min,
     maxGuests: prefs.tb_guests_max
   };

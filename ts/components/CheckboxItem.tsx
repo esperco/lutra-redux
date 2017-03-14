@@ -24,6 +24,8 @@ interface Props {
 }
 
 export class CheckboxItem extends React.Component<Props, {}> {
+  _ref: HTMLInputElement;
+
   render() {
     let inputProps = _.clone(this.props.inputProps || {});
     inputProps.id = inputProps.id || randomString();
@@ -48,7 +50,10 @@ export class CheckboxItem extends React.Component<Props, {}> {
 
     return <label {...labelProps}>
       {/* The "real" checkbox -- gets hidden*/}
-      <input type="checkbox" {...inputProps} />
+      <input
+        type="checkbox" {...inputProps}
+        ref={(c) => this._ref = c}
+      />
 
       {/* Our fake checkbox element that we can style */}
       <span className="pseudo-checkbox" style={style} />
@@ -61,6 +66,10 @@ export class CheckboxItem extends React.Component<Props, {}> {
   handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     let target = e.target as HTMLInputElement;
     this.props.onChange(target.checked);
+  }
+
+  val = () => {
+    return this._ref && this._ref.checked;
   }
 }
 

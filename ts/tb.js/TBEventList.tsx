@@ -1,11 +1,13 @@
+/*
+  TB-specific wrapper around standard event list -- shared between setup
+  and normal home views
+*/
+
 import * as _ from 'lodash';
 import * as React from 'react';
 import DayBox from "../components/DayBox";
 import EventList, { SharedProps } from "../components/EventList";
-import FixedPeriodSelector from "../components/FixedPeriodSelector";
-import ScrollContainer from "../components/ScrollContainer";
 import TreeFall from "../components/TreeFall";
-import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { iter } from "../lib/event-query-iter";
@@ -14,14 +16,16 @@ import { GenericPeriod, toDays, dateForDay, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { StoreData } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/events";
-import * as Text from "../text/common";
-import { noContentMessage } from "../text/team";
-import * as Paths from "./paths";
+import { MoreEvents } from "../text/events";
 import { State as StoreState, DispatchFn } from './types';
 
 interface Props {
   teamId: string;
   period: GenericPeriod;
+  noContentMessage: JSX.Element|string;
+  onPeriodChange: (p: GenericPeriod) => void;
+  onTimebombToggle: (eventId: string, val: boolean) => void;
+
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
@@ -44,61 +48,30 @@ export default class TBEventList extends React.Component<Props, {}> {
     let loaded = iter(
       { ...this.props, calgroupId, query: {} },
       this.props.state,
-      () => total += 1
+      () => { total += 1; }
     );
 
-    return <div id="tb-event-list" className="rowbar-layout">
-      <header>
-        {/* Select which period to show events for */}
-        <FixedPeriodSelector
-          value={this.props.period}
-          onChange={this.onPeriodChange}
+    return <div className="tb-event-list">
+      { loaded && !total ?
+        <div>{ this.props.noContentMessage }</div> : null }
+
+      { _.map(queryDays, (d, i) =>
+        <QueryDay key={i} day={start + i}
+          loggedInUid={loggedInUid}
+          result={d[queryKey]}
+          eventMap={eventMap}
+          { ...this.props }
+          onTimebombToggle={this.props.onTimebombToggle}
         />
-      </header>
+      ) }
 
-      <ScrollContainer
-        className="content"
-        onScrollChange={(direction) => this.props.dispatch({
-          type: "SCROLL", direction
-        })}>
-        <div className="container">
-          { loaded && !total ?
-            <div>{ noContentMessage(Paths.settings.href({})) }</div> : null }
-
-          { _.map(queryDays, (d, i) =>
-            <QueryDay key={i} day={start + i}
-              loggedInUid={loggedInUid}
-              result={d[queryKey]}
-              eventMap={eventMap}
-              { ...this.props }
-              onTimebombToggle={this.onTimebombToggle}
-            />
-          ) }
-
-          <div className="load-more">
-            <button onClick={
-              () => this.onPeriodChange(add(this.props.period, 1))
-            }>{ Text.More }</button>
-          </div>
-        </div>
-      </ScrollContainer>
+      <div className="load-more">
+        <button onClick={this.next}>{ MoreEvents }</button>
+      </div>
     </div>;
   }
 
-  onTimebombToggle = (eventId: string,
-                      value: boolean) =>
-  {
-    Events.toggleTimebomb({
-      calgroupId: this.props.teamId,
-      calgroupType: "team",
-      eventId,
-      value
-    }, this.props);
-  }
-
-  onPeriodChange = (period: GenericPeriod) => {
-    this.props.Svcs.Nav.go(Paths.eventList.href({ period }));
-  }
+  next = () => this.props.onPeriodChange(add(this.props.period, 1));
 }
 
 

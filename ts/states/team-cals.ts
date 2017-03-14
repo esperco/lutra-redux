@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { ok, StoreData } from "./data-status";
+import { EventsState, resetForCalgroupId } from "./events";
 
 export interface GenericCalendars {
   [index: string] : {
@@ -114,7 +115,9 @@ export function teamCalendarDataReducer<S extends TeamCalendarState> (
   return _.extend({}, state, update);
 }
 
-export function teamCalendarUpdateReducer<S extends TeamCalendarState>(
+export function teamCalendarUpdateReducer
+  <S extends TeamCalendarState & Partial<EventsState>>
+(
   state: S, action: TeamCalendarUpdateAction
 ) {
   let { teamId } = action;
@@ -130,7 +133,7 @@ export function teamCalendarUpdateReducer<S extends TeamCalendarState>(
     }
   }
 
-  return _.extend({}, state, update);
+  return _.extend({}, state, resetForCalgroupId(teamId, state), update);
 }
 
 export function initState(): TeamCalendarState {

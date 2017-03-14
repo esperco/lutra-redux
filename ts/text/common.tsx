@@ -44,6 +44,7 @@ export const Calculating = <span className="calculating">
   Crunching numbers &hellip;
 </span>;
 export const EmailPlaceholder = "email@example.com";
+export const FinishOnboarding = "Start Using Esper!";
 export const More = "More";
 export const SelectAll = "Select All";
 export const ClearAll = "Clear Selection";

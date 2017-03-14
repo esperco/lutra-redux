@@ -18,10 +18,7 @@ export const TimebombSettings = ({ value, onChange } : Props) => {
     <CheckboxItem
         checked={value.enabled}
         onChange={(enabled) => onChange({ ...value, enabled })}>
-      { Text.TimebombEnable }
-      <div className="description">
-        { Text.TimebombDescribe }
-      </div>
+      { Text.TimebombDefault }
     </CheckboxItem>
 
     <div className="form-row">

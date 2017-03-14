@@ -7,13 +7,42 @@
 @import "./components/_team-settings";
 @import "./components/_timebomb-toggle";
 
+@media screen and (min-width: @screen-sm-min) {
+  .onboarding {
+    > h2:first-child {
+      margin-top: @padding-lg;
+      display: inline-block
+    }
+
+    > h2:first-child + .event-info {
+      display: inline-block;
+      padding-left: @padding-small;
+    }
+  }
+}
+
 // Hide header in timebomb-only product
 .event-list .event .timebomb-toggle, .timebomb-toggle {
   h4 { display: none; }
 }
 
+// Onboarding
+.onboarding-footer {
+  max-width: 500px;
+  margin-top: @padding-xl;
+  margin-left: auto;
+  margin-right: auto;
+
+  > button, > span > button {
+    margin-top: @padding-base;
+    width: 100%;
+  }
+}
+
 // Timebomb event page styling
-#tb-event-list {
+.tb-event-list {
+  margin-top: @padding-lg;
+
   .no-content-msg {
     padding: @padding-base;
     text-align: center;

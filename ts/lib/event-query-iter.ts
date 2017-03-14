@@ -18,7 +18,7 @@ export function iter(
     period: GenericPeriod;
   },
   state: EventsState,
-  cb: (event: ApiT.GenericCalendarEvent) => void
+  cb: (event: ApiT.GenericCalendarEvent) => boolean|void
 ) {
   // Have we seen this event before?
   let eventMap: Record<string, true> = {};
@@ -46,8 +46,8 @@ export function iter(
         // Skip hidden events
         if (event.hidden) { continue; }
 
-        // Call process function
-        cb(event);
+        // Call process function -- explicit return false -> return
+        if (cb(event) === false) return false;
       }
     }
   }
