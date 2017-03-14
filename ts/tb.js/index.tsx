@@ -75,6 +75,7 @@ store.subscribe(() => {
     <App {...props} >
       <Header {...props} />
       <ScrollContainer className="content"
+        scrollKey={getScrollKey(props.state)}
         onScrollChange={(direction) => props.dispatch({
           type: "SCROLL", direction
         })}>
@@ -84,6 +85,21 @@ store.subscribe(() => {
     document.getElementById("main")
   );
 });
+
+// Scroll key is used to reset scrollTop on container
+function getScrollKey(state: LoggedInState) {
+  if (state.route) {
+    let route = state.route;
+    switch (route.page) {
+      case "Events":
+      case "PickEventSetup":
+        return route.period.start;
+      default:
+        return route.page;
+    }
+  }
+  return;
+}
 
 // View routing
 function MainView(props: {
