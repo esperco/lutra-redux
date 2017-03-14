@@ -30,7 +30,7 @@ if ((self as any).Worker) {
 }
 
 // LESS
-require("less/groups.less");
+require("less/_variables.less");
 
 // HTML files
 require("html/groups.html");

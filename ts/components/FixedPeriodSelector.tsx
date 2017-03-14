@@ -2,6 +2,8 @@
   A calendar range selector that selects a period of a fixed length after
   one click.
 */
+
+require("less/components/_period-selectors.less");
 import * as React from "react";
 import {
   GenericPeriod, Period,

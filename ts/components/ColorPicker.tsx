@@ -1,3 +1,8 @@
+/*
+  Pick a color from a grid
+*/
+
+require("less/components/_color-picker.less");
 import * as _ from "lodash";
 import * as React from "react";
 import { presets, colorForText } from "../lib/colors";

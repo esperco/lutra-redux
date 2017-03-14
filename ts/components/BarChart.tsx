@@ -1,6 +1,7 @@
 /*
   A simple HTML-only horizontal bar chart -- goes from high to low
 */
+require("less/components/_bar-chart.less");
 import * as _ from 'lodash';
 import * as React from 'react';
 import Tooltip from "./Tooltip";

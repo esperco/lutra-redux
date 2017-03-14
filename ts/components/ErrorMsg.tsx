@@ -1,6 +1,8 @@
 /*
   Generic error mesage display
 */
+
+require("less/components/_error-msg.less");
 import * as React from "react";
 import * as _ from "lodash";
 import Icon from "./Icon";

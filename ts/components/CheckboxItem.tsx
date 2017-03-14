@@ -6,6 +6,7 @@
     My label text
   </CheckboxItem>
 */
+require("less/components/_checkboxes.less");
 import * as _ from "lodash";
 import * as React from "react";
 import * as classNames from "classnames";

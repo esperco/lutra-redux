@@ -10,7 +10,7 @@
 
   TODO: Testing
 */
-
+require("less/components/_modals.less");
 import * as React from "react";
 import Icon from "./Icon";
 import FocusTrap from "./FocusTrap";

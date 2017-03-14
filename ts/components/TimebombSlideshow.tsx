@@ -1,3 +1,4 @@
+require("less/components/_slide-show.less");
 import * as React from "react";
 import Icon from "./Icon";
 import * as Text from "../text/timebomb";

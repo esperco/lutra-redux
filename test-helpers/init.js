@@ -1,3 +1,12 @@
+// Update paths to point to project root
+const path = require("path");
+process.env.NODE_PATH = process.env.NODE_PATH +
+  ":" + path.join(__dirname, "..");
+require("module").Module._initPaths();
+
+// Ignore Webpack style imports
+require("ignore-styles");
+
 /*
   Purpose of this file is to set up TypeScript references and DOM so Mocha
   can test front-end code entirely within Node. This is run *BEFORE*

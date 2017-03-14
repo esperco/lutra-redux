@@ -1,6 +1,8 @@
 /*
   Toggle to switch event from move-to-email from confirm.
 */
+
+require("less/components/_timebomb-toggle.less");
 import * as moment from "moment";
 import * as React from "react";
 import Icon from "./Icon";

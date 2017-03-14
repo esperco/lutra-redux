@@ -17,6 +17,7 @@
   TODO: Testing
 */
 
+require("less/components/_dropdowns.less");
 import * as React from "react";
 import FocusTrap from "./FocusTrap";
 import Overlay from "./Overlay";

@@ -2,6 +2,7 @@
   This is the new-group / onboarding page
 */
 
+require("less/components/_group-onboarding.less");
 import * as React from 'react';
 import SlideShow from "../components/TimebombSlideshow";
 import { makeNewGroup } from "../handlers/groups";

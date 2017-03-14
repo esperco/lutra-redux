@@ -8,7 +8,7 @@
 require.context("assets", true, /.*$/);
 
 // LESS
-require("less/events.less");
+require("less/_variables.less");
 
 // HTML files
 require("html/events.html");

@@ -1,3 +1,4 @@
+require("less/components/_team-settings.less");
 import * as _ from 'lodash';
 import * as React from 'react';
 import CheckboxItem from "../components/CheckboxItem";

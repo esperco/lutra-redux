@@ -1,3 +1,5 @@
+@import (reference) "../_variables";
+
 header {
   .period-selector {
     display: flex;
@@ -29,7 +31,7 @@ header {
   }
 }
 
-.period-selector-menu .presets {
+.period-selector-menu .presets.panel {
   display: flex;
   flex-flow: row wrap;
   padding: @padding-small;
@@ -40,7 +42,7 @@ header {
   }
 }
 
-.period-selector-menu .description {
+.period-selector-menu .description.panel {
   text-align: center;
   background: @shade-bg;
   font-size: @font-size-small;

@@ -1,6 +1,8 @@
 /*
   Flexbox calendar styling
 */
+@import (reference) "../_variables";
+
 .calendar {
   * + * {
     margin-top: 0;
@@ -100,4 +102,8 @@
       border-top: 0;
     }
   }
+}
+
+.dropdown-menu .calendar-selector:first-child header {
+  margin-top: -@padding-base;
 }

@@ -119,25 +119,31 @@ ul {
   overflow: auto;
 
   // By default, elements are fixed
-  > * {
-    flex: 0 0 auto;
+  > .content, > header, > footer, > .banner {
     max-height: 100vh;
-    position: relative;
     margin: 0;
     padding: @padding-base;
-    z-index: @zindex-navbar;
   }
 
-  // Proper z-indexing for horizontal bars
+  // Proper z-indexing for horizontal bars. These are fixed.
   > header, > footer, > .banner {
-    z-index: auto;
+    flex: 0 0 auto;
+    position: relative;
+    z-index: @zindex-navbar;
     height: @navbar-height;
     white-space: nowrap;
+
+    &.hide {
+      height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
   }
 
   // But content expands
   > .content {
     flex: 1000 1000 auto;
+    position: relative;
     overflow: auto;
     z-index: none;
   }

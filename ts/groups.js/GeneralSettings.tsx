@@ -2,6 +2,7 @@
   This is the main view for the settings page
 */
 
+require("less/components/_group-settings.less");
 import * as React from 'react';
 import * as _ from 'lodash';
 import { generalSettings, eventList } from "./paths";
