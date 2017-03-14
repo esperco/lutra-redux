@@ -18,10 +18,10 @@ export const PendingConfirmation = "Pending confirmation (check email)";
 export const Onboarding1 =
   "Esper gets rid of wasteful meetings on your calendar.";
 export const Onboarding2 =
-  "We'll send emails to all guests beforehand: \"Is this meeting still on?\"";
+  "We'll send an email to all guests before the meeting asking if they " +
+  "want to keep the meeting.";
 export const Onboarding3 =
-  "If nobody says \"Yes, it is still on\", then we'll move this meeting to " +
-  "email. Time saved!";
+  "If nobody opts to kept the meeting, we cancel the meeting. Time saved!";
 
 export const OnboardingPickEventHeading =
   "Pick an Event";
