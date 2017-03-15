@@ -1,3 +1,8 @@
+/*
+  Component for editing multiple events
+*/
+
+require("less/components/_event-editor.less");
 import * as _ from "lodash";
 import * as React from "react";
 import * as ApiT from "../lib/apiT";

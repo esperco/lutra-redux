@@ -1,8 +1,20 @@
 /*
-  This is the entry point and main file for events.js. It should log
-  in our user (if possible), retrieve initial data, and either render
-  a view for the event or redirect as appropriate.
+  This is the entry point and main file for /tb. It should log
+  in our user (if possible) and render timebomb-only UI for a single team
+  (the user's exec team)
 */
+
+// This causes Webpack to load everything in the assets dir during the build
+require.context("assets", true, /.*$/);
+
+// LESS
+require("less/tb.less");
+
+// HTML files
+require("html/tb.html");
+
+
+//////////////////////////////////////
 
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />
@@ -63,6 +75,7 @@ store.subscribe(() => {
     <App {...props} >
       <Header {...props} />
       <ScrollContainer className="content"
+        scrollKey={getScrollKey(props.state)}
         onScrollChange={(direction) => props.dispatch({
           type: "SCROLL", direction
         })}>
@@ -72,6 +85,21 @@ store.subscribe(() => {
     document.getElementById("main")
   );
 });
+
+// Scroll key is used to reset scrollTop on container
+function getScrollKey(state: LoggedInState) {
+  if (state.route) {
+    let route = state.route;
+    switch (route.page) {
+      case "Events":
+      case "PickEventSetup":
+        return route.period.start;
+      default:
+        return route.page;
+    }
+  }
+  return;
+}
 
 // View routing
 function MainView(props: {

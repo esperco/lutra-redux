@@ -1,6 +1,8 @@
 /*
   A simple list of events
 */
+
+require("less/components/_event-list.less");
 import * as _ from "lodash";
 import * as moment from "moment";
 import * as React from "react";

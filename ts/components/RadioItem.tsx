@@ -6,6 +6,7 @@
     My label text
   </RadioItem>
 */
+require("less/components/_radio-buttons.less");
 import * as _ from "lodash";
 import * as React from "react";
 import * as classNames from "classnames";

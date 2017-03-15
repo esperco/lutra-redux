@@ -1,8 +1,42 @@
 /*
-  This is the entry point and main file for groups.js. It should log
+  This is the entry point and main file for /groups. It should log
   in our user (if possible), retrieve initial data, and render a view
   for a group.
 */
+
+// This causes Webpack to load everything in the assets dir during the build
+require.context("assets", true, /.*$/);
+
+// Web worker
+if ((self as any).Worker) {
+  /*
+    Require as web worker.
+
+    Note that pending https://github.com/webpack/worker-loader/pull/29/files,
+    the name attribute is ignored and we get a "main.worker" file instead.
+    This is fine for now, but if we start using workers for things other than
+    groups (i.e. EA/Exec time stats), we'll need to fork the worker-loader
+    and patch so it properly names things.
+  */
+  let Worker = require("worker-loader?name=groups!./worker.ts");
+  (window as any).GroupWorker = new Worker();
+} else {
+  // No web-worker. Unsupported browser.
+  let update = confirm(
+    "Esper requires a modern browser to function properly. Please " +
+    "update your browser before continuing."
+  );
+  if (update) location.href = "https://outdatedbrowser.com/";
+}
+
+// LESS
+require("less/_variables.less");
+
+// HTML files
+require("html/groups.html");
+
+
+//////////////////////////////////////
 
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />

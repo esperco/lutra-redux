@@ -36,6 +36,7 @@ export default class TBEventList extends React.Component<Props, {}> {
 
       <ScrollContainer
         className="content"
+        scrollKey={this.props.period.start}
         onScrollChange={(direction) => this.props.dispatch({
           type: "SCROLL", direction
         })}>

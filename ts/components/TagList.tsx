@@ -2,6 +2,7 @@
   Shows a list of tags that we can add and remove from
 */
 
+require("less/components/_tag-list.less");
 import * as React from 'react';
 import * as classNames from 'classnames';
 import Dropdown from "./Dropdown";

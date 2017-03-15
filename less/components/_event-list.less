@@ -1,6 +1,7 @@
 /*
   Styling for a list of events
 */
+@import (reference) "../_variables";
 @import "./_event-editor";
 
 .event-list .hidden-events {
@@ -20,6 +21,7 @@
     flex: 1000 1000 1em;
     margin-top: 0;
     padding: @padding-small / 2;
+    min-width: 250px;
 
     @media screen and (min-width: @screen-sm-min) {
       min-width: 300px;
@@ -28,7 +30,6 @@
 
   > .event-primary-action {
     flex-grow: 1;
-    min-width: 250px;
 
     &:empty { display: none; }
   }

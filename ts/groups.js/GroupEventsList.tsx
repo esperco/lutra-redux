@@ -1,6 +1,7 @@
 /*
   Groups-specific wrapper around event list component
 */
+require("less/components/_group-events-list.less");
 import * as _ from "lodash";
 import * as React from "react";
 import { generalSettings } from "./paths";

@@ -1,3 +1,8 @@
+/*
+  Display list of stats for group
+*/
+
+require("less/components/_calc-display.less");
 import * as _ from 'lodash';
 import * as React from 'react';
 import BarChart from "../components/BarChart";

@@ -35,6 +35,12 @@ interface Props extends React.HTMLProps<HTMLDivElement> {
       case of sticky headers since header appearance may inadvertently trigger
       scroll event
     */
+
+  scrollKey?: string|number;
+    /*
+      Identifier for this ScrollContainer. If it changes, reset to top.
+    */
+
   children?: JSX.Element|JSX.Element[]|string;
 }
 
@@ -47,7 +53,9 @@ export class ScrollContainer extends React.Component<Props, {}> {
     // Hack because there's no easy TypeScript way to say "minus this prop"
     let divProps: React.HTMLProps<HTMLDivElement> = {};
     for (let key in this.props) {
-      if (key === "onScrollChange" || key === "threshold") continue;
+      if (key === "onScrollChange" ||
+          key === "threshold" ||
+          key === "scrollKey") continue;
       let propName = key as keyof React.HTMLProps<HTMLDivElement>;
       divProps[propName] = this.props[propName];
     }
@@ -68,6 +76,14 @@ export class ScrollContainer extends React.Component<Props, {}> {
       (this._div.addEventListener as WhatWGAddEventListener)(
         "scroll", this.onScroll, { passive: true }
       );
+    }
+  }
+
+  componentDidUpdate(oldProps: Props) {
+    if (this.props.scrollKey && this.props.scrollKey !== oldProps.scrollKey) {
+      if (this._div) {
+        this._div.scrollTop = 0;
+      }
     }
   }
 

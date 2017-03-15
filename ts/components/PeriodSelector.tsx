@@ -1,6 +1,8 @@
 /*
   A calendar range selector that lets us increment by fixed intervals
 */
+
+require("less/components/_period-selectors.less");
 import * as _ from "lodash";
 import * as React from "react";
 import { GenericPeriod, fromDates, bounds, add } from "../lib/period";

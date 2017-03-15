@@ -1,3 +1,8 @@
+/*
+  Component for selecting min cost ($$$$) for event filtering
+*/
+
+require("less/components/_min-cost.less");
 import * as _ from 'lodash';
 import * as React from 'react';
 import RadioItem from '../components/RadioItem';
