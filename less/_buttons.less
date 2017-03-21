@@ -4,102 +4,7 @@
 */
 @import "./components/_menus";
 
-button, input[type=submit] {
-  display: inline-block;
-  line-height: @input-height-base;
-  vertical-align: middle;
-  padding: 0 @padding-base;
-  white-space: nowrap;
-  font-size: @font-size-small;
-  font-weight: bold;
-  text-transform: uppercase;
-
-  transition: color 0.3s, border 0.3s, background-color 0.3s, transform 0.3s;
-  border-radius: @border-radius-base;
-
-  cursor: pointer;
-  touch-action: manipulation;
-
-  .description {
-    text-transform: none;
-    margin-top: 0;
-    font-weight: normal;
-    white-space: normal;
-    line-height: 1.1;
-
-    &:last-child {
-      padding-bottom: @padding-small;
-    }
-  }
-}
-
-// Default button
-button {
-  color: @link-muted;
-  border: 0;
-  background: transparent;
-
-  &:hover, &:focus {
-    color: @link-color;
-  }
-
-  &[disabled] {
-    cursor: not-allowed;
-    opacity: .65;
-    box-shadow: none;
-    color: @text-muted;
-
-    &:hover, &:focus {
-      color: @text-muted;
-    }
-  }
-}
-
-button.primary, button.success, button.warning, button.danger,
-input[type=submit] {
-  // border: 1px solid @border-color;
-  // line-height: calc(@input-height-base ~" - 2px");
-  box-shadow: @default-box-shadow;
-
-  &:hover, &:focus {
-    box-shadow: @plus-box-shadow;
-  }
-
-  &[disabled] {
-    box-shadow: none;
-
-    &:hover, &:focus {
-      box-shadow: none;
-    }
-  }
-}
-
-/*
-  Use .menu to group buttons together -- we'd use the actual menu element
-  but it has a specific meaning that might change apperance in subsequent
-  iterations of HTML
-*/
-div.menu {
-  button, input[type=submit] {
-    .menu-item();
-
-    &[disabled] {
-      color: @text-muted;
-      background: transparent;
-
-      &:hover, &:focus {
-        color: @text-muted;
-        background: transparent;
-      }
-    }
-
-    .description {
-      color: @text-muted;
-      margin-bottom: 0;
-    }
-  }
-}
-
+// Mixins to make other things button-like
 .transparent-color-variant(@color) {
   background: @color;
   color: @brand-contrast;
@@ -137,20 +42,118 @@ div.menu {
   }
 }
 
-button.primary, input[type=submit] {
-  .transparent-color-variant(@brand-bg);
+.button() {
+  color: @link-muted;
+  border: 0;
+  background: transparent;
+  display: inline-block;
+  line-height: @input-height-base;
+  vertical-align: middle;
+  padding: 0 @padding-base;
+  white-space: nowrap;
+  font-size: @font-size-small;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  transition: color 0.3s, border 0.3s, background-color 0.3s, transform 0.3s;
+  border-radius: @border-radius-base;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  .description {
+    text-transform: none;
+    margin-top: 0;
+    font-weight: normal;
+    white-space: normal;
+    line-height: 1.1;
+
+    &:last-child {
+      padding-bottom: @padding-small;
+    }
+  }
+
+  &:hover, &:focus {
+    color: @link-color;
+    text-decoration: none;
+  }
+
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .65;
+    box-shadow: none;
+    color: @text-muted;
+
+    &:hover, &:focus {
+      color: @text-muted;
+    }
+  }
+
+  &.primary, &.success, &.warning, &.danger, &[type="submit"] {
+    // border: 1px solid @border-color;
+    // line-height: calc(@input-height-base ~" - 2px");
+    box-shadow: @default-box-shadow;
+
+    &:hover, &:focus {
+      box-shadow: @plus-box-shadow;
+    }
+
+    &[disabled] {
+      box-shadow: none;
+
+      &:hover, &:focus {
+        box-shadow: none;
+      }
+    }
+  }
+
+  &.primary, &[type="submit"] {
+    .transparent-color-variant(@brand-bg);
+  }
+
+  &.success {
+    .transparent-color-variant(@success);
+  }
+
+  &.warning {
+    .transparent-color-variant(@warning);
+  }
+
+  &.danger {
+    .transparent-color-variant(@danger);
+  }
 }
 
-button.success {
-  .transparent-color-variant(@success);
+// Assign button style to buttons but default
+button, input[type="submit"] {
+  .button();
 }
 
-button.warning {
-  .transparent-color-variant(@warning);
-}
+/*
+  Use .menu to group buttons together -- we'd use the actual menu element
+  but it has a specific meaning that might change apperance in subsequent
+  iterations of HTML
+*/
+div.menu {
+  button, input[type=submit] {
+    .menu-item();
 
-button.danger {
-  .transparent-color-variant(@danger);
+    &[disabled] {
+      color: @text-muted;
+      background: transparent;
+
+      &:hover, &:focus {
+        color: @text-muted;
+        background: transparent;
+      }
+    }
+
+    .description {
+      color: @text-muted;
+      margin-bottom: 0;
+    }
+  }
 }
 
 /* Icon buttons - shrink slightly */

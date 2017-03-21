@@ -51,7 +51,7 @@ export class GroupCalcDisplay extends TreeFall<Props, {}> {
   }
 }
 
-function Stats({ results } : { results: CalcResults }) {
+export function Stats({ results } : { results: CalcResults }) {
   return <div className="stats">
     <Tooltip
       target={<span>
@@ -96,7 +96,7 @@ function Stats({ results } : { results: CalcResults }) {
   </div>;
 }
 
-function LabelChart({ results, labels, labelHrefFn } : {
+export function LabelChart({ results, labels, labelHrefFn } : {
   results: CalcResults;
   labels: LabelSet;
   labelHrefFn?: (l?: ApiT.LabelInfo) => string;

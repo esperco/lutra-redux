@@ -6,9 +6,9 @@ import { EventList, EventDisplay, PlaceholderEvent } from "./EventList";
 import Tooltip from './Tooltip';
 import Waypoint from './Waypoint';
 import makeEvent from "../fakes/events-fake";
+import { stubTimeouts } from "../fakes/stubs";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { LabelSet } from "../lib/event-labels";
-import { stub as stubGlobal } from '../lib/sandbox';
 
 // Consts for tests
 const e1 = makeEvent({ id: "e1" });
@@ -133,25 +133,9 @@ describe("EventDisplay", () => {
     time: number;
     cleared?: boolean;
   }[] = [];
-  var setTimeoutStub: Sinon.SinonStub;
-  var clearTimeoutStub: Sinon.SinonStub;
 
   beforeEach(() => {
-    timeouts = [];
-
-    setTimeoutStub = stubGlobal("setTimeout",
-      (fn: Function, time: number) => {
-        let n = timeouts.length;
-        timeouts.push({ fn, time });
-        return n;
-      });
-
-    clearTimeoutStub = stubGlobal("clearTimeout", (n: number) => {
-      let t = timeouts[n];
-      if (t) {
-        t.cleared = true;
-      }
-    });
+    timeouts = stubTimeouts();
   });
 
   const defaultsProps2 = {

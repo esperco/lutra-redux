@@ -13,12 +13,12 @@ describe('ScrollContainer', () => {
   beforeEach(() => {
     addEventListenerStub = sandbox.stub(
       (window as any).HTMLDivElement.prototype,
-      "addEventListener",
-      () => null);
+      "addEventListener"
+    ).callsFake(() => null);
     removeEventListenerStub = sandbox.stub(
       (window as any).HTMLDivElement.prototype,
-      "removeEventListener",
-      () => null);
+      "removeEventListener"
+    ).callsFake(() => null);
   });
 
   function scroll(wrapper: ReactWrapper<any, any>, change: number) {

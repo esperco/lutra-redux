@@ -123,7 +123,7 @@ describe("Routing", function() {
     });
 
     describe("init", function() {
-      var addEventListenerStub: Sinon.SinonStub;
+      var addEventListenerStub: Sinon.SinonSpy;
 
       function onHashChange() {
         if (addEventListenerStub) {
@@ -155,10 +155,8 @@ describe("Routing", function() {
           hash: "",
           href: ""
         });
-        addEventListenerStub = stubGlobal(
-          ["window", "addEventListener"],
-          Sinon.spy()
-        );
+        addEventListenerStub = Sinon.spy();
+        stubGlobal(["window", "addEventListener"], addEventListenerStub);
         Nav.reset();
       });
 

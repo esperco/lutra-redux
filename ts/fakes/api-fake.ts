@@ -18,7 +18,7 @@ export function stubApiPlus(svc: ApiSvc, name: string) {
   let Api: any = svc.Api;
   let dfd = new Deferred();   // Passed to user to control when call resolves
   let cbDfd = new Deferred(); //
-  let stub = Sinon.stub(Api, name, function() {
+  let stub = Sinon.stub(Api, name).callsFake(function() {
     if (cbDfd.state === "pending") cbDfd.resolve();
     return dfd.promise();
   });
@@ -27,7 +27,7 @@ export function stubApiPlus(svc: ApiSvc, name: string) {
 
 export function stubApiRet(svc: ApiSvc, name: string, val?: any) {
   let Api: any = svc.Api;
-  let stub = Sinon.stub(Api, name, function(...args: any[]) {
+  let stub = Sinon.stub(Api, name).callsFake(function(...args: any[]) {
     if (_.isFunction(val)) {
       return Promise.resolve(val(...args));
     }

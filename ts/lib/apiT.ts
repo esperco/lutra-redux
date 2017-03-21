@@ -380,14 +380,45 @@ export interface LoginResponse {
   landing_url?: string;
 }
 
+interface ConfirmTimebombInfo {
+  event?: GenericCalendarEvent;
+  confirm_uid: string;
+}
+
+type TokenDescription =
+  "Confirm_timebomb_event"|
+  "Unconfirm_timebomb_event"|
+  "Invite_join_group"|
+  "Invite_join_team"|
+  "Login"|
+  "Unsub_daily_agenda"|
+  "Unsub_label_reminder"|
+  "Unsub_tasks_update"|
+  "Unsub_feedback_summary"|
+  "Unsub_ask_feedback"|
+  "Unsub_group_email";
+
+type TokenValue =
+  ["Confirm_timebomb_event", ConfirmTimebombInfo]|
+  ["Unconfirm_timebomb_event", ConfirmTimebombInfo]|
+  "Invite_join_group"|
+  "Invite_join_team"|
+  ["Login", LoginResponse]|
+  "Unsub_daily_agenda"|
+  "Unsub_label_reminder"|
+  "Unsub_tasks_update"|
+  "Unsub_feedback_summary"|
+  "Unsub_ask_feedback"|
+  "Unsub_group_email";
+
 export interface TokenInfo {
   is_valid: boolean;
   needs_auth: boolean;
-  description: Variant; // token_description
+  description: TokenDescription;
 }
 
 export interface TokenResponse {
-  token_value: Variant; // token_value
+  token_value: TokenValue;
 }
 
 export interface InviteCreateTeam {

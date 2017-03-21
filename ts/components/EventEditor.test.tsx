@@ -4,9 +4,8 @@ import { expect } from "chai";
 import { mount } from 'enzyme';
 import EventEditor, { Props } from "./EventEditor";
 import makeEvent from "../fakes/events-fake";
-import { stubRAF } from "../fakes/stubs";
+import { stubRAF, stubTimeouts } from "../fakes/stubs";
 import { LabelSet } from "../lib/event-labels";
-import { stub as stubGlobal } from '../lib/sandbox';
 
 describe("<EventEditor />", () => {
   const event = makeEvent({ labels_confirmed: false });
@@ -17,25 +16,10 @@ describe("<EventEditor />", () => {
     time: number;
     cleared?: boolean;
   }[] = [];
-  var setTimeoutStub: Sinon.SinonStub;
-  var clearTimeoutStub: Sinon.SinonStub;
 
   beforeEach(() => {
     stubRAF();
-    timeouts = [];
-    setTimeoutStub = stubGlobal("setTimeout",
-      (fn: Function, time: number) => {
-        if (time === 0) return 1234; // RAF (ignore)
-        let n = timeouts.length;
-        timeouts.push({ fn, time });
-        return n;
-      });
-    clearTimeoutStub = stubGlobal("clearTimeout", (n: number) => {
-      let t = timeouts[n];
-      if (t) {
-        t.cleared = true;
-      }
-    });
+    timeouts = stubTimeouts();
   });
 
   function makeEditor(props: Partial<Props>) {

@@ -40,6 +40,8 @@ export type ErrorDetails = {
        "Expired_link"|
        "Invalid_token"|
        "Expired_token"|
+       "Invalid_login_token"|
+       "Admin_privilege_required"|
        "DEFAULT" // Default exists so we can exhaustively check all known tags
                  // and not have TypeScript assume all cases have been checked
 }|{

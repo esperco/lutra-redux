@@ -1,0 +1,60 @@
+/*
+  Styling for root footer
+*/
+@import (reference) "../_variables";
+
+footer.corporate {
+  background: @shade-bg;
+  box-shadow: none;
+  border: 0;
+  padding: @padding-small @padding-xl @padding-xl;
+  display: flex;
+  flex-flow: row wrap;
+  height: auto;
+
+  * + * {
+    margin-top: @padding-small;
+  }
+
+  nav a {
+    display: block;
+    text-transform: none;
+    line-height: 1.5;
+  }
+
+  > * {
+    flex: 1 1 auto;
+    margin: @padding-small;
+    min-width: 200px;
+  }
+
+  > *:last-child {
+    flex-grow: 1000;
+    text-align: right;
+  }
+
+  a.social {
+    display: inline-block;
+    margin-left: @padding-base;
+    text-decoration: none;
+
+    img { margin-top: 0; }
+    img.hover { display: none; }
+
+    &:hover {
+      img.hover { display: inline-block; }
+      img.default { display: none; }
+    }
+  }
+
+  img {
+    height: @input-height-base;
+    width: auto;
+  }
+
+  a.footer-logo {
+    line-height: @navbar-height;
+
+    img { height: 1rem; }
+  }
+}

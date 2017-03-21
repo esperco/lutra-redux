@@ -68,7 +68,7 @@ export class TimebombToggle extends React.Component<Props, {
       let name = event.id + "-timebomb";
       let active = hasTag("Stage0" , event.timebomb) ?
         event.timebomb[1].set_timebomb :
-        !!_.find(event.timebomb[1].confirmed_list, this.props.loggedInUid);
+        !_.includes(event.timebomb[1].confirmed_list, this.props.loggedInUid);
       let disabled = hasTag("Stage0", event.timebomb) ?
         moment(event.timebomb[1].set_by).isSameOrBefore(new Date()) :
         moment(event.timebomb[1].confirm_by).isSameOrBefore(new Date());
@@ -81,20 +81,12 @@ export class TimebombToggle extends React.Component<Props, {
         </h4>
         { this.state.showHelpModal ?
           this.renderHelpModal() : null }
-        <div className="options">
-          <RadioItem name={name}
-          inputProps={{ disabled }}
-          checked={!active}
-          onChange={(val) => this.props.onToggle(event.id, !val)}>
-            { Text.TimebombOff }
-          </RadioItem>
-          <RadioItem name={name}
-          inputProps={{ disabled }}
-          checked={active}
-          onChange={(val) => this.props.onToggle(event.id, val)}>
-            { Text.TimebombOn }
-          </RadioItem>
-        </div>
+        <TimebombOptions
+          disabled={disabled}
+          name={name}
+          value={active}
+          onChange={(val) => this.props.onToggle(event.id, val)}
+        />
       </TimebombContainer>;
 
       if (disabled) {
@@ -117,6 +109,36 @@ export class TimebombToggle extends React.Component<Props, {
     </Modal>;
   }
 }
+
+
+interface OptionProps {
+  name: string;
+  disabled?: boolean;
+  value: boolean;
+  onChange: (val: boolean) => void;
+}
+
+function TimebombOptions({ name, disabled, value, onChange }: OptionProps) {
+  return <div className="options">
+    <RadioItem name={name}
+    inputProps={{ disabled }}
+    checked={!value}
+    onChange={(val) => onChange(!val)}>
+      { Text.TimebombOff }
+    </RadioItem>
+    <RadioItem name={name}
+    inputProps={{ disabled }}
+    checked={value}
+    onChange={(val) => onChange(val)}>
+      { Text.TimebombOn }
+    </RadioItem>
+  </div>;
+}
+
+export const BaseTimebombToggle =
+  (props: OptionProps) => <TimebombContainer>
+    <TimebombOptions {...props} />
+  </TimebombContainer>;
 
 function TimebombContainer({ children }:{ children?: JSX.Element[] }) {
   return <div className="timebomb-toggle">

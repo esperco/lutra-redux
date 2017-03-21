@@ -11,8 +11,17 @@ export default sandbox;
 // Reset sandbox after each test
 afterEach(function() {
   sandbox.restore();
+
+  // Restore glob objects too
+  let glob: any = typeof global === "undefined" ? window : global;
+  for (let name in restores) {
+    glob[name] = restores[name];
+  }
+  restores = {};
 });
 
+// List of resets for stub below
+let restores: Record<string, any> = {};
 
 /*
   We may be running in a NodeJS context for testing. So need to decare global
@@ -31,16 +40,20 @@ export function stub(path: string|string[], newObj: any) {
   let child = typeof path === "string" ? path : path[path.length - 1];
   let lastParent = glob;
 
+  // Keep first level copy of original thing to restore
+  let restoreName = typeof path === "string" ? path : path[0];
+  restores[restoreName] = restores[restoreName] || glob[restoreName];
+  if (glob[restoreName]) {
+    glob[restoreName] = _.clone(glob[restoreName]);
+  }
+
   // Ensure we have enough objects to get to where we want to go
   _.each(parents, (name) => {
     lastParent = lastParent[name] = lastParent[name] || {};
   });
 
-  // Make sure object exists before stubbing
-  if (! lastParent[child]) {
-    lastParent[child] = newObj;
-  }
-  return sandbox.stub(lastParent, child, newObj);
+  // Replace with new object
+  lastParent[child] = newObj;
 }
 
 export function spyWithCallback(obj: any, method: string, cbs: {
@@ -54,5 +67,5 @@ export function spyWithCallback(obj: any, method: string, cbs: {
     cbs.post && cbs.post();
     return ret;
   }
-  return sandbox.stub(obj, method, newFn);
+  return sandbox.stub(obj, method).callsFake(newFn);
 }

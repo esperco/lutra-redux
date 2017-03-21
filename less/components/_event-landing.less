@@ -1,0 +1,18 @@
+@import (reference) "../_variables";
+
+.event-landing {
+  .flex {
+    align-items: center;
+  }
+}
+
+.panel .event-landing .alert:first-child {
+  margin-top: -@padding-base;
+}
+
+// Special rendering for "no event"
+.empty .placeholder {
+  animation: none;
+  background: transparent;
+  border: 2px dashed @border-color;
+}

@@ -25,7 +25,7 @@ describe("<GroupLabelsSelector />", () => {
   };
 
   beforeEach(() => {
-    sandbox.stub(Color, "getColorForMap", () => label4.color);
+    sandbox.stub(Color, "getColorForMap").callsFake(() => label4.color);
   });
 
   var onChangeSpy: Sinon.SinonSpy;

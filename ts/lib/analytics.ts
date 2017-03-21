@@ -24,7 +24,7 @@ export namespace Analytics {
       name = event;
     }
     analytics.ready(function() {
-      analytics.page(name, props);
+      analytics.track(name, props);
     });
   }
 
@@ -44,12 +44,11 @@ export namespace Analytics {
   export function identify(loginInfo: LoginResponse) {
     if (disabled) return;
     analytics.ready(function() {
-      analytics.user().id() !== loginInfo.uid;
       if (loginInfo.is_sandbox_user) {
         analytics.identify({
           sandbox: true
         });
-      } else {
+      } else if (analytics.user().id() !== loginInfo.uid) {
         // Alias user if new account
         if (loginInfo.account_created &&
             moment().diff(moment(loginInfo.account_created)) < 300000)
@@ -63,6 +62,17 @@ export namespace Analytics {
           platform: loginInfo.platform,
           sandbox: false
         });
+      }
+    });
+  }
+
+  // Identify (UID) only
+  export function identifyUID(uid: string) {
+    if (disabled) return;
+    analytics.ready(function() {
+      if (analytics.user().id() !== uid) {
+        analytics.alias(uid);
+        analytics.identify(uid)
       }
     });
   }

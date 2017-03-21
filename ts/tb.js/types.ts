@@ -2,6 +2,7 @@
   Group-specific type groupings
 */
 
+import * as Alerts from "../states/alerts";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Events from "../states/events";
@@ -17,6 +18,7 @@ import * as TeamPreferences from "../states/team-preferences";
   the main thread and the worker thread (if any)
 */
 export type Action =
+  Alerts.Action|
   DataStatus.DataAction|
   Events.EventsDataAction|
   Events.EventsUpdateAction|
@@ -34,6 +36,7 @@ export type Action =
   Redux store state is a combination of many other substates
 */
 export interface State extends
+  Alerts.AlertState,
   DataStatus.DataState,
   Events.EventsState,
   ErrorMsg.ErrorMsgState,

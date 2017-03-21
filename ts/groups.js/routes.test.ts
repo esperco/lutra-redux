@@ -120,11 +120,11 @@ describe("Routes", function() {
     it("should fetch single event before fetching query", () => {
       let deps = getDeps();
       let calls: string[] = [];
-      sandbox.stub(Events, "fetchById", () => {
+      sandbox.stub(Events, "fetchById").callsFake(() => {
         calls.push("getGroupEvent");
         return new Promise(() => {});
       });
-      sandbox.stub(Events, "fetchEvents", () => {
+      sandbox.stub(Events, "fetchEvents").callsFake(() => {
         calls.push("postForGroupEvents");
         return new Promise(() => {});
       });

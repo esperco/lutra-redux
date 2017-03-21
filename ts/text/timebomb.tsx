@@ -10,10 +10,9 @@ export const TimebombHeader = "Your Preference";
 export const TimebombOn = "Cancel";
 export const TimebombOff = "Keep";
 export const TimebombLate = "Time to change preference has expired";
-export const Canceled = "Meeting canceled (moved to email)";
-export const Confirmed = "Meeting confirmed (in person)";
+export const Canceled = "Meeting canceled";
+export const Confirmed = "Meeting confirmed";
 export const ConfirmLate = "Confirmation period has expired";
-export const PendingConfirmation = "Pending confirmation (check email)";
 
 export const Onboarding1 =
   "Esper gets rid of wasteful meetings on your calendar.";
@@ -68,10 +67,9 @@ export const Stage0OffDescription = () => <div>
 
 export const Stage1OnDescription = (t: string|Date|moment.Moment) => <div>
   <p>
-    We've sent an email to the people attending this event asking if they want
-    to keep this meeting. If no one says yes within the
-    next <strong>{moment(t).toNow(true)}</strong>, we'll cancel the meeting and
-    let everyone know.
+    Got it. If no one opts to keep this meeting
+    within <strong>{moment(t).fromNow(true)}</strong>, we'll cancel it and
+    let everyone know via email.
   </p>
 
   <p>
@@ -83,17 +81,16 @@ export const Stage1OnDescription = (t: string|Date|moment.Moment) => <div>
 export const Stage1OffDescription = (t: string|Date|moment.Moment) => <div>
   <p>
     OK. This meeting is confirmed. If you change your mind, you can still
-    toggle the radio button to "{TimebombOn}" within the
-    next {moment(t).toNow(true)}.
+    toggle the radio button to "{TimebombOn}" within {moment(t).fromNow(true)}.
   </p>
 </div>;
 
 export const Stage2ConfirmedDescription = () => <p>
-  This meeting has been confirmed.
+  The confirmation period has expired. This meeting has been confirmed.
 </p>;
 
 export const Stage2CancelledDescription = () => <p>
-  This meeting has been cancelled.
+  The confirmation period has expired. This meeting has been cancelled.
 </p>;
 
 export const TimebombDefault = "Cancel meetings by default";
@@ -112,3 +109,4 @@ export const TimebombDefaultDescription =
 </p>;
 
 export const TimebombHelpHeader = "Keep / Cancel";
+export const LandingCTAButton = "Cancel More Meetings";

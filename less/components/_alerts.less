@@ -7,6 +7,11 @@
   padding: @padding-small @padding-base;
 
   .panel & { border-radius: 0; }
+  .alerts & {
+    a, button { color: @color; }
+    border-radius: 0;
+    border-bottom: 1px solid @color;
+  }
 }
 
 .alert.info {
@@ -34,4 +39,10 @@
   right: -@padding-small;
   line-height: @font-size-large;
   font-size: @font-size-small;
+}
+
+// Collection of alerts (probably at top of site)
+.alerts .alert {
+  line-height: @font-size-large + (2 * @padding-small);
+  button:first-child { top: 0; right: 0; }
 }

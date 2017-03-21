@@ -6,7 +6,7 @@ import { createStore, compose } from "redux";
 import * as Log from "../lib/log";
 
 // Store Types
-import { State, Action } from "./types";
+import { State, Action, DispatchFn } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Select from "../states/events-select";
@@ -104,5 +104,5 @@ export const store = createStore(
 /* Hook up main view to store */
 
 // Bound dispatch and getState functions
-export const dispatch: typeof store.dispatch = store.dispatch.bind(store);
+export const dispatch: DispatchFn = store.dispatch.bind(store);
 export const getState: typeof store.getState = store.getState.bind(store);

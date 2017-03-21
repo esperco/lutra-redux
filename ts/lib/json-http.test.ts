@@ -9,10 +9,9 @@ import * as Sinon from "sinon";
 
 describe("JsonHttp", function() {
   function stubFetch() {
-    var dfd = new Deferred();
-    var stub = stubGlobal("fetch", function() {
-      return dfd.promise();
-    });
+    let dfd = new Deferred();
+    let stub = Sinon.stub().callsFake(() => dfd.promise());
+    stubGlobal("fetch", stub);
     return { dfd, stub };
   }
 
@@ -150,7 +149,7 @@ describe("JsonHttp", function() {
   describe("with an API secret", function() {
     beforeEach(function() {
       JsonHttp.setSecret("my-secret");
-      sandbox.stub(Date, "now", () => 1479846919000);
+      sandbox.stub(Date, "now").callsFake(() => 1479846919000);
     });
 
     afterEach(function() {
@@ -198,10 +197,12 @@ describe("JsonHttp", function() {
 
       // Wrap handler resolves in RAF so one firing also gives time for other
       // to finish firing as well
-      successHandler = sandbox.stub(JsonHttp, 'successHandler', () => {
+      successHandler = sandbox.stub(JsonHttp, 'successHandler')
+      .callsFake(() => {
         window.requestAnimationFrame(() => dfd.resolve());
       });
-      errorHandler = sandbox.stub(JsonHttp, 'errorHandler', () => {
+      errorHandler = sandbox.stub(JsonHttp, 'errorHandler')
+      .callsFake(() => {
         window.requestAnimationFrame(() => dfd.resolve());
       });
     });

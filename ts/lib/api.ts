@@ -485,6 +485,36 @@ namespace Api {
   }
 
 
+  /* Tokens */
+
+  type TokenErr = "Invalid_token"|"Expired_token";
+
+  function ignoreTokenErr(err: Error): TokenErr {
+    if (isAjaxError(err) && err.details &&
+        (err.details.tag === "Invalid_token" ||
+         err.details.tag === "Expired_token")) {
+      return err.details.tag;
+    }
+    throw err;
+  }
+
+  export function getToken(token: string): Promise<ApiT.TokenInfo|TokenErr> {
+    return JsonHttp.get(
+      prefix + "/api/token/" + string(token),
+      ignoreTokenErr
+    );
+  }
+
+  export function postToken(
+    token: string
+  ): Promise<ApiT.TokenResponse|TokenErr> {
+    return JsonHttp.post(
+      prefix + "/api/token/" + string(token),
+      ignoreTokenErr
+    );
+  }
+
+
   /* Invites */
 
   export function getInviteEmails() : Promise<ApiT.EmailAddresses> {
