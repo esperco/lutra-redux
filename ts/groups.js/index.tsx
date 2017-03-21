@@ -188,7 +188,9 @@ Api.init(_.extend<typeof Conf>({
 
 // This starts the login process
 Login.init(dispatch, Conf, Svcs).then((info) => {
-  // Things that should be initialized after login go here
+
+  // Sets a flag so other pages know this is a groups user
+  Svcs.LocalStore.set("groups", true);
 
   // This starts the router
   Routes.init({ dispatch, getState, Svcs, postTask, Conf });
