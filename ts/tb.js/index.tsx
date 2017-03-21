@@ -29,6 +29,7 @@ import LocalStore from "../lib/local-store";
 import { store, dispatch, getState } from "./store";
 
 // Components
+import Alerts from "../components/Alerts";
 import App from "../components/App";
 import NotFound from "../components/NotFound";
 import Loading from "../components/Loading";
@@ -73,6 +74,9 @@ store.subscribe(() => {
 
   ReactDOM.render(
     <App {...props} >
+      <Alerts alerts={state.alerts} onDismiss={(alert) => dispatch({
+        type: "REMOVE_ALERT", alert
+      })} />
       <Header {...props} />
       <ScrollContainer className="content"
         scrollKey={getScrollKey(props.state)}
@@ -143,6 +147,13 @@ Api.init(_.extend<typeof Conf>({
 // This starts the login process
 Login.init(dispatch, Conf, Svcs).then((info) => {
   // Things that should be initialized after login go here
+
+  if (info.groups && info.groups.length) {
+    dispatch({
+      type: "ADD_ALERT",
+      alert: "GO_TO_GROUPS"
+    });
+  }
 
   // This starts the router
   Routes.init({ dispatch, getState, Svcs, Conf });

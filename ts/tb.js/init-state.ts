@@ -1,4 +1,5 @@
 import { State } from "./types";
+import * as Alerts from "../states/alerts";
 import * as DataStatus from "../states/data-status";
 import * as Events from "../states/events";
 import * as TeamCalendars from "../states/team-cals";
@@ -10,6 +11,7 @@ import * as TeamPreferences from "../states/team-preferences";
 */
 export default function initState(): State {
   return {
+    ...Alerts.initState(),
     ...DataStatus.initState(),
     ...Events.initState(),
     ...TeamCalendars.initState(),

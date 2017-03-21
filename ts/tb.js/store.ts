@@ -4,7 +4,8 @@ import { createStore, compose } from "redux";
 import * as Log from "../lib/log";
 
 // Store Types
-import { State, Action } from "./types";
+import { State, Action, DispatchFn } from "./types";
+import * as Alerts from "../states/alerts";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Events from "../states/events";
@@ -47,6 +48,9 @@ export const store = createStore(
       case "ADD_ERROR":
       case "RM_ERROR":
         return ErrorMsg.errorReducer(state, action);
+      case "ADD_ALERT":
+      case "REMOVE_ALERT":
+        return Alerts.alertReducer(state, action);
       default:
         // Ignore actions that start with @@ (these are built-in Redux
         // actions) but log any other weird ones
@@ -68,5 +72,5 @@ export const store = createStore(
 /* Hook up main view to store */
 
 // Bound dispatch and getState functions
-export const dispatch: typeof store.dispatch = store.dispatch.bind(store);
+export const dispatch: DispatchFn = store.dispatch.bind(store);
 export const getState: typeof store.getState = store.getState.bind(store);
