@@ -14,7 +14,11 @@ import { stub as stubGlobal } from "../lib/sandbox";
 describe("<EventLanding />", () => {
   const event = makeEvent({
     id: "id-1",
-    title: "My Event Title"
+    title: "My Event Title",
+    timebomb: ["Stage1", {
+      confirm_by: "2100-10-10",
+      confirmed_list: []
+    }]
   });
   const tokens = {
     keep: "keep-token",

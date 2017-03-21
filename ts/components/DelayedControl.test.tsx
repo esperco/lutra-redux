@@ -2,9 +2,8 @@ import * as _ from "lodash";
 import * as React from 'react';
 import { expect } from "chai";
 import { shallow } from 'enzyme';
-import { stubRAF } from "../fakes/stubs";
+import { stubRAF, stubTimeouts } from "../fakes/stubs";
 import { expectCalledWith } from "../lib/expect-helpers";
-import { stub as stubGlobal } from '../lib/sandbox';
 import * as Sinon from "sinon";
 
 import delay from './DelayedControl';
@@ -16,27 +15,10 @@ describe("delay", () => {
     time: number;
     cleared?: boolean;
   }[] = [];
-  var setTimeoutStub: Sinon.SinonStub;
-  var clearTimeoutStub: Sinon.SinonStub;
   var rAFStub: Sinon.SinonStub;
 
   beforeEach(() => {
-    timeouts = [];
-
-    setTimeoutStub = stubGlobal("setTimeout",
-      (fn: Function, time: number) => {
-        let n = timeouts.length;
-        timeouts.push({ fn, time });
-        return n;
-      });
-
-    clearTimeoutStub = stubGlobal("clearTimeout", (n: number) => {
-      let t = timeouts[n];
-      if (t) {
-        t.cleared = true;
-      }
-    });
-
+    timeouts = stubTimeouts();
     rAFStub = stubRAF();
   });
 

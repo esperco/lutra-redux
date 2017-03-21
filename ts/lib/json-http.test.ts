@@ -9,10 +9,9 @@ import * as Sinon from "sinon";
 
 describe("JsonHttp", function() {
   function stubFetch() {
-    var dfd = new Deferred();
-    var stub = stubGlobal("fetch", function() {
-      return dfd.promise();
-    });
+    let dfd = new Deferred();
+    let stub = Sinon.stub().callsFake(() => dfd.promise());
+    stubGlobal("fetch", stub);
     return { dfd, stub };
   }
 

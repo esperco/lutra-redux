@@ -8,6 +8,7 @@ import MultiselectFilterMenu from "./MultiselectFilterMenu";
 import LabelList from "./LabelList";
 import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
+import { stubRAF } from "../fakes/stubs";
 import { LabelSet } from "../lib/event-labels";
 
 describe("<LabelList />", () => {
@@ -26,6 +27,7 @@ describe("<LabelList />", () => {
   const searchLabels = new LabelSet([label2, label3]);
 
   function getLabelList() {
+    stubRAF();
     return mount(<LabelList
       labels={baseLabels}
       searchLabels={searchLabels}
