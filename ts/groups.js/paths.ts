@@ -4,7 +4,7 @@ import {
 import { AllSomeNoneParam } from "../lib/asn";
 import { PeriodParam } from "../lib/period";
 
-const base = "/groups";
+export const base = "/groups";
 
 export const eventList = new Path({
   base,

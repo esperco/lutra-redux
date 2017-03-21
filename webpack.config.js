@@ -48,7 +48,10 @@ var config = {
     events: "./ts/events.js/index.tsx",
 
     // Timebomb for your own team
-    tb: "./ts/tb.js/index.tsx"
+    tb: "./ts/tb.js/index.tsx",
+
+    // Landing page for timebomb
+    sweep: "./ts/sweep.js/index.tsx"
   },
 
   output: {

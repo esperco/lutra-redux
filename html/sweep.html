@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Esper Sweep</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
+  <link href="[[css/sweep--*.css]]" rel="stylesheet" />
+  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
+  {% include '_anti-clickjack.html' %}
+</head>
+<body>
+  <div id="token-ui" class="splash">
+    <!-- This gets replaced by React component if token -->
+    <div class="container landing">
+      <div class="splash-content">
+        <h1>Meet&nbsp;less. Do&nbsp;more.</h1>
+        <h2>Esper Sweep removes meetings no one wants from your calendar.</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick sign in -->
+  <div class="cta-container top">
+    <a id="cta-btn" class="cta success" href="/tb">
+      Start Canceling Meetings
+    </a>
+  </div>
+
+  <!-- Howto screens -->
+  <section id="how-it-works">
+    <h2>How it Works</h2>
+    <div class="slides">
+      <div class="slide">
+        <h3>Esper gets rid of wasteful meetings on your calendar.</h3>
+        <img src="/img/Group10.svg" />
+      </div>
+
+      <div class="slide">
+        <h3>
+          We'll send an email to all guests before the meeting asking if they
+          want to keep the meeting.
+        </h3>
+        <img src="/img/Group8.svg" />
+      </div>
+
+      <div class="slide">
+        <h3>
+          If nobody opts to kept the meeting, we cancel the meeting.
+          Time saved!
+        </h3>
+        <img src="/img/Group9.svg" />
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA again -->
+  <div class="cta-container bottom" style="text-align: center">
+    <a id="cta-btn" class="cta success" href="/tb">
+      Get Started
+    </a>
+  </div>
+
+  <!-- More signins -->
+  <!--<div class="login-container">
+    <h2>Sign in with your calendar provider to get started</h2>
+    <div class="login-buttons">
+      <a class="google-login primary" href="/login?platform=google">
+        <i class="fa fa-fw fa-google"></i>
+        <span>Google Account</span>
+      </a>
+
+      <a class="exchange-login primary" href="/login?platform=exchange">
+        <img src="img/exchange.svg" />
+        <span>Microsoft Exchange</span>
+      </a>
+
+      <a class="other-login primary" href="/login?platform=nylas">
+        <i class="fa fa-fw fa-envelope"></i>
+        <span>Other</span>
+      </a>
+    </div>
+  </div>-->
+
+  {% include '_footer.html' %}
+
+  {% include '_release.html' %}
+  {% include '_segment.html' %}
+  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
+  <script type="text/javascript" src="[[js/sweep--*.js]]"></script>
+</body>
+</html>

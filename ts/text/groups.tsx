@@ -129,3 +129,7 @@ export function noContentMessage(href: string) {
     </a>
   </div>;
 }
+
+export const GoToGroupsMsg =
+  "You're signed up for Esper for Enterprise. " +
+  "Click here to switch to your Enterprise account.";
