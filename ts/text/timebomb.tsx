@@ -10,10 +10,9 @@ export const TimebombHeader = "Your Preference";
 export const TimebombOn = "Cancel";
 export const TimebombOff = "Keep";
 export const TimebombLate = "Time to change preference has expired";
-export const Canceled = "Meeting canceled (moved to email)";
-export const Confirmed = "Meeting confirmed (in person)";
+export const Canceled = "Meeting canceled";
+export const Confirmed = "Meeting confirmed";
 export const ConfirmLate = "Confirmation period has expired";
-export const PendingConfirmation = "Pending confirmation (check email)";
 
 export const Onboarding1 =
   "Esper gets rid of wasteful meetings on your calendar.";
