@@ -6,6 +6,7 @@ function analyticsFakeFactory() {
       track: () => null,
       page: () => null,
       identify: () => null,
+      identifyUID: () => null,
       reset: () => null,
       disabled: false
     }

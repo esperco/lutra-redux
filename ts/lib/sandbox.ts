@@ -54,5 +54,5 @@ export function spyWithCallback(obj: any, method: string, cbs: {
     cbs.post && cbs.post();
     return ret;
   }
-  return sandbox.stub(obj, method, newFn);
+  return sandbox.stub(obj, method).callsFake(newFn);
 }

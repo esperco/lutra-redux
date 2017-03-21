@@ -20,12 +20,12 @@ describe('TreeFall', () => {
   // Helper function to stub jQuery bits to simulate being in view / out
   function stubJQ(top: number, height: number, parentHeight: number) {
     sandbox.restore();
-    sandbox.stub(ReactDOM, 'findDOMNode', () => 'div');
-    sandbox.stub($.fn, 'offsetParent', () => ({
+    sandbox.stub(ReactDOM, 'findDOMNode').callsFake(() => 'div');
+    sandbox.stub($.fn, 'offsetParent').callsFake(() => ({
       outerHeight: () => parentHeight
     }));
-    sandbox.stub($.fn, 'position', () => ({ left: 0, top }));
-    sandbox.stub($.fn, 'outerHeight', () => height);
+    sandbox.stub($.fn, 'position').callsFake(() => ({ left: 0, top }));
+    sandbox.stub($.fn, 'outerHeight').callsFake(() => height);
   }
 
   // Helper that returns rendered test component with a prop change
