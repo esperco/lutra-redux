@@ -22,6 +22,11 @@ export function getSelfExecTeam(deps: {
   Get the team for which the current user is the exec. If no such team
   exists, create one.
 */
+
+// Promise for the below function -- ensures we don't call below more
+// than once
+let ensureSelfExecTeamP: Promise<ApiT.Team>|undefined;
+
 export function ensureSelfExecTeam(deps: {
   state: LoginState;
   dispatch: (a: LoginAction) => void;
@@ -37,8 +42,11 @@ export function ensureSelfExecTeam(deps: {
     return Promise.resolve(team);
   }
 
+  // If existing unresolved promise, return that
+  if (ensureSelfExecTeamP) return ensureSelfExecTeamP;
+
   // Create team instead
-  return Svcs.Api.createTeam({
+  ensureSelfExecTeamP = Svcs.Api.createTeam({
     executive_name: state.login.email,
     executive_timezone: moment.tz.guess()
   }).then((team) => {
@@ -55,7 +63,12 @@ export function ensureSelfExecTeam(deps: {
       }
     });
     return team;
+  }).catch((err) => {
+    ensureSelfExecTeamP = undefined;
+    throw err;
   });
+
+  return ensureSelfExecTeamP;
 }
 
 // Renaming team -- just use last queued result
