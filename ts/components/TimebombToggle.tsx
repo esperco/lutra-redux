@@ -6,13 +6,12 @@ require("less/components/_timebomb-toggle.less");
 import * as moment from "moment";
 import * as React from "react";
 import Icon from "./Icon";
-import Modal from "./Modal";
 import RadioItem from "./RadioItem";
-import SlideShow from "./TimebombSlideshow";
 import Tooltip from "./Tooltip";
 import * as ApiT from "../lib/apiT";
 import { hasTag } from "../lib/util";
 import * as Text from "../text/timebomb";
+import { base as helpPath } from "../sweep.js/paths";
 import * as _ from "lodash";
 
 interface Props {
@@ -23,18 +22,9 @@ interface Props {
   onToggle: (eventId: string, value: boolean) => void;
 }
 
-export class TimebombToggle extends React.Component<Props, {
-  showHelpModal: boolean;
-}> {
+export class TimebombToggle extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
-    this.state = { showHelpModal: false };
-  }
-
-  componentWillReceiveProps(newProps: Props) {
-    if (newProps.event.id !== this.props.event.id) {
-      this.setState({ showHelpModal: false });
-    }
   }
 
   render() {
@@ -75,12 +65,10 @@ export class TimebombToggle extends React.Component<Props, {
       let ret = <TimebombContainer>
         <h4>
           { Text.TimebombHeader }
-          <button onClick={() => this.setState({ showHelpModal: true })}>
+          <a href={helpPath} target="_blank">
             <Icon type="help" />
-          </button>
+          </a>
         </h4>
-        { this.state.showHelpModal ?
-          this.renderHelpModal() : null }
         <TimebombOptions
           disabled={disabled}
           name={name}
@@ -98,15 +86,6 @@ export class TimebombToggle extends React.Component<Props, {
         return ret;
       }
     }
-  }
-
-  renderHelpModal() {
-    return <Modal header={Text.TimebombHelpHeader}
-        onClose={() => this.setState({ showHelpModal: false })}>
-      <div className="panel">
-        <SlideShow />
-      </div>
-    </Modal>;
   }
 }
 
