@@ -109,14 +109,14 @@ export const calSetup = Paths.calSetup.route<Deps>(function(p, deps) {
 // Function that redirects to settings if no calendars found
 export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
   let team = checkForTeam(deps);
-  if (team) {
-    // Two sources of calendar info -> teamcalendars has priority
-    let cals = deps.state.teamCalendars[team.teamid];
-    let hasCals = cals && ready(cals.selected) ?
-      !!cals.selected.length :
-      team.team_timestats_calendars && !!team.team_timestats_calendars.length;
-    if (hasCals) return team;
-  }
+  if (! team) return;
+
+  // Two sources of calendar info -> teamCalendars has priority
+  let cals = deps.state.teamCalendars[team.teamid];
+  let hasCals = cals && ready(cals.selected) ?
+    !!cals.selected.length :
+    team.team_timestats_calendars && !!team.team_timestats_calendars.length;
+  if (hasCals) return team;
 
   // No cals, go to onboarding
   deps.Svcs.Nav.go(Paths.calSetup.href({}));
