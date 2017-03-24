@@ -4,7 +4,6 @@
 
 require("less/components/_group-onboarding.less");
 import * as React from 'react';
-import SlideShow from "../components/TimebombSlideshow";
 import { makeNewGroup } from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
@@ -23,8 +22,6 @@ class Setup extends React.Component<Props, {}> {
     return <div id="group-onboarding" className="container">
       <h2>{ Text.GroupOnboardingHeader }</h2>
       { Text.GroupOnboardingDescription }
-
-      <SlideShow />
 
       <div className="onboarding-start-row">
         <button className="primary" onClick={this.start}>
