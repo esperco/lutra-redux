@@ -6,7 +6,7 @@ export const TimebombMinGuests =
 export const TimebombMaxGuests =
   "Maximum number of guests in event to activate by default";
 
-export const TimebombHeader = "Your Preference";
+export const TimebombHeader = "Preference";
 export const TimebombOn = "Cancel";
 export const TimebombOff = "Keep";
 export const TimebombLate = "Time to change preference has expired";
