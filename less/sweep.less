@@ -101,11 +101,10 @@ a.cta {
     }
     img {
       width: 80%;
-      vertical-align: middle;
-
-      @media screen and (min-width: @screen-sm-min) {
-        min-height: 350px;
-      }
+      max-width: 350px;
+      box-shadow: @plus-box-shadow;
+      border-radius: @border-radius-base;
+      border: 1px solid @border-color;
     }
   }
 }
