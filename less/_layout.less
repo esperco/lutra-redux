@@ -67,8 +67,11 @@ ul {
       By default, this spaces all the children out evenly. Modify flex-grow
       to control relative size of elements. Using 1000 as base so we don't
       have to mess with decimals too much.
+
+      Flex-basis is min-container-width because of Safari not respecting
+      min-width for wrapping purposes.
     */
-    flex: 1000 1000 1em;
+    flex: 1000 1000 @min-container-width;
     margin: @padding-base / 2;
     min-width: @min-container-width;
   }

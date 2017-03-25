@@ -19,13 +19,14 @@
   flex-flow: row wrap;
 
   > * {
-    flex: 1000 1000 1em;
+    flex: 1000 1000 250px;
     margin-top: 0;
     padding: @padding-small / 2;
     min-width: 250px;
 
     @media screen and (min-width: @screen-sm-min) {
       min-width: 300px;
+      flex-basis: 300px;
     }
   }
 
