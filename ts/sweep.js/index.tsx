@@ -67,10 +67,8 @@ if (action || tokens.keep || tokens.cancel) {
       { GenericErrorMsg }
     </div>;
 
-  ReactDOM.render(<div className="container">
-    <div className="panel">
-      { component }
-    </div>
+  ReactDOM.render(<div className="panel">
+    { component }
   </div>, document.getElementById("token-ui"));
 }
 

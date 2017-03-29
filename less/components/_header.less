@@ -1,0 +1,49 @@
+/*
+  Styling for landing page header
+*/
+@import (reference) "../_variables";
+
+header.landing-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: @zindex-navbar;
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 0;
+
+  h1 a {
+    text-decoration: none;
+  }
+
+  h1, &.pinned h1, &.pinned.dark h1 {
+    svg path {
+      fill: @brand-primary;
+    }
+
+    svg + svg path {
+      fill: @shade-rel;
+    }
+  }
+
+  // If sitting on top of dark splash image (default is light)
+  &.dark {
+    color: @inverse-rel;
+
+    h1, a {
+      color: @inverse-rel;
+    }
+
+    h1 svg path, h1 svg + svg path {
+      fill: @inverse-rel;
+    }
+  }
+
+  // Landing header gets pinned to top of page when scrolling
+  &.pinned, &.pinned.dark {
+    background: @panel-bg;
+    box-shadow: @down-box-shadow;
+    border-bottom: 1px solid @border-color;
+  }
+}
