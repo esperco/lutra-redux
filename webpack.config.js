@@ -41,6 +41,16 @@ var config = {
       "./less/vendor.less"
     ],
 
+    // Our landing pages
+    landing: [
+
+      // Shared JS helpers
+      "./ts/landing.js/index.ts",
+
+      // Shared LESS file
+      './less/landing.less'
+    ],
+
     // Playground / Style-guide
     guide: "./ts/guide.js/index.tsx",
 
@@ -88,7 +98,10 @@ var config = {
           context: "html",
           includeHash: true,
           loader: 'nunjucks-html-loader?' + JSON.stringify({
-            searchPaths: [ path.join(__dirname, "html") ],
+            searchPaths: [
+              path.join(__dirname, "html"),
+              path.join(__dirname, "assets")
+            ],
 
             // Nunjucks / Jinja context
             context: {

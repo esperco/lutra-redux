@@ -5,30 +5,38 @@
   <title>Esper Sweep</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="[[css/vendor--*.css]]" rel="stylesheet" />
+  <link href="[[css/landing--*.css]]" rel="stylesheet" />
   <link href="[[css/sweep--*.css]]" rel="stylesheet" />
   <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
   {% include '_anti-clickjack.html' %}
 </head>
 <body>
-  <div id="token-ui" class="splash">
+  <header class="landing-header dark">
+    {% include '_header.html' %}
+  </header>
+
+  <div id="sweep-splash" class="splash dark"
+    style="background-image:
+      linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+      url(img/sweep-splash.jpg)">
     <!-- This gets replaced by React component if token -->
-    <div class="container landing">
-      <div class="splash-content">
+    <div class="container">
+      <div id="token-ui">
         <h1>Meet&nbsp;less. Do&nbsp;more.</h1>
-        <h2>Esper Sweep removes meetings no one wants from your calendar.</h2>
+        <h2>Esper Sweep removes unwanted meetings from your calendar.</h2>
+      </div>
+
+      <!-- Quick sign in -->
+      <div class="cta-container">
+        <a id="cta-btn" class="cta primary" href="/tb">
+          Get Started
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- Quick sign in -->
-  <div class="cta-container top">
-    <a id="cta-btn" class="cta success" href="/tb">
-      Start Canceling Meetings
-    </a>
-  </div>
-
   <!-- Howto screens -->
-  <section id="how-it-works">
+  <section>
     <h2>How it Works</h2>
     <div class="slides">
       <div class="slide">
@@ -46,7 +54,7 @@
 
       <div class="slide">
         <h3>
-          If nobody opts to kept the meeting, we cancel the meeting.
+          If nobody opts to keep the meeting, we cancel the meeting.
           Time saved!
         </h3>
         <img src="/img/email2.png" />
@@ -61,32 +69,12 @@
     </a>
   </div>
 
-  <!-- More signins -->
-  <!--<div class="login-container">
-    <h2>Sign in with your calendar provider to get started</h2>
-    <div class="login-buttons">
-      <a class="google-login primary" href="/login?platform=google">
-        <i class="fa fa-fw fa-google"></i>
-        <span>Google Account</span>
-      </a>
-
-      <a class="exchange-login primary" href="/login?platform=exchange">
-        <img src="img/exchange.svg" />
-        <span>Microsoft Exchange</span>
-      </a>
-
-      <a class="other-login primary" href="/login?platform=nylas">
-        <i class="fa fa-fw fa-envelope"></i>
-        <span>Other</span>
-      </a>
-    </div>
-  </div>-->
-
   {% include '_footer.html' %}
 
   {% include '_release.html' %}
   {% include '_segment.html' %}
   <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
+  <script type="text/javascript" src="[[js/landing--*.js]]"></script>
   <script type="text/javascript" src="[[js/sweep--*.js]]"></script>
 </body>
 </html>

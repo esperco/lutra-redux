@@ -1,13 +1,26 @@
 /*
   Fixes for the Esper logo
 */
-@logo-height: 1.8rem;
+@logo-height: 1.5rem;
 
 h1 a {
-  img {
+  img, svg {
     height: @logo-height;
     width: @logo-height;
   }
 
+  // Second image is word-mark
+  img + img, svg + svg {
+    height: 0.75rem;
+    width: auto;
+    margin-left: @padding-base;
+  }
+
   margin-right: @padding-base;
+}
+
+// Use flexbox to center (vertical-align is a pain)
+h1.logo-mark a {
+  display: flex;
+  align-items: center;
 }
