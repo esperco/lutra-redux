@@ -31,10 +31,6 @@ header:first-child {
       margin-right: auto;
     }
 
-    h1, h2, h3 {
-      font-weight: 600;
-    }
-
     * + h2, * + h3, * + h4 {
       font-size: @font-size-large;
       font-weight: normal;
@@ -120,16 +116,16 @@ header:first-child {
   }
 }
 
-.cta-container {
+body > .cta-container {
+  background: @purple-faded;
   text-align: center;
   padding: @padding-lg @padding-base;
-  max-width: @max-container-width;
-  margin-left: auto;
-  margin-right: auto;
 
   @media screen and (min-width: @screen-sm-min) {
     button { min-width: @min-container-width; }
   }
+
+  & + footer, & + footer.corporate { margin-top: 0; }
 }
 
 a.cta {
@@ -150,7 +146,7 @@ a.cta, button.cta {
 }
 
 .splash ~ section, .feature {
-  h2:first-child, h3:first-child {
+  > h2:first-child, > h3:first-child {
     text-transform: uppercase;
     text-align: center;
   }

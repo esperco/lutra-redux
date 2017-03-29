@@ -10,8 +10,11 @@ header.landing-header {
   right: 0;
   z-index: @zindex-navbar;
   background: transparent;
-  box-shadow: none;
-  border-bottom: 0;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  border-bottom: 1px solid transparent;
+  transition: background 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out,
+              border-bottom 0.3s;
 
   h1 a {
     text-decoration: none;

@@ -3,24 +3,39 @@
 */
 @import (reference) "../_variables";
 
-footer.corporate {
-  background: @shade-bg;
+footer.corporate, footer.corporate + footer {
   box-shadow: none;
   border: 0;
+  height: auto;
+}
+
+footer.corporate {
+  background: @purple-muted;
+  color: @inverse-rel-light;
   padding: @padding-small @padding-xl @padding-xl;
   margin-top: @padding-xl;
   display: flex;
   flex-flow: row wrap;
+  align-items: flex-start;
   height: auto;
 
   * + * {
     margin-top: @padding-small;
   }
 
+  a {
+    color: white;
+    &:hover, &:focus { color: white; }
+  }
+
   nav a {
     display: block;
     text-transform: none;
     line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: @inverse-rel-light;
   }
 
   > * {
@@ -32,6 +47,13 @@ footer.corporate {
   > *:last-child {
     flex-grow: 1000;
     text-align: right;
+    line-height: @navbar-height;
+
+    * + * { margin-top: @padding-base; }
+
+    @media screen and (max-width: @screen-xs-max) {
+      text-align: left;
+    }
   }
 
   a.social {
@@ -57,5 +79,40 @@ footer.corporate {
     line-height: @navbar-height;
 
     img { height: 1rem; }
+  }
+}
+
+footer.corporate + * {
+  margin-top: 0;
+  padding: (@padding-base / 2) (@padding-xl / 2);
+  display: block;
+
+  > nav {
+    margin-top: 0;
+    display: inline-block;
+    padding: (@padding-base / 2) (@padding-xl / 2) ;
+  }
+
+  a {
+    font-weight: bold;
+    text-transform: none;
+  }
+
+  a:hover { text-decoration: none; }
+
+  a svg {
+    height: @font-size-large;
+    width: auto;
+    fill: @link-color;
+  }
+
+  a:hover svg {
+    fill: @link-hover-color;
+  }
+
+  a + a { margin-left: @padding-base; }
+
+  @media screen and (max-width: @screen-xs-max) {
+    padding: @padding-base 0;
   }
 }
