@@ -28,7 +28,7 @@ function updateHeaderPin() {
   let header = document.querySelector(".landing-header");
   if (header && header.classList) {
     let scrollTop = document.body.scrollTop || window.pageYOffset;
-    if (scrollTop) { // > 0
+    if (scrollTop && scrollTop > 48) { // 3rem on most browsers
       header.classList.add("pinned");
     } else {
       header.classList.remove("pinned");
