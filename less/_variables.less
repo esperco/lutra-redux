@@ -59,6 +59,14 @@
 @shade-rel-dark:    fadeout(@off-black, 50%);
 @shade-rel-light:   fadeout(@off-black, 90%);
 
+/*
+  Inverse colors, for sitting on dark backgrounds
+*/
+@inverse-bg:          @gray-darker;
+@inverse-rel:         fadeout(@off-white, 10%);
+@inverse-rel-dark:    fadeout(@off-white, 25%);
+@inverse-rel-light:   fadeout(@off-white, 5%);
+
 // Basic scaffolding colors
 @body-bg:           @gray-bg;
 @panel-bg:          @off-white;
@@ -98,6 +106,7 @@
 @border-radius-small: 2px;
 @input-height-small: 1.5rem;
 @input-height-base: 2rem; // For buttons and inputs
+@input-height-large: 2.5rem;
 
 // Min and max of a single "column" or container element
 @max-container-width: 800px;

@@ -1,0 +1,148 @@
+@import "./_variables";
+@import (reference) "./_buttons.less";
+@import "./components/_header";
+@import "./components/_footer";
+
+header:first-child {
+  + .splash {
+    margin-top: 0;
+    padding-top: @navbar-height;
+  }
+}
+
+.splash {
+  // Mobile
+  display: flex;
+  background: @body-bg;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 100vh;
+  padding: @padding-base;
+  display: block;
+
+  .container {
+    text-align: center;
+    padding: @padding-base 0;
+    > * {
+      max-width: @max-container-width;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    h1, h2, h3 {
+      font-weight: 600;
+    }
+
+    * + h2, * + h3, * + h4 {
+      font-size: @font-size-large;
+      font-weight: normal;
+    }
+
+    .cta-container {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  // Desktop
+  @media screen and (min-width: @screen-sm-min) {
+    height: 90vh;
+    display: flex;
+    align-items: center;
+  }
+
+  // Dark mode
+  &.dark {
+    color: @inverse-rel;
+
+    h1, h2, h3 {
+      color: @inverse-rel-light;
+    }
+
+    * + h2, * + h3, * + h4 {
+      color: @inverse-rel;
+    }
+  }
+}
+
+// Specific placement for certain splash images
+#charts-splash {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  background-size: auto 50vh;
+  background-position: center bottom;
+
+  @media screen and (min-width: @screen-sm-min) {
+    background-size: auto 60vh;
+    background-position: right 20% center;
+    .container {
+      width: 40vw;
+      margin: -@navbar-height 0 0;
+
+      p, div {
+        max-width: 300px;
+      }
+    }
+  }
+}
+
+// Feature lists -- assume we use with .flex
+.features {
+  max-width: calc((3 * @min-container-width) ~" + " (6 * @padding-base));
+  margin-left: auto;
+  margin-right: auto;
+
+  .feature {
+    text-align: center;
+    padding-bottom: @padding-xl;
+    img, svg { height: @min-container-width * 0.65; width: auto; }
+    svg {
+      .primary {
+        fill: @blue;
+      }
+
+      .secondary {
+        fill: @purple-muted;
+      }
+    }
+  }
+}
+
+.cta-container {
+  text-align: center;
+  padding: @padding-lg @padding-base;
+  max-width: @max-container-width;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media screen and (min-width: @screen-sm-min) {
+    button { min-width: @min-container-width; }
+  }
+}
+
+a.cta {
+  .button();
+  text-align: center;
+  margin: 0 auto;
+}
+
+a.cta, button.cta {
+  border-radius: 1000px; // Overly large border radius = pill
+  line-height: @input-height-large;
+  height: @input-height-large;
+  padding: 0 @padding-lg;
+
+  @media screen and (max-width: @screen-xs-max) {
+    min-width: 100%;
+  }
+}
+
+.splash ~ section {
+  h2:first-child {
+    text-transform: uppercase;
+    text-align: center;
+  }
+}

@@ -6,8 +6,18 @@
   }
 }
 
-.panel .event-landing .alert:first-child {
-  margin-top: -@padding-base;
+.panel .event-landing {
+  .alert:first-child {
+    margin-top: -@padding-base;
+  }
+
+  @media screen and (max-width: @screen-xs-max) {
+    .data-status:last-child {
+      margin-bottom: -@padding-base;
+      margin-left: -@padding-base;
+      margin-right: -@padding-base;
+    }
+  }
 }
 
 // Special rendering for "no event"

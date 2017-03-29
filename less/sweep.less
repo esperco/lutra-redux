@@ -1,81 +1,14 @@
 @import "./_variables";
-@import (reference) "./_buttons.less";
-@import "./components/_footer";
 
-.splash {
-  background: @brand-bg;
+.splash.dark .container .panel {
+  border: 0;
 }
 
-.splash > .container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-
-  > * { flex-grow: 1; }
-
-  @media screen and (min-width: @screen-sm-min) {
-    min-height: 42vh;
-  }
-}
-
-.splash > .container.landing {
-  @media screen and (max-width: @screen-xs-max) {
-    min-height: 82vh;
-  }
-
-  .splash-content {
-    color: @off-white;
-    text-align: center;
-
-    h1, h2, h3 {
-      color: @off-white;
-    }
-  }
-}
-
-.cta-container {
-  text-align: center;
-}
-
-.cta-container.top {
-  margin-top: 0;
-  text-align: center;
-
-  @media screen and (min-width: @screen-sm-min) {
-    padding: @padding-base;
-    background: @shade-bg;
-  }
-
-  @media screen and (max-width: @screen-xs-max) {
-    a.cta {
-      min-width: 100%;
-      border-radius: 0;
-    }
-  }
-}
-
-.cta-container.bottom {
-  margin: 0 auto;
-  padding: @padding-base;
-}
-
-a.cta {
-  .button();
-
-   min-width: 50vw;
-   text-align: center;
-   margin: 0 auto;
-
-   @media screen and (max-width: @screen-xs-max) {
-     min-width: 100%;
-   }
-}
-
-#how-it-works {
-  h2 {
-    text-transform: uppercase;
-    text-align: center;
+.splash .container .panel {
+  text-align: left;
+  color: @text-color;
+  h1, h2, h3, h4, h5, h6 {
+    color: @text-header;
   }
 }
 
@@ -108,42 +41,3 @@ a.cta {
     }
   }
 }
-
-// .login-container {
-//   text-align: center;
-// }
-
-// .login-buttons {
-//   max-width: 900px;
-//   margin-left: auto;
-//   margin-right: auto;
-//   display: flex;
-//   flex-flow: row wrap;
-//   justify-content: center;
-//   padding: 0 @padding-small;
-
-//   a {
-//     .button();
-//     margin: @padding-small;
-//     display: flex;
-//     align-items: center;
-//     min-width: 250px;
-//     max-width: 300px;
-
-//     > img { height: 1rem; }
-
-//     > *:last-child {
-//       flex-grow: 1;
-//       margin: 0;
-//       text-align: center;
-//     }
-
-//     &.google-login {
-//       .transparent-color-variant(@red);
-//     }
-
-//     &.exchange-login {
-//       .transparent-color-variant(@blue);
-//     }
-//   }
-// }
