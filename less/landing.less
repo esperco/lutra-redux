@@ -98,14 +98,23 @@ header:first-child {
   .feature {
     text-align: center;
     padding-bottom: @padding-xl;
-    img, svg { height: @min-container-width * 0.65; width: auto; }
+    img, svg {
+      height: @min-container-width * 0.65; width: auto;
+      margin: @padding-lg auto;
+      & + * { margin-top: 0; }
+    }
+
     svg {
-      .primary {
-        fill: @blue;
+      .c1 {
+        fill: lighten(@purple-muted, 10%);
       }
 
-      .secondary {
-        fill: @purple-muted;
+      .c2 {
+        fill: lighten(@purple-muted, 15%);
+      }
+
+      .c3 {
+        fill: lighten(@purple-muted, 20%);
       }
     }
   }
@@ -140,8 +149,8 @@ a.cta, button.cta {
   }
 }
 
-.splash ~ section {
-  h2:first-child {
+.splash ~ section, .feature {
+  h2:first-child, h3:first-child {
     text-transform: uppercase;
     text-align: center;
   }

@@ -43,6 +43,7 @@ var config = {
 
     // Our landing pages
     landing: [
+      './html/charts.html',
 
       // Shared JS helpers
       "./ts/landing.js/index.ts",

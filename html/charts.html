@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Esper Charts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
+  <link href="[[css/landing--*.css]]" rel="stylesheet" />
+  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
+  {% include '_anti-clickjack.html' %}
+</head>
+<body>
+  <header class="landing-header light">
+    {% include '_header.html' %}
+  </header>
+
+  <section id="charts-splash" class="splash"
+      style="background-image:url(img/charts-splash.png)">
+    <div class="container">
+      <h2>
+        Count the Hours
+      </h2>
+      <p>
+        Tag, filter, and chart your calendar events using Esper
+      </p>
+      <div>
+        <button class="primary cta">Sign Up For Free</button>
+        <button>Try the Demo</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="charts-features" class="features flex">
+    <div class="feature">
+      <h3>Works Well With Others</h3>
+      {% include 'img/google-exchange.svg' %}
+      <p>
+        Chart events on Google Calendar, Microsoft Exchange, Office 365,
+        and more.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>Gets Smarter Over Time</h3>
+      {% include 'img/cogs.svg' %}
+      <p>
+        Esper learns from previously tagged events
+        automatically categorizes future events to save you time.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>Track Meeting Guests</h3>
+      {% include 'img/guest-pie-chart.svg' %}
+      <p>
+        See whom you meet with the most and what you're meeting about.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>Hashtags With a Purpose</h3>
+      {% include 'img/hashtag.svg' %}
+      <p>
+        Add a #hashtag to your event description to tag an event
+        directly in your calendar.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>Be a Team Player</h3>
+      {% include 'img/teams.svg' %}
+      <p>
+        Analyze events across multiple calendars and share with the
+        people you work with.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>Export Your Data</h3>
+      {% include 'img/download.svg' %}
+      <p>
+        Want to do something we can't?
+        Download charts and export tag data as CSV.
+      </p>
+    </div>
+  </section>
+
+  <div class="cta-container">
+    <button class="primary cta">Sign Up For Free</button>
+  </div>
+
+  {% include '_footer.html' %}
+
+  {% include '_release.html' %}
+  {% include '_segment.html' %}
+  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
+  <script type="text/javascript" src="[[js/landing--*.js]]"></script>
+</body>
+</html>
