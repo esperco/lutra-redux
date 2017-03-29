@@ -14,14 +14,6 @@ export const Canceled = "Meeting canceled";
 export const Confirmed = "Meeting confirmed";
 export const ConfirmLate = "Confirmation period has expired";
 
-export const Onboarding1 =
-  "Esper gets rid of wasteful meetings on your calendar.";
-export const Onboarding2 =
-  "We'll send an email to all guests before the meeting asking if they " +
-  "want to keep the meeting.";
-export const Onboarding3 =
-  "If nobody opts to kept the meeting, we cancel the meeting. Time saved!";
-
 export const OnboardingPickEventHeading =
   "Pick an Event";
 export const OnboardingPickEventDescription = <div>
@@ -108,5 +100,4 @@ export const TimebombDefaultDescription =
   the <a href={p.settingsHref}>settings page</a>.
 </p>;
 
-export const TimebombHelpHeader = "Keep / Cancel";
 export const LandingCTAButton = "Cancel More Meetings";
