@@ -455,7 +455,6 @@ export interface TeamMember {
 
 export interface Preferences {
   uid?: string;
-  teamid?: string;
   email_types: EmailTypes;
   label_reminder?: SimpleEmailPref;
   slack_address?: SlackAddress;
