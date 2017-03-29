@@ -103,8 +103,8 @@ export class EventLanding extends React.Component<Props, State> {
   render() {
     return <div className="event-landing">
       { this.renderError() }
-      { this.renderDataStatus() }
       { this.renderEvent() }
+      { this.renderDataStatus() }
     </div>;
   }
 
