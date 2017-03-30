@@ -1,0 +1,100 @@
+{% extends '_landing.html' %}
+
+{% block title %}Contact Us | Esper{% endblock %}
+
+{% block main %}
+  <div class="main container">
+    <h1>Contact Us</h1>
+    <p>
+      You can contact us via chat or by emailing
+      <a href="mailto:support@esper.com">support@esper.com</a>.
+    </p>
+
+    <section class="panel">
+      <h2>Request Demo</h2>
+      <p>To request an Esper demo, please provide your email address below.</p>
+      <form id="request-demo">
+        <div id="request-success" class="alert success" style="display:none">
+          Request sent
+        </div>
+        <div id="invalid-email" class="alert danger" style="display:none">
+          Not a valid email address
+        </div>
+        <div id="request-error" class="alert danger" style="display:none">
+          Whoops! Something broke. Please contact us at support@esper.com
+        </div>
+        <label for="email">Email Address</label>
+        <input id="email" name="email"
+          type="email"
+          placeholder="email@example.com"
+          required
+        />
+        <input id="nope" name="nope" type="checkbox"
+          style="visibility:hidden; position: absolute;"
+        />
+        <div style="text-align:center">
+          <input id="request-submit"
+            type="submit" class="primary cta" value="Submit" />
+          <button id="request-busy" disabled class="primary cta"
+          style="display:none">
+            Sending &hellip;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript">
+    var submitBtn = document.getElementById("request-submit");
+    var busyBtn = document.getElementById("request-busy");
+    var successMsg = document.getElementById("request-success");
+    var errorMsg = document.getElementById("request-error");
+    var emailInput = document.getElementById("email");
+    var honeypot = document.getElementById("nope");
+    var invalidMsg = document.getElementById("invalid-email");
+
+    window.requestDemo = {
+      demoForm: document.getElementById("request-demo"),
+
+      reset: function() {
+        submitBtn.style.display = "inline-block";
+        busyBtn.style.display = "none";
+        successMsg.style.display = "none";
+        errorMsg.style.display = "none";
+        invalidMsg.style.display = "none"
+      },
+
+      busy: function() {
+        this.reset();
+        submitBtn.style.display = "none";
+        busyBtn.style.display = "inline-block";
+      },
+
+      error: function() {
+        this.reset();
+        errorMsg.style.display = "block";
+      },
+
+      success: function() {
+        this.reset();
+        successMsg.style.display = "block";
+        emailInput.value = "";
+      },
+
+      invalidEmail: function() {
+        this.reset();
+        invalidMsg.style.display = "block";
+      },
+
+      getValue: function() {
+        if (honeypot && honeypot.checked) {
+          return "";
+        }
+        return email.value;
+      }
+    };
+  </script>
+  {{ super() }}
+{% endblock %}

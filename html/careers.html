@@ -1,0 +1,80 @@
+{% extends '_landing.html' %}
+
+{% block title %}Careers | Esper{% endblock %}
+
+{% block header_classes %}dark{% endblock %}
+
+{% block main %}
+  <section id="jobs-splash" class="splash dark"
+  style="background-image:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url(img/jobs-splash.jpg)
+  ">
+    <div class="container">
+      <h1>
+        Careers
+      </h1>
+      <p>
+        Pithy tagline goes here (we could use some marketing help)
+      </p>
+    </div>
+  </section>
+
+  <section class="container">
+    <h2>We're Hiring</h2>
+    <p>
+      We're a small startup taking on big challenges. There's a lot to do,
+      but we also understand the importance of personal well-being. Hours
+      are flexible. Lunch is catered. And benefits include full healthcare,
+      vision, and dental coverage.
+    </p>
+    <p>
+      We are an equal opportunity employer and value diversity at our company.
+      We do not discriminate on the basis of race, religion, color, national
+      origin, gender, sexual orientation, age, marital status, veteran status,
+      or disability status.
+    </p>
+  </section>
+
+  <section class="container">
+    <h2>Available Positions</h2>
+
+    <section>
+      <h3>Full-Stack Developer</h3>
+      <p>
+        We're looking for a full-stack developer to help our users better manage
+        their time. Esper is currently a small team, so you'll be involved in
+        every aspect of product design, planning, and development.
+      </p>
+      <p>
+        We currently use OCaml, TypeScript, React, LESS, MySQL, Redis,
+        and a lot of Amazon Web Services. We don't require prior experience
+        with these technologies, only a willingness to learn. We're also open
+        to experimenting with new tools.
+      </p>
+
+      <h4>Requirements</h4>
+      <ul>
+        <li>
+          You have a basic understandin of how functional programming works
+          and are comfortable with Javascript's various ... quirks.
+        </li>
+        <li>You can write clean, testable code (and actual tests).</li>
+        <li>You have an eye for good design and pay attention to the little
+          things.</li>
+        <li>You're willing to take ownership of a feature and make sure it
+          ships.</li>
+        <li>You've thought a lot about time management and how to improve
+          it.</li>
+        <li>You're okay with color purple.</li>
+      </ul>
+
+      <h4>Bonus Points</h4>
+      <ul>
+        <li>You've worked with React Native or developed mobile apps.</li>
+        <li>You've worked in a startup environment or have side projects of
+            your own.</li>
+      </ul>
+    </section>
+  </section>
+{% endblock %}

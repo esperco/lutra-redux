@@ -57,3 +57,45 @@ function updateHeaderPin() {
   "scroll", updateHeaderPin, { passive: true }
 );
 updateHeaderPin();
+
+
+/////////
+
+import { validateEmailAddress } from "../lib/util";
+import Api from "../lib/api";
+import * as Conf from "config";
+
+// Hook up support email widget if applicable
+declare var requestDemo: {
+  demoForm: HTMLFormElement,
+  reset: () => void,
+  busy: () => void,
+  error: () => void,
+  success: () => void,
+  invalidEmail: () => void,
+  getValue: () => string
+}|undefined;
+
+if (typeof requestDemo !== "undefined") {
+  let cbs = requestDemo;
+  Api.init(Conf);
+
+  requestDemo.demoForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    event.target;
+
+    cbs.reset();
+    let email = cbs.getValue();
+    if (validateEmailAddress(email)) {
+      cbs.busy();
+      Api.sendSupportEmail(email + " requested demo").then(() => {
+        cbs.success();
+      }).catch((err) => {
+        cbs.error();
+        throw err;
+      });
+    } else {
+      cbs.invalidEmail();
+    }
+  }, false);
+}
