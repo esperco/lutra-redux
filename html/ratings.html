@@ -1,0 +1,65 @@
+{% extends '_landing.html' %}
+
+{% block title %}Ratings | Esper{% endblock %}
+
+{% block header_classes %}dark{% endblock %}
+
+{% block main %}
+  <section id="ratings-splash" class="splash dark"
+    style="background-image:
+      linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+      url(img/ratings-splash.jpg)">
+    <div class="container">
+      <h1>
+        &ldquo;That Meeting Sucked&rdquo;
+      </h1>
+      <h2>
+        Rate and comment on your meetings with Esper
+      </h2>
+      <div>
+        <a class="cta primary" href="/login">
+          Sign Up For Free
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="charts-features" class="features flex">
+    <div class="feature">
+      <h3>It's Full of Stars</h3>
+      {% include 'img/star-o.svg' %}
+      <p>
+        Rate your meetings. Compare your ratings against
+        <a href="/charts">meeting tags and guests</a>
+        to see what makes for a good
+        meeting versus a bad one.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>Note to Self</h3>
+      {% include 'img/speaker-notes.svg' %}
+      <p>
+        Take private meeting notes and record action items.
+        Esper will follow up by email.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>Slack Integration Included</h3>
+      {% include 'img/slack.svg' %}
+      <p>
+        Rate meetings and more with Esper's Slack bot.
+      </p>
+    </div>
+  </section>
+
+  <div class="cta-container">
+    <h2>Get Started Today</h2>
+    <div>
+      <a class="cta primary" href="/login">
+        Sign Up For Free
+      </a>
+    </div>
+  </div>
+{% endblock %}
