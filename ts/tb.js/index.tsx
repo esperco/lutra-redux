@@ -4,9 +4,6 @@
   (the user's exec team)
 */
 
-// This causes Webpack to load everything in the assets dir during the build
-require.context("assets", true, /.*$/);
-
 // LESS
 require("less/tb.less");
 

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Esper{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% block head %}
+    <link href="[[css/vendor--*.css]]" rel="stylesheet" />
+    <link href="[[css/landing--*.css]]" rel="stylesheet" />
+  {% endblock %}
+  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
+  {% include '_anti-clickjack.html' %}
+</head>
+<body>
+  {% block body %}
+  {% endblock %}
+</body>
+</html>

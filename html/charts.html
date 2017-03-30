@@ -1,19 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Esper Charts</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
-  <link href="[[css/landing--*.css]]" rel="stylesheet" />
-  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
-  {% include '_anti-clickjack.html' %}
-</head>
-<body>
-  <header class="landing-header light">
-    {% include '_header.html' %}
-  </header>
+{% extends '_landing.html' %}
 
+{% block title %}Charts | Esper{% endblock %}
+
+{% block main %}
   <section id="charts-splash" class="splash"
       style="background-image:url(img/charts-splash.png)">
     <div class="container">
@@ -91,12 +80,4 @@
       <button class="primary cta">Sign Up For Free</button>
     </div>
   </div>
-
-  {% include '_footer.html' %}
-
-  {% include '_release.html' %}
-  {% include '_segment.html' %}
-  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
-  <script type="text/javascript" src="[[js/landing--*.js]]"></script>
-</body>
-</html>
+{% endblock %}

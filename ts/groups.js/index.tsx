@@ -4,9 +4,6 @@
   for a group.
 */
 
-// This causes Webpack to load everything in the assets dir during the build
-require.context("assets", true, /.*$/);
-
 // Web worker
 if ((self as any).Worker) {
   /*

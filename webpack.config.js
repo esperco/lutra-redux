@@ -42,15 +42,7 @@ var config = {
     ],
 
     // Our landing pages
-    landing: [
-      './html/charts.html',
-
-      // Shared JS helpers
-      "./ts/landing.js/index.ts",
-
-      // Shared LESS file
-      './less/landing.less'
-    ],
+    landing: "./ts/landing.js/index.ts",
 
     // Playground / Style-guide
     guide: "./ts/guide.js/index.tsx",

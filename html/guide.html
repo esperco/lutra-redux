@@ -1,16 +1,15 @@
-{#
-  This is a playground/style guide for our CSS and LESS
-#}<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Style Guide</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
+{# This is a playground/style guide for our CSS and LESS #}
+
+{% extends '_app.html' %}
+
+{% block title %}Style Guide | Esper{% endblock %}
+
+{% block head %}
+  {{ super() }}
   <link href="[[css/guide--*.css]]" rel="stylesheet" />
-  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
-</head>
-<body>
+{% endblock %}
+
+{% block main %}
   <div class="container">
     <h1>Esper Living Style Guide</h1>
 
@@ -524,8 +523,9 @@
       </div>
     </div>
   </div></footer>
+{% endblock %}
 
-  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
+{% block scripts %}
+  {{ super() }}
   <script type="text/javascript" src="[[js/guide--*.js]]"></script>
-</body>
-</html>
+{% endblock %}

@@ -1,20 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Esper Sweep</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
-  <link href="[[css/landing--*.css]]" rel="stylesheet" />
-  <link href="[[css/sweep--*.css]]" rel="stylesheet" />
-  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
-  {% include '_anti-clickjack.html' %}
-</head>
-<body>
-  <header class="landing-header dark">
-    {% include '_header.html' %}
-  </header>
+{% extends '_landing.html' %}
 
+{% block title %}Sweep | Esper{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <link href="[[css/sweep--*.css]]" rel="stylesheet" />
+{% endblock %}
+
+{% block header_classes %}dark{% endblock %}
+
+{% block main %}
   <div id="sweep-splash" class="splash dark"
     style="background-image:
       linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
@@ -71,13 +66,9 @@
       </a>
     </div>
   </div>
+{% endblock %}
 
-  {% include '_footer.html' %}
-
-  {% include '_release.html' %}
-  {% include '_segment.html' %}
-  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
-  <script type="text/javascript" src="[[js/landing--*.js]]"></script>
+{% block scripts %}
+  {{ super() }}
   <script type="text/javascript" src="[[js/sweep--*.js]]"></script>
-</body>
-</html>
+{% endblock %}
