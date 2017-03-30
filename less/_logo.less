@@ -4,6 +4,8 @@
 @logo-height: 1.5rem;
 
 .logo-mark {
+  a { text-decoration: none; }
+
   img, svg {
     height: @logo-height;
     width: @logo-height;
@@ -14,6 +16,10 @@
     height: 0.75rem;
     width: auto;
     margin-left: @padding-base;
+
+    @media screen and (max-width: @screen-xs-max) {
+      display: none;
+    }
   }
 
   margin-right: @padding-base;

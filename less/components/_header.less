@@ -3,6 +3,11 @@
 */
 @import (reference) "../_variables";
 
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 header.landing-header {
   position: fixed;
   top: 0;
@@ -16,10 +21,6 @@ header.landing-header {
               box-shadow 0.3s ease-in-out,
               border-bottom 0.3s;
 
-  .logo-mark a {
-    text-decoration: none;
-  }
-
   .logo-mark, &.pinned .logo-mark, &.pinned.dark .logo-mark {
     svg path {
       fill: @brand-primary;
@@ -30,9 +31,83 @@ header.landing-header {
     }
   }
 
+  .toggle-nav { display: none; }
+
+  nav {
+    display: block;
+    text-align: right;
+    margin: 0;
+
+    .close-nav {
+      display: none;
+    }
+
+    a {
+      text-transform: none;
+      font-weight: 600;
+      background: transparent;
+      border: 0;
+
+      &:hover {
+        background: transparent;
+        border: 0;
+        color: @link-hover-color;
+      }
+    }
+  }
+
+  @media screen and (max-width: @screen-sm-max) {
+    .toggle-nav {
+      display: block;
+      text-align: right;
+      svg {
+        height: 1rem;
+        width: auto;
+        fill: @shade-rel;
+      }
+    }
+
+    /*
+      Responsive nav menu
+    */
+    nav {
+      .close-nav {
+        display: block;
+        font-size: @font-size-large;
+        font-weight: bold;
+        float: left;
+      }
+
+      display: none;
+      background: rgba(0, 0, 0, 0.85);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: auto;
+      padding: @padding-base;
+
+      a {
+        color: @inverse-rel-light;
+        &:hover { color: @inverse-rel; }
+      }
+
+      * + a { margin-top: @padding-base; }
+
+      &:target {
+        display: block;
+        animation: fadein 0.3s ease-in-out;
+      }
+    }
+  }
+
   // If sitting on top of dark splash image (default is light)
   &.dark {
     color: @inverse-rel;
+    .toggle-nav svg {
+      fill: @inverse-rel;
+    }
 
     .logo-mark, a {
       color: @inverse-rel;
@@ -40,6 +115,11 @@ header.landing-header {
 
     .logo-mark svg path, .logo-mark svg + svg path {
       fill: @inverse-rel;
+    }
+
+    a {
+      color: @inverse-rel-light;
+      &:hover { color: @inverse-rel; }
     }
   }
 
