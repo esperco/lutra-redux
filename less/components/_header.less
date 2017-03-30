@@ -16,11 +16,11 @@ header.landing-header {
               box-shadow 0.3s ease-in-out,
               border-bottom 0.3s;
 
-  h1 a {
+  .logo-mark a {
     text-decoration: none;
   }
 
-  h1, &.pinned h1, &.pinned.dark h1 {
+  .logo-mark, &.pinned .logo-mark, &.pinned.dark .logo-mark {
     svg path {
       fill: @brand-primary;
     }
@@ -34,11 +34,11 @@ header.landing-header {
   &.dark {
     color: @inverse-rel;
 
-    h1, a {
+    .logo-mark, a {
       color: @inverse-rel;
     }
 
-    h1 svg path, h1 svg + svg path {
+    .logo-mark svg path, .logo-mark svg + svg path {
       fill: @inverse-rel;
     }
   }
@@ -49,4 +49,6 @@ header.landing-header {
     box-shadow: @down-box-shadow;
     border-bottom: 1px solid @border-color;
   }
+
+  + * { margin-top: @navbar-height + @padding-base; }
 }

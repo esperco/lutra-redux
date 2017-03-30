@@ -24,7 +24,7 @@ header, .banner, .row, footer {
   }
 
   // Expand these items relatively slowly, don't shrink
-  > h1, > button, > a, > input[type=submit], > .btn-set {
+  > .logo-mark, > button, > a, > input[type=submit], > .btn-set {
     flex: 1 0 auto;
     min-width: @input-height-base;
     line-height: @navbar-height;
@@ -41,7 +41,8 @@ header, .banner, .row, footer {
 
   h1, h2, h3, h4, h5, h6 {
     margin: 0;
-    line-height: @navbar-height;
+    font-size: @font-size-large;
+    line-height: @font-size-large;
   }
 
   transition: height 0.3s ease-in-out,

@@ -3,7 +3,7 @@
 */
 @logo-height: 1.5rem;
 
-h1 a {
+.logo-mark {
   img, svg {
     height: @logo-height;
     width: @logo-height;
@@ -17,10 +17,9 @@ h1 a {
   }
 
   margin-right: @padding-base;
-}
 
-// Use flexbox to center (vertical-align is a pain)
-h1.logo-mark a {
-  display: flex;
-  align-items: center;
+  a {
+    display: flex;
+    align-items: center;
+  }
 }
