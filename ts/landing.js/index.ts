@@ -10,7 +10,7 @@ require.context("assets", true, /.*$/);
   Note on regex - seems to include at least part of path `./` or `/` in
   the path tested
 */
-require.context("html", true, /[\/\\][a-zA-Z].+\.html$/);
+require.context("html", true, /[\/\\][a-zA-Z0-9].+\.html$/);
 
 // Shared landing CSS
 require("less/landing.less");
@@ -59,11 +59,16 @@ function updateHeaderPin() {
 updateHeaderPin();
 
 
-/////////
+
+/* -------------------------------------
+  Request Demo button for /contact
+------------------------------------- */
+
 
 import { validateEmailAddress } from "../lib/util";
 import Api from "../lib/api";
 import * as Conf from "config";
+Api.init(Conf);
 
 // Hook up support email widget if applicable
 declare var requestDemo: {
@@ -78,7 +83,6 @@ declare var requestDemo: {
 
 if (typeof requestDemo !== "undefined") {
   let cbs = requestDemo;
-  Api.init(Conf);
 
   requestDemo.demoForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -98,4 +102,33 @@ if (typeof requestDemo !== "undefined") {
       cbs.invalidEmail();
     }
   }, false);
+}
+
+
+/* -------------------------------------
+  Try Demo button for /charts
+------------------------------------- */
+
+import LocalStore from "../lib/local-store";
+import { storedLoginKey } from "../lib/login";
+
+let sandboxBtn = document.getElementById("demo-btn") as HTMLButtonElement|null;
+if (sandboxBtn) {
+  let btn = sandboxBtn;
+  btn.addEventListener("click", (event) => {
+    event.preventDefault();
+    btn.disabled = true;
+    btn.innerHTML = "Loading &hellip;";
+    Api.sandboxSignup().then((info) => {
+      LocalStore.set(storedLoginKey, {
+        uid: info.uid,
+        api_secret: info.api_secret,
+        email: info.email
+      });
+      location.href = "/time";
+    }).catch((err) => {
+      btn.innerHTML = "Error";
+      throw err;
+    })
+  });
 }

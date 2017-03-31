@@ -27,7 +27,7 @@ class TBHeader extends React.Component<Props, {}> {
     return <header className={
       this.props.state.lastScroll === "down" ? "hide" : ""
     }>
-      <h2><a href="#!/">
+      <h2 className="logo-mark"><a href="#!/">
         <img alt="Esper" src="/img/esper-logo-purple.svg" />
       </a></h2>
 

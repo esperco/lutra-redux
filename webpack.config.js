@@ -85,7 +85,30 @@ var config = {
 
   module: {
     rules: [
+      // Special handling for index
+      { test: /\bindex\.html?$/,
+        loader: PathRewriterPlugin.rewriteAndEmit({
+          name: "[path][name].html",
+          context: "html",
+          includeHash: true,
+          loader: 'nunjucks-html-loader?' + JSON.stringify({
+            searchPaths: [
+              path.join(__dirname, "html"),
+              path.join(__dirname, "assets")
+            ],
+
+            // Nunjucks / Jinja context
+            context: {
+              PRODUCTION: prodLike,
+              VERSION: VERSION
+            }
+          })
+        })
+      },
+
+      // Other HTML pages
       { test: /\.html?$/,
+        exclude: /\bindex\.html?$/,
         loader: PathRewriterPlugin.rewriteAndEmit({
           name: "[path][name]",
           context: "html",

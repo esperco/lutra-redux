@@ -25,8 +25,9 @@ header:first-child {
   .container {
     text-align: center;
     padding: @padding-base 0;
+    max-width: 0.75 * @max-container-width;
+
     > * {
-      max-width: @max-container-width;
       margin-left: auto;
       margin-right: auto;
     }
@@ -41,6 +42,15 @@ header:first-child {
       padding-left: 0;
       padding-right: 0;
       margin-top: @padding-lg;
+    }
+
+    .cta.secondary {
+      border-color: @link-color;
+      color: @link-color;
+      &:hover {
+        background: @link-color;
+        color: @off-white;
+      }
     }
   }
 
@@ -62,10 +72,60 @@ header:first-child {
     * + h2, * + h3, * + h4 {
       color: @inverse-rel;
     }
+
+    .cta.secondary {
+      border-color: @off-white;
+      color: @off-white;
+      &:hover {
+        background: @off-white;
+        color: @text-color;
+      }
+    }
   }
 }
 
+.splash + .splash { margin-top: 0; }
+
 // Specific placement for certain splash images
+#main-splash {
+  background-position: right 10% center;
+  display: flex;
+  align-items: center;
+  .container {
+    width: 70vw;
+    text-align: left;
+  }
+
+  @media screen and (min-width: @screen-sm-min) {
+    .container {
+      margin-left: 40vw;
+      margin-top: 0;
+    }
+  }
+}
+
+// Main sweep sub-splash
+#main-splash + .splash {
+  display: flex;
+  align-items: flex-start;
+  background-position: center bottom;
+  background-size: auto 50vh;
+}
+
+// Main ratings sub-splash
+#main-splash + .splash + .splash {
+  display: flex;
+  align-items: center;
+}
+
+// Main charts sub-splash
+#main-splash + .splash + .splash + .splash {
+  display: flex;
+  align-items: flex-end;
+  background-position: center top;
+  background-size: auto 50vh;
+}
+
 #charts-splash {
   max-width: 1400px;
   margin-left: auto;
@@ -77,12 +137,18 @@ header:first-child {
     background-size: auto 60vh;
     background-position: right 20% center;
     .container {
-      width: 40vw;
-      margin: -@navbar-height 0 0;
+      width: 30vw;
+      margin: -@navbar-height 0;
 
       p, div {
         max-width: 300px;
       }
+    }
+  }
+
+  @media screen and (min-width: @screen-md-min) {
+    .container {
+      margin: -@navbar-height 0 0 10vw;
     }
   }
 }
@@ -130,14 +196,15 @@ body > .cta-container {
   & + footer, & + footer.corporate { margin-top: 0; }
 }
 
+// CTA links -> like buttons
 a.cta {
   .button();
   text-align: center;
   margin: 0 auto;
 }
 
+// CTA butotn bigger than normal button
 a.cta, button.cta, input[type="submit"].cta {
-  border-radius: 1000px; // Overly large border radius = pill
   line-height: @input-height-large;
   height: @input-height-large;
   padding: 0 @padding-lg;
@@ -145,6 +212,11 @@ a.cta, button.cta, input[type="submit"].cta {
   @media screen and (max-width: @screen-xs-max) {
     min-width: 100%;
   }
+}
+
+// Clear secondary button
+.cta.secondary {
+  border: 1px solid @link-color;
 }
 
 .splash ~ section, .feature {

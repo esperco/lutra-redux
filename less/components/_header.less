@@ -33,10 +33,28 @@ header.landing-header {
 
   .toggle-nav { display: none; }
 
+  @media screen and (max-width: @screen-xs-max) {
+    .toggle-nav {
+      display: block;
+      text-align: right;
+      svg {
+        height: 1rem;
+        width: auto;
+        fill: @shade-rel-dark;
+      }
+    }
+  }
+
   nav {
-    display: block;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     margin: 0;
+
+    > * {
+      flex: 0 1 auto;
+      margin: 0 0 0 @padding-small;
+    }
 
     .close-nav {
       display: none;
@@ -44,60 +62,28 @@ header.landing-header {
 
     a {
       text-transform: none;
+      font-size: @font-size-small;
       font-weight: 600;
       background: transparent;
       border: 0;
+      color: @shade-rel-dark;
 
       &:hover {
         background: transparent;
         border: 0;
-        color: @link-hover-color;
-      }
-    }
-  }
-
-  @media screen and (max-width: @screen-sm-max) {
-    .toggle-nav {
-      display: block;
-      text-align: right;
-      svg {
-        height: 1rem;
-        width: auto;
-        fill: @shade-rel;
+        color: @shade-rel;
       }
     }
 
-    /*
-      Responsive nav menu
-    */
-    nav {
-      .close-nav {
-        display: block;
-        font-size: @font-size-large;
-        font-weight: bold;
-        float: left;
-      }
+    a.cta {
+      line-height: calc(@input-height-base ~" - 2px");
+      height: @input-height-base;
+      border: 1px solid @link-color;
+      padding: 0 @padding-base;
 
-      display: none;
-      background: rgba(0, 0, 0, 0.85);
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: auto;
-      padding: @padding-base;
-
-      a {
-        color: @inverse-rel-light;
-        &:hover { color: @inverse-rel; }
-      }
-
-      * + a { margin-top: @padding-base; }
-
-      &:target {
-        display: block;
-        animation: fadein 0.3s ease-in-out;
+      &:hover {
+        background: @link-color;
+        color: @off-white;
       }
     }
   }
@@ -121,6 +107,15 @@ header.landing-header {
       color: @inverse-rel-light;
       &:hover { color: @inverse-rel; }
     }
+
+    a.cta.secondary {
+      border-color: @off-white;
+      color: @off-white;
+      &:hover {
+        background: @off-white;
+        color: @text-color;
+      }
+    }
   }
 
   // Landing header gets pinned to top of page when scrolling
@@ -128,7 +123,69 @@ header.landing-header {
     background: @panel-bg;
     box-shadow: @down-box-shadow;
     border-bottom: 1px solid @border-color;
+
+    .toggle-nav svg {
+      fill: @shade-rel-dark;
+    }
+
+    nav {
+      a {
+        color: @shade-rel-dark;
+        &:hover { color: @shade-rel; }
+      }
+
+      a.cta.secondary {
+        border-color: @link-color;
+        color: @shade-rel-dark;
+        &:hover {
+          background: @link-color;
+          color: @off-white;
+        }
+      }
+    }
   }
 
   + * { margin-top: @navbar-height + @padding-base; }
+}
+
+@media screen and (max-width: @screen-xs-max) {
+  header.landing-header, header.landing-header.pinned,
+  header.landing-header.pinned.dark, header.landing-header.dark {
+    /*
+      Responsive nav menu
+    */
+    nav, &.pinned nav, &.pinned.dark nav {
+      .close-nav {
+        display: block;
+        font-size: @font-size-large;
+        font-weight: bold;
+        float: left;
+      }
+
+      display: none;
+      background: rgba(0, 0, 0, 0.85);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: auto;
+      padding: @padding-base;
+
+      a, a.cta.secondary {
+        width: auto;
+        min-width: 0;
+        color: @inverse-rel-light;
+        &:hover { color: @inverse-rel; }
+      }
+
+      * + a { margin-top: @padding-base; }
+
+      &:target {
+        display: block;
+        animation: fadein 0.3s ease-in-out;
+        text-align: right;
+      }
+    }
+  }
 }

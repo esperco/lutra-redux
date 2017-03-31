@@ -522,6 +522,14 @@ namespace Api {
     return JsonHttp.get(url);
   }
 
+
+  /* Misc */
+
+  export function sandboxSignup(): Promise<ApiT.LoginResponse> {
+    var url = prefix + "/api/sandbox/signup";
+    return JsonHttp.post(url, "");
+  }
+
   export function sendSupportEmail(msg: string): Promise<void> {
     var url = prefix + "/api/support/email";
     var feedback: { body: string, user?: string } = { body: msg };
