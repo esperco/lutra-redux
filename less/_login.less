@@ -1,0 +1,88 @@
+// CSS for login page (included via landing page instead)
+@import (reference) "./_variables";
+
+#esper-main.login-main {
+  text-align: center;
+  .nylas-form {
+    text-align: left;
+
+    .form-group {
+      button {
+        padding: 0 0.5rem 0 0;
+        line-height: 1rem;
+        height: 1rem;
+        font-size: 1rem;
+      }
+
+      label {
+        display: inline-block;
+        margin-top: 0;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .approve-team {
+    ul {
+      list-style-type: none;
+      text-align: left;
+    }
+
+    .action-buttons {
+      text-align: center;
+      button { margin: 0 @padding-base; }
+    }
+  }
+
+  @media screen and (min-width: @screen-sm-min) {
+    max-width: @max-popup-width;
+  }
+}
+
+#esper-login button.primary {
+  margin: @padding-base auto 0;
+  display: block;
+}
+
+#esper-login button.sign-in-btn.cta.primary {
+  display: flex;
+  align-items: center;
+  padding: 0 @padding-small 0 @padding-base;
+
+  > * {
+    margin-top: 0;
+  }
+
+  &.google-btn {
+    background: #DF4A32;
+    &:hover { opacity: 0.8 }
+  }
+
+  &.exchange-btn {
+    background: #0072BB;
+    &:hover { opacity: 0.8 }
+  }
+
+  // Icon
+  > :first-child {
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1rem;
+
+    img, svg {
+      height: 1rem;
+      width: auto;
+    }
+  }
+
+  // Text
+  > :last-child {
+    flex-grow: 1;
+    text-align: center;
+    padding: 0 @padding-base;
+  }
+}
+
+#esper-login .note {
+  color: @text-muted;
+}

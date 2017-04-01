@@ -1,0 +1,23 @@
+{#
+  Use landing base instead of app because it includes header / footer stuff
+#}
+{% extends '_landing.html' %}
+
+{% block title %}Login | Esper{% endblock %}
+
+{% block main %}
+  <div id="esper-main" class="main container login-main">
+    <div class="panel">
+      {# This should get cleared after initial render #}
+      <div class="spinner"></div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  {# No hash -- we're still using old Lutra build process for these files #}
+  <script type="text/javascript" src="js/react-simple-vendor.js"></script>
+  <script type="text/javascript" src="js/login.js"></script>
+{% endblock %}
