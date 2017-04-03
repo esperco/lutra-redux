@@ -11,7 +11,6 @@ import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { GroupSummary } from "../states/groups";
-import { AlphaModeMsg } from "../text/common";
 import * as Text from "../text/groups";
 
 interface Props {
@@ -45,9 +44,6 @@ class MiscSettings extends React.Component<Props, {}> {
     };
     return <div>
       <div className="panel">
-        <div className="alert info">
-          { AlphaModeMsg }
-        </div>
         <TimebombSettings value={tb} onChange={this.setTb} />
       </div>
 
