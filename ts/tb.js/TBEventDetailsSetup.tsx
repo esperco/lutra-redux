@@ -109,10 +109,12 @@ export class TimebombDefault extends React.Component<Props, {}> {
         defaultChecked={true}>
         <span>{ Text.TimebombDefault }</span>
 
-        { ready(prefs) ? <Text.TimebombDefaultDescription
+        { ready(prefs) ? <Text.DefaultDescriptionSetup
           settingsHref={Paths.settings.href({})}
           minGuests={prefs.tb_guests_min}
           maxGuests={prefs.tb_guests_max}
+          recurring={prefs.tb_recurring}
+          sameDomain={prefs.tb_same_domain}
         /> : <div className="placeholder" /> }
 
       </CheckboxItem>

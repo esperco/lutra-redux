@@ -143,7 +143,9 @@ const TimebombDefaults = (props: Props) => {
   let val = {
     enabled: !!prefs.tb,
     minGuests: prefs.tb_guests_min,
-    maxGuests: prefs.tb_guests_max
+    maxGuests: prefs.tb_guests_max,
+    recurring: prefs.tb_recurring,
+    sameDomain: prefs.tb_same_domain
   };
 
   return <TimebombSettings
@@ -151,7 +153,9 @@ const TimebombDefaults = (props: Props) => {
     onChange={(val) => TeamPrefs.update(props.teamId, {
       tb: val.enabled,
       tb_guests_min: val.minGuests,
-      tb_guests_max: val.maxGuests
+      tb_guests_max: val.maxGuests,
+      tb_recurring: val.recurring,
+      tb_same_domain: val.sameDomain
     }, props)}
   />;
 }

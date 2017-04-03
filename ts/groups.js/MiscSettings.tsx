@@ -39,7 +39,9 @@ class MiscSettings extends React.Component<Props, {}> {
     let tb = {
       enabled: summary.group_tb,
       minGuests: summary.group_tb_guests_min,
-      maxGuests: summary.group_tb_guests_max
+      maxGuests: summary.group_tb_guests_max,
+      recurring: summary.group_tb_recurring,
+      sameDomain: summary.group_tb_same_domain
     };
     return <div>
       <div className="panel">
@@ -68,7 +70,9 @@ class MiscSettings extends React.Component<Props, {}> {
     Groups.patchGroupDetails(this.props.groupId, {
       group_tb: tb.enabled,
       group_tb_guests_min: tb.minGuests,
-      group_tb_guests_max: tb.maxGuests
+      group_tb_guests_max: tb.maxGuests,
+      group_tb_recurring: tb.recurring,
+      group_tb_same_domain: tb.sameDomain
     }, this.props);
   }
 }

@@ -86,7 +86,9 @@ describe("handleGroupQueryCalc", () => {
           group_timezone: "America/Los_Angeles",
           group_tb: true,
           group_tb_guests_min: 2,
-          group_tb_guests_max: 18
+          group_tb_guests_max: 18,
+          group_tb_recurring: false,
+          group_tb_same_domain: false
         }
       },
       groupMembers: {
