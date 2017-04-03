@@ -386,30 +386,32 @@ interface ConfirmTimebombInfo {
 }
 
 type TokenDescription =
-  "Confirm_timebomb_event"|
-  "Unconfirm_timebomb_event"|
-  "Invite_join_group"|
-  "Invite_join_team"|
-  "Login"|
-  "Unsub_daily_agenda"|
-  "Unsub_label_reminder"|
-  "Unsub_tasks_update"|
-  "Unsub_feedback_summary"|
-  "Unsub_ask_feedback"|
-  "Unsub_group_email";
+  ["Confirm_timebomb_event", {}]|
+  ["Unconfirm_timebomb_event", {}]|
+  ["Invite_join_group", {}]|
+  ["Invite_join_team", {}]|
+  ["Login", {}]|
+  ["Unsub_daily_agenda", {}]|
+  ["Unsub_label_reminder", {}]|
+  ["Unsub_tasks_update", {}]|
+  ["Unsub_feedback_summary", {}]|
+  ["Unsub_ask_feedback", {}]|
+  ["Unsub_group_email", {}]|
+  ["Unsub_timebomb", {}];
 
 type TokenValue =
   ["Confirm_timebomb_event", ConfirmTimebombInfo]|
   ["Unconfirm_timebomb_event", ConfirmTimebombInfo]|
-  "Invite_join_group"|
-  "Invite_join_team"|
+  ["Invite_join_group", {}]|
+  ["Invite_join_team", {}]|
   ["Login", LoginResponse]|
-  "Unsub_daily_agenda"|
-  "Unsub_label_reminder"|
-  "Unsub_tasks_update"|
-  "Unsub_feedback_summary"|
-  "Unsub_ask_feedback"|
-  "Unsub_group_email";
+  ["Unsub_daily_agenda", {}]|
+  ["Unsub_label_reminder", {}]|
+  ["Unsub_tasks_update", {}]|
+  ["Unsub_feedback_summary", {}]|
+  ["Unsub_ask_feedback", {}]|
+  ["Unsub_group_email", {}]|
+  ["Unsub_timebomb", {}];
 
 export interface TokenInfo {
   is_valid: boolean;
@@ -455,7 +457,6 @@ export interface TeamMember {
 
 export interface Preferences {
   uid?: string;
-  teamid?: string;
   email_types: EmailTypes;
   label_reminder?: SimpleEmailPref;
   slack_address?: SlackAddress;
