@@ -1,0 +1,24 @@
+{# Base template for landing page #}
+{% extends '_base.html' %}
+
+{% block head %}
+  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
+  <link href="[[css/landing--*.css]]" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+  <header class="landing-header {% block header_classes %}{% endblock %}">
+    {% include '_header.html' %}
+  </header>
+
+  {% block main %}{% endblock %}
+
+  {% include '_footer.html' %}
+
+  {% block scripts %}
+    {% include '_release.html' %}
+    {% include '_segment.html' %}
+    <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
+    <script type="text/javascript" src="[[js/landing--*.js]]"></script>
+  {% endblock %}
+{% endblock %}

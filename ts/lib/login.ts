@@ -12,7 +12,7 @@ import { hexEncode } from "./util";
 import * as _ from "lodash";
 
 // LocalStorage Keys
-const storedLoginKey = "login";
+export const storedLoginKey = "login";
 
 export interface StoredCredentials {
   uid: string;
@@ -58,11 +58,17 @@ export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
   return null;
 }
 
+const sandboxError = new Error("Sandbox");
+
+// Never resolves -- waiting for redirect
+const redirectPromise = new Promise(function() {});
+
 // Returns a promise for when login process is done -- dispatches to store
 export function init(
   dispatch: (action: LoginAction) => any,
   Conf: { loginRedirect: string|((hexPath: string) => string) },
-  Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc
+  Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc,
+  allowSandbox = false
 ): Promise<ApiT.LoginResponse> {
   let redirect = typeof Conf.loginRedirect === "string" ?
     Conf.loginRedirect :
@@ -80,6 +86,10 @@ export function init(
 
       // Success => identify, dispatch info
       .then((info) => {
+        if (info.is_sandbox_user && !allowSandbox) {
+          throw sandboxError
+        }
+
         dispatch({ type: "LOGIN", info, asAdmin });
         if (asAdmin) { Analytics.disabled = true; }
         else { Analytics.identify(info); }
@@ -100,16 +110,17 @@ export function init(
           }, 10000);
         }
         return info;
-      },
-
-      // Failure, redirect to login
-      (err) => {
+      }).catch((err) => { // Failure, redirect to login
         Nav.go(redirect);
-        throw err;
+        if (err === sandboxError) {
+          return redirectPromise;
+        } else {
+          throw err;
+        }
       });
   }
 
   Nav.go(redirect);
-  return new Promise(function() {}); // Never resolves -- waiting for redirect
+  return redirectPromise;
 }
 

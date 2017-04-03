@@ -1,7 +1,10 @@
 @import "./_variables";
 @import (reference) "./_buttons.less";
+@import "./_login";
 @import "./components/_header";
 @import "./components/_footer";
+
+@landing-gradient: linear-gradient(to bottom right, #F2E4FE, #F9F5E9);
 
 header:first-child {
   + .splash {
@@ -25,24 +28,32 @@ header:first-child {
   .container {
     text-align: center;
     padding: @padding-base 0;
+    max-width: 0.75 * @max-container-width;
+
     > * {
-      max-width: @max-container-width;
       margin-left: auto;
       margin-right: auto;
-    }
-
-    h1, h2, h3 {
-      font-weight: 600;
     }
 
     * + h2, * + h3, * + h4 {
       font-size: @font-size-large;
       font-weight: normal;
+      margin-top: @padding-base;
     }
 
     .cta-container {
       padding-left: 0;
       padding-right: 0;
+      margin-top: @padding-lg;
+    }
+
+    .cta.secondary {
+      border-color: @link-color;
+      color: @link-color;
+      &:hover {
+        background: @link-color;
+        color: @off-white;
+      }
     }
   }
 
@@ -64,10 +75,60 @@ header:first-child {
     * + h2, * + h3, * + h4 {
       color: @inverse-rel;
     }
+
+    .cta.secondary {
+      border-color: @off-white;
+      color: @off-white;
+      &:hover {
+        background: @off-white;
+        color: @text-color;
+      }
+    }
   }
 }
 
+.splash + .splash { margin-top: 0; }
+
 // Specific placement for certain splash images
+#main-splash {
+  background-position: right 10% center;
+  display: flex;
+  align-items: center;
+  .container {
+    width: 70vw;
+    text-align: left;
+  }
+
+  @media screen and (min-width: @screen-sm-min) {
+    .container {
+      margin-left: 40vw;
+      margin-top: 0;
+    }
+  }
+}
+
+// Main sweep sub-splash
+#main-splash + .splash {
+  display: flex;
+  align-items: flex-start;
+  background-position: center bottom;
+  background-size: auto 50vh;
+}
+
+// Main ratings sub-splash
+#main-splash + .splash + .splash {
+  display: flex;
+  align-items: center;
+}
+
+// Main charts sub-splash
+#main-splash + .splash + .splash + .splash {
+  display: flex;
+  align-items: flex-end;
+  background-position: center top;
+  background-size: auto 50vh;
+}
+
 #charts-splash {
   max-width: 1400px;
   margin-left: auto;
@@ -79,13 +140,35 @@ header:first-child {
     background-size: auto 60vh;
     background-position: right 20% center;
     .container {
-      width: 40vw;
-      margin: -@navbar-height 0 0;
+      width: 30vw;
+      margin: -@navbar-height 0;
 
       p, div {
         max-width: 300px;
       }
     }
+  }
+
+  @media screen and (min-width: @screen-md-min) {
+    .container {
+      margin: -@navbar-height 0 0 10vw;
+    }
+  }
+}
+
+/*
+  Pricing splash is not a real splash and more of a colorful backdrop for
+  pricing data
+*/
+#pricing-splash {
+  background: @landing-gradient;
+  height: 75vh;
+  align-items: flex-start;
+  margin-bottom: calc(3rem + @padding-base + @navbar-height ~"- 75vh");
+
+  .container {
+    margin: 0 auto;
+    line-height: 3rem;
   }
 }
 
@@ -98,39 +181,49 @@ header:first-child {
   .feature {
     text-align: center;
     padding-bottom: @padding-xl;
-    img, svg { height: @min-container-width * 0.65; width: auto; }
+    img, svg {
+      height: @min-container-width * 0.65; width: auto;
+      margin: @padding-lg auto;
+      & + * { margin-top: 0; }
+    }
+
     svg {
-      .primary {
-        fill: @blue;
+      .c1 {
+        fill: lighten(@purple-muted, 10%);
       }
 
-      .secondary {
-        fill: @purple-muted;
+      .c2 {
+        fill: lighten(@purple-muted, 15%);
+      }
+
+      .c3 {
+        fill: lighten(@purple-muted, 20%);
       }
     }
   }
 }
 
-.cta-container {
+body > .cta-container {
+  background: @purple-faded;
   text-align: center;
   padding: @padding-lg @padding-base;
-  max-width: @max-container-width;
-  margin-left: auto;
-  margin-right: auto;
 
   @media screen and (min-width: @screen-sm-min) {
     button { min-width: @min-container-width; }
   }
+
+  & + footer, & + footer.corporate { margin-top: 0; }
 }
 
+// CTA links -> like buttons
 a.cta {
   .button();
   text-align: center;
   margin: 0 auto;
 }
 
-a.cta, button.cta {
-  border-radius: 1000px; // Overly large border radius = pill
+// CTA butotn bigger than normal button
+a.cta, button.cta, input[type="submit"].cta {
   line-height: @input-height-large;
   height: @input-height-large;
   padding: 0 @padding-lg;
@@ -140,9 +233,98 @@ a.cta, button.cta {
   }
 }
 
-.splash ~ section {
-  h2:first-child {
+// Clear secondary button
+.cta.secondary {
+  border: 1px solid @link-color;
+}
+
+.splash ~ section, .feature {
+  > h2:first-child, > h3:first-child {
     text-transform: uppercase;
     text-align: center;
+  }
+}
+
+// Single container object - make larger to fill up content
+body > .main.container {
+  min-height: calc(~"90vh - " (@navbar-height * 2) ~" - " (@padding-xl * 2));
+
+  // For tables and other things that require horizontal scrolling
+  overflow: auto;
+}
+
+// Pricing container
+#pricing-plans {
+  margin: 0 auto;
+  padding: @padding-base;
+  max-width: (2 * @padding-base) + (8 * @padding-small) + (4 * 20rem);
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+
+  > * {
+    flex: 0 1 20rem;
+    width: 20rem;
+    display: flex;
+    flex-flow: column nowrap;
+    padding: @padding-lg @padding-base @padding-base;
+
+    > * {
+      flex: 0 0 auto;
+    }
+
+    // Expand so button is always at end of panel
+    > ul { flex-grow: 1; }
+
+    margin-top: 0;
+    margin: @padding-small;
+  }
+
+  h2, h3 { text-align: center; }
+
+  .price {
+    min-height: 2rem;
+    color: @text-muted;
+    text-align: center;
+    margin-top: @padding-small;
+
+    span:first-child {
+      font-size: @font-size-large;
+      font-weight: bold;
+      color: @purple-muted;
+    }
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin-left: @padding-base;
+    margin-right: @padding-base;
+
+    * + li { margin-top: @padding-small; }
+
+    li { display: flex; } // Fixes checkmark alignment
+    li::before {
+      content: "\2714"; // Checkmark
+      color: @success;
+      padding-right: @padding-small;
+    }
+  }
+
+  .cta-container {
+    text-align: center;
+    margin-top: @padding-lg;
+    h3 + p { color: @text-muted; margin-top: @padding-small; }
+    > a { display: block; margin-top: 1rem; }
+  }
+}
+
+@media screen and (max-width: @screen-xs-max) {
+  #pricing-plans {
+    padding: @padding-base 0;
+    > *.panel { // Restore panel borders lost due to screen width
+      border-radius: @border-radius-base;
+      border: 1px solid @border-color;
+    }
   }
 }

@@ -1,35 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Esper Sweep</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
-  <link href="[[css/landing--*.css]]" rel="stylesheet" />
-  <link href="[[css/sweep--*.css]]" rel="stylesheet" />
-  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
-  {% include '_anti-clickjack.html' %}
-</head>
-<body>
-  <header class="landing-header dark">
-    {% include '_header.html' %}
-  </header>
+{% extends '_landing.html' %}
 
+{% block title %}Sweep | Esper{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <link href="[[css/sweep--*.css]]" rel="stylesheet" />
+{% endblock %}
+
+{% block header_classes %}dark{% endblock %}
+
+{% block main %}
   <div id="sweep-splash" class="splash dark"
     style="background-image:
-      linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+      linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
       url(img/sweep-splash.jpg)">
     <!-- This gets replaced by React component if token -->
     <div class="container">
       <div id="token-ui">
-        <h1>Meet&nbsp;less. Do&nbsp;more.</h1>
+        <h1>Cancel bad meetings before they&nbsp;cancel&nbsp;you.</h1>
         <h2>Esper Sweep removes unwanted meetings from your calendar.</h2>
       </div>
 
       <!-- Quick sign in -->
       <div class="cta-container">
         <a id="cta-btn" class="cta primary" href="/tb">
-          Get Started
+          Sign Up For Free
         </a>
       </div>
     </div>
@@ -63,18 +58,17 @@
   </section>
 
   <!-- CTA again -->
-  <div class="cta-container bottom" style="text-align: center">
-    <a id="cta-btn" class="cta success" href="/tb">
-      Get Started
-    </a>
+  <div class="cta-container" style="text-align: center">
+    <h2>Get Started Today</h2>
+    <div>
+      <a id="cta-btn" class="cta primary" href="/tb">
+        Sign Up For Free
+      </a>
+    </div>
   </div>
+{% endblock %}
 
-  {% include '_footer.html' %}
-
-  {% include '_release.html' %}
-  {% include '_segment.html' %}
-  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
-  <script type="text/javascript" src="[[js/landing--*.js]]"></script>
+{% block scripts %}
+  {{ super() }}
   <script type="text/javascript" src="[[js/sweep--*.js]]"></script>
-</body>
-</html>
+{% endblock %}

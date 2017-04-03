@@ -1,21 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Esper</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="[[css/vendor--*.css]]" rel="stylesheet" />
+{% extends '_app.html' %}
+
+{% block title %}Esper for Enterprise{% endblock %}
+
+{% block head %}
+  {{ super() }}
   <link href="[[css/groups--*.css]]" rel="stylesheet" />
-  <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
-  {% include '_anti-clickjack.html' %}
-</head>
-<body>
-  <div id="main">
-    <div className="spinner" />
-  </div>
-  {% include '_release.html' %}
-  {% include '_segment.html' %}
-  <script type="text/javascript" src="[[js/vendor--*.js]]"></script>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
   <script type="text/javascript" src="[[js/groups--*.js]]"></script>
-</body>
-</html>
+{% endblock %}
