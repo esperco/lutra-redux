@@ -5,6 +5,11 @@ export const TimebombMinGuests =
   "Minimum number of guests in event to activate by default";
 export const TimebombMaxGuests =
   "Maximum number of guests in event to activate by default";
+export const RecurringOnly =
+  "Activate by default for recurring events only";
+export const SameDomainOnly =
+  "Activate by default for internal meetins only (all meeting guests " +
+  "share the same email domain)"
 
 export const TimebombHeader = "Preference";
 export const TimebombOn = "Cancel";

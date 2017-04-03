@@ -6,6 +6,8 @@ export interface TBSettings {
   enabled: boolean;
   minGuests: number;
   maxGuests: number;
+  recurring: boolean;
+  sameDomain: boolean;
 }
 
 interface Props {
@@ -43,6 +45,22 @@ export const TimebombSettings = ({ value, onChange } : Props) => {
           ...value,
           maxGuests: parseInt(e.currentTarget.value)
         })} />
+    </div>
+
+    <div className="form-row">
+      <CheckboxItem
+          checked={value.recurring}
+          onChange={(recurring) => onChange({ ...value, recurring })}>
+        { Text.RecurringOnly }
+      </CheckboxItem>
+    </div>
+
+    <div className="form-row">
+      <CheckboxItem
+          checked={value.sameDomain}
+          onChange={(sameDomain) => onChange({ ...value, sameDomain })}>
+        { Text.SameDomainOnly }
+      </CheckboxItem>
     </div>
   </div>;
 }
