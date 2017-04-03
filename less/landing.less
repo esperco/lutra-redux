@@ -4,6 +4,8 @@
 @import "./components/_header";
 @import "./components/_footer";
 
+@landing-gradient: linear-gradient(to bottom right, #F2E4FE, #F9F5E9);
+
 header:first-child {
   + .splash {
     margin-top: 0;
@@ -154,6 +156,22 @@ header:first-child {
   }
 }
 
+/*
+  Pricing splash is not a real splash and more of a colorful backdrop for
+  pricing data
+*/
+#pricing-splash {
+  background: @landing-gradient;
+  height: 75vh;
+  align-items: flex-start;
+  margin-bottom: calc(3rem + @padding-base + @navbar-height ~"- 75vh");
+
+  .container {
+    margin: 0 auto;
+    line-height: 3rem;
+  }
+}
+
 // Feature lists -- assume we use with .flex
 .features {
   max-width: calc((3 * @min-container-width) ~" + " (6 * @padding-base));
@@ -230,4 +248,83 @@ a.cta, button.cta, input[type="submit"].cta {
 // Single container object - make larger to fill up content
 body > .main.container {
   min-height: calc(~"90vh - " (@navbar-height * 2) ~" - " (@padding-xl * 2));
+
+  // For tables and other things that require horizontal scrolling
+  overflow: auto;
+}
+
+// Pricing container
+#pricing-plans {
+  margin: 0 auto;
+  padding: @padding-base;
+  max-width: (2 * @padding-base) + (8 * @padding-small) + (4 * 20rem);
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+
+  > * {
+    flex: 0 1 20rem;
+    width: 20rem;
+    display: flex;
+    flex-flow: column nowrap;
+    padding: @padding-lg @padding-base @padding-base;
+
+    > * {
+      flex: 0 0 auto;
+    }
+
+    // Expand so button is always at end of panel
+    > ul { flex-grow: 1; }
+
+    margin-top: 0;
+    margin: @padding-small;
+  }
+
+  h2, h3 { text-align: center; }
+
+  .price {
+    min-height: 2rem;
+    color: @text-muted;
+    text-align: center;
+    margin-top: @padding-small;
+
+    span:first-child {
+      font-size: @font-size-large;
+      font-weight: bold;
+      color: @purple-muted;
+    }
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin-left: @padding-base;
+    margin-right: @padding-base;
+
+    * + li { margin-top: @padding-small; }
+
+    li { display: flex; } // Fixes checkmark alignment
+    li::before {
+      content: "\2714"; // Checkmark
+      color: @success;
+      padding-right: @padding-small;
+    }
+  }
+
+  .cta-container {
+    text-align: center;
+    margin-top: @padding-lg;
+    h3 + p { color: @text-muted; margin-top: @padding-small; }
+    > a { display: block; margin-top: 1rem; }
+  }
+}
+
+@media screen and (max-width: @screen-xs-max) {
+  #pricing-plans {
+    padding: @padding-base 0;
+    > *.panel { // Restore panel borders lost due to screen width
+      border-radius: @border-radius-base;
+      border: 1px solid @border-color;
+    }
+  }
 }

@@ -1,0 +1,110 @@
+{#
+  Use landing base instead of app because it includes header / footer stuff
+#}
+{% extends '_landing.html' %}
+
+{% block title %}Pricing | Esper{% endblock %}
+
+{% block main %}
+  <div id="pricing-splash" class="splash">
+    <div class="container">
+      <h1>Pricing</h1>
+    </div>
+  </div>
+  <div id="pricing-plans">
+    <section class="panel">
+      <h2>Free Plan</h2>
+      <div class="price">
+        <span class="dollars">$0</span>
+        <span class="period">/ mo</span>
+      </div>
+      <ul>
+        <li><a href="/sweep">Sweep Unwanted Meetings</a></li>
+        <li>Daily Agenda Emails</li>
+      </ul>
+      <div class="cta-container panel">
+        <h3>It's Free</h3>
+        <p>No Credit Card Required</p>
+        <a class="cta primary" href="/tb">Sign Up For Free</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Basic Plan</h2>
+      <div class="price">
+        <span class="dollars">$25</span>
+        <span class="period">/ mo</span>
+      </div>
+      <ul>
+        <li><a href="/sweep">Sweep Unwanted Meetings</a></li>
+        <li>Daily Agenda Emails</li>
+        <li>Charts and Tags for 1 Calendar</li>
+        <li>2 Months of Calendar History</li>
+        <li>Meeting Ratings</li>
+        <li>Slack Integration</li>
+      </ul>
+      <div class="cta-container panel">
+        <h3>Try Free for 14 Days</h3>
+        <p>No Credit Card Required</p>
+        <a class="cta primary" href="/time">Start Free Trial</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Executive Plan</h2>
+      <div class="price">
+        <span class="dollars">$100</span>
+        <span class="period">/ mo</span>
+      </div>
+      <ul>
+        <li><a href="/sweep">Sweep Unwanted Meetings</a></li>
+        <li>Daily Agenda Emails</li>
+        <li>Charts and Tags for 5 Calendars</li>
+        <li>5 Years of Calendar History</li>
+        <li>Meeting Ratings</li>
+        <li>Slack Integration</li>
+        <li>Advanced reporting</li>
+        <li>Time series charts</li>
+        <li>Chart downloads</li>
+        <li>CSV exports</li>
+      </ul>
+      <div class="cta-container panel">
+        <h3>Try Free for 14 Days</h3>
+        <p>No Credit Card Required</p>
+        <a class="cta success" href="/time">Start Free Trial</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Enterprise Plan</h2>
+      <div class="price">
+        <span class="dollars">$20</span>
+        <span class="period">
+          / user / mo
+        </span>
+        <br /><span>
+          10 user minimum
+        </span>
+      </div>
+      <ul>
+        <li><a href="/sweep">Sweep Unwanted Meetings</a></li>
+        <li>Daily Agenda Emails</li>
+        <li>Charts and Tags for Unlimited Calendars</li>
+        <li>Unlimited Calendar History</li>
+        <li>Meeting Ratings</li>
+        <li>Slack Integration</li>
+        <li>Advanced reporting</li>
+        <li>Time series charts</li>
+        <li>Chart downloads</li>
+        <li>CSV exports</li>
+        <li>Identify Costly Meetings</li>
+        <li>Track Time For Your Entire Team</li>
+      </ul>
+      <div class="cta-container panel">
+        <h3>Sign Up Now</h3>
+        <p><a href="/contact">Volume discounts available</a></p>
+        <a class="cta primary" href="/groups">Get Started</a>
+      </div>
+    </section>
+  </div>
+{% endblock %}
