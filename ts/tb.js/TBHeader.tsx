@@ -13,6 +13,7 @@ import * as CommonText from "../text/common";
 import Dropdown from "../components/Dropdown";
 import Icon from "../components/Icon";
 import * as CommonPaths from "../lib/paths";
+import { Home as ChartsPath } from "../time.js/paths";
 
 class Props {
   state: LoggedInState & ScrollState;
@@ -50,6 +51,12 @@ class TBHeader extends React.Component<Props, {}> {
       <nav className="panel">
         <a href={Paths.settings.href({})}>
           <Icon type="settings">{ CommonText.Settings }</Icon>
+        </a>
+      </nav>
+
+      <nav className="panel">
+        <a href={ChartsPath.href({})}>
+          <Icon type="charts">{ CommonText.Charts }</Icon>
         </a>
       </nav>
 
