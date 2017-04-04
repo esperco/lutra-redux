@@ -140,7 +140,7 @@ const TimebombDefaults = (props: Props) => {
     </div>;
   }
 
-  let val = {
+  let value = {
     enabled: prefs.tb !== false, // Default on if null
     minGuests: prefs.tb_guests_min,
     maxGuests: prefs.tb_guests_max,
@@ -148,16 +148,20 @@ const TimebombDefaults = (props: Props) => {
     sameDomain: prefs.tb_same_domain
   };
 
-  return <TimebombSettings
-    value={val}
-    onChange={(val) => TeamPrefs.update(props.teamId, {
+  // Add slight delay to give timebomb user enough time to change
+  // recurring option or domain option after hitting default
+  return delay({
+    delay: 2000,
+    value,
+    onChange: (val) => TeamPrefs.update(props.teamId, {
       tb: val.enabled,
       tb_guests_min: val.minGuests,
       tb_guests_max: val.maxGuests,
       tb_recurring: val.recurring,
       tb_same_domain: val.sameDomain
-    }, props)}
-  />;
+    }, props),
+    component: (props) => <TimebombSettings {...props} />
+  });
 }
 
 

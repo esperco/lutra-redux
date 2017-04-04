@@ -5,6 +5,7 @@
 import * as React from 'react';
 import { LoggedInState, DispatchFn } from './types';
 import SettingsNav from "./SettingsNav";
+import delay from '../components/DelayedControl';
 import { TBSettings, TimebombSettings } from "../components/TimebombSettings";
 import * as Groups from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
@@ -42,9 +43,15 @@ class MiscSettings extends React.Component<Props, {}> {
       recurring: summary.group_tb_recurring,
       sameDomain: summary.group_tb_same_domain
     };
+
     return <div>
       <div className="panel">
-        <TimebombSettings value={tb} onChange={this.setTb} />
+        { delay({
+            delay: 2000,
+            value: tb,
+            onChange: this.setTb,
+            component: (p) => <TimebombSettings {...p} />
+        }) }
       </div>
 
       <div className="panel">
