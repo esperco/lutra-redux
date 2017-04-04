@@ -11,6 +11,7 @@ export const CalendarCheck = "Calendar shared";
 export const CalendarEmpty = "Not sharing calendars";
 export const Calendar = "Calendars";
 export const Cancel = "Cancel";
+export const Charts = "Charts";
 export const Clear = "Clear";
 export const Close = "Close";
 export const Comments = "Comments";
