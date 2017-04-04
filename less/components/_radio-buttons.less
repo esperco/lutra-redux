@@ -22,12 +22,6 @@ label.radio-item {
     outline: 5px auto -webkit-focus-ring-color;
   }
 
-  input[type=radio]:disabled + .pseudo-radio {
-    opacity: 0.5;
-    > span { background: @text-muted; }
-    ~ * { color: @text-muted; }
-  }
-
   // Style psuedo radio button
   .pseudo-radio {
     margin-top: 0;
@@ -59,6 +53,12 @@ label.radio-item {
 
   input[type=radio]:checked + .pseudo-radio ~ span {
     font-weight: bold;
+  }
+
+  input[type=radio]:disabled + .pseudo-radio {
+    opacity: 0.5;
+    > span { background: @text-muted; }
+    ~ span { color: @text-muted; font-weight: normal; }
   }
 
   .description {

@@ -59,6 +59,11 @@ label {
   font-weight: bold;
   display: block;
   cursor: pointer;
+
+  &.disabled {
+    font-weight: normal;
+    color: @shade-rel-dark;
+  }
 }
 
 label + input, label + textarea, label + select, label + button.input-style {

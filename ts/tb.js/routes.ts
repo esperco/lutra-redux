@@ -26,6 +26,7 @@ export interface EventsRoute {
   page: "Events";
   period: GenericPeriod;
   teamId: string;
+  onboarding: boolean; // Show onboarding helper msg for new user
 };
 
 export const events = Paths.events.route<Deps>(function(p, deps) {
@@ -51,7 +52,8 @@ export const events = Paths.events.route<Deps>(function(p, deps) {
     type: "ROUTE",
     route: {
       page: "Events",
-      period, teamId
+      period, teamId,
+      onboarding: !!p.onboarding
     }
   });
 });

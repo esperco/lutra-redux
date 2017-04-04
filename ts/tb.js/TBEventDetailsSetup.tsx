@@ -103,19 +103,14 @@ export class TimebombDefault extends React.Component<Props, {}> {
   render() {
     let prefs = this.props.state.teamPreferences[this.props.teamId];
     return <div className="onboarding-footer">
-      <CheckboxItem
-        ref={(c) => this._ref = c}
-        onChange={() => null}
-        defaultChecked={true}>
-        <span>{ Text.TimebombDefault }</span>
 
-        { ready(prefs) ? <Text.TimebombDefaultDescription
-          settingsHref={Paths.settings.href({})}
-          minGuests={prefs.tb_guests_min}
-          maxGuests={prefs.tb_guests_max}
-        /> : <div className="placeholder" /> }
-
-      </CheckboxItem>
+      { ready(prefs) ? <Text.DefaultDescriptionSetup
+        settingsHref={Paths.settings.href({})}
+        minGuests={prefs.tb_guests_min}
+        maxGuests={prefs.tb_guests_max}
+        recurring={prefs.tb_recurring}
+        sameDomain={prefs.tb_same_domain}
+      /> : <div className="placeholder" /> }
 
       <button className="primary" onClick={this.done}>
         { FinishOnboarding }
@@ -124,12 +119,14 @@ export class TimebombDefault extends React.Component<Props, {}> {
   }
 
   done = () => {
-    if (this._ref) {
-      let tb = !!this._ref.val();
-      TeamPrefs.update(this.props.teamId, { tb }, this.props);
+    let prefs = this.props.state.teamPreferences[this.props.teamId];
+    if (ready(prefs) && prefs.tb !== false) {
+      // Update to true by default (unless already explicit false)
+      TeamPrefs.update(this.props.teamId, { tb: true }, this.props);
     }
     this.props.Svcs.Nav.go(Paths.events.href({
-      period: this.props.period
+      period: this.props.period,
+      onboarding: true
     }));
   }
 }

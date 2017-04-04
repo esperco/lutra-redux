@@ -1,10 +1,25 @@
 import * as moment from "moment"
 import * as React from "react";
+import Icon from "../components/Icon";
 
+export const TimebombDefault = <span>
+  Activate Sweep by default for meetings that meet <em>all</em> of
+  the following conditions:
+</span>;
 export const TimebombMinGuests =
-  "Minimum number of guests in event to activate by default";
+  "Minimum number of guests";
 export const TimebombMaxGuests =
-  "Maximum number of guests in event to activate by default";
+  "Maximum number of guests";
+export const RecurringOnly =
+  "Recurring events only";
+export const SameDomainOnly =
+  "Internal meetings only (all attendees share the same email domain)"
+
+export const TBSettingsMsg = <span>
+  Tip: Want to change which events Sweep cancels by default?
+  Access the Settings page via the <Icon type="accounts" /> in the
+  upper right corner.
+</span>;
 
 export const TimebombHeader = "Preference";
 export const TimebombOn = "Cancel";
@@ -85,18 +100,20 @@ export const Stage2CancelledDescription = () => <p>
   The confirmation period has expired. This meeting has been cancelled.
 </p>;
 
-export const TimebombDefault = "Cancel meetings by default";
-
 interface DefaultDescriptionProps {
   settingsHref: string;
   minGuests: number;
   maxGuests: number;
+  recurring: boolean;
+  sameDomain: boolean;
 }
-export const TimebombDefaultDescription =
+export const DefaultDescriptionSetup =
 (p: DefaultDescriptionProps) => <p className="description">
-  When set, Esper will default to "{TimebombOn}" for all meetings
-  with {p.minGuests} - {p.maxGuests} guests. You can change this
-  on a per-event basis or change the defaults on
+  Esper will default to "{TimebombOn}" for
+  all {p.recurring ? "recurring" : ""} meetings
+  with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
+    " if all attendees share the same email domain" : ""
+  }. You can change this on a per-event basis or change the defaults on
   the <a href={p.settingsHref}>settings page</a>.
 </p>;
 

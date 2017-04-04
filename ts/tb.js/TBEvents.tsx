@@ -10,17 +10,22 @@ import { ApiSvc } from "../lib/api";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { noContentMessage } from "../text/team";
+import { TBSettingsMsg } from "../text/timebomb";
 import TBEventsList from "./TBEventList";
 import * as Paths from "./paths";
 import { State as StoreState, DispatchFn } from './types';
 
-export interface Props {
+export interface BaseProps {
   teamId: string;
   period: GenericPeriod;
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
+}
+
+interface Props extends BaseProps {
+  onboarding: boolean;
 }
 
 export default class TBEventList extends React.Component<Props, {}> {
@@ -41,6 +46,10 @@ export default class TBEventList extends React.Component<Props, {}> {
           type: "SCROLL", direction
         })}>
         <div className="container">
+          { this.props.onboarding ? <div className="alert info">
+            { TBSettingsMsg }
+          </div> : null }
+
           <TBEventsList
             noContentMessage={noContentMessage(Paths.settings.href({}))}
             onTimebombToggle={this.timebombToggle}

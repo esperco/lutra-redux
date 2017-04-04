@@ -14,6 +14,8 @@ export interface GroupSummary {
   group_tb: boolean;
   group_tb_guests_min: number;
   group_tb_guests_max: number;
+  group_tb_recurring: boolean;
+  group_tb_same_domain: boolean;
 }
 
 export interface GroupLabels {
@@ -196,7 +198,9 @@ export function groupDataReducer<S extends GroupState & LoginState> (
         group_timezone: g.group_timezone,
         group_tb: !!g.group_tb,
         group_tb_guests_min: g.group_tb_guests_min || 2,
-        group_tb_guests_max: g.group_tb_guests_max || 18
+        group_tb_guests_max: g.group_tb_guests_max || 18,
+        group_tb_recurring: !!g.group_tb_recurring,
+        group_tb_same_domain: !!g.group_tb_same_domain
       };
 
       if (g.group_labels) {

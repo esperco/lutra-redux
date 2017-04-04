@@ -22,12 +22,6 @@ label.checkbox-item {
     outline: 5px auto -webkit-focus-ring-color;
   }
 
-  input[type=checkbox]:disabled + .pseudo-checkbox {
-    opacity: 0.5;
-    color: @text-muted;
-    ~ * { color: @shade-rel-dark; }
-  }
-
   // Style psuedo checkbox
   .pseudo-checkbox {
     margin-top: 0;
@@ -58,6 +52,12 @@ label.checkbox-item {
 
   input[type=checkbox]:checked + .pseudo-checkbox ~ span {
     font-weight: bold;
+  }
+
+  input[type=checkbox]:disabled + .pseudo-checkbox {
+    opacity: 0.5;
+    color: @text-muted;
+    ~ span { color: @shade-rel-dark; font-weight: normal; }
   }
 
   &.partial {

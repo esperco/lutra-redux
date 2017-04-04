@@ -140,17 +140,13 @@ export interface GroupUpdate {
   group_name: string;
   group_timezone: string;
   group_tb?: boolean;
+  group_tb_recurring?: boolean;
+  group_tb_same_domain?: boolean;
   group_tb_guests_min?: number;
   group_tb_guests_max?: number;
 }
 
-export interface GroupUpdatePatch {
-  group_name?: string;
-  group_timezone?: string;
-  group_tb?: boolean;
-  group_tb_guests_min?: number;
-  group_tb_guests_max?: number;
-}
+export type GroupUpdatePatch = Partial<GroupUpdate>;
 
 export interface GroupMember {
   teamid: string;
@@ -465,6 +461,8 @@ export interface Preferences {
   tb?: boolean;
   tb_guests_min: number;
   tb_guests_max: number;
+  tb_recurring: boolean;
+  tb_same_domain: boolean;
   general: GeneralPrefs;
   notes: string;
 }
