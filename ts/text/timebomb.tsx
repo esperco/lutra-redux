@@ -102,10 +102,10 @@ interface DefaultDescriptionProps {
 }
 export const DefaultDescriptionSetup =
 (p: DefaultDescriptionProps) => <p className="description">
-  When set, Esper will default to "{TimebombOn}" for
+  Esper will default to "{TimebombOn}" for
   all {p.recurring ? "recurring" : ""} meetings
-  with {p.minGuests} - {p.maxGuests} guests {p.sameDomain ?
-    "if all guests share the same email domain" : ""
+  with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
+    " if all guests share the same email domain" : ""
   }. You can change this on a per-event basis or change the defaults on
   the <a href={p.settingsHref}>settings page</a>.
 </p>;

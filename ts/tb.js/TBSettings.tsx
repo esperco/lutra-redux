@@ -141,7 +141,7 @@ const TimebombDefaults = (props: Props) => {
   }
 
   let val = {
-    enabled: !!prefs.tb,
+    enabled: prefs.tb !== false, // Default on if null
     minGuests: prefs.tb_guests_min,
     maxGuests: prefs.tb_guests_max,
     recurring: prefs.tb_recurring,
