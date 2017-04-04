@@ -9,7 +9,7 @@ import Icon from "./Icon";
 import RadioItem from "./RadioItem";
 import Tooltip from "./Tooltip";
 import * as ApiT from "../lib/apiT";
-import { hasTag } from "../lib/util";
+import { hasTag, randomString } from "../lib/util";
 import * as Text from "../text/timebomb";
 import { base as helpPath } from "../sweep.js/paths";
 import * as _ from "lodash";
@@ -23,8 +23,11 @@ interface Props {
 }
 
 export class TimebombToggle extends React.Component<Props, {}> {
+  _name: string;
+
   constructor(props: Props) {
     super(props);
+    this._name = randomString();
   }
 
   render() {
@@ -55,7 +58,6 @@ export class TimebombToggle extends React.Component<Props, {}> {
     }
 
     else {
-      let name = event.id + "-timebomb";
       let active = hasTag("Stage0" , event.timebomb) ?
         event.timebomb[1].set_timebomb :
         !_.includes(event.timebomb[1].confirmed_list, this.props.loggedInUid);
@@ -71,7 +73,7 @@ export class TimebombToggle extends React.Component<Props, {}> {
         </h4>
         <TimebombOptions
           disabled={disabled}
-          name={name}
+          name={this._name || (event.id + "-timebomb")}
           value={active}
           onChange={(val) => this.props.onToggle(event.id, val)}
         />
