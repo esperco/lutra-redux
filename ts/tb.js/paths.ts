@@ -1,4 +1,4 @@
-import { Path, StringParam } from "../lib/routing";
+import { Path, StringParam, BooleanParam } from "../lib/routing";
 import { PeriodParam } from "../lib/period";
 
 const base = "/tb";
@@ -7,7 +7,8 @@ export const events = new Path({
   base,
   params: {},
   optParams: {
-    period: PeriodParam
+    period: PeriodParam,
+    onboarding: BooleanParam
   },
   hash: ["events"]
 });

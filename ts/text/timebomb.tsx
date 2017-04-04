@@ -1,5 +1,6 @@
 import * as moment from "moment"
 import * as React from "react";
+import Icon from "../components/Icon";
 
 export const TimebombDefault = <span>
   Activate Sweep by default for meetings that meet <em>all</em> of
@@ -13,6 +14,12 @@ export const RecurringOnly =
   "Recurring events only";
 export const SameDomainOnly =
   "Internal meetings only (all guests share the same email domain)"
+
+export const TBSettingsMsg = <span>
+  Tip: Want to change which events Sweep cancels by default?
+  Access the Settings page via the <Icon type="accounts" /> in the
+  upper right corner.
+</span>;
 
 export const TimebombHeader = "Preference";
 export const TimebombOn = "Cancel";

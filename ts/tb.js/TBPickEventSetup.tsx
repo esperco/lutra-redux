@@ -1,7 +1,7 @@
 import * as React from "react";
 import Icon from "../components/Icon";
 import * as Events from "../handlers/events";
-import { Props } from "./TBEvents";
+import { BaseProps as Props } from "./TBEvents";
 import { iter } from "../lib/event-query-iter";
 import { GenericPeriod } from "../lib/period";
 import { hasTag } from "../lib/util";

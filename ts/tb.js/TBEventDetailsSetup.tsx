@@ -125,7 +125,8 @@ export class TimebombDefault extends React.Component<Props, {}> {
       TeamPrefs.update(this.props.teamId, { tb: true }, this.props);
     }
     this.props.Svcs.Nav.go(Paths.events.href({
-      period: this.props.period
+      period: this.props.period,
+      onboarding: true
     }));
   }
 }
