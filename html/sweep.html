@@ -7,6 +7,8 @@
   <link href="[[css/sweep--*.css]]" rel="stylesheet" />
 {% endblock %}
 
+{% set login_path = "/tb" %}
+
 {% block header_classes %}dark{% endblock %}
 
 {% block main %}
@@ -23,7 +25,7 @@
 
       <!-- Quick sign in -->
       <div class="cta-container">
-        <a id="cta-btn" class="cta primary" href="/tb">
+        <a id="cta-btn" class="cta primary" href="/tb#!/setup">
           Sign Up For Free
         </a>
       </div>
@@ -61,7 +63,7 @@
   <div class="cta-container" style="text-align: center">
     <h2>Get Started Today</h2>
     <div>
-      <a id="cta-btn" class="cta primary" href="/tb">
+      <a id="cta-btn" class="cta primary" href="/tb#!/setup">
         Sign Up For Free
       </a>
     </div>
