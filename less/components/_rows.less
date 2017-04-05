@@ -27,12 +27,10 @@ header, .banner, .row, footer {
   > .logo-mark, > button, > a, > input[type=submit], > .btn-set {
     flex: 1 0 auto;
     min-width: @input-height-base;
-    line-height: @navbar-height;
   }
 
   // Line up individual spans of text
   > span {
-    line-height: @input-height-base;
     vertical-align: middle;
   }
 
@@ -69,12 +67,20 @@ header, .banner, .row {
 
 .row {
   padding: 0 @padding-base;
-  line-height: @navbar-height;
 }
 
 .row + .row {
   margin-top: 0;
   border-top: 1px solid @border-color;
+}
+
+@media screen and (max-width: @screen-xs-max) {
+  .row, footer, .panel .row, .panel footer {
+    flex-wrap: wrap;
+    height: auto;
+    padding: @padding-small;
+    > * { margin: @padding-small; }
+  }
 }
 
 header {

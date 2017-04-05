@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LoginState } from "../lib/login";
+import { NavSvc } from "../lib/routing";
 import { QueueMap } from "../lib/queue";
 import * as PrefsState from "../states/team-preferences";
 import { ok, ready } from "../states/data-status";
@@ -101,4 +102,9 @@ export function toggleDailyAgenda(
       }
     }
   }, deps);
+}
+
+export function enableSlack(teamId: string, deps: { Svcs: ApiSvc & NavSvc }) {
+  return deps.Svcs.Api.getSlackAuthInfo(teamId)
+    .then((x) => deps.Svcs.Nav.go(x.slack_auth_url));
 }

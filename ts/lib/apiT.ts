@@ -463,6 +463,8 @@ export interface Preferences {
   tb_guests_max: number;
   tb_recurring: boolean;
   tb_same_domain: boolean;
+  tb_allow_email_notif: boolean;
+  tb_allow_slack_notif: boolean;
   general: GeneralPrefs;
   notes: string;
 }

@@ -17,6 +17,8 @@ export function makePrefs(prefs: Partial<ApiT.Preferences>): ApiT.Preferences {
     tb_guests_max: 18,
     tb_recurring: false,
     tb_same_domain: false,
+    tb_allow_email_notif: true,
+    tb_allow_slack_notif: true,
     general: { current_timezone: "America/Los_Angeles" },
     notes: ""
   };
