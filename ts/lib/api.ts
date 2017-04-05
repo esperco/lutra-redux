@@ -66,6 +66,9 @@ namespace Api {
     return JsonHttp.batch(fn, prefix + "/http-batch-request");
   }
 
+
+  /* Login */
+
   // NB: Gets personal teams only by default
   export function getLoginInfo(): Promise<ApiT.LoginResponse> {
     var url = prefix + "/api/login/" + myUid() + "/info" +
@@ -88,6 +91,14 @@ namespace Api {
       throw err;
     });
   }
+
+  export function getSlackAuthInfo(teamId: string):
+    Promise<ApiT.SlackAuthInfo>
+  {
+    let url = prefix + "/api/slack/auth-info/" + myUid() + "/" + string(teamId);
+    return JsonHttp.get(url);
+  }
+
 
   /* Teams */
 

@@ -1,5 +1,6 @@
 require("less/components/_team-settings.less");
 import * as _ from 'lodash';
+import * as classNames from 'classnames';
 import * as React from 'react';
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
@@ -12,8 +13,10 @@ import * as Teams from "../handlers/teams";
 import * as TeamCals from "../handlers/team-cals";
 import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { NavSvc } from "../lib/routing";
 import { ready } from '../states/data-status';
+import { GenericErrorMsg } from "../text/error-text";
 import * as Text from "../text/team";
 import * as Paths from "./paths";
 import { LoggedInState, DispatchFn } from './types';
@@ -49,12 +52,12 @@ export default class TBSettings extends React.Component<Props, {}> {
         <CalendarsSelector {...this.props} />
       </div>
 
-      <h3>{ Text.MiscHeading }</h3>
-
+      <h3>{ Text.SweepHeading }</h3>
       <div className="panel">
         <TimebombDefaults {...this.props} />
       </div>
 
+      <h3>{ Text.NotificationsHeading }</h3>
       <div className="panel">
         <Notifications {...this.props} />
       </div>
@@ -177,14 +180,87 @@ const Notifications = (props: Props) => {
     prefs.email_types.daily_agenda.recipients,
     props.state.login.email);
 
-  return <div className="menu">
-    <CheckboxItem
-        checked={dailyAgendaActive}
-        onChange={(v) => TeamPrefs.toggleDailyAgenda(props.teamId, v, props)}>
-      { Text.DailyAgenda }
-      <div className="description">
-        { Text.DailyAgendaDescription }
-      </div>
-    </CheckboxItem>
+  return <div>
+    <div className="menu panel">
+      <CheckboxItem
+          checked={dailyAgendaActive}
+          onChange={(v) => TeamPrefs.toggleDailyAgenda(props.teamId, v, props)}>
+        { Text.DailyAgenda }
+        <div className="description">
+          { Text.DailyAgendaDescription }
+        </div>
+      </CheckboxItem>
+      <CheckboxItem
+          checked={prefs.tb_allow_email_notif}
+          onChange={(v) => TeamPrefs.update(props.teamId, {
+            tb_allow_email_notif: v
+          }, props)}>
+        { Text.TBEmailNotif }
+        <div className="description">
+          { Text.TBEmailNotifyDescription }
+        </div>
+      </CheckboxItem>
+      <CheckboxItem
+          checked={!!prefs.slack_address && prefs.tb_allow_slack_notif}
+          inputProps={{disabled: !prefs.slack_address}}
+          onChange={(v) => TeamPrefs.update(props.teamId, {
+            tb_allow_slack_notif: v
+          }, props)}>
+        { Text.TBSlackNotif }
+        <div className="description">
+          { Text.TBSlackNotifDescription }
+        </div>
+      </CheckboxItem>
+    </div>
+
+    <SlackAuth {...props} prefs={prefs} />
   </div>;
+}
+
+
+interface SlackAuthProps extends Props {
+  prefs: ApiT.Preferences;
+}
+
+interface SlackAuthState {
+  busy: boolean;
+  error: boolean;
+}
+
+class SlackAuth extends React.Component<SlackAuthProps, SlackAuthState> {
+  constructor(props: SlackAuthProps) {
+    super(props);
+    this.state = {
+      busy: false,
+      error: false
+    };
+  }
+
+  render() {
+    let active = !!this.props.prefs.slack_address;
+    return <div className="panel">
+      { this.state.error ?
+        <div className="alert danger">
+          { GenericErrorMsg }
+        </div> : null }
+      <div className="row">
+        <span className={classNames({
+          success: active,
+          info: !active
+        })}>{ active ? Text.SlackOn : Text.SlackOff }</span>
+        <button onClick={this.onBtnClick} disabled={this.state.busy}>
+          { this.state.busy ? <span className="spinner" /> : null }
+          { active ? Text.SlackEditPrompt : Text.SlackAuthPrompt }
+        </button>
+      </div>
+    </div>;
+  }
+
+  onBtnClick = () => {
+    this.setState({ busy: true, error: false });
+    TeamPrefs.enableSlack(this.props.teamId, this.props)
+      // Never-ending promise, wait for redirect
+      .then(() => new Promise(() => {}))
+      .catch((err) => this.setState({ busy: false, error: true }));
+  }
 }
