@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import * as PrefHandlers from "../handlers/team-prefs";
+// import * as PrefHandlers from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
 import { GenericCalendar } from "../lib/apiT";
 import { QueueMap } from "../lib/queue";
@@ -101,14 +101,6 @@ export function toggleCalendar(props: {
   let { dispatch, state, Svcs } = deps;
   let cals = state.teamCalendars[props.teamId];
   if (cals && ready(cals.selected)) {
-    // Auto-set Esper link if applicable
-    let prefs = state.teamPreferences[props.teamId];
-    if (ready(prefs) && typeof prefs.event_link === "undefined") {
-      PrefHandlers.update(props.teamId, {
-        event_link: true
-      }, deps);
-    }
-
     let selected = props.value ?
       _(cals.selected).concat([props.cal]).uniqBy((c) => c.id).value() :
       _.filter(cals.selected, (c) => c.id !== props.cal.id);

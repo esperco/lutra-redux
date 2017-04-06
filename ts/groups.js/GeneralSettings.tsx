@@ -399,9 +399,8 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
     let prefs = this.props.state.teamPreferences[this.props.editTeamId];
     if (ready(prefs)) {
       return <div className="panel menu">
-        {/* Default Esper link to true */}
         <CheckboxItem
-          checked={prefs.event_link !== false}
+          checked={!!prefs.event_link}
           onChange={(v) => this.updateLink(v)}>
           <span>{ MiscText.EsperLink }</span>
           <p className="description">
