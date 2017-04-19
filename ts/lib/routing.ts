@@ -186,7 +186,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
     let [hash, queryStr] = cleanHash(l.hash);
 
     // Pre-querystring portion of hash must match exactly (no optional args)
-    let hashParts = hash.split('/');
+    let hashParts = hash.split('/').map(decodeURIComponent);
     if (hashParts.length !== (this.hash).length) {
       return null;
     }
