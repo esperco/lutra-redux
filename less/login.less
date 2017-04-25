@@ -1,24 +1,14 @@
 // CSS for login page (included via landing page instead)
-@import (reference) "./_variables";
+@import "./_variables";
 
-#esper-main.login-main {
+#main.login-main {
   text-align: center;
   .nylas-form {
     text-align: left;
-
-    .form-group {
-      button {
-        padding: 0 0.5rem 0 0;
-        line-height: 1rem;
-        height: 1rem;
-        font-size: 1rem;
-      }
-
-      label {
-        display: inline-block;
-        margin-top: 0;
-        font-size: 1rem;
-      }
+    label {
+      display: inline-block;
+      margin-top: 0;
+      font-size: 1rem;
     }
   }
 
@@ -39,28 +29,21 @@
   }
 }
 
-#esper-login button.primary {
-  margin: @padding-base auto 0;
+button.primary, button.cta, input[type="submit"] {
+  margin: 0 auto 0;
   display: block;
+  * + & { margin-top: @padding-base; }
 }
 
-#esper-login button.sign-in-btn.cta.primary {
+.login-buttons button,
+.login-buttons button.primary,
+.login-buttons button.cta {
   display: flex;
   align-items: center;
   padding: 0 @padding-small 0 @padding-base;
 
   > * {
     margin-top: 0;
-  }
-
-  &.google-btn {
-    background: #DF4A32;
-    &:hover { opacity: 0.8 }
-  }
-
-  &.exchange-btn {
-    background: #0072BB;
-    &:hover { opacity: 0.8 }
   }
 
   // Icon
@@ -83,6 +66,17 @@
   }
 }
 
-#esper-login .note {
+#google-btn {
+  background: #DF4A32;
+  &:hover { opacity: 0.8 }
+}
+
+#exchange-btn {
+  background: #0072BB;
+  &:hover { opacity: 0.8 }
+}
+
+.login-main .note {
   color: @text-muted;
+  margin: @padding-base;
 }

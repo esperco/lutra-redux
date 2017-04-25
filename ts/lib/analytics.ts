@@ -9,11 +9,13 @@ import { LoginResponse } from './apiT';
   Union types for what we can track -- must either be a string literal
   or a two-tuple variant
 */
-export type Trackable = ""; // TBD
+export type Trackable =
+  ["AttemptLogin", { platform: "Google"|"Nylas" }]|
+  ""; // TBD
 
 export namespace Analytics {
   // Track a separate event
-  export function track(event: Trackable) {
+  export function track(event: Trackable, cb?: () => void) {
     if (disabled) return;
     let name: string;
     let props: any = {};
@@ -24,7 +26,7 @@ export namespace Analytics {
       name = event;
     }
     analytics.ready(function() {
-      analytics.track(name, props);
+      analytics.track(name, props, cb);
     });
   }
 
@@ -37,6 +39,17 @@ export namespace Analytics {
     props.url = location.href; // So hash is included
     analytics.ready(function() {
       analytics.page(name, props);
+    });
+  }
+
+  /*
+    Identify if loginInfo is unavailable. Can use to identify someone's e-mail
+    before they login.
+  */
+  export function preIdentify<T extends {}>(props: T, cb?: () => void) {
+    if (disabled) return;
+    analytics.ready(function() {
+      analytics.identify(props, cb);
     });
   }
 

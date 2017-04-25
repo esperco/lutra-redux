@@ -294,6 +294,8 @@ export namespace Nav {
   }
 
   export function go(path: string) {
+    Log.d("Going to " + path);
+
     if (_.includes(path, "#")) {
       let [base, hash] = path.split("#");
       if (base === location.pathname) { // Same path, use router for fragment

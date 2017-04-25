@@ -54,6 +54,10 @@ export function apiSvcFactory(): ApiSvc {
     return new Promise((resolve) => resolve(fn()));
   }
 
+  // Init + reset = synchronous
+  newApi.init = function () {};
+  newApi.reset = function () {};
+
   return { Api: newApi };
 }
 

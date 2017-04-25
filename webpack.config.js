@@ -44,6 +44,9 @@ var config = {
     // Our landing pages
     landing: "./ts/landing.js/index.ts",
 
+    // Login page
+    login: "./ts/login.js/index.tsx",
+
     // Playground / Style-guide
     guide: "./ts/guide.js/index.tsx",
 

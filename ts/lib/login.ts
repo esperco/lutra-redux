@@ -58,6 +58,23 @@ export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
   return null;
 }
 
+// Store new login info + init API
+export function setCredentials(
+  info: StoredCredentials,
+  svcs: LocalStoreSvc & ApiSvc
+) {
+  svcs.LocalStore.set(storedLoginKey, {
+    uid: info.uid,
+    api_secret: info.api_secret,
+    email: info.email
+  } as StoredCredentials);
+
+  svcs.Api.setLogin({
+    uid: info.uid,
+    apiSecret: info.api_secret
+  });
+}
+
 const sandboxError = new Error("Sandbox");
 
 // Never resolves -- waiting for redirect

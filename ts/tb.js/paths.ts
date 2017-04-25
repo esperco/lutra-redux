@@ -1,7 +1,7 @@
 import { Path, StringParam, BooleanParam } from "../lib/routing";
 import { PeriodParam } from "../lib/period";
 
-const base = "/tb";
+export const base = "/tb";
 
 export const events = new Path({
   base,

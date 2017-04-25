@@ -5,8 +5,13 @@
 
 {% block title %}Login | Esper{% endblock %}
 
+{% block head %}
+  {{ super() }}
+  <link href="[[css/login--*.css]]" rel="stylesheet" />
+{% endblock %}
+
 {% block main %}
-  <div id="esper-main" class="main container login-main">
+  <div id="main" class="main container login-main">
     <div class="panel">
       {# This should get cleared after initial render #}
       <div class="spinner"></div>
@@ -16,8 +21,5 @@
 
 {% block scripts %}
   {{ super() }}
-
-  {# No hash -- we're still using old Lutra build process for these files #}
-  <script type="text/javascript" src="js/react-simple-vendor.js"></script>
-  <script type="text/javascript" src="js/login.js"></script>
+  <script type="text/javascript" src="[[js/login--*.js]]"></script>
 {% endblock %}
