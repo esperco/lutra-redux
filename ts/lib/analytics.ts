@@ -5,6 +5,8 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import { LoginResponse } from './apiT';
 
+declare var analytics: SegmentAnalytics.AnalyticsJS|undefined;
+
 /*
   Union types for what we can track -- must either be a string literal
   or a two-tuple variant
@@ -25,8 +27,8 @@ export namespace Analytics {
     } else {
       name = event;
     }
-    analytics.ready(function() {
-      analytics.track(name, props, cb);
+    analytics && analytics.ready(function() {
+      analytics && analytics.track(name, props, cb);
     });
   }
 
@@ -37,8 +39,8 @@ export namespace Analytics {
   export function page(name: string, props: any) {
     if (disabled) return;
     props.url = location.href; // So hash is included
-    analytics.ready(function() {
-      analytics.page(name, props);
+    analytics && analytics.ready(function() {
+      analytics && analytics.page(name, props);
     });
   }
 
@@ -48,17 +50,18 @@ export namespace Analytics {
   */
   export function preIdentify<T extends {}>(props: T, cb?: () => void) {
     if (disabled) return;
-    analytics.ready(function() {
-      analytics.identify(props, cb);
+    analytics && analytics.ready(function() {
+      analytics && analytics.identify(props, cb);
     });
   }
 
   // Identify user
   export function identify(loginInfo: LoginResponse) {
     if (disabled) return;
-    analytics.ready(function() {
+    analytics && analytics.ready(function() {
+      if (! analytics) return;
       if (loginInfo.is_sandbox_user) {
-        analytics.identify({
+        analytics && analytics.identify({
           sandbox: true
         });
       } else if (analytics.user().id() !== loginInfo.uid) {
@@ -82,8 +85,8 @@ export namespace Analytics {
   // Identify (UID) only
   export function identifyUID(uid: string) {
     if (disabled) return;
-    analytics.ready(function() {
-      if (analytics.user().id() !== uid) {
+    analytics && analytics.ready(function() {
+      if (analytics && analytics.user().id() !== uid) {
         analytics.alias(uid);
         analytics.identify(uid)
       }
@@ -92,7 +95,7 @@ export namespace Analytics {
 
   // Clear tracking IDs
   export function reset() {
-    var user = analytics.user();
+    var user = analytics && analytics.user && analytics.user();
     if (user) {
       user.logout();
       user.reset();
