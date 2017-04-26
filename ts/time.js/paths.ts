@@ -3,7 +3,7 @@
 */
 import { Path } from "../lib/routing";
 
-const base = "/time";
+export const base = "/time";
 
 export const Home = new Path({ base });
 

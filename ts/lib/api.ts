@@ -17,6 +17,10 @@ namespace Api {
     JsonHttp.init(opts);
   }
 
+  export function reset() {
+    uid = "";
+  }
+
   export function setLogin(credentials: {
     uid: string;
     apiSecret: string;
@@ -58,6 +62,10 @@ namespace Api {
                          serializable);
   }
 
+  export function random(): Promise<ApiT.Random> {
+    return JsonHttp.post(prefix + "/api/random");
+  }
+
   /* Batch helpers */
 
   export function batch<T>(fn: () => Promise<T>): Promise<T>;
@@ -68,6 +76,20 @@ namespace Api {
 
 
   /* Login */
+
+  export function loginOnce(uid: string, loginNonce: string):
+    Promise<ApiT.LoginResponse>
+  {
+    return batch(() => {
+      let ret: Promise<ApiT.LoginResponse> = JsonHttp.post(
+        prefix + "/api/login/" + string(uid) + "/once/" + string(loginNonce),
+        "");
+      let fixOffset = clock().then((v) => {
+        setOffset(moment(v.timestamp).diff(moment(), 'seconds'));
+      });
+      return fixOffset.then(() => ret);
+    });
+  }
 
   // NB: Gets personal teams only by default
   export function getLoginInfo(): Promise<ApiT.LoginResponse> {
@@ -87,6 +109,58 @@ namespace Api {
           setOffset(moment(v.timestamp).diff(moment(), 'seconds'));
           return getLoginInfo();
         });
+      }
+      throw err;
+    });
+  }
+
+  export function getGoogleAuthUrl(opts: {
+    nonce: string;
+    email?: string;
+    invite?: string;
+    landingUrl?: string;
+  }): Promise<ApiT.UrlResult> {
+    let url = prefix + "/api/google-auth-url";
+    let q: string[] = ["login_nonce=" + encodeURIComponent(opts.nonce)];
+    if (opts.landingUrl) {
+      q.push("auth_landing=" + encodeURIComponent(opts.landingUrl));
+    }
+    if (opts.invite) {
+      q.push("invite=" + encodeURIComponent(opts.invite));
+    }
+    if (opts.email) {
+      q.push("login_hint=" + encodeURIComponent(opts.email));
+    }
+    return JsonHttp.get(url + "?" + q.join("&"));
+  }
+
+  export function getGoogleAuthInfo(landingUrl: string):
+    Promise<ApiT.GoogleAuthInfo>
+  {
+    let url = prefix + "/api/google/" + myUid() + "/auth/info"
+      + "?auth_landing=" + encodeURIComponent(landingUrl);
+    return JsonHttp.get(url);
+  }
+
+  export function getNylasLoginUrl(opts: {
+    nonce: string;
+    email: string;
+    invite?: string;
+    landingUrl?: string;
+  }): Promise<ApiT.UrlResult> {
+    let url = prefix + "/api/nylas/login/" + string(opts.email);
+    let q: string[] = ["nonce=" + encodeURIComponent(opts.nonce)];
+    if (opts.landingUrl) {
+      q.push("landing_url=" + encodeURIComponent(opts.landingUrl));
+    }
+    if (opts.invite) {
+      q.push("invite=" + encodeURIComponent(opts.invite));
+    }
+    return JsonHttp.get(url + "?" + q.join("&"), (err) => {
+      // Redirect to Google OAuth if wrong URL
+      if (isAjaxError(err) && err.details &&
+          err.details.tag === "Use_google_oauth") {
+        return getGoogleAuthUrl(opts);
       }
       throw err;
     });
@@ -115,6 +189,16 @@ namespace Api {
       + "/" + string(teamId)
       + "/" + string(name),
       "");
+  }
+
+  export function approveTeam(teamId: string): Promise<void> {
+    return JsonHttp.put(prefix + "/api/team-approve/" + myUid() +
+      "/" + string(teamId) + "/true");
+  }
+
+  export function getAllTeamProfiles(): Promise<ApiT.ProfileList> {
+    let url = prefix + "/api/profile/" + myUid();
+    return JsonHttp.get(url);
   }
 
 
@@ -521,6 +605,7 @@ namespace Api {
   ): Promise<ApiT.TokenResponse|TokenErr> {
     return JsonHttp.post(
       prefix + "/api/token/" + string(token),
+      undefined, // body
       ignoreTokenErr
     );
   }

@@ -48,14 +48,14 @@ describe("<PeriodSelector />", () => {
 
     // Initial view is first month in selection
     let initialView = rangeSelector.prop('initialView') as Date;
-    expect(moment(initialView).isSame(new Date("2016-09-01"), "month"))
+    expect(moment(initialView).isSame(new Date("2016-09-01 0:0"), "month"))
       .to.be.true;
 
     // Actual value is what was passed
     let selectedValue = rangeSelector.prop('value');
     expect(selectedValue).to.deep.equal([
-      new Date("2016-09-01"),
-      new Date("2016-10-31T23:59:59.999")
+      new Date("2016-09-01 0:0"),
+      new Date("2016-10-31 23:59:59.999")
     ]);
   });
 
@@ -68,8 +68,8 @@ describe("<PeriodSelector />", () => {
     />);
 
     rangeSelector.prop('onChange')([
-      new Date("2016-11-1"),
-      new Date("2016-11-30")
+      new Date("2016-11-1 0:0"),
+      new Date("2016-11-30 0:0")
     ]);
     expectCalledWith(changeSpy, {
       interval: "month",
@@ -91,8 +91,8 @@ describe("<PeriodSelector />", () => {
 
     let closeSpy = Sinon.spy(instance._dropdown, 'close');
     rangeSelector.prop('onChange')([
-      new Date("2016-11-1"),
-      new Date("2016-11-30")
+      new Date("2016-11-1 0:0"),
+      new Date("2016-11-30 0:0")
     ]);
     expect(closeSpy.called).to.be.true;
   });

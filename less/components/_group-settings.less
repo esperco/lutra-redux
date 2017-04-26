@@ -4,6 +4,11 @@
   .gim.row {
     flex-wrap: wrap;
 
+    .gim.name {
+      // Leave space for two buttons
+      max-width: calc(~"100% - " (@padding-base * 4) + (2 * 1.25rem));
+    }
+
     .group-role-badge {
       width: 100%;
       text-align: left;

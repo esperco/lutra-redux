@@ -23,10 +23,23 @@ header, .banner, .row, footer {
     text-overflow: ellipsis;
   }
 
+  > span, > div {
+    line-height: 1rem + (@padding-small * 2);
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
   // Expand these items relatively slowly, don't shrink
   > .logo-mark, > button, > a, > input[type=submit], > .btn-set {
     flex: 1 0 auto;
     min-width: @input-height-base;
+  }
+
+  // Spacing between buttons
+  > button, > input {
+    + button, + input {
+      margin-left: @padding-base;
+    }
   }
 
   // Line up individual spans of text
@@ -80,6 +93,12 @@ header, .banner, .row {
     height: auto;
     padding: @padding-small;
     > * { margin: @padding-small; }
+    > div, > span {
+      margin-top: 0; margin-bottom: 0;
+    }
+    > button, > input[type="submit"] {
+      margin: 0;
+    }
   }
 }
 

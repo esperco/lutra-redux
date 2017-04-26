@@ -30,8 +30,8 @@ describe("Period", function() {
 
     it("should guess single month intervals if no interval provided", () => {
       expect(fromDates(
-        new Date("2016-10-01"),
-        new Date("2016-10-31")
+        new Date("2016-10-01 0:0"),
+        new Date("2016-10-31 0:0")
       )).to.deep.equal({
         interval: "month",
         start: 561,
@@ -41,8 +41,8 @@ describe("Period", function() {
 
     it("should guess multi-month intervals if no interval provided", () => {
       expect(fromDates(
-        new Date("2016-10-01"),
-        new Date("2016-11-30")
+        new Date("2016-10-01 0:0"),
+        new Date("2016-11-30 0:0")
       )).to.deep.equal({
         interval: "month",
         start: 561,
@@ -52,8 +52,8 @@ describe("Period", function() {
 
     it("should fall back to day if no other interval makes sense", () => {
       expect(fromDates(
-        new Date("2016-10-11"),
-        new Date("2016-10-20")
+        new Date("2016-10-11 0:0"),
+        new Date("2016-10-20 0:0")
       )).to.deep.equal({
         interval: "day",
         start: 17085,

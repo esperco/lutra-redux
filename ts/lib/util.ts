@@ -190,7 +190,11 @@ export class Deferred<T> {
 */
 export function timeoutP(t: number) {
   let dfd = new Deferred();
-  setTimeout(function() { dfd.reject(); }, t);
+  setTimeout(function() {
+    if (dfd.state === "pending") {
+      dfd.reject();
+    }
+  }, t);
 
   return {
     promise: dfd.promise(),

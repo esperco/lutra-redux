@@ -17,7 +17,7 @@ export function getText(code: number, details?: ErrorDetails) {
     case "Expired_link":
     case "Invalid_token":
     case "Expired_token":
-      return "That link is no longer valid."
+      return InvalidToken;
   }
 
   // Fall back to error codes
@@ -37,6 +37,8 @@ export function getText(code: number, details?: ErrorDetails) {
 }
 
 export const GenericError = "Whoops. Something broke.";
+
+export const InvalidToken = "That link is no longer valid.";
 
 export const ContactText = <span>
   Contact us
