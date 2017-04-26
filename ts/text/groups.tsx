@@ -100,7 +100,7 @@ export function defaultGroupName(name?: string) {
 
 export const GroupNoTeamDescription =
   "You're currently not sharing any calendars with this team on Esper. " +
-  "Click on the calendar icon next to your name or e-mail in the list " +
+  "Click on the calendar icon next to your name or email in the list " +
   "below to pick which calendars to share. Or invite other " +
   "team members to Esper to share their calendars with you.";
 export const NoTeamBtnTooltip =
@@ -110,10 +110,10 @@ export const GroupOnboardingEnd = "Start Using Esper";
 
 export const TimebombEnable = "Enable \"move to email\" for meetings";
 export const TimebombDescribe = <p>
-  2-4 days before a meeting, Esper will send an e-mail to all meeting guests
+  One workday before a meeting, Esper will send an email to all meeting guests
   asking them to confirm that they want to attend. If no one confirms, Esper
-  will remove the meeting from everyone's calendar 24 hours before the event
-  and send an e-mail to all guests that the meeting has been "moved to email".
+  will remove the meeting from everyone's calendar 1 hour before the event
+  and send an email to all guests that the meeting has been "moved to email".
   If at least one person confirms, the meeting will proceed as planned.
 </p>;
 export const TimebombMinGuests =
