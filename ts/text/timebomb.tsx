@@ -56,7 +56,7 @@ export const Stage0OnDescription = (t: string|Date|moment.Moment) => <div>
     at <strong>{ moment(t).format("h:mm a") }</strong> to
     the people attending this event asking if they want to keep this meeting.
     If no one says yes with 24 hours, we'll cancel the meeting and let
-    everyone know. Otherwise, the meeting will proceed the planned.
+    everyone know. Otherwise, the meeting will proceed as planned.
   </p>
 
   <p>
@@ -80,7 +80,7 @@ export const Stage1OnDescription = (t: string|Date|moment.Moment) => <div>
   </p>
 
   <p>
-    Toggle the radio button to "{TimebombOff}" to prevent Esper from cancelling
+    Toggle the radio button to "{TimebombOff}" to prevent Esper from canceling
     this meeting.
   </p>
 </div>;
@@ -97,7 +97,7 @@ export const Stage2ConfirmedDescription = () => <p>
 </p>;
 
 export const Stage2CancelledDescription = () => <p>
-  The confirmation period has expired. This meeting has been cancelled.
+  The confirmation period has expired. This meeting has been canceled.
 </p>;
 
 interface DefaultDescriptionProps {
