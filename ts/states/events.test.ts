@@ -86,7 +86,7 @@ describe("group-events / eventsDataReducer", () => {
   describe("when handling FETCH_QUERY_END", () => {
     it("populates eventQueries with a list of eventIds for each day",
     () => {
-      let now = new Date("2016-11-01");
+      let now = new Date("2016-11-01 0:0");
       sandbox.useFakeTimers(now.getTime());
 
       let e1 = makeEvent({ id: "e1",
@@ -104,8 +104,8 @@ describe("group-events / eventsDataReducer", () => {
 
       let s = initState();
       let period = fromDates("day",
-        new Date("2016-10-01"),
-        new Date("2016-10-03")
+        new Date("2016-10-01 0:0"),
+        new Date("2016-10-03 0:0")
       );
       let query = { labels: { all: true } };
       let s2 = eventsDataReducer(deepFreeze(s), {
@@ -144,8 +144,8 @@ describe("group-events / eventsDataReducer", () => {
 
     it("does not populate outside specified period",
     () => {
-      let then = new Date("2016-10-31");
-      let now = new Date("2016-11-01");
+      let then = new Date("2016-10-31 0:0");
+      let now = new Date("2016-11-01 0:0");
       sandbox.useFakeTimers(now.getTime());
 
       let e1 = makeEvent({ id: "e1",
@@ -155,8 +155,8 @@ describe("group-events / eventsDataReducer", () => {
 
       let s = initState();
       let period = fromDates("day",
-        new Date("2016-10-02"),
-        new Date("2016-10-02")
+        new Date("2016-10-02 0:0"),
+        new Date("2016-10-02 0:0")
       );
       let query = { labels: { all: true } };
       let queryKey = stringify(query);
@@ -216,8 +216,8 @@ describe("group-events / eventsDataReducer", () => {
       };
 
       let period = fromDates("day",
-        new Date("2016-10-02"),
-        new Date("2016-10-04")
+        new Date("2016-10-02 0:0"),
+        new Date("2016-10-04 0:0")
       );
       let query = { labels: { all: true } };
       let s2 = eventsDataReducer(deepFreeze(s), {
@@ -256,8 +256,8 @@ describe("group-events / eventsDataReducer", () => {
 
       let s = initState();
       let period = fromDates("day",
-        new Date("2016-10-01"),
-        new Date("2016-10-05")
+        new Date("2016-10-01 0:0"),
+        new Date("2016-10-05 0:0")
       );
       let query = {};
       let s2 = eventsDataReducer(deepFreeze(s), {
@@ -288,12 +288,12 @@ describe("group-events / eventsDataReducer", () => {
 
       let s = initState();
       let period1 = fromDates("day",
-        new Date("2016-10-01"),
-        new Date("2016-10-02")
+        new Date("2016-10-01 0:0"),
+        new Date("2016-10-02 0:0")
       );
       let period2 = fromDates("day",
-        new Date("2016-10-02"),
-        new Date("2016-10-03")
+        new Date("2016-10-02 0:0"),
+        new Date("2016-10-03 0:0")
       );
       let query = {};
 
@@ -322,8 +322,8 @@ describe("group-events / eventsDataReducer", () => {
     it("marks eventQueries with FETCH_ERROR", () => {
       let s = initState();
       let period = fromDates("day",
-        new Date("2016-10-01"),
-        new Date("2016-10-02")
+        new Date("2016-10-01 0:0"),
+        new Date("2016-10-02 0:0")
       );
       let query = { labels: { all: true } };
       let s2 = eventsDataReducer(deepFreeze(s), {
@@ -347,8 +347,8 @@ describe("group-events / eventsDataReducer", () => {
     it("does not clobber existing data with FETCH_ERROR", () => {
       let s = initState();
       let period = fromDates("day",
-        new Date("2016-10-01"),
-        new Date("2016-10-03")
+        new Date("2016-10-01 0:0"),
+        new Date("2016-10-03 0:0")
       );
       let query = { labels: { all: true } };
       let queryKey = stringify(query);
@@ -574,8 +574,8 @@ describe("eventsUpdateReducer", () => {
   it("invalidates event queries", () => {
     let s = initState();
     let period = fromDates("day",
-      new Date("2016-10-01"),
-      new Date("2016-10-03")
+      new Date("2016-10-01 0:0"),
+      new Date("2016-10-03 0:0")
     );
 
     let query1 = { labels: { all: true } };
@@ -635,8 +635,8 @@ describe("eventsUpdateReducer", () => {
 
   describe("with recurring event Ids", () => {
     let period = fromDates("day",
-      new Date("2016-10-01"),
-      new Date("2016-10-03")
+      new Date("2016-10-01 0:0"),
+      new Date("2016-10-03 0:0")
     );
     let query = {};
     let queryKey = stringify(query);
@@ -777,8 +777,8 @@ describe("invalidateQueryReducer", () => {
 
     let s = initState();
     let period = fromDates("day",
-      new Date("2016-10-01"),
-      new Date("2016-10-02")
+      new Date("2016-10-01 0:0"),
+      new Date("2016-10-02 0:0")
     );
 
     let e1 = makeEvent({ id: "e1",

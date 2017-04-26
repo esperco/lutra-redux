@@ -94,9 +94,11 @@ describe("<RangeSelector />", () => {
   });
 
   it("marks selected days as active", () => {
+    // Initialize dates to midnight or else might end up getting UTC
+    // when testing on a non-UTC system
     let wrapper = shallow(<RangeSelector
       initialView={new Date("2016-10-10")}
-      value={[new Date("2016-10-03"), new Date("2016-10-05")]}
+      value={[new Date("2016-10-03 0:0"), new Date("2016-10-05 0:0")]}
       onChange={() => null}
     />);
     let days = wrapper.find('.day.in-month');
@@ -118,7 +120,7 @@ describe("<RangeSelector />", () => {
   it("marks days between start and hover as active", () => {
     let wrapper = shallow(<RangeSelector
       initialView={new Date("2016-10-10")}
-      value={[new Date("2016-10-03"), new Date("2016-10-05")]}
+      value={[new Date("2016-10-03 0:0"), new Date("2016-10-05 0:0")]}
       onChange={() => null}
     />);
     let days = wrapper.find('.day.in-month');
@@ -155,8 +157,8 @@ describe("<RangeSelector />", () => {
 
     days.at(8).find('button').simulate('click');
     expectCalledWith(changeSpy, [
-      new Date("2016-10-3"),
-      new Date("2016-10-9")
+      new Date("2016-10-3 0:0"),
+      new Date("2016-10-9 0:0")
     ]);
   });
 
@@ -185,8 +187,8 @@ describe("<RangeSelector />", () => {
 
     days.at(2).find('button').simulate('click');
     expectCalledWith(changeSpy, [
-      new Date("2016-10-3"),
-      new Date("2016-10-3")
+      new Date("2016-10-3 0:0"),
+      new Date("2016-10-3 0:0")
     ]);
   });
 });
