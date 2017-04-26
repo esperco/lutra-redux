@@ -55,7 +55,7 @@ export const Stage0OnDescription = (t: string|Date|moment.Moment) => <div>
     {" "}<strong>{ moment(t).format("MMMM Do")}</strong>{" "}
     at <strong>{ moment(t).format("h:mm a") }</strong> to
     the people attending this event asking if they want to keep this meeting.
-    If no one says yes with 24 hours, we'll cancel the meeting and let
+    If no one says yes within 24 hours, we'll cancel the meeting and let
     everyone know. Otherwise, the meeting will proceed as planned.
   </p>
 

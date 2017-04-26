@@ -110,7 +110,7 @@ export const GroupOnboardingEnd = "Start Using Esper";
 
 export const TimebombEnable = "Enable \"move to email\" for meetings";
 export const TimebombDescribe = <p>
-  24 hours before a meeting, Esper will send an e-mail to all meeting guests
+  One workday before a meeting, Esper will send an e-mail to all meeting guests
   asking them to confirm that they want to attend. If no one confirms, Esper
   will remove the meeting from everyone's calendar 1 hour before the event
   and send an e-mail to all guests that the meeting has been "moved to email".
