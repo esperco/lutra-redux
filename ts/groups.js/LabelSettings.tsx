@@ -28,9 +28,10 @@ interface Props {
 class LabelSettings extends React.Component<Props, {}> {
   render() {
     let labels = this.props.state.groupLabels[this.props.groupId];
+    let { Svcs, ...settingsProps } = this.props;
     return <div className="content">
       <div className="container">
-        <SettingsNav {...this.props} />
+        <SettingsNav {...settingsProps} />
 
         { ready(labels) ?
           <div className="panel">

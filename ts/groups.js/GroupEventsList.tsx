@@ -123,7 +123,10 @@ export class EventsList extends React.Component<Props, State> {
           selectedEventIds={this.props.state.selectedEvents}
           selectedRecurringIds={selectedRecurringIds}
           eventMap={eventMap}
-          { ...this.props }
+          eventHrefFn={this.props.eventHrefFn}
+          labelHrefFn={this.props.labelHrefFn}
+          labels={this.props.labels}
+          searchLabels={this.props.searchLabels}
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
@@ -255,7 +258,11 @@ class QueryDay extends TreeFall<DayProps, {}> {
       this.props.result === "FETCHING" ? ["FETCHING"] :
       _.map(this.props.result.eventIds, (id) => this.props.eventMap[id]);
 
-    if (_.isEmpty(calEvents)) return this.renderEmpty();;
+    if (_.isEmpty(calEvents)) return this.renderEmpty();
+    let {
+      day, result, selectedEventIds, selectedRecurringIds, eventMap,
+      ...eventProps
+    } = this.props;
 
     return <div>
       { this.renderWaypoint() }
@@ -267,7 +274,7 @@ class QueryDay extends TreeFall<DayProps, {}> {
         <div><EventList
           events={calEvents}
           selectedEventIds={this.props.selectedEventIds}
-          {...this.props}
+          {...eventProps}
         /></div>
       </DayBox>
       { this.renderWaypoint() }

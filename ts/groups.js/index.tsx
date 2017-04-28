@@ -128,11 +128,13 @@ store.subscribe(() => {
     return;
   }
   let state = gotState as LoggedInState;
+  let appProps = { state, dispatch };
+  let headerProps = { state, dispatch, Svcs, Conf };
   let props = { state, dispatch, postTask, Svcs, Conf };
 
   ReactDOM.render(
-    <App {...props} >
-      <GroupHeader {...props} />
+    <App {...appProps} >
+      <GroupHeader {...headerProps} />
       <div className="content">
         <MainView {...props} />
       </div>
@@ -150,19 +152,29 @@ function MainView(props: {
   Conf: typeof Conf;
 }) {
   if (props.state.route) {
+    let { postTask, Conf, ...simpleProps } = props;
     switch(props.state.route.page) {
       case "GroupEvents":
-        return <GroupEvents {...props} {...props.state.route} />;
+        let { page: p1, ...GroupEventProps } = props.state.route;
+        return <GroupEvents {...props} {...GroupEventProps} />;
       case "Setup":
-        return <Setup {...props} />;
+        return <Setup {...simpleProps } />;
       case "GroupGeneralSettings":
-        return <GeneralSettings {...props} {...props.state.route} />;
+        let { page: p2, ...GroupGeneralSettingsProps } = props.state.route;
+        return <GeneralSettings
+          {...simpleProps} {...GroupGeneralSettingsProps}
+        />;
       case "GroupLabelSettings":
-        return <LabelSettings {...props} {...props.state.route} />;
+        let { page: p3, ...GroupLabelSettingsProps } = props.state.route;
+        return <LabelSettings {...simpleProps} {...GroupLabelSettingsProps} />;
       case "GroupNotificationSettings":
-        return <NotificationSettings {...props} {...props.state.route} />;
+        let { page: p4, ...GroupNotificationSettingsProps } = props.state.route;
+        return <NotificationSettings
+          {...simpleProps} {...GroupNotificationSettingsProps}
+        />;
       case "GroupMiscSettings":
-        return <MiscSettings {...props} {...props.state.route} />;
+        let { page: p5, ...GroupMiscSettingsProps } = props.state.route;
+        return <MiscSettings {...simpleProps} {...GroupMiscSettingsProps} />;
       case "NotFound":
         return <NotFound />;
     }

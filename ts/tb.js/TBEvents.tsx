@@ -30,6 +30,7 @@ interface Props extends BaseProps {
 
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
+    let { onboarding, ...baseProps } = this.props;
     return <div id="tb-events" className="rowbar-layout">
       <header>
         {/* Select which period to show events for */}
@@ -46,7 +47,7 @@ export default class TBEventList extends React.Component<Props, {}> {
           type: "SCROLL", direction
         })}>
         <div className="container">
-          { this.props.onboarding ? <div className="alert info">
+          { onboarding ? <div className="alert info">
             { TBSettingsMsg }
           </div> : null }
 
@@ -54,7 +55,7 @@ export default class TBEventList extends React.Component<Props, {}> {
             noContentMessage={noContentMessage(Paths.settings.href({}))}
             onTimebombToggle={this.timebombToggle}
             onPeriodChange={this.periodChange}
-            {...this.props}
+            {...baseProps}
           />
         </div>
       </ScrollContainer>

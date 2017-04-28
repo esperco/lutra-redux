@@ -34,7 +34,7 @@ export class GroupCalcDisplay extends TreeFall<Props, {}> {
   }
 
   render() {
-    let { results } = this.props;
+    let { results, children, ...props } = this.props;
     if (!ready(results)) {
       return <div className="calc-display">
         { CommonText.Calculating }
@@ -45,7 +45,7 @@ export class GroupCalcDisplay extends TreeFall<Props, {}> {
     return <div className="calc-display">
       <Stats results={results} />
       { _.isEmpty(results.labelResults) ? null :
-        <LabelChart {...this.props} results={results} /> }
+        <LabelChart {...props} results={results} /> }
       { this.renderWaypoint() }
     </div>;
   }

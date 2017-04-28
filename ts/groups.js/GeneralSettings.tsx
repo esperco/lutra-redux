@@ -75,10 +75,12 @@ class GeneralSettings extends React.Component<Props, {}> {
       members,
       summary
     };
+    let { editTeamId, onboarding, Svcs, ...settingsProps } = this.props;
 
     return <div className="content">
       <div className="container">
-        { this.props.onboarding ? null : <SettingsNav {...this.props} /> }
+        { this.props.onboarding ? null :
+          <SettingsNav {...settingsProps} /> }
         <SummaryInfo {...subprops} />
         <NoTeamMessage {...subprops} />
         <GroupMembersInfo {...subprops} />

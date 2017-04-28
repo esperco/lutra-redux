@@ -60,7 +60,6 @@ export default class TBEventList extends React.Component<Props, {}> {
           loggedInUid={loggedInUid}
           result={d[queryKey]}
           eventMap={eventMap}
-          { ...this.props }
           onTimebombToggle={this.props.onTimebombToggle}
         />
       ) }
@@ -103,7 +102,7 @@ class QueryDay extends TreeFall<DayProps, {}> {
         */}
         <div><EventList
           events={calEvents}
-          {...this.props}
+          onTimebombToggle={this.props.onTimebombToggle}
         /></div>
       </DayBox>
       { this.renderWaypoint() }

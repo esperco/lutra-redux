@@ -24,9 +24,10 @@ interface Props {
 class MiscSettings extends React.Component<Props, {}> {
   render() {
     let summary = this.props.state.groupSummaries[this.props.groupId];
+    let { Svcs, ...settingsProps } = this.props;
     return <div className="content">
       <div className="container">
-        <SettingsNav {...this.props} />
+        <SettingsNav {...settingsProps} />
         { ready(summary) ?
           this.renderContent(summary) :
           <div className="spinner" /> }
@@ -50,7 +51,7 @@ class MiscSettings extends React.Component<Props, {}> {
             delay: 2000,
             value: tb,
             onChange: this.setTb,
-            component: (p) => <TimebombSettings {...p} />
+            component: ({ onSubmit, ...p }) => <TimebombSettings {...p} />
         }) }
       </div>
 

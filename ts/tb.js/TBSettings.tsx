@@ -31,6 +31,7 @@ export interface Props {
 
 export default class TBSettings extends React.Component<Props, {}> {
   render() {
+    let { children, ...props } = this.props;
     return <div className="container">
       <h2>
         <a href={Paths.events.href({})}>
@@ -40,7 +41,7 @@ export default class TBSettings extends React.Component<Props, {}> {
       </h2>
 
       <div className="panel">
-        <GeneralSettings {...this.props} />
+        <GeneralSettings {...props} />
       </div>
 
       <h3>{ Text.CalHeading }</h3>
@@ -49,17 +50,17 @@ export default class TBSettings extends React.Component<Props, {}> {
       </p>
 
       <div className="panel">
-        <CalendarsSelector {...this.props} />
+        <CalendarsSelector {...props} />
       </div>
 
       <h3>{ Text.SweepHeading }</h3>
       <div className="panel">
-        <TimebombDefaults {...this.props} />
+        <TimebombDefaults {...props} />
       </div>
 
       <h3>{ Text.NotificationsHeading }</h3>
       <div className="panel">
-        <Notifications {...this.props} />
+        <Notifications {...props} />
       </div>
     </div>;
   }
@@ -163,7 +164,7 @@ const TimebombDefaults = (props: Props) => {
       tb_recurring: val.recurring,
       tb_same_domain: val.sameDomain
     }, props),
-    component: (props) => <TimebombSettings {...props} />
+    component: ({ onSubmit, ...props }) => <TimebombSettings {...props} />
   });
 }
 
