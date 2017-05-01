@@ -21,9 +21,10 @@ export const TBSettingsMsg = <span>
   upper right corner.
 </span>;
 
-export const TimebombHeader = "Preference";
-export const TimebombOn = "Cancel";
-export const TimebombOff = "Keep";
+export const SetTimebomb = "Require Agenda?";
+export const ConfirmYes = "Has Agenda";
+export const ConfirmNo = "No Agenda";
+export const HelpLink = "What is this?";
 export const TimebombLate = "Time to change preference has expired";
 export const Canceled = "Meeting canceled";
 export const Confirmed = "Meeting confirmed";
@@ -33,11 +34,7 @@ export const OnboardingPickEventHeading =
   "Pick an Event";
 export const OnboardingPickEventDescription = <div>
   <p>
-    Select the "{TimebombOn}" radio button next to an event you'd rather
-    not attend.
-  </p>
-  <p>
-    Don't worry. This won't cancel the meeting right away!
+    Select "{SetTimebomb}" for an event that should require an agenda.
   </p>
 </div>;
 
@@ -54,21 +51,19 @@ export const Stage0OnDescription = (t: string|Date|moment.Moment) => <div>
     Got it. We'll send out an email on
     {" "}<strong>{ moment(t).format("MMMM Do")}</strong>{" "}
     at <strong>{ moment(t).format("h:mm a") }</strong> to
-    the people attending this event asking if they want to keep this meeting.
-    If no one says yes within 24 hours, we'll cancel the meeting and let
+    the people attending this event to confirm if there's an agenda.
+    If there's no agenda, we'll cancel the meeting one hour before and let
     everyone know. Otherwise, the meeting will proceed as planned.
   </p>
 
   <p>
-    You can also toggle the radio button to "{TimebombOff}" if you don't
-    want us to send the email.
+    You can also toggle the switch if you don't want us to send the email.
   </p>
 </div>;
 
 export const Stage0OffDescription = () => <div>
   <p>
-    OK. We won't send an email for this meeting. You can toggle the radio
-    button back to "{TimebombOn}" if you change your mind.
+    OK. We won't send an email for this meeting.
   </p>
 </div>;
 
@@ -80,15 +75,14 @@ export const Stage1OnDescription = (t: string|Date|moment.Moment) => <div>
   </p>
 
   <p>
-    Toggle the radio button to "{TimebombOff}" to prevent Esper from canceling
-    this meeting.
+    Toggle the switch to prevent Esper from canceling this meeting.
   </p>
 </div>;
 
 export const Stage1OffDescription = (t: string|Date|moment.Moment) => <div>
   <p>
-    OK. This meeting is confirmed. If you change your mind, you can still
-    toggle the radio button to "{TimebombOn}" within {moment(t).fromNow(true)}.
+    Thanks. This meeting is confirmed. If you change your mind, you can still
+    toggle the switch within {moment(t).fromNow(true)}.
   </p>
 </div>;
 
@@ -109,7 +103,7 @@ interface DefaultDescriptionProps {
 }
 export const DefaultDescriptionSetup =
 (p: DefaultDescriptionProps) => <p className="description">
-  Esper will default to "{TimebombOn}" for
+  Esper will default to requiring agendas for
   all {p.recurring ? "recurring" : ""} meetings
   with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
     " if all attendees share the same email domain" : ""

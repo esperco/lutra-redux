@@ -25,7 +25,7 @@ type TokenMap = {
 type TokenAction = keyof TokenMap;
 
 interface Props {
-  actionOnMount: TokenAction;
+  actionOnMount?: TokenAction;
   tokens: TokenMap;
   Svcs: ApiSvc & NavSvc & AnalyticsSvc;
 }
@@ -51,10 +51,12 @@ export class EventLanding extends React.Component<Props, State> {
   }
 
   // Normally, triggering API calls here isn't great form but we're
-  // trying to avoid the overhead of using something ike Redux here.
+  // trying to avoid the overhead of using something like Redux here.
   componentDidMount() {
     let action = this.props.actionOnMount;
-    this.postToken(action, true);
+    if (action) {
+      this.postToken(action, true);
+    }
     this.props.Svcs.Analytics.page(location.pathname, { action });
   }
 
@@ -154,7 +156,7 @@ export class EventLanding extends React.Component<Props, State> {
             name={"timebomb-" + this.state.event.id}
             disabled={disabled}
             value={value}
-            onChange={(val) => this.postToken(val ? "cancel" : "keep")}
+            onChange={(val) => this.postToken(val ? "keep" : "cancel")}
           />
         </div>
       </div>;
@@ -167,23 +169,31 @@ export class EventLanding extends React.Component<Props, State> {
     </div>;
   }
 
-  getValue(tb: ApiT.TimebombState) { // True = active
+  getValue(tb: ApiT.TimebombState) { // True = confirmed
     if (hasTag("Stage1", tb)) {
-      return this.state.lastAction === "cancel";
+      switch (this.state.lastAction) {
+        case "keep":
+          return true;
+        case "cancel":
+          return false;
+        default:
+          return null;
+      }
     }
 
     else if (hasTag("Stage2", tb)) {
-      return tb[1] === "Event_canceled";
+      return tb[1] === "Event_confirmed";
     }
 
     // Stage 0 -> should not happen
-    return false;
+    return null;
   }
 
   renderAlert(tb: ApiT.TimebombState) {
     if (hasTag("Stage1", tb)) {
+      if (! this.state.lastAction) return null;
       return <div className="alert success">
-        { this.state.lastAction && this.state.lastAction === "keep" ?
+        { this.state.lastAction === "keep" ?
           TimebombText.Stage1OffDescription(tb[1].confirm_by) :
           TimebombText.Stage1OnDescription(tb[1].confirm_by) }
       </div>;
