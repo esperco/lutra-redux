@@ -7,7 +7,7 @@ export const CalDescription = "Which calendars should Esper have access to?";
 export const OnboardingCalDescription = CalDescription +
   " Don't worry. You can change this later!";
 
-export const SweepHeading = "Sweep Defaults";
+export const SweepHeading = "Agenda Check Defaults";
 export const NotificationsHeading = "Notifications";
 
 export const TeamName = "Name";
@@ -18,16 +18,14 @@ export const DailyAgenda = "Daily Agenda Email";
 export const DailyAgendaDescription =
   "An early morning summary of your day. Reminds you which events " +
   "are still a go.";
-export const TBEmailNotif = "Sweep Email Notifications";
+export const TBEmailNotif = "Agenda Check Emails";
 export const TBEmailNotifyDescription =
-  "Emails for meeting confirmation requests and cancellations. " +
-  "Sweep will still remove unconfirmed meetings from your calendar " +
-  "even if you have opted out of all notifications. You can always " +
-  "confirm which meetings to confirm or cancel on esper.com.";
+  "Emails to confirm that an email has an agenda. If someone responds no " +
+  "and no one responds yes, then the meeting will be cancelled.";
 export const TBSlackNotif =
-  "Sweep Slack Notifications";
+  "Agenda Check Slack Notifications";
 export const TBSlackNotifDescription =
-  "Like Sweep email notifications, but via Slack.";
+  "Like agenda check emails, but via Slack.";
 
 export const SlackOn = <span>	&#x2714; Connected to Slack</span>;
 export const SlackOff = <span>

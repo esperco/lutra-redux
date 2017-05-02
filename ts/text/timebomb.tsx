@@ -3,7 +3,7 @@ import * as React from "react";
 import Icon from "../components/Icon";
 
 export const TimebombDefault = <span>
-  Activate Sweep by default for meetings that meet <em>all</em> of
+  Require agendas by default for meetings that meet <em>all</em> of
   the following conditions:
 </span>;
 export const TimebombMinGuests =
@@ -16,7 +16,7 @@ export const SameDomainOnly =
   "Internal meetings only (all attendees share the same email domain)"
 
 export const TBSettingsMsg = <span>
-  Tip: Want to change which events Sweep cancels by default?
+  Tip: Want to change which events have ageandas required by default?
   Access the Settings page via the <Icon type="accounts" /> in the
   upper right corner.
 </span>;
