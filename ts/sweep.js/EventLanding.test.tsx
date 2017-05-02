@@ -17,7 +17,8 @@ describe("<EventLanding />", () => {
     title: "My Event Title",
     timebomb: ["Stage1", {
       confirm_by: "2100-10-10",
-      confirmed_list: []
+      confirmed_list: [],
+      rejected_list: []
     }]
   });
   const tokens = {

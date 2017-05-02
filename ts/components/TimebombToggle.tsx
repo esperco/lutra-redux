@@ -40,17 +40,17 @@ export class TimebombToggle extends React.Component<Props, {}> {
     if (hasTag("Stage2", event.timebomb)) {
       let ret: JSX.Element;
 
-      // Stage 2 confirmed
-      if (event.timebomb[1] === "Event_confirmed") {
-        return null; // Don't show confirmed status for now,
-                     // same as if no timebomb at all
-      }
-
       // Stage 2 canceled
-      else {
+      if (event.timebomb[1] === "Event_canceled") {
         ret = <div className="alert warning">
           { Text.Canceled }
         </div>;
+      }
+
+      // Stage 2 confirmed (or not reaction)
+      else {
+        return null; // Don't show confirmed status for now,
+                     // same as if no timebomb at all
       }
 
       return <TimebombContainer>
@@ -59,9 +59,20 @@ export class TimebombToggle extends React.Component<Props, {}> {
     }
 
     else if (hasTag("Stage1", event.timebomb)) {
-      // TODO: Trinary state - confirm, cancel, none
-      let confirmed =
-        _.includes(event.timebomb[1].confirmed_list, this.props.loggedInUid);
+      let value: boolean|null = null;
+      if (_.includes(event.timebomb[1].confirmed_list,
+                     this.props.loggedInUid)) {
+        value = true;
+      } else if (_.includes(event.timebomb[1].rejected_list,
+                            this.props.loggedInUid)) {
+        value = false;
+      }
+      console.info(event.id,
+        event.timebomb[1].confirmed_list,
+        event.timebomb[1].rejected_list,
+        this.props.loggedInUid,
+        value
+      );
       let disabled =
         moment(event.timebomb[1].confirm_by).isSameOrBefore(new Date());
       return <TimebombContainer
@@ -69,7 +80,7 @@ export class TimebombToggle extends React.Component<Props, {}> {
         <TimebombOptions
           disabled={disabled}
           name={this._name || (event.id + "-timebomb")}
-          value={confirmed}
+          value={value}
           onChange={(val) => this.props.onToggle(event.id, val)}
         />
         <HelpLink />

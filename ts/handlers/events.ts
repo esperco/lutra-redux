@@ -839,13 +839,17 @@ export function toggleTimebomb(props: {
       let confirmed_list = props.value ?
         _.concat(event.timebomb[1].confirmed_list, uid) :
         _.filter(event.timebomb[1].confirmed_list, (u) => u !== uid);
+      let rejected_list = props.value ?
+        _.filter(event.timebomb[1].rejected_list, (u) => u !== uid) :
+        _.concat(event.timebomb[1].rejected_list, uid);
       dispatch({
         type: "EVENTS_UPDATE",
         calgroupId: props.calgroupId,
         eventIds: [props.eventId],
         timebomb: ["Stage1", {
           ...event.timebomb[1],
-          confirmed_list
+          confirmed_list,
+          rejected_list
         }]
       });
     }

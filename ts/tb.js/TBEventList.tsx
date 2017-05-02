@@ -102,6 +102,7 @@ class QueryDay extends TreeFall<DayProps, {}> {
         */}
         <div><EventList
           events={calEvents}
+          loggedInUid={this.props.loggedInUid}
           onTimebombToggle={this.props.onTimebombToggle}
         /></div>
       </DayBox>
