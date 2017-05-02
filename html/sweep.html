@@ -1,6 +1,6 @@
 {% extends '_landing.html' %}
 
-{% block title %}Sweep | Esper{% endblock %}
+{% block title %}Agendas | Esper{% endblock %}
 
 {% block head %}
   {{ super() }}
@@ -19,8 +19,8 @@
     <!-- This gets replaced by React component if token -->
     <div class="container">
       <div id="token-ui">
-        <h1>Cancel bad meetings before they&nbsp;cancel&nbsp;you.</h1>
-        <h2>Esper Sweep removes unwanted meetings from your calendar.</h2>
+        <h1>Meetings with purpose</h1>
+        <h2>Esper double-checks that your meetings have agendas.</h2>
       </div>
 
       <!-- Quick sign in -->
@@ -32,30 +32,19 @@
     </div>
   </div>
 
-  <!-- Howto screens -->
-  <section>
-    <h2>How it Works</h2>
-    <div class="slides">
-      <div class="slide">
-        <h3>Pick a meeting you'd rather not attend.</h3>
-        <img src="/img/picker.png" />
-      </div>
+  <!-- Agenda timeline -->
+  <section style="padding-left:0;padding-right:0;">
+    <h2>Protect Your Time</h2>
+    <div class="container-small">
+      {% include 'img/agenda-timeline.svg' %}
+    </div>
+  </section>
 
-      <div class="slide">
-        <h3>
-          We'll send an email to all guests before the meeting asking if they
-          want to keep it on the calendar.
-        </h3>
-        <img src="/img/email1.png" />
-      </div>
-
-      <div class="slide">
-        <h3>
-          If nobody opts to keep the meeting, we cancel the meeting.
-          Time saved!
-        </h3>
-        <img src="/img/email2.png" />
-      </div>
+  <!-- Slack -->
+  <section id="sweep-slack-splash" class="splash">
+    <div class="container">
+      <h2>Works With Slack</h2>
+      {% include 'img/slack-esper-smile.svg' %}
     </div>
   </section>
 

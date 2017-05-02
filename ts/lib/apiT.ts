@@ -279,9 +279,10 @@ export type TimebombState =
   }]|
   ["Stage1", {
     confirmed_list: string[];
+    rejected_list: string[];
     confirm_by: string; // Timestamp
   }]|
-  ["Stage2", "Event_confirmed"|"Event_canceled"]
+  ["Stage2", "Event_confirmed"|"Event_canceled"|"No_reaction"]
 
 export interface MergedEventSource {
   eventid: string;

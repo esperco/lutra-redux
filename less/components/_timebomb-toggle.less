@@ -3,23 +3,11 @@
 .timebomb-toggle {
   text-align: center;
 
-  h4 {
-    margin-right: 0;
-    margin-left: @padding-small;
-
-    a {
-      margin-left: @padding-small;
-      font-size: @font-size-small;
-      color: @link-muted;
-    }
-  }
-
   .alert {
     font-size: @font-size-small;
   }
 
   .options {
-    margin-top: @padding-small;
     font-size: @font-size-small;
     display: flex;
     flex-flow: row nowrap;
@@ -33,6 +21,21 @@
     .pseudo-radio { margin-right: 0; }
     .pseudo-radio + * {
       display: block;
+    }
+
+    @media screen and (max-width: @screen-xs-max) {
+      margin-top: @padding-small;
+      & > * { text-align: left; }
+    }
+  }
+
+  .help-link {
+    display: block;
+    margin-top: @padding-small;
+    font-size: @font-size-small;
+
+    @media screen and (max-width: @screen-xs-max) {
+      text-align: left;
     }
   }
 }
