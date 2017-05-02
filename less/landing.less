@@ -128,10 +128,12 @@ header:first-child {
   background-size: auto 50vh;
 }
 
+// Charts page splash
 #charts-splash {
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
+  background-image:url(/img/charts-splash.png);
   background-size: auto 50vh;
   background-position: center bottom;
 
@@ -151,6 +153,30 @@ header:first-child {
   @media screen and (min-width: @screen-md-min) {
     .container {
       margin: -@navbar-height 0 0 10vw;
+    }
+  }
+}
+
+// Sweep sub-splash
+#sweep-slack-splash {
+  background-image: ~"url(/img/esper-slack.png)," @landing-gradient;
+  background-size: 300px auto, cover;
+  background-position: center 60vh, center;
+
+  .container svg {
+    max-width: 300px;
+  }
+
+  @media screen and (min-width: @screen-sm-min) {
+    background-size: auto 80vh, cover;
+    background-position: 60vw 18vh, center;
+    height: 80vh;
+
+    .container {
+      width: 60vw;
+      max-width: none;
+      margin: @padding-xl 0;
+      padding: @padding-base;
     }
   }
 }
@@ -179,7 +205,7 @@ header:first-child {
 
   .feature {
     text-align: center;
-    padding-bottom: @padding-xl;
+    padding: (@padding-xl / 2) 0;
     img, svg {
       height: @min-container-width * 0.65; width: auto;
       margin: @padding-lg auto;
@@ -202,8 +228,15 @@ header:first-child {
   }
 }
 
+body > * {
+  margin-top: 0;
+}
+
+body > section {
+  padding: @padding-lg @padding-base;
+}
+
 body > .cta-container {
-  background: @purple-faded;
   text-align: center;
   padding: @padding-lg @padding-base;
 
@@ -238,8 +271,7 @@ a.cta, button.cta, input[type="submit"].cta {
 }
 
 .splash ~ section, .feature {
-  > h2:first-child, > h3:first-child {
-    text-transform: uppercase;
+  > h2, > h3 {
     text-align: center;
   }
 }
@@ -247,9 +279,17 @@ a.cta, button.cta, input[type="submit"].cta {
 // Single container object - make larger to fill up content
 body > .main.container {
   min-height: calc(~"90vh - " (@navbar-height * 2) ~" - " (@padding-xl * 2));
+}
 
-  // For tables and other things that require horizontal scrolling
-  overflow: auto;
+// Smaller container for narrower content
+.container-small {
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.alt-bg {
+  background: @landing-gradient;
 }
 
 // Pricing container
