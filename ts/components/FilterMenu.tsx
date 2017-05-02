@@ -98,7 +98,7 @@ export abstract class FilterMenuBase<P extends BaseProps>
 
     return <div>
       <FilterInput
-        { ...this.props.filterProps }
+        { ...this.props.filterProps as FilterProps|{} }
         value={this.state.value}
         onChange={(value) => this.change(value)}
         onSubmit={() => this.submit()}

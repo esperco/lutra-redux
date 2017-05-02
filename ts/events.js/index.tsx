@@ -63,10 +63,11 @@ store.subscribe(() => {
     return;
   }
   let state = gotState as LoggedInState;
-  let props = { state, dispatch, Svcs, Conf };
+  let appProps = { state, dispatch };
+  let props = { state, dispatch, Svcs };
 
   ReactDOM.render(
-    <App {...props} >
+    <App {...appProps} >
       <div className="content">
         <MainView {...props} />
       </div>
@@ -80,12 +81,12 @@ function MainView(props: {
   state: LoggedInState;
   dispatch: DispatchFn;
   Svcs: typeof Svcs;
-  Conf: typeof Conf;
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
       case "Event":
-        return <EventView {...props} {...props.state.route} />;
+        let { page, ...eventViewProps } = props.state.route;
+        return <EventView {...props} {...eventViewProps} />;
       case "NotFound":
         return <NotFound />;
     }

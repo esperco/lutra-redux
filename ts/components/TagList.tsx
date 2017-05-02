@@ -6,7 +6,10 @@ require("less/components/_tag-list.less");
 import * as React from 'react';
 import * as classNames from 'classnames';
 import Dropdown from "./Dropdown";
-import { Props as MenuProps, MultiselectFilterMenu } from './MultiselectFilterMenu';
+import {
+  Props as MenuProps,
+  MultiselectFilterMenu
+} from './MultiselectFilterMenu';
 import { Choice } from './Menu';
 import Icon from "./Icon";
 import { colorForText } from "../lib/colors";
@@ -45,6 +48,8 @@ export class TagList extends React.Component<Props, {}> {
   }
 
   renderDropdown() {
+    // Remove certain props for menu props
+    let { buttonText, onClose, tagHrefFn, ...menuProps } = this.props;
     return <Dropdown ref={(c) => this._dropdown = c}
       keepOpen={true}
       onClose={this.props.onClose}
@@ -54,7 +59,7 @@ export class TagList extends React.Component<Props, {}> {
       </button>}
 
       menu={<div className="dropdown-menu tag-list-menu">
-        <MultiselectFilterMenu { ...this.props } />
+        <MultiselectFilterMenu { ...menuProps } />
       </div>}
     />
   }

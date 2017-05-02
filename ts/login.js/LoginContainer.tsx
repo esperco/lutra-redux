@@ -120,8 +120,8 @@ export class LoginContainer extends React.Component<Props, State> {
     let view = this.state.view;
     switch (view.type) {
       case "APPROVE_TEAM":
-        let { redirect } = view;
-        return <ApproveTeam {...view}
+        let { redirect, type, ...viewProps } = view;
+        return <ApproveTeam {...viewProps}
           onApprove={() => this.props.Svcs.Nav.go(redirect)}
           onReject={() => this.props.Svcs.Nav.go("/login?msg=reject_team")}
           Svcs={this.props.Svcs}

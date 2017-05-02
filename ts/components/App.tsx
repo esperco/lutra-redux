@@ -28,7 +28,7 @@ class App extends React.Component<Props, State> {
         })}
       />
       { this.props.children }
-      <DataStatus { ...this.props.state } />
+      <DataStatus apiCalls={this.props.state.apiCalls} />
     </div>
   }
 }

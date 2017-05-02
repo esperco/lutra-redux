@@ -67,10 +67,11 @@ store.subscribe(() => {
     return;
   }
   let state = gotState as LoggedInState;
+  let appProps = { state, dispatch };
   let props = { state, dispatch, Svcs, Conf };
 
   ReactDOM.render(
-    <App {...props} >
+    <App {...appProps} >
       <Alerts alerts={state.alerts} onDismiss={(alert) => dispatch({
         type: "REMOVE_ALERT", alert
       })} />
@@ -112,15 +113,20 @@ function MainView(props: {
   if (props.state.route) {
     switch(props.state.route.page) {
       case "Events":
-        return <Events {...props} {...props.state.route} />;
+        let { page: p1, ...eventProps } = props.state.route;
+        return <Events {...props} {...eventProps} />;
       case "Settings":
-        return <Settings {...props} {...props.state.route} />;
+        let { page: p2, ...settingProps } = props.state.route;
+        return <Settings {...props} {...settingProps} />;
       case "CalSetup":
-        return <CalSetup {...props} {...props.state.route} />;
+        let { page: p3, ...calSetupProps } = props.state.route;
+        return <CalSetup {...props} {...calSetupProps} />;
       case "PickEventSetup":
-        return <PickEventSetup {...props} {...props.state.route} />;
+        let { page: p4, ...pickEventProps } = props.state.route;
+        return <PickEventSetup {...props} {...pickEventProps} />;
       case "EventDetailsSetup":
-        return <EventDetailsSetup {...props} {...props.state.route} />;
+        let { page: p5, ...eventDetailsSetupProps } = props.state.route;
+        return <EventDetailsSetup {...props} {...eventDetailsSetupProps} />;
       case "NotFound":
         return <NotFound />;
     }

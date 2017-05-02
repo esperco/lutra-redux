@@ -22,9 +22,10 @@ interface Props {
 class NotificationSettings extends React.Component<Props, {}> {
   render() {
     let prefs = this.props.state.groupPreferences[this.props.groupId];
+    let { Svcs, ...settingsProps } = this.props;
     return <div className="content">
       <div className="container">
-        <SettingsNav {...this.props} />
+        <SettingsNav {...settingsProps} />
         { ready(prefs) ?
           <div className="panel">
             <div className="alert info">

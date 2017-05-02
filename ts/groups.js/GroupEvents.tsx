@@ -177,8 +177,9 @@ class GroupEvents extends React.Component<Props, {}> {
     labels: LabelSet;
     searchLabels: LabelSet;
   }) {
+    let { showFilters, eventId, selectMode, ...props } = this.props;
     return <GroupEventsList
-      {...this.props}
+      {...props}
       labels={labels}
       searchLabels={searchLabels}
       eventHrefFn={this.eventHref}
@@ -194,10 +195,11 @@ class GroupEvents extends React.Component<Props, {}> {
     searchLabels: LabelSet;
   }) {
     let numEvents = _.size(this.props.state.selectedEvents);
+    let { showFilters, eventId, selectMode, ...props } = this.props;
     if (numEvents === 0) return null;
     if (numEvents === 1) {
       return <GroupEventEditor
-        {...this.props}
+        {...props}
         {...labelProps}
         guestHrefFn={this.guestHref}
         labelHrefFn={this.labelHref}
@@ -205,7 +207,7 @@ class GroupEvents extends React.Component<Props, {}> {
     }
 
     return <GroupMultiEventEditor
-      {...this.props}
+      {...props}
       {...labelProps}
       labelHrefFn={this.labelHref}
     />;

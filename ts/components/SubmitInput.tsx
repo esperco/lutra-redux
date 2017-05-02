@@ -25,8 +25,9 @@ export class SubmitInput extends React.Component<Props, State> {
   }
 
   render() {
+    let { defaultValue, ...props } = this.props;
     return <TextInput
-      {...this.props}
+      {...props}
       value={this.state.value}
       onChange={this.change}
       onSubmit={this.submit}

@@ -166,8 +166,12 @@ export class EventList extends React.Component<ListProps, ListState> {
         !this.state.showHiddenEvents) {
       return null;
     }
+    let {
+      events, selectedEventIds, selectedRecurringIds,
+      ...eventProps
+    } = this.props;
     return <EventDisplay key={ev.id} event={ev}
-      { ...this.props }
+      { ...eventProps }
       unconfirmed={!!this.state.unconfirmed[ev.id]}
       onExplicitConfirm={this.explicitConfirm}
       selected={this.isSelected(ev)}
