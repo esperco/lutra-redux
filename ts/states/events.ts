@@ -323,21 +323,30 @@ function reduceEventUpdate(
     return event;
   }
 
+  // Special behavior for labeling
+  let labels = event.labels;
+  let hidden = _.isUndefined(action.hidden) ? event.hidden : action.hidden;
+  if (hidden) {
+    labels = [];
+  } else if (action.addLabels || action.rmLabels) {
+    labels = updateLabelList(event.labels || [], {
+      add: action.addLabels,
+      rm: action.rmLabels
+    });
+  }
+
   return compactObject({
     ...event,
 
-    // Update labels -- clear labels if hidden
-    labels: (action.addLabels || action.rmLabels) && action.hidden !== true ?
-      updateLabelList(event.labels || [], {
-        add: action.addLabels,
-        rm: action.rmLabels
-      }) : [],
+    // Udpate labels
+    labels,
     labels_predicted: false,
     labels_confirmed: true,
-    has_recurring_labels: !!recurring,
+    has_recurring_labels: (labels !== event.labels) ?
+      !!recurring : event.has_recurring_labels,
 
     // Update hide
-    hidden: _.isUndefined(action.hidden) ? event.hidden : action.hidden,
+    hidden,
 
     // Update timebomb
     timebomb: _.isUndefined(action.timebomb) ? event.timebomb : action.timebomb
