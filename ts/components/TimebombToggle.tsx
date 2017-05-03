@@ -90,7 +90,7 @@ export class TimebombToggle extends React.Component<Props, {}> {
         <div className="options">
           <CheckboxItem
           inputProps={{ disabled }}
-          checked={active}
+          checked={!!active}
           onChange={(val) => this.props.onToggle(event.id, val)}>
             { Text.SetTimebomb }
           </CheckboxItem>

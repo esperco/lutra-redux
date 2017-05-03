@@ -6,6 +6,7 @@ import {
 } from "./events";
 import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
+import * as ApiT from "../lib/apiT";
 import { stringify } from "../lib/event-queries";
 import { Period, fromDates } from "../lib/period";
 import { sandbox } from "../lib/sandbox";
@@ -571,6 +572,24 @@ describe("eventsUpdateReducer", () => {
     });
   });
 
+  it("updates timebomb status", () => {
+    let timebomb: ApiT.TimebombState = ["Stage1", {
+      confirm_by: "2020-05-03T00:31:21.248Z",
+      confirmed_list: ["uid1"],
+      rejected_list: ["uid2"]
+    }];
+    let s2 = eventsUpdateReducer(s1, {
+      type: "EVENTS_UPDATE",
+      calgroupId,
+      eventIds: [ev.id],
+      timebomb
+    });
+    expect(s2.events[calgroupId].e1).to.deep.equal({
+      ...ev,
+      timebomb
+    });
+  });
+
   it("invalidates event queries", () => {
     let s = initState();
     let period = fromDates("day",
@@ -734,6 +753,25 @@ describe("eventsUpdateReducer", () => {
         ...e1,
         labels: [label1, label3],
         has_recurring_labels: false
+      });
+    });
+
+    it("does not break recurrence if labeling individual ID with timebomb",
+    () => {
+      let timebomb: ApiT.TimebombState = ["Stage1", {
+        confirm_by: "2020-05-03T00:31:21.248Z",
+        confirmed_list: ["uid1"],
+        rejected_list: ["uid2"]
+      }];
+      let s2 = eventsUpdateReducer(deepFreeze(s1), {
+        type: "EVENTS_UPDATE",
+        calgroupId,
+        eventIds: ["e1"],
+        timebomb
+      });
+      expect(s2.events[calgroupId].e1).to.deep.equal({
+        ...e1,
+        timebomb
       });
     });
   })
