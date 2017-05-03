@@ -259,7 +259,9 @@ class SlackAuth extends React.Component<SlackAuthProps, SlackAuthState> {
 
   onBtnClick = () => {
     this.setState({ busy: true, error: false });
-    TeamPrefs.enableSlack(this.props.teamId, this.props)
+    TeamPrefs.enableSlack(this.props.teamId, {
+      tb_allow_slack_notif: true
+    }, this.props)
       // Never-ending promise, wait for redirect
       .then(() => new Promise(() => {}))
       .catch((err) => this.setState({ busy: false, error: true }));

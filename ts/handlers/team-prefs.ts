@@ -104,7 +104,23 @@ export function toggleDailyAgenda(
   }, deps);
 }
 
-export function enableSlack(teamId: string, deps: { Svcs: ApiSvc & NavSvc }) {
-  return deps.Svcs.Api.getSlackAuthInfo(teamId)
-    .then((x) => deps.Svcs.Nav.go(x.slack_auth_url));
+/*
+  Enables Slack. Also takes preferences update so we can do things like
+  turn on Slack communication before we go to Slack auth page.
+*/
+export async function enableSlack(
+  teamId: string,
+  prefs: Partial<ApiT.Preferences>,
+  deps: {
+    dispatch: (action: PrefsState.UpdateAction) => void;
+    state: PrefsState.TeamPreferencesState;
+    Svcs: ApiSvc & NavSvc;
+  }
+) {
+  if (! _.isEqual(prefs, {})) {
+    await update(teamId, prefs, deps);
+  }
+
+  let x = await deps.Svcs.Api.getSlackAuthInfo(teamId);
+  return deps.Svcs.Nav.go(x.slack_auth_url);
 }
