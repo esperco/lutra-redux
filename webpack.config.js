@@ -30,6 +30,7 @@ var config = {
   entry: {
     groups: "./ts/groups.js/index.tsx",
     vendor: [
+      'tslib',
       './js/promise-fetch',
       'crypto-js/sha1',
       'jquery',

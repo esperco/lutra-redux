@@ -2,6 +2,8 @@
   "compilerOptions": {
     "outDir": "./pub/",
     "sourceMap": true,
+    "importHelpers": true,
+    "noEmitHelpers": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
