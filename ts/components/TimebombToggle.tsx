@@ -67,12 +67,6 @@ export class TimebombToggle extends React.Component<Props, {}> {
                             this.props.loggedInUid)) {
         value = false;
       }
-      console.info(event.id,
-        event.timebomb[1].confirmed_list,
-        event.timebomb[1].rejected_list,
-        this.props.loggedInUid,
-        value
-      );
       let disabled =
         moment(event.timebomb[1].confirm_by).isSameOrBefore(new Date());
       return <TimebombContainer
