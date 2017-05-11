@@ -6,6 +6,7 @@
 @bar-chart-name-width-md: 0.25;
 @bar-chart-name-width-lg: 0.25;
 @bar-chart-number-width: 6em; // Space for number at end of bar chart
+@bar-chart-bar-height: 1.5rem;
 
 // Extend out bars for bar chart
 @keyframes extendBar {
@@ -84,7 +85,7 @@
 
   .name, .number {
     font-size: @font-size-small;
-    line-height: @input-height-small;
+    line-height: @bar-chart-bar-height;
     vertical-align: middle;
   }
 
@@ -92,7 +93,7 @@
   .number { padding-left: @padding-small; }
 
   .bar {
-    height: @input-height-small;
+    height: @bar-chart-bar-height;
     background: @shade-bg;
     border-radius: @border-radius-small;
     border-bottom-right-radius: @border-radius-base;

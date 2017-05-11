@@ -7,7 +7,6 @@
 input, textarea {
   font-size: @font-size-small;
   border: 1px solid @border-color;
-  border-radius: @border-radius-base;
   box-shadow: none;
 
   &:focus, &:hover, &:active, &:active:hover, &:active:focus {
@@ -25,8 +24,9 @@ input {
   display: inline-block;
   height: @input-height-base;
   line-height: @input-height-base;
+  border-radius: 500px; // Pill-shape
   vertical-align: middle;
-  padding: 0 @padding-base;
+  padding: 0 (@input-height-base / 2);
 
   &[disabled] {
     cursor: not-allowed;
@@ -41,6 +41,7 @@ input {
 textarea {
   min-height: 4rem;
   padding: @padding-small @padding-base;
+  border-radius: @border-radius-base;
 }
 
 input[type=checkbox], input[type=radio], input[type=submit] {

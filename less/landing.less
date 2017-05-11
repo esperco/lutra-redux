@@ -5,10 +5,28 @@
 
 @landing-gradient: linear-gradient(to bottom right, #F2E4FE, #F9F5E9);
 
-header:first-child {
-  + .splash {
-    margin-top: 0;
-    padding-top: @navbar-height;
+.subheading {
+  font-size: @font-size-large;
+  font-weight: 300;
+  margin-top: 0;
+
+  + * {
+    margin-top: @padding-lg;
+  }
+}
+
+body > header + .splash {
+  margin-top: 0;
+  padding-top: @navbar-height;
+}
+
+body > .splash, body > .cta-container, body > footer.corporate {
+  // Slightly more bottom padding to compensate for font not stretching to edge
+  padding: 4.2rem @padding-base 5rem;
+
+  @media screen and (min-width: @screen-sm-min) {
+    padding-left: @padding-xl;
+    padding-right: @padding-xl;
   }
 }
 
@@ -21,38 +39,23 @@ header:first-child {
   background-position: center;
   width: 100%;
   height: 100vh;
-  padding: @padding-base;
   display: block;
 
   .container {
     text-align: center;
-    padding: @padding-base 0;
+    padding: 0;
     max-width: 0.75 * @max-container-width;
+    margin: 0 auto;
 
     > * {
       margin-left: auto;
       margin-right: auto;
     }
 
-    * + h2, * + h3, * + h4 {
-      font-size: @font-size-large;
-      font-weight: normal;
-      margin-top: @padding-base;
-    }
-
     .cta-container {
       padding-left: 0;
       padding-right: 0;
       margin-top: @padding-lg;
-    }
-
-    .cta.secondary {
-      border-color: @link-color;
-      color: @link-color;
-      &:hover {
-        background: @link-color;
-        color: @off-white;
-      }
     }
   }
 
@@ -238,36 +241,12 @@ body > section {
 
 body > .cta-container {
   text-align: center;
-  padding: @padding-lg @padding-base;
 
   @media screen and (min-width: @screen-sm-min) {
     button { min-width: @min-container-width; }
   }
 
   & + footer, & + footer.corporate { margin-top: 0; }
-}
-
-// CTA links -> like buttons
-a.cta {
-  .button();
-  text-align: center;
-  margin: 0 auto;
-}
-
-// CTA butotn bigger than normal button
-a.cta, button.cta, input[type="submit"].cta {
-  line-height: @input-height-large;
-  height: @input-height-large;
-  padding: 0 @padding-lg;
-
-  @media screen and (max-width: @screen-xs-max) {
-    min-width: 100%;
-  }
-}
-
-// Clear secondary button
-.cta.secondary {
-  border: 1px solid @link-color;
 }
 
 .splash ~ section, .feature {
