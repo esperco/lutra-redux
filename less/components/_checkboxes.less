@@ -31,7 +31,7 @@ label.checkbox-item {
     height: 1em;
     width:1em;
     margin-right: @padding-small;
-    background: @shade-rel;
+    background: @shade-rel-light;
     border-radius: @border-radius-small;
     box-shadow: @default-box-shadow;
     text-align: center;
@@ -57,7 +57,7 @@ label.checkbox-item {
   input[type=checkbox]:disabled + .pseudo-checkbox {
     opacity: 0.5;
     color: @text-muted;
-    ~ span { color: @shade-rel-dark; font-weight: normal; }
+    ~ span { color: @shade-rel; font-weight: normal; }
   }
 
   &.partial {
