@@ -8,7 +8,7 @@
 .subheading {
   font-size: @font-size-large;
   font-weight: 300;
-  margin-top: 0;
+  margin-top: @padding-small;
 
   + * {
     margin-top: @padding-lg;
@@ -69,6 +69,7 @@ body > .splash, body > .cta-container, body > footer.corporate {
   // Dark mode
   &.dark {
     color: @inverse-rel;
+    box-shadow: @down-box-shadow;
 
     h1, h2, h3 {
       color: @inverse-rel-light;
@@ -110,25 +111,22 @@ body > .splash, body > .cta-container, body > footer.corporate {
 }
 
 // Main sweep sub-splash
-#main-splash + .splash {
-  display: flex;
-  align-items: flex-start;
-  background-position: center bottom;
-  background-size: auto 50vh;
-}
-
-// Main ratings sub-splash
-#main-splash + .splash + .splash {
-  display: flex;
-  align-items: center;
+#main-splash + #sweep-slack-splash {
+  background-image: ~"url(/img/esper-slack.png)";
+  box-shadow: none;
 }
 
 // Main charts sub-splash
-#main-splash + .splash + .splash + .splash {
-  display: flex;
-  align-items: flex-end;
-  background-position: center top;
-  background-size: auto 50vh;
+#charts-sub-splash {
+  background-image: ~"url(/img/main-charts-splash.png)";
+  background-position: center 4rem;
+  background-size: auto 60vh;
+  padding-top: calc(~"70vh + 1rem");
+  height: auto;
+
+  @media screen and (min-width: @screen-sm-min) {
+    padding-top: calc(~"70vh - 2rem");
+  }
 }
 
 // Charts page splash
@@ -163,8 +161,13 @@ body > .splash, body > .cta-container, body > footer.corporate {
 // Sweep sub-splash
 #sweep-slack-splash {
   background-image: ~"url(/img/esper-slack.png)," @landing-gradient;
-  background-size: 300px auto, cover;
-  background-position: center 60vh, center;
+  background-size: auto 600px, cover;
+  background-position: center bottom -300px, center;
+  height: auto;
+  box-shadow: @down-box-shadow;
+
+  // Enough padding to cover visible portion of background image and then some
+  padding: 3rem @padding-base calc(600px - 300px ~"+ 3rem");
 
   .container svg {
     max-width: 300px;
@@ -173,14 +176,32 @@ body > .splash, body > .cta-container, body > footer.corporate {
   @media screen and (min-width: @screen-sm-min) {
     background-size: auto 80vh, cover;
     background-position: 60vw 18vh, center;
+    padding: calc(~"18vh + " @padding-base) 60vh @padding-base @padding-base;
+    align-items: flex-start;
     height: 80vh;
 
     .container {
       width: 60vw;
       max-width: none;
-      margin: @padding-xl 0;
-      padding: @padding-base;
     }
+  }
+}
+
+// Ratings splash
+#ratings-splash {
+  background-image:
+   linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))
+   ~", url(/img/ratings-splash.jpg)";
+
+  @media screen and (min-width: @screen-sm-min) {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1))
+      ~", url(/img/ratings-splash.jpg)";
+    background-position: right top;
+    padding-left: 60vw;
+    justify-content: flex-end;
+
+    .container { min-width: 450px; }
   }
 }
 
