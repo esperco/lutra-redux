@@ -9,8 +9,9 @@ import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
+import { ready } from "../states/data-status";
 import { noContentMessage } from "../text/team";
-import { TBSettingsMsg } from "../text/timebomb";
+import { TBSettingsMsg, DefaultDescriptionSetup } from "../text/timebomb";
 import TBEventsList from "./TBEventList";
 import * as Paths from "./paths";
 import { State as StoreState, DispatchFn } from './types';
@@ -47,9 +48,7 @@ export default class TBEventList extends React.Component<Props, {}> {
           type: "SCROLL", direction
         })}>
         <div className="container">
-          { onboarding ? <div className="alert info">
-            { TBSettingsMsg }
-          </div> : null }
+          { onboarding ? this.renderOnboardingMsg() : null }
 
           <TBEventsList
             noContentMessage={noContentMessage(Paths.settings.href({}))}
@@ -60,6 +59,23 @@ export default class TBEventList extends React.Component<Props, {}> {
         </div>
       </ScrollContainer>
     </div>;
+  }
+
+  renderOnboardingMsg() {
+    let prefs = this.props.state.teamPreferences[this.props.teamId];
+    if (ready(prefs)) {
+      let settingsHref = Paths.settings.href({});
+      return <div className="alert info">
+        { !!prefs.tb ? <DefaultDescriptionSetup
+          settingsHref={settingsHref}
+          minGuests={prefs.tb_guests_min}
+          maxGuests={prefs.tb_guests_max}
+          recurring={prefs.tb_recurring}
+          sameDomain={prefs.tb_same_domain}
+        /> : <TBSettingsMsg settingsHref={settingsHref} /> }
+      </div>;
+    }
+    return <div className="placeholder" />;
   }
 
   timebombToggle = (eventId: string, value: boolean) => {

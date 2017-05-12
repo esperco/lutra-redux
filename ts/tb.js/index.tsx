@@ -112,6 +112,8 @@ function MainView(props: {
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
+      case "Redirect":
+        return <div className="spinner" />;
       case "Events":
         let { page: p1, ...eventProps } = props.state.route;
         return <Events {...props} {...eventProps} />;

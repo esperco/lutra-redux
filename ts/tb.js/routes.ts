@@ -27,12 +27,25 @@ export interface EventsRoute {
   period: GenericPeriod;
   teamId: string;
   onboarding: boolean; // Show onboarding helper msg for new user
+                       // Automatically set defaults if necessary.
 };
 
-export const events = Paths.events.route<Deps>(function(p, deps) {
+export interface RedirectRoute {
+  page: "Redirect";
+}
+
+export const events = Paths.events.route<Deps>(async function(p, deps) {
   let team = checkForCalendar(deps);
   if (! team) return;
   let teamId = team.teamid;
+  let onboarding = !!p.onboarding;
+
+  // Onboarding mode -> auto set defaults
+  if (onboarding) {
+    // Render redirect while waiting for timebomb settings to finish
+    deps.dispatch({ type: "ROUTE", route: { page: "Redirect" }});
+    await TeamPrefs.autosetTimebomb(teamId, deps);
+  }
 
   // Default period = today + 6 (7 days total)
   let period = p.period || fromDates(
@@ -53,7 +66,7 @@ export const events = Paths.events.route<Deps>(function(p, deps) {
     route: {
       page: "Events",
       period, teamId,
-      onboarding: !!p.onboarding
+      onboarding
     }
   });
 });
@@ -244,6 +257,7 @@ export const settings = Paths.settings.route<Deps>(function(p, deps) {
 
 export type RouteTypes =
   EventsRoute|
+  RedirectRoute|
   CalSetupRoute|
   PickEventSetupRoute|
   EventDetailsSetupRoute|
@@ -269,6 +283,6 @@ export function init({ dispatch, getState, Svcs, Conf }: {
     () => ({ dispatch, state: getState(), Svcs, Conf }),
 
     // Opts
-    { home: () => Paths.events.href({}) }
+    { home: () => Paths.events.href({ onboarding: true }) }
   );
 }
