@@ -151,12 +151,12 @@ Api.init(_.extend<typeof Conf>({
 Login.init(dispatch, Conf, Svcs).then((info) => {
   // Things that should be initialized after login go here
 
-  if (info.groups && info.groups.length) {
-    dispatch({
-      type: "ADD_ALERT",
-      alert: "GO_TO_GROUPS"
-    });
-  }
+  // if (info.groups && info.groups.length) {
+  //   dispatch({
+  //     type: "ADD_ALERT",
+  //     alert: "GO_TO_GROUPS"
+  //   });
+  // }
 
   // This starts the router
   Routes.init({ dispatch, getState, Svcs, Conf });
