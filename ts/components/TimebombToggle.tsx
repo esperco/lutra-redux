@@ -138,7 +138,7 @@ export const BaseTimebombToggle =
 
 function TimebombContainer({ disabledMsg, children }:{
   disabledMsg?: string;
-  children?: JSX.Element[];
+  children: React.ReactNode
 }) {
   let ret = <div className="timebomb-toggle">
     { children }

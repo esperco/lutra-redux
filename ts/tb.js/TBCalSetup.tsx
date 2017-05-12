@@ -38,8 +38,11 @@ export const TBCalSetup = (props: Props) => {
   </div>;
 };
 
-const NextButton = (props: React.HTMLProps<HTMLButtonElement>) => <button
-  className="primary" {...props}
->{ CommonText.Next }</button>;
+const NextButton = (p: React.HTMLProps<HTMLButtonElement>) => {
+  let { children, ...props } = p;
+  return <button className="primary" {...props}>
+    { CommonText.Next }
+  </button>;
+}
 
 export default TBCalSetup;

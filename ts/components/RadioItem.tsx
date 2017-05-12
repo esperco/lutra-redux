@@ -22,7 +22,6 @@ interface Props {
   labelProps?: React.HTMLProps<HTMLLabelElement>;
   color?: string;      // Background color
   background?: string; // Foreground color
-  children?: JSX.Element|JSX.Element[]|string;
 }
 
 export class RadioItem extends React.Component<Props, {}> {
@@ -37,7 +36,9 @@ export class RadioItem extends React.Component<Props, {}> {
       inputProps.checked = this.props.checked;
     }
 
-    let labelProps = _.clone(this.props.labelProps || {});
+    let { children, ...labelProps } = this.props.labelProps || {
+      children: null
+    };
     labelProps.htmlFor = inputProps.id;
     labelProps.className = classNames(
       "radio-item",

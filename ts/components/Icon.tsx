@@ -65,7 +65,7 @@ export type IconType = keyof (typeof IconMappings);
 
 interface Props {
   type: IconType;
-  children?: JSX.Element|JSX.Element[]|string;
+  children?: React.ReactNode;
 }
 
 // Default screen reader label only.
