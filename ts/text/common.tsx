@@ -38,6 +38,7 @@ export const Save = "Save";
 export const Search = "Search";
 export const Settings = "Settings";
 export const Show = "Show";
+export const Slack = "Slack";
 export const Terms = "Terms of Use";
 
 // UX

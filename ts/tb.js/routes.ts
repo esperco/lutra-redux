@@ -233,6 +233,29 @@ function(p, deps) {
   });
 });
 
+/*
+  Setup page requesting Slack auth
+*/
+
+export interface SlackSetupRoute {
+  page: "SlackSetup";
+  teamId: string;
+}
+
+export const slackSetup = Paths.slackSetup.route<Deps>(function(p, deps) {
+  let team = checkForCalendar(deps);
+  if (! team) return;
+  let teamId = team.teamid;
+
+  deps.dispatch({
+    type: "ROUTE",
+    route: {
+      page: "SlackSetup",
+      teamId
+    }
+  });
+});
+
 
 /*
   Settings is both one of our onboarding screens and place to actually
@@ -269,6 +292,7 @@ export type RouteTypes =
   CalSetupRoute|
   PickEventSetupRoute|
   EventDetailsSetupRoute|
+  SlackSetupRoute|
   SettingsRoute;
 
 export function init({ dispatch, getState, Svcs, Conf }: {
@@ -285,6 +309,7 @@ export function init({ dispatch, getState, Svcs, Conf }: {
       calSetup,
       pickEventSetup,
       eventDetailSetup,
+      slackSetup,
       settings
     ],
 

@@ -50,3 +50,9 @@ export const eventDetailsSetup = new Path({
   },
   hash: ["setup", "events", ":eventId"]
 });
+
+export const slackSetup = new Path({
+  base,
+  params: {},
+  hash: ["setup", "slack"]
+});
