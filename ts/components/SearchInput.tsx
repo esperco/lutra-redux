@@ -11,10 +11,6 @@ export class SearchInput extends React.Component<Props, {}> {
   render() {
     let id = randomString();
     return <div className="search-input input-row">
-      <label htmlFor={this.props.id}>
-        <Icon type="search" />
-      </label>
-
       <div className="has-right-icon">
         <TextInput {...this.props} id={id} />
         { this.props.value ? <button className="clear-input"

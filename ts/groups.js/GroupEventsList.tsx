@@ -159,7 +159,8 @@ export class EventsList extends React.Component<Props, State> {
     if (_.size(this.props.state.selectedEvents) > 0) {
       if (this.props.clearAllHrefFn) {
         let url = this.props.clearAllHrefFn();
-        return <button onClick={() => this.props.Svcs.Nav.go(url)}>
+        return <button className="secondary"
+        onClick={() => this.props.Svcs.Nav.go(url)}>
           { CommonText.ClearAll }
         </button>;
       }
@@ -169,7 +170,8 @@ export class EventsList extends React.Component<Props, State> {
     // Else show select all
     if (this.props.selectAllHrefFn) {
       let url = this.props.selectAllHrefFn();
-      return <button onClick={() => this.props.Svcs.Nav.go(url)}>
+      return <button className="secondary"
+      onClick={() => this.props.Svcs.Nav.go(url)}>
         { CommonText.SelectAll }
       </button>;
     }

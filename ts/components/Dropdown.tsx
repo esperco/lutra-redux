@@ -124,7 +124,7 @@ export class Dropdown extends React.Component<Props, State> {
 interface MenuProps {
   anchor: HTMLElement;
   keepOpen?: boolean;
-  children?: JSX.Element[];
+  children: React.ReactNode;
 }
 
 interface MenuState {

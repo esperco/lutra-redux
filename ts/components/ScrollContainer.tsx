@@ -41,7 +41,7 @@ interface Props extends React.HTMLProps<HTMLDivElement> {
       Identifier for this ScrollContainer. If it changes, reset to top.
     */
 
-  children?: JSX.Element|JSX.Element[]|string;
+  children?: React.ReactNode;
 }
 
 export class ScrollContainer extends React.Component<Props, {}> {
@@ -50,15 +50,10 @@ export class ScrollContainer extends React.Component<Props, {}> {
   _lastScrollTop: number;
 
   render() {
-    // Hack because there's no easy TypeScript way to say "minus this prop"
-    let divProps: React.HTMLProps<HTMLDivElement> = {};
-    for (let key in this.props) {
-      if (key === "onScrollChange" ||
-          key === "threshold" ||
-          key === "scrollKey") continue;
-      let propName = key as keyof React.HTMLProps<HTMLDivElement>;
-      divProps[propName] = this.props[propName];
-    }
+    let {
+      children, onScrollChange, threshold, scrollKey,
+      ...divProps
+    } = this.props;
 
     return <div {...divProps} ref={(c) => this._div = c}>
       { this.props.children }

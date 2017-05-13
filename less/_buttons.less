@@ -8,6 +8,8 @@
 .transparent-color-variant(@color) {
   background: @color;
   color: @brand-contrast;
+  text-transform: none;
+  font-size: 1rem;
 
   div.menu & {
     color: darken(@color, 5%);
@@ -48,10 +50,9 @@
   display: inline-block;
   line-height: @input-height-base;
   vertical-align: middle;
-  padding: 0 @padding-base;
+  padding: 0 (@input-height-base / 2);
   white-space: nowrap;
   font-size: @font-size-small;
-  font-weight: bold;
   text-transform: uppercase;
   text-decoration: none;
 
@@ -64,9 +65,10 @@
   .description {
     text-transform: none;
     margin-top: 0;
+    font-size: @font-size-small;
     font-weight: normal;
     white-space: normal;
-    line-height: 1.1;
+    line-height: 1.25;
 
     &:last-child {
       padding-bottom: @padding-small;
@@ -109,6 +111,20 @@
 
   &.primary, &[type="submit"] {
     .transparent-color-variant(@brand-primary);
+  }
+
+  &.secondary {
+    font-size: 1rem;
+    border-width: 1px;
+    border-style: solid;
+    border-color: @link-color;
+    color: @link-color;
+    text-transform: none;
+
+    &:hover {
+      background: @link-color;
+      color: @off-white;
+    }
   }
 
   &.success {
@@ -158,8 +174,8 @@ div.menu {
 /* Icon buttons - shrink slightly */
 button {
   .icon-label.no-text:only-child {
-    margin-left: -@padding-small;
-    margin-right: -@padding-small;
+    margin-left: -(@input-height-base / 2);
+    margin-right: -(@input-height-base / 2);
   }
 }
 
@@ -167,8 +183,31 @@ button {
 button.input-style {
   text-align: left;
   border: 1px solid @border-color;
-  border-radius: @border-radius-base;
   color: @text-color;
   font-weight: normal;
   text-transform: none;
+}
+
+// CTA links -> like buttons
+a.cta {
+  .button();
+  text-align: center;
+  margin: 0 auto;
+}
+
+/*
+  CTAs are bigger than normal buttons. Note that things look weird if we mix
+  and match CTA with normal buttons because of the font-size differences.
+  The idea is to move towards consistently large buttons (easier to tap
+  on mobile) but this breaks the existing non-landing page UI in a bunch
+  of places so we're holding off on that for now.
+*/
+a.cta, button.cta, input[type="submit"].cta {
+  line-height: @input-height-large;
+  height: @input-height-large;
+  padding: 0 (@input-height-large / 2 + @padding-small);
+
+  @media screen and (max-width: @screen-xs-max) {
+    min-width: 80%;
+  }
 }

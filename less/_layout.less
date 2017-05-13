@@ -16,12 +16,22 @@ p, ul {
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
+// Our "big" selectors
+h1, h2, h3 {
   margin: 0; // No margin bottom because of * + * selector.
 
   // Extra space only if following something else
   * + & {
     margin-top: @padding-lg;
+  }
+}
+
+// Less margin for secondary selectors
+h4, h5, h6 {
+  margin: 0;
+
+  + * {
+    margin-top: @padding-small;
   }
 }
 

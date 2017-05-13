@@ -258,7 +258,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
       { this.props.isSuper && this.props.gim.uid && !this.props.noEdit?
         <Dropdown
           toggle={<button className="dropdown-toggle group-role-badge">
-            { Text.roleDisplayName(gim.role) }
+            <span>{ Text.roleDisplayName(gim.role) }</span>
             <Icon type="caret-down" />
           </button>}
 
@@ -270,7 +270,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
           </div>}
         /> :
         <button className="group-role-badge" disabled>
-          { Text.roleDisplayName(gim.role) }
+          <span>{ Text.roleDisplayName(gim.role) }</span>
         </button>
       }
       <button className="gim-remove" disabled={!canRemove} onClick={() =>

@@ -5,10 +5,28 @@
 
 @landing-gradient: linear-gradient(to bottom right, #F2E4FE, #F9F5E9);
 
-header:first-child {
-  + .splash {
-    margin-top: 0;
-    padding-top: @navbar-height;
+.subheading {
+  font-size: @font-size-large;
+  font-weight: 300;
+  margin-top: @padding-small;
+
+  + * {
+    margin-top: @padding-lg;
+  }
+}
+
+body > header + .splash {
+  margin-top: 0;
+  padding-top: @navbar-height;
+}
+
+body > .splash, body > .cta-container {
+  // Slightly more bottom padding to compensate for font not stretching to edge
+  padding: 4.2rem 4.2rem 5rem;
+
+  @media screen and (min-width: @screen-sm-min) {
+    padding-left: 4.2rem;
+    padding-right: 4.2rem;
   }
 }
 
@@ -21,38 +39,23 @@ header:first-child {
   background-position: center;
   width: 100%;
   height: 100vh;
-  padding: @padding-base;
   display: block;
 
   .container {
     text-align: center;
-    padding: @padding-base 0;
+    padding: 0;
     max-width: 0.75 * @max-container-width;
+    margin: 0 auto;
 
     > * {
       margin-left: auto;
       margin-right: auto;
     }
 
-    * + h2, * + h3, * + h4 {
-      font-size: @font-size-large;
-      font-weight: normal;
-      margin-top: @padding-base;
-    }
-
     .cta-container {
       padding-left: 0;
       padding-right: 0;
       margin-top: @padding-lg;
-    }
-
-    .cta.secondary {
-      border-color: @link-color;
-      color: @link-color;
-      &:hover {
-        background: @link-color;
-        color: @off-white;
-      }
     }
   }
 
@@ -66,6 +69,7 @@ header:first-child {
   // Dark mode
   &.dark {
     color: @inverse-rel;
+    box-shadow: @plus-down-shadow;
 
     h1, h2, h3 {
       color: @inverse-rel-light;
@@ -107,25 +111,24 @@ header:first-child {
 }
 
 // Main sweep sub-splash
-#main-splash + .splash {
-  display: flex;
-  align-items: flex-start;
-  background-position: center bottom;
-  background-size: auto 50vh;
-}
-
-// Main ratings sub-splash
-#main-splash + .splash + .splash {
-  display: flex;
-  align-items: center;
+#main-splash + #sweep-slack-splash {
+  background-image: ~"url(/img/esper-slack.png)";
+  box-shadow: none;
 }
 
 // Main charts sub-splash
-#main-splash + .splash + .splash + .splash {
-  display: flex;
-  align-items: flex-end;
-  background-position: center top;
-  background-size: auto 50vh;
+#charts-sub-splash {
+  background: transparent;
+  background-image: ~"url(/img/main-charts-splash.png)";
+  background-repeat: no-repeat;
+  background-position: center 4rem;
+  background-size: auto 60vh;
+  padding-top: calc(~"70vh + 1rem");
+  height: auto;
+
+  @media screen and (min-width: @screen-sm-min) {
+    padding-top: calc(~"70vh - 2rem");
+  }
 }
 
 // Charts page splash
@@ -160,8 +163,13 @@ header:first-child {
 // Sweep sub-splash
 #sweep-slack-splash {
   background-image: ~"url(/img/esper-slack.png)," @landing-gradient;
-  background-size: 300px auto, cover;
-  background-position: center 60vh, center;
+  background-size: auto 600px, cover;
+  background-position: center bottom -300px, center;
+  height: auto;
+  box-shadow: @plus-down-shadow;
+
+  // Enough padding to cover visible portion of background image and then some
+  padding: 3rem @padding-base calc(600px - 300px ~"+ 3rem");
 
   .container svg {
     max-width: 300px;
@@ -170,14 +178,32 @@ header:first-child {
   @media screen and (min-width: @screen-sm-min) {
     background-size: auto 80vh, cover;
     background-position: 60vw 18vh, center;
+    padding: calc(~"18vh + " @padding-base) 60vh @padding-base @padding-base;
+    align-items: flex-start;
     height: 80vh;
 
     .container {
       width: 60vw;
       max-width: none;
-      margin: @padding-xl 0;
-      padding: @padding-base;
     }
+  }
+}
+
+// Ratings splash
+#ratings-splash {
+  background-image:
+   linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))
+   ~", url(/img/ratings-splash.jpg)";
+
+  @media screen and (min-width: @screen-sm-min) {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1))
+      ~", url(/img/ratings-splash.jpg)";
+    background-position: right top;
+    padding-left: 60vw;
+    justify-content: flex-end;
+
+    .container { min-width: 450px; }
   }
 }
 
@@ -206,23 +232,29 @@ header:first-child {
   .feature {
     text-align: center;
     padding: (@padding-xl / 2) 0;
+
+    h2 {
+      font-weight: normal;
+      min-height: 2.4em;
+    }
+
     img, svg {
-      height: @min-container-width * 0.65; width: auto;
+      height: 110px; width: auto;
       margin: @padding-lg auto;
       & + * { margin-top: 0; }
     }
 
     svg {
       .c1 {
-        fill: lighten(@purple-muted, 10%);
+        fill: lighten(@purple, 10%);
       }
 
       .c2 {
-        fill: lighten(@purple-muted, 15%);
+        fill: lighten(@purple, 15%);
       }
 
       .c3 {
-        fill: lighten(@purple-muted, 20%);
+        fill: lighten(@purple, 20%);
       }
     }
   }
@@ -238,36 +270,12 @@ body > section {
 
 body > .cta-container {
   text-align: center;
-  padding: @padding-lg @padding-base;
 
   @media screen and (min-width: @screen-sm-min) {
     button { min-width: @min-container-width; }
   }
 
   & + footer, & + footer.corporate { margin-top: 0; }
-}
-
-// CTA links -> like buttons
-a.cta {
-  .button();
-  text-align: center;
-  margin: 0 auto;
-}
-
-// CTA butotn bigger than normal button
-a.cta, button.cta, input[type="submit"].cta {
-  line-height: @input-height-large;
-  height: @input-height-large;
-  padding: 0 @padding-lg;
-
-  @media screen and (max-width: @screen-xs-max) {
-    min-width: 100%;
-  }
-}
-
-// Clear secondary button
-.cta.secondary {
-  border: 1px solid @link-color;
 }
 
 .splash ~ section, .feature {

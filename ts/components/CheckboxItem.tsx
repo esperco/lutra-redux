@@ -21,7 +21,6 @@ interface Props {
   labelProps?: React.HTMLProps<HTMLLabelElement>;
   background?: string;
   color?: string;
-  children?: JSX.Element|JSX.Element[]|string;
 }
 
 export class CheckboxItem extends React.Component<Props, {}> {
@@ -37,7 +36,9 @@ export class CheckboxItem extends React.Component<Props, {}> {
       inputProps.checked = this.props.checked;
     }
 
-    let labelProps = _.clone(this.props.labelProps || {});
+    let { children, ...labelProps } = this.props.labelProps || {
+      children: null
+    };
     labelProps.htmlFor = inputProps.id;
     labelProps.className = classNames(
       "checkbox-item",
