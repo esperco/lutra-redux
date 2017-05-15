@@ -32,8 +32,9 @@ export const TBEventDetailsSetup = (props: Props) => {
       <div>
         <a className="cta primary"
            href={Paths.slackSetup.href({})}>
-          <img src="/img/slack.svg" />
-          <span>{ Text.GoToSlackSetup }</span>
+          <Icon type="slack">
+            <span>{ Text.GoToSlackSetup }</span>
+          </Icon>
         </a>
       </div>
       <div>
