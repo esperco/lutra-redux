@@ -12,6 +12,7 @@ export const CalendarEmpty = "Not sharing calendars";
 export const Calendar = "Calendars";
 export const Cancel = "Cancel";
 export const Charts = "Charts";
+export const Check = "Check";
 export const Clear = "Clear";
 export const Close = "Close";
 export const Comments = "Comments";
@@ -51,6 +52,7 @@ export const SelectAll = "Select All";
 export const ClearAll = "Clear Selection";
 
 // Navigation
+export const SweepLink = "Agenda Check";
 export const ExecLink = "Esper for Individuals";
 export const GroupsLink = "Esper for Enterprise";
 

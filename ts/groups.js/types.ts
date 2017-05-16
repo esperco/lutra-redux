@@ -30,7 +30,6 @@ export type Action =
   DataStatus.DataAction|
   Events.EventsDataAction|
   Events.EventsUpdateAction|
-  Events.EventCommentAction|
   Events.EventsInvalidatePeriodAction|
   Groups.GroupDataAction|
   Groups.GroupPreferencesAction|

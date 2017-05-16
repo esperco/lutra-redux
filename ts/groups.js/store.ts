@@ -54,10 +54,6 @@ export const store = createStore(
         return Events.eventsUpdateReducer(state, action);
       case "EVENTS_INVALIDATE_PERIOD":
         return Events.invalidatePeriodReducer(state, action);
-      case "EVENT_COMMENT_POST":
-        return Events.eventCommentPostReducer(state, action);
-      case "EVENT_COMMENT_DELETE":
-        return Events.eventCommentDeleteReducer(state, action);
       case "GROUP_CALC_START":
       case "GROUP_CALC_END":
         return Calcs.calcReducer(state, action);

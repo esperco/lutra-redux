@@ -65,28 +65,6 @@ export class GroupEventEditor extends React.Component<Props, {}> {
         eventIds: eventId ? [eventId] : [],
         hidden, context
       }, this.props)}
-      onCommentPost={(eventId, text) =>
-        Events.postGroupEventComment({
-          groupId: this.props.groupId,
-          eventId,
-          text
-        }, {...this.props})
-      }
-      onCommentDelete={(eventId, commentId) =>
-        Events.deleteGroupEventComment({
-          groupId: this.props.groupId,
-          eventId,
-          commentId
-        }, {...this.props})
-      }
-      onTimebombToggle={(eventId, value) =>
-        Events.toggleTimebomb({
-          calgroupId: this.props.groupId,
-          calgroupType: "group",
-          eventId,
-          value
-        }, this.props)
-      }
       labelHrefFn={this.props.labelHrefFn}
       guestHrefFn={this.props.guestHrefFn}
     />
