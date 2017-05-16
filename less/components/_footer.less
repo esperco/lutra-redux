@@ -13,9 +13,8 @@ footer.corporate {
   background: @purple-muted;
   color: @inverse-rel-light;
   padding:
-    (4.2rem - (@padding-lg / 2))
-    (5rem - (@padding-base / 2))
-    (5rem - (@padding-lg / 2));
+    (@padding-xxl - (@padding-lg / 2))
+    (@padding-xxl - (@padding-base / 2));
   margin-top: @padding-xl;
   display: flex;
   flex-flow: row wrap;
@@ -36,8 +35,9 @@ footer.corporate {
     line-height: 1.5;
   }
 
-  h1, h2, h3 {
+  h3 {
     color: @inverse-rel-light;
+    margin-top: -0.4em; // Padding nudge
     margin-bottom: @padding-base;
   }
 
@@ -76,7 +76,7 @@ footer.corporate {
 
 footer.corporate + * {
   margin-top: 0;
-  padding: @padding-base 5rem;
+  padding: @padding-base 4.8rem;
   display: flex;
   align-items: center;
   min-height: @navbar-height;

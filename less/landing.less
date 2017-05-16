@@ -4,15 +4,21 @@
 @import "./components/_footer";
 
 @landing-gradient: linear-gradient(to bottom right, #F2E4FE, #F9F5E9);
+@splash-top: @padding-lg;
 
 .subheading {
   font-size: @font-size-large;
   font-weight: 300;
   margin-top: @padding-small;
+  line-height: 1.3;
 
   + * {
     margin-top: @padding-lg;
   }
+}
+
+body > * {
+  margin-top: 0;
 }
 
 body > header + .splash {
@@ -20,15 +26,58 @@ body > header + .splash {
   padding-top: @navbar-height;
 }
 
-body > .splash, body > .cta-container {
-  // Slightly more bottom padding to compensate for font not stretching to edge
-  padding: 4.2rem 4.2rem 5rem;
+body > .splash, body > .cta-container, body > section {
+  padding: @padding-xxl @padding-base;
 
   @media screen and (min-width: @screen-sm-min) {
-    padding-left: 4.2rem;
-    padding-right: 4.2rem;
+    padding-left: @padding-xxl;
+    padding-right: @padding-xxl;
   }
 }
+
+body > .landing-header + .splash {
+  padding-top: @splash-top + @navbar-height;
+}
+
+
+body > .cta-container {
+  text-align: center;
+
+  @media screen and (min-width: @screen-sm-min) {
+    button { min-width: @min-container-width; }
+  }
+
+  & + footer, & + footer.corporate { margin-top: 0; }
+}
+
+.splash ~ section, .feature {
+  > h2, > h3 {
+    text-align: center;
+  }
+}
+
+// Single container object - make larger to fill up content
+body > .main.container {
+  min-height: calc(~"90vh - " (@navbar-height * 2) ~" - " (@padding-xl * 2));
+}
+
+// Smaller container for narrower content
+.container-small {
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.alt-bg {
+  background: @landing-gradient;
+}
+
+/*
+  Font often stops a little short of top of bounding box (though this
+  varies based on the actual font). Nudge up slightly to help with
+  vertical padding.
+*/
+h1, h2 { margin-top: -0.2em; }
 
 .splash {
   // Mobile
@@ -111,9 +160,23 @@ body > .splash, body > .cta-container {
 }
 
 // Main sweep sub-splash
-#main-splash + #sweep-slack-splash {
+#main-splash ~ #sweep-slack-splash {
   background-image: ~"url(/img/esper-slack.png)";
   box-shadow: none;
+}
+
+// Main ratings sub-splash
+#main-splash ~ #ratings-splash  {
+  @media screen and (min-width: @screen-sm-min) {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1))
+      ~", url(/img/ratings-splash.jpg)";
+    background-position: right top;
+    padding-left: 60vw;
+    justify-content: flex-end;
+
+    .container { min-width: 450px; }
+  }
 }
 
 // Main charts sub-splash
@@ -121,14 +184,11 @@ body > .splash, body > .cta-container {
   background: transparent;
   background-image: ~"url(/img/main-charts-splash.png)";
   background-repeat: no-repeat;
-  background-position: center 4rem;
+  background-position: center @padding-xxl;
   background-size: auto 60vh;
-  padding-top: calc(~"70vh + 1rem");
+  padding-top: calc(60vh * 0.84 ~"+" 2 * @padding-xxl);
+    // 0.84 = portion of image height taken up by pie
   height: auto;
-
-  @media screen and (min-width: @screen-sm-min) {
-    padding-top: calc(~"70vh - 2rem");
-  }
 }
 
 // Charts page splash
@@ -139,23 +199,24 @@ body > .splash, body > .cta-container {
   background-image:url(/img/charts-splash.png);
   background-size: auto 50vh;
   background-position: center bottom;
+  height: auto;
+  padding-bottom: 50vh;
 
   @media screen and (min-width: @screen-sm-min) {
-    background-size: auto 60vh;
-    background-position: right 20% center;
+    height: 100vh;
+    margin-bottom: -10vh;
+    padding: @padding-xl;
+    padding-right: calc(@padding-xl ~"+" 1.175 * 70vh);
+      // 1.175 = ratio of image laptop screen *width* to *height* of image
+    background-size: auto 70vh;
+    background-position: right @padding-xl center;
     .container {
-      width: 30vw;
-      margin: -@navbar-height 0;
-
-      p, div {
-        max-width: 300px;
-      }
-    }
-  }
-
-  @media screen and (min-width: @screen-md-min) {
-    .container {
-      margin: -@navbar-height 0 0 10vw;
+      padding: @padding-base;
+      background: fadeout(@body-bg, 10%);
+      width: calc(300px ~"+" @padding-base * 2);
+      border-radius: @border-radius-base;
+      margin: auto;
+      > * { width: 300px; }
     }
   }
 }
@@ -169,7 +230,7 @@ body > .splash, body > .cta-container {
   box-shadow: @plus-down-shadow;
 
   // Enough padding to cover visible portion of background image and then some
-  padding: 3rem @padding-base calc(600px - 300px ~"+ 3rem");
+  padding-bottom: calc(600px - 300px ~"+" @padding-xxl);
 
   .container svg {
     max-width: 300px;
@@ -177,10 +238,10 @@ body > .splash, body > .cta-container {
 
   @media screen and (min-width: @screen-sm-min) {
     background-size: auto 80vh, cover;
-    background-position: 60vw 18vh, center;
-    padding: calc(~"18vh + " @padding-base) 60vh @padding-base @padding-base;
-    align-items: flex-start;
-    height: 80vh;
+    background-position: 60vw center, center;
+    padding-right: 40vw;
+    padding-bottom: @padding-xxl;
+    height: 100vh;
 
     .container {
       width: 60vw;
@@ -194,17 +255,6 @@ body > .splash, body > .cta-container {
   background-image:
    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))
    ~", url(/img/ratings-splash.jpg)";
-
-  @media screen and (min-width: @screen-sm-min) {
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1))
-      ~", url(/img/ratings-splash.jpg)";
-    background-position: right top;
-    padding-left: 60vw;
-    justify-content: flex-end;
-
-    .container { min-width: 450px; }
-  }
 }
 
 /*
@@ -215,7 +265,9 @@ body > .splash, body > .cta-container {
   background: @landing-gradient;
   height: 75vh;
   align-items: flex-start;
-  margin-bottom: calc(3rem + @padding-base + @navbar-height ~"- 75vh");
+  margin-bottom:
+    calc(2 * @splash-top + @navbar-height + @font-size-h1 ~"- 75vh");
+    // Spacing allows for one h1 + default splash padding
 
   .container {
     margin: 0 auto;
@@ -224,22 +276,21 @@ body > .splash, body > .cta-container {
 }
 
 // Feature lists -- assume we use with .flex
-.features {
+.features.flex {
   max-width: calc((3 * @min-container-width) ~" + " (6 * @padding-base));
-  margin-left: auto;
-  margin-right: auto;
+  margin: (@padding-xxl - @padding-xl / 2) auto;
+  padding: 0 (@padding-base / 2);
 
   .feature {
     text-align: center;
-    padding: (@padding-xl / 2) 0;
+    padding: (@padding-xl / 2) 0; // Vertical padding between features
 
     h2 {
       font-weight: normal;
-      min-height: 2.4em;
     }
 
     img, svg {
-      height: 110px; width: auto;
+      height: 80px; width: auto;
       margin: @padding-lg auto;
       & + * { margin-top: 0; }
     }
@@ -258,46 +309,6 @@ body > .splash, body > .cta-container {
       }
     }
   }
-}
-
-body > * {
-  margin-top: 0;
-}
-
-body > section {
-  padding: @padding-lg @padding-base;
-}
-
-body > .cta-container {
-  text-align: center;
-
-  @media screen and (min-width: @screen-sm-min) {
-    button { min-width: @min-container-width; }
-  }
-
-  & + footer, & + footer.corporate { margin-top: 0; }
-}
-
-.splash ~ section, .feature {
-  > h2, > h3 {
-    text-align: center;
-  }
-}
-
-// Single container object - make larger to fill up content
-body > .main.container {
-  min-height: calc(~"90vh - " (@navbar-height * 2) ~" - " (@padding-xl * 2));
-}
-
-// Smaller container for narrower content
-.container-small {
-  max-width: 450px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.alt-bg {
-  background: @landing-gradient;
 }
 
 // Pricing container
