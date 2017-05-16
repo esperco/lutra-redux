@@ -478,48 +478,6 @@ namespace Api {
     });
   }
 
-  export function getGroupEventComments(groupId: string, eventId: string):
-    Promise<ApiT.GroupEventCommentList>
-  {
-    var url = `${prefix}/api/group/event-comment/${myUid()}`
-            + `/${string(groupId)}/${string(eventId)}`;
-    return JsonHttp.get(url);
-  }
-
-  export function postGroupEventComment(groupid: string, eventid: string,
-                                        commentBody: ApiT.PostComment):
-    Promise<ApiT.GroupEventComment>
-  {
-    var url = `${prefix}/api/group/event-comment/${myUid()}`
-            + `/${string(groupid)}/${string(eventid)}`;
-    return JsonHttp.post(url, commentBody);
-  }
-
-  export function deleteGroupEventComment(groupid: string, commentid: string):
-    Promise<void>
-  {
-    var url = `${prefix}/api/group/comment-delete/${myUid()}`
-            + `/${string(groupid)}/${string(commentid)}`;
-    return JsonHttp.delete_(url);
-  }
-
-  export function upvoteGroupEventComment(groupid: string, commentid: string):
-    Promise<void>
-  {
-    var url = `${prefix}/api/group/comment-upvote/${myUid()}`
-            + `/${string(groupid)}/${string(commentid)}`;
-    return JsonHttp.put(url);
-  }
-
-  export function removeUpvoteGroupEventComment(groupid: string,
-                                                commentid: string):
-    Promise<void>
-  {
-    var url = `${prefix}/api/group/remove-comment-upvote/${myUid()}`
-            + `/${string(groupid)}/${string(commentid)}`;
-    return JsonHttp.put(url);
-  }
-
 
   /* Labeling */
 

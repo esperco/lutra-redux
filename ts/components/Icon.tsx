@@ -33,6 +33,7 @@ export const IconMappings = {
   "caret-down": "fa-caret-down",
   "cancel": "fa-close",
   "charts": "fa-pie-chart",
+  "check": "fa-check",
   "clear": "fa-close",
   "close": "fa-close",
   "comments": "fa-comment",
@@ -80,6 +81,7 @@ function getTextForIcon(icon: IconType): string {
     "caret-down": "", // Intentionally blank, caret has no semantic meaning
     "cancel": Text.Cancel,
     "charts": Text.Charts,
+    "check": Text.Check,
     "clear": Text.Clear,
     "close": Text.Close,
     "comments": Text.Comments,
