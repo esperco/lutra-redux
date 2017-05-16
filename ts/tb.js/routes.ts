@@ -1,11 +1,13 @@
 import * as moment from "moment";
 import * as Paths from "./paths";
-import * as Routing from "../lib/routing";
 import { Action, State } from "./types";
+import * as OnboardingFlag from "./onboarding-flag";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { GenericPeriod, fromDates } from "../lib/period";
+import { LocalStoreSvc } from "../lib/local-store";
+import * as Routing from "../lib/routing";
 import * as Events from "../handlers/events";
 import * as Teams from "../handlers/teams";
 import * as TeamCals from "../handlers/team-cals";
@@ -15,7 +17,7 @@ import { ready } from "../states/data-status";
 interface Deps {
   dispatch: (action: Action) => any,
   state: State,
-  Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc,
+  Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc & LocalStoreSvc,
   Conf: { cacheDuration?: number; maxDaysFetch?: number; }
 }
 
@@ -27,12 +29,29 @@ export interface EventsRoute {
   period: GenericPeriod;
   teamId: string;
   onboarding: boolean; // Show onboarding helper msg for new user
+                       // Automatically set defaults if necessary.
 };
 
-export const events = Paths.events.route<Deps>(function(p, deps) {
+export interface RedirectRoute {
+  page: "Redirect";
+}
+
+export const events = Paths.events.route<Deps>(async function(p, deps) {
   let team = checkForCalendar(deps);
   if (! team) return;
   let teamId = team.teamid;
+  let onboarding = !!p.onboarding;
+
+  // Onboarding mode -> auto set defaults
+  if (onboarding) {
+
+    // Render redirect while waiting for timebomb settings to finish
+    deps.dispatch({ type: "ROUTE", route: { page: "Redirect" }});
+    await TeamPrefs.autosetTimebomb(teamId, deps);
+
+    // Clear flag since, if we get here, we've "cleared" onboarding
+    OnboardingFlag.unset(deps.Svcs);
+  }
 
   // Default period = today + 6 (7 days total)
   let period = p.period || fromDates(
@@ -53,7 +72,7 @@ export const events = Paths.events.route<Deps>(function(p, deps) {
     route: {
       page: "Events",
       period, teamId,
-      onboarding: !!p.onboarding
+      onboarding
     }
   });
 });
@@ -64,10 +83,12 @@ export const events = Paths.events.route<Deps>(function(p, deps) {
   Redirects to settings?onboarding=1
 */
 
-export const setup = Paths.setup.route<Deps>(function(p, deps) {
-  Teams.ensureSelfExecTeam(deps).then((team) => {
-    deps.Svcs.Nav.go(Paths.calSetup.href({}));
-  });
+export const setup = Paths.setup.route<Deps>(async function(p, deps) {
+  await Teams.ensureSelfExecTeam(deps);
+  deps.Svcs.Nav.go(Paths.calSetup.href({}));
+
+  // We're in onboarding mode if we get here. Set flag!
+  OnboardingFlag.set(deps.Svcs);
 });
 
 // Function that redirects to setup if no team found
@@ -144,12 +165,12 @@ function(p, deps) {
   let teamId = team.teamid;
 
   /*
-    Default period = 2 days from now + 6 days -- start 2 days from now
+    Default period = 1 days from now + 6 days -- start 1 day from now
     because that's the earliest we can set a time bomb.
   */
   let period = p.period || fromDates(
-    moment(new Date()).add(2, 'days').toDate(),
-    moment(new Date()).add(8, 'days').toDate()
+    moment(new Date()).add(1, 'days').toDate(),
+    moment(new Date()).add(7, 'days').toDate()
   );
 
   // Fetch events
@@ -212,6 +233,29 @@ function(p, deps) {
   });
 });
 
+/*
+  Setup page requesting Slack auth
+*/
+
+export interface SlackSetupRoute {
+  page: "SlackSetup";
+  teamId: string;
+}
+
+export const slackSetup = Paths.slackSetup.route<Deps>(function(p, deps) {
+  let team = checkForCalendar(deps);
+  if (! team) return;
+  let teamId = team.teamid;
+
+  deps.dispatch({
+    type: "ROUTE",
+    route: {
+      page: "SlackSetup",
+      teamId
+    }
+  });
+});
+
 
 /*
   Settings is both one of our onboarding screens and place to actually
@@ -244,17 +288,20 @@ export const settings = Paths.settings.route<Deps>(function(p, deps) {
 
 export type RouteTypes =
   EventsRoute|
+  RedirectRoute|
   CalSetupRoute|
   PickEventSetupRoute|
   EventDetailsSetupRoute|
+  SlackSetupRoute|
   SettingsRoute;
 
 export function init({ dispatch, getState, Svcs, Conf }: {
   dispatch: (action: Action) => any,
   getState: () => State,
-  Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc,
+  Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc & LocalStoreSvc,
   Conf: { cacheDuration?: number; maxDaysFetch?: number; }
 }) {
+  let onboarding = OnboardingFlag.get(Svcs);
   Routing.init<Deps>(
     [ // Routes
       events,
@@ -262,13 +309,18 @@ export function init({ dispatch, getState, Svcs, Conf }: {
       calSetup,
       pickEventSetup,
       eventDetailSetup,
+      slackSetup,
       settings
     ],
 
     // Deps
     () => ({ dispatch, state: getState(), Svcs, Conf }),
 
-    // Opts
-    { home: () => Paths.events.href({}) }
+    /*
+      Opts - set onboarding flag if local storage tells us do (this lets us
+      re-initiate onboarding even if user was logged out or redirected via
+      Oauth to, e.g., Slack)
+    */
+    { home: () => Paths.events.href({ onboarding }) }
   );
 }

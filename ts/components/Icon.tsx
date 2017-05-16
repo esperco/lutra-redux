@@ -59,6 +59,7 @@ export const IconMappings = {
   "save": "fa-check",
   "search": "fa-search",
   "settings": "fa-cog",
+  "slack": "fa-slack",
   "terms": "fa-legal"
 };
 
@@ -107,6 +108,7 @@ function getTextForIcon(icon: IconType): string {
     "save": Text.Save,
     "search": Text.Search,
     "settings": Text.Settings,
+    "slack": Text.Slack,
     "terms": Text.Terms
   }[icon];
 }

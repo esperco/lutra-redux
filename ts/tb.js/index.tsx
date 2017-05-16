@@ -36,6 +36,7 @@ import Events from "./TBEvents";
 import CalSetup from "./TBCalSetup";
 import PickEventSetup from "./TBPickEventSetup";
 import EventDetailsSetup from "./TBEventDetailsSetup";
+import SlackSetup from "./TBSlackSetup";
 import Settings from "./TBSettings";
 
 // Store Types
@@ -112,6 +113,8 @@ function MainView(props: {
 }) {
   if (props.state.route) {
     switch(props.state.route.page) {
+      case "Redirect":
+        return <div className="spinner" />;
       case "Events":
         let { page: p1, ...eventProps } = props.state.route;
         return <Events {...props} {...eventProps} />;
@@ -127,6 +130,9 @@ function MainView(props: {
       case "EventDetailsSetup":
         let { page: p5, ...eventDetailsSetupProps } = props.state.route;
         return <EventDetailsSetup {...props} {...eventDetailsSetupProps} />;
+      case "SlackSetup":
+        let { page: p6, ...slackSetupProps } = props.state.route;
+        return <SlackSetup {...props} {...slackSetupProps} />;
       case "NotFound":
         return <NotFound />;
     }
@@ -151,12 +157,12 @@ Api.init(_.extend<typeof Conf>({
 Login.init(dispatch, Conf, Svcs).then((info) => {
   // Things that should be initialized after login go here
 
-  if (info.groups && info.groups.length) {
-    dispatch({
-      type: "ADD_ALERT",
-      alert: "GO_TO_GROUPS"
-    });
-  }
+  // if (info.groups && info.groups.length) {
+  //   dispatch({
+  //     type: "ADD_ALERT",
+  //     alert: "GO_TO_GROUPS"
+  //   });
+  // }
 
   // This starts the router
   Routes.init({ dispatch, getState, Svcs, Conf });

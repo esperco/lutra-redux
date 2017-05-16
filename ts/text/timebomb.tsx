@@ -15,10 +15,10 @@ export const RecurringOnly =
 export const SameDomainOnly =
   "Internal meetings only (all attendees share the same email domain)"
 
-export const TBSettingsMsg = <span>
-  Tip: Want to change which events have ageandas required by default?
-  Access the Settings page via the <Icon type="accounts" /> in the
-  upper right corner.
+export const TBSettingsMsg = (p: { settingsHref: string }) => <span>
+  Tip: Want to have certain events require agendas by default?
+  Access the <a href={p.settingsHref}>settings page</a> via
+  the <Icon type="accounts" /> icon in theupper right corner.
 </span>;
 
 export const SetTimebomb = "Require Agenda?";
@@ -103,12 +103,26 @@ interface DefaultDescriptionProps {
 }
 export const DefaultDescriptionSetup =
 (p: DefaultDescriptionProps) => <p className="description">
-  Esper will default to requiring agendas for
+  Esper defaults to requiring agendas for
   all {p.recurring ? "recurring" : ""} meetings
   with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
     " if all attendees share the same email domain" : ""
-  }. You can change this on a per-event basis or change the defaults on
-  the <a href={p.settingsHref}>settings page</a>.
+  }. You can change this on a per-event basis or change the defaults by going
+  to the <a href={p.settingsHref}>settings&nbsp;page</a> via
+  the <Icon type="accounts" /> icon in the upper right corner.
+</p>;
+
+export const GoToSlackSetup = "Check It Out";
+export const GoToSlackSetupDescription = <p>
+  Prefer <a href="https://slack.com/">Slack</a> to email?
+  Esper now supports Slack notifications!
+</p>;
+export const SlackSetupAction = "Connect to Slack";
+export const SkipSlackAction = "Use Esper without Slack";
+export const SlackSetupHeading = SlackSetupAction;
+export const SlackSetupDescription = <p>
+  Esper works better with Slack. Install our Esper bot to respond
+  to agenda check notifications from wherever you are.
 </p>;
 
 export const LandingCTAButton = "Cancel More Meetings";

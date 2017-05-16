@@ -5,17 +5,17 @@ import { LoginState } from "../lib/login";
 import { NavSvc } from "../lib/routing";
 import { QueueMap } from "../lib/queue";
 import * as PrefsState from "../states/team-preferences";
-import { ok, ready } from "../states/data-status";
+import { ready } from "../states/data-status";
 
 export function fetch(teamId: string, deps: {
   dispatch: (action: PrefsState.DataAction) => void;
-  state: PrefsState.TeamPreferencesState
-  Svcs: ApiSvc
+  state: PrefsState.TeamPreferencesState;
+  Svcs: ApiSvc;
 }, opts: {
   force?: boolean;
 } = {}) {
   let current = deps.state.teamPreferences[teamId];
-  if (opts.force || !ok(current)) {
+  if (opts.force || !ready(current)) {
     deps.dispatch({
       type: "TEAM_PREFERENCES_DATA",
       dataType: "FETCH_START",
@@ -29,6 +29,7 @@ export function fetch(teamId: string, deps: {
         dataType: "FETCH_END",
         teamId, preferences
       });
+      return preferences;
     }, () => {
       // Dispatches error state
       deps.dispatch({
@@ -38,7 +39,7 @@ export function fetch(teamId: string, deps: {
       });
     });
   }
-  return Promise.resolve();
+  return Promise.resolve(current);
 }
 
 // Queue put operations (use last set of prefs)
@@ -52,7 +53,7 @@ export const TeamPrefsQueue = new QueueMap<PrefsUpdate>((teamId, q) => {
   return Svcs.Api.putPreferences(teamId, prefs).then(() => []);
 });
 
-export function update(
+export async function update(
   teamId: string,
   update: Partial<ApiT.Preferences>,
   deps: {
@@ -69,11 +70,40 @@ export function update(
   let current = deps.state.teamPreferences[teamId];
   if (ready(current)) {
     let prefs = { ...current, ...update };
-    return TeamPrefsQueue.get(teamId).enqueue({
+    await TeamPrefsQueue.get(teamId).enqueue({
       prefs, Svcs: deps.Svcs
     });
+    return prefs;
   }
-  return Promise.resolve();
+
+  return current;
+}
+
+// Auto-set timebomb preferences for new team (if applicable)
+export async function autosetTimebomb(teamId: string, deps: {
+  dispatch: (action: PrefsState.DataAction|PrefsState.UpdateAction) => void;
+  state: PrefsState.TeamPreferencesState;
+  Svcs: ApiSvc;
+}) {
+  // Make sure we have prefs
+  let prefs = await fetch(teamId, deps);
+
+  // If timebomb undefined, turn it on
+  if (typeof prefs.tb === "undefined") {
+    return update(teamId, { tb: true }, {
+      ...deps,
+      state: {
+        ...deps.state,
+        teamPreferences: {
+          ...deps.state.teamPreferences,
+          [teamId]: prefs
+        }
+      }
+    });
+  }
+
+  // Already define, return as is
+  return prefs;
 }
 
 export function toggleDailyAgenda(

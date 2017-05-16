@@ -27,12 +27,10 @@ export const TBSlackNotif =
 export const TBSlackNotifDescription =
   "Like agenda check emails, but via Slack.";
 
-export const SlackOn = <span>	&#x2714; Connected to Slack</span>;
-export const SlackOff = <span>
-  You need to connect to Slack to enable Slack notifications
-</span>;
-export const SlackAuthPrompt = "Connect to Slack";
-export const SlackEditPrompt = "Change Slack Team";
+export const SlackAuthPrompt =
+  "You need to connect to Slack to enable Slack notifications";
+export const SlackEditPrompt =
+  "Change Slack Team";
 
 export function noContentMessage(href: string) {
   return <div className="no-content-msg">

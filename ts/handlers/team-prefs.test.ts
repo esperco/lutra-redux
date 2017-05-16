@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { apiSvcFactory, stubApi } from "../fakes/api-fake";
+import { apiSvcFactory, stubApi, stubApiPlus } from "../fakes/api-fake";
 import makePrefs from "../fakes/team-preferences-fake";
 import * as PrefHandlers from "../handlers/team-prefs";
 import { expectCalledWith } from "../lib/expect-helpers";
@@ -103,6 +103,86 @@ describe("Team preference handlers", () => {
       let update = { event_link: true };
       PrefHandlers.update(teamId, update, deps);
       expectCalledWith(spy, teamId, { ...oldPrefs, ...update });
+    });
+  });
+
+  describe("autosetTimebomb", () => {
+    afterEach(() => {
+      PrefHandlers.TeamPrefsQueue.reset();
+    });
+
+    describe("with no prefs", () => {
+      function getDeps() {
+        return {
+          dispatch: sandbox.spy(),
+          state: initState(),
+          Svcs: apiSvcFactory()
+        };
+      }
+
+      it("sets timebomb to on if undefined", async function() {
+        let deps = getDeps();
+        let preferences = makePrefs({ tb: undefined });
+
+        let dfd1 = stubApi(deps.Svcs, "getPreferences");
+        dfd1.resolve(preferences);
+
+        let { dfd: dfd2, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd2.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetTimebomb(teamId, deps);
+        expect(ret).to.deep.equal({ ...preferences, tb: true });
+        expectCalledWith(stub, teamId, { ...preferences, tb: true });
+      });
+
+      it("does not timebomb to on if already false", async function() {
+        let deps = getDeps();
+        let preferences = makePrefs({ tb: false });
+
+        let dfd1 = stubApi(deps.Svcs, "getPreferences");
+        dfd1.resolve(preferences);
+
+        let { dfd: dfd2, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd2.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetTimebomb(teamId, deps);
+        expect(ret).to.deep.equal(preferences);
+        expect(stub.called).to.be.false;
+      });
+    });
+
+    describe("with existing prefs", () => {
+      const oldPrefs = makePrefs({ tb: false });
+      function getDeps(prefs: Partial<typeof oldPrefs>) {
+        return {
+          dispatch: sandbox.spy(),
+          state: {
+            ...initState(),
+            teamPreferences: { [teamId]: { ...oldPrefs, ...prefs } }
+          },
+          Svcs: apiSvcFactory()
+        };
+      }
+
+      it("sets timebomb to on if undefined", async function() {
+        let deps = getDeps({ tb: undefined });
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetTimebomb(teamId, deps);
+        expect(ret).to.deep.equal({ ...oldPrefs, tb: true });
+        expectCalledWith(stub, teamId, { ...oldPrefs, tb: true });
+      });
+
+      it("does not timebomb to on if already false", async function() {
+        let deps = getDeps({ tb: false });
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetTimebomb(teamId, deps);
+        expect(ret).to.deep.equal({ ...oldPrefs, tb: false });
+        expect(stub.called).to.be.false;
+      });
     });
   });
 });
