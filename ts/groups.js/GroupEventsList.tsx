@@ -131,7 +131,6 @@ export class EventsList extends React.Component<Props, State> {
           onConfirm={this.onConfirm}
           onHideChange={this.onHideChange}
           onToggleSelect={this.props.toggleHrefFn && this.onToggleSelect}
-          onTimebombToggle={this.onTimebombToggle}
           autoConfirmTimeout={
             /* If admin, don't autoconfirm */
             this.props.state.loggedInAsAdmin ?
@@ -204,17 +203,6 @@ export class EventsList extends React.Component<Props, State> {
         period: this.props.period,
         query: this.props.query
       }
-    }, this.props);
-  }
-
-  onTimebombToggle = (eventId: string,
-                      value: boolean) =>
-  {
-    Events.toggleTimebomb({
-      calgroupId: this.props.groupId,
-      calgroupType: "group",
-      eventId,
-      value
     }, this.props);
   }
 

@@ -27,7 +27,7 @@ import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
 import { CalcStartAction } from "../states/group-calcs";
 import {
-  EventsState, EventCommentAction, EventsDataAction, EventsUpdateAction,
+  EventsState, EventsDataAction, EventsUpdateAction,
   EventsInvalidatePeriodAction, QueryMap
 } from "../states/events";
 import { QueryCalcTask } from "../tasks/group-query-calc"
@@ -51,27 +51,6 @@ interface LabelRequest {
   };
 }
 
-interface CommentRequest {
-  type: "COMMENT";
-  calgroupType: "group"; // Team not supported
-  eventId: string;
-  text: string;
-  deps: {
-    Svcs: ApiSvc;
-    dispatch: (a: EventCommentAction) => any;
-  };
-}
-
-interface DeleteCommentRequest {
-  type: "DELETE_COMMENT";
-  calgroupType: "group"; // Team not supported
-  commentId: string;
-  deps: {
-    Svcs: ApiSvc;
-    dispatch: (a: EventCommentAction) => any;
-  };
-}
-
 interface SetTimebombRequest {
   type: "SET_TIMEBOMB";
   stage: "Stage0"|"Stage1"|"Stage2";
@@ -83,10 +62,7 @@ interface SetTimebombRequest {
   }
 }
 
-type PushRequest = LabelRequest
-  |CommentRequest
-  |DeleteCommentRequest
-  |SetTimebombRequest;
+type PushRequest = LabelRequest|SetTimebombRequest;
 
 interface QueryRequest {
   type: "FETCH_QUERY";
@@ -129,7 +105,7 @@ type QueueRequest = PushRequest|FetchRequest;
 
 /*
   Processor for our queue. We first process all pending requests that might
-  modify data being fetched (so comments and labels first).
+  modify data being fetched (so labels first).
 */
 export function processQueueRequest(
   calgroupId: string,
@@ -150,11 +126,7 @@ export function processQueueRequest(
 }
 
 export function isPushRequest(r: QueueRequest): r is PushRequest {
-  return _.includes([
-    "LABEL",
-    "COMMENT", "DELETE_COMMENT",
-    "SET_TIMEBOMB"
-  ], r.type);
+  return _.includes(["LABEL", "SET_TIMEBOMB"], r.type);
 }
 
 /*
@@ -166,17 +138,11 @@ export function processPushRequests(
   queue: PushRequest[]
 ): Promise<PushRequest[]> {
   let labelReqs: LabelRequest[] = [];
-  let commentReqs: CommentRequest[] = [];
-  let deleteCommentReqs: DeleteCommentRequest[] = [];
   let timebombReqs: SetTimebombRequest[] = [];
   _.each(queue, (req) => {
     switch (req.type) {
       case "LABEL":
         labelReqs.push(req); break;
-      case "COMMENT":
-        commentReqs.push(req); break;
-      case "DELETE_COMMENT":
-        deleteCommentReqs.push(req); break;
       case "SET_TIMEBOMB":
         timebombReqs.push(req); break;
     }
@@ -184,8 +150,6 @@ export function processPushRequests(
 
   return Promise.all([
     processLabelRequests(calgroupId, labelReqs),
-    processCommentRequests(calgroupId, commentReqs),
-    processDeleteCommentRequest(calgroupId, deleteCommentReqs),
     processTimebombRequests(calgroupId, timebombReqs)
   ]).then(() => []);
 }
@@ -229,28 +193,6 @@ export function processLabelRequests(
   });
 }
 
-// Batch all comment posts in a single API call and dispatch when done
-export function processCommentRequests(
-  calgroupId: string,
-  reqs: CommentRequest[]
-): Promise<any> {
-  let last = _.last(reqs);
-  if (! last) return Promise.resolve();
-  let { Svcs, dispatch } = last.deps;
-
-  return Svcs.Api.batch(() => Promise.all(
-    _.map(reqs, (r) =>
-      Svcs.Api.postGroupEventComment(calgroupId, r.eventId, { body: r.text })
-        .then((comment) => dispatch({
-          type: "EVENT_COMMENT_POST",
-          calgroupId,
-          eventId: r.eventId,
-          commentId: comment.id,
-          text: r.text
-        }))
-  )));
-}
-
 /*
   Batch all timebomb settings in single API call and dispatch when done.
 */
@@ -291,20 +233,6 @@ export function processTimebombRequests(
     });
     return Promise.all(promises);
   });
-}
-
-// Batch all comment deletes in a single API call
-export function processDeleteCommentRequest(
-  calgroupId: string,
-  reqs: DeleteCommentRequest[]
-): Promise<any> {
-  let last = _.last(reqs);
-  if (! last) return Promise.resolve();
-  let { Api } = last.deps.Svcs;
-
-  return Api.batch(() => Promise.all(_.map(reqs,
-    (r) => Api.deleteGroupEventComment(calgroupId, r.commentId)
-  )));
 }
 
 /*
@@ -767,47 +695,6 @@ export function setGroupEventLabels(props: {
   }
 
   return ret;
-}
-
-export function postGroupEventComment(props: {
-  groupId: string;
-  eventId: string;
-  text: string;
-}, deps: {
-  dispatch: (a: EventCommentAction) => any;
-  Svcs: ApiSvc;
-}) {
-  let queue = EventQueues.get(props.groupId);
-  let { eventId, text } = props;
-  return queue.enqueue({
-    type: "COMMENT",
-    calgroupType: "group",
-    eventId, text, deps
-  });
-}
-
-export function deleteGroupEventComment(props: {
-  groupId: string;
-  eventId: string;
-  commentId: string;
-}, deps: {
-  dispatch: (a: EventCommentAction) => any;
-  Svcs: ApiSvc;
-}) {
-  deps.dispatch({
-    type: "EVENT_COMMENT_DELETE",
-    calgroupId: props.groupId,
-    eventId: props.eventId,
-    commentId: props.commentId
-  });
-
-  let queue = EventQueues.get(props.groupId);
-  return queue.enqueue({
-    type: "DELETE_COMMENT",
-    calgroupType: "group",
-    commentId: props.commentId,
-    deps
-  });
 }
 
 export function toggleTimebomb(props: {

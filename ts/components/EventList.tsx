@@ -235,7 +235,8 @@ export class EventDisplay extends React.Component<EventProps, {}> {
         <h4>
           {
             this.props.onToggleSelect ?
-            <CheckboxItem checked={this.props.selected} onChange={this.select}>
+            <CheckboxItem checked={!!this.props.selected}
+                          onChange={this.select}>
               <span className="sr-only">{ EventText.Select }</span>
             </CheckboxItem> : null
           } {
@@ -271,17 +272,6 @@ export class EventDisplay extends React.Component<EventProps, {}> {
               onChange={this.props.onChange}
               labelHrefFn={this.props.labelHrefFn}
             />
-
-            { event.comments.length ?
-              <span className="comment-count">
-                { this.props.eventHrefFn ?
-                  <a href={this.props.eventHrefFn(event)}>
-                    <Icon type="comments">
-                      { event.comments.length }
-                    </Icon>
-                  </a> : <Icon type="comments" /> }
-              </span>
-              : null }
         </div> }
       </div>
 

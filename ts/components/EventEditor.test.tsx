@@ -32,8 +32,6 @@ describe("<EventEditor />", () => {
       onChange: () => null,
       onForceInstance: () => null,
       onHide: () => null,
-      onCommentPost: () => Promise.resolve(),
-      onCommentDelete: () => null,
       ...props
     };
     return mount(<EventEditor {...fullProps} />);

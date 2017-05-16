@@ -1,12 +1,10 @@
 import {
   fetchEvents, fetchById, setGroupEventLabels, EventQueues,
-  processLabelRequests, processQueueRequest, processCommentRequests,
-  processDeleteCommentRequest, postGroupEventComment, deleteGroupEventComment
+  processLabelRequests, processQueueRequest
 } from "./events";
 import { LabelQueues as GroupLabelQueues } from "./groups";
 import { expect } from "chai";
 import { ApiSvc } from "../lib/api";
-import * as ApiT from "../lib/apiT";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stringify, toAPI } from "../lib/event-queries";
 import { bounds, toDays } from "../lib/period";
@@ -793,77 +791,6 @@ describe("Group Events handlers", function() {
     });
   });
 
-  // Shared helper for stubbing comment API function
-  function stubComment(Svcs: ApiSvc) {
-    return stubApiRet(Svcs, "postGroupEventComment",
-      (groupId: string, eventId: string, commentBody: ApiT.PostComment) => ({
-        author: "Hello",
-        upvoted_users: [],
-        created: (new Date()).toISOString(),
-        id: "id-" + commentBody.body,
-        text: commentBody.body
-      }));
-  }
-
-  describe("postGroupEventComment", () => {
-    function getDeps() {
-      return {
-        Svcs: apiSvcFactory(),
-        dispatch: sandbox.spy()
-      };
-    }
-
-    const groupId = "group-id";
-    const eventId = "event-id";
-    const text = "Comment text";
-
-    it("posts API call for comment", () => {
-      let deps = getDeps();
-      let stub = stubComment(deps.Svcs);
-      postGroupEventComment({ groupId, eventId, text }, deps);
-      expectCalledWith(stub, groupId, eventId, { body: text });
-    });
-
-    it("does not dispatch until API call returns", (done) => {
-      let deps = getDeps();
-      stubComment(deps.Svcs);
-
-      postGroupEventComment({ groupId, eventId, text }, deps).then(() => {
-        expect(deps.dispatch.called).to.be.true;
-      }).then(done, done);
-
-      expect(deps.dispatch.called).to.be.false;
-    });
-  });
-
-  describe("deleteGroupEventComment", () => {
-    function getDeps() {
-      return {
-        Svcs: apiSvcFactory(),
-        dispatch: sandbox.spy()
-      };
-    }
-
-    const eventId = "event-id";
-    const commentId = "comment-id";
-
-    it("dispatches EVENT_COMMENT_DELETE action", () => {
-      let deps = getDeps();
-      deleteGroupEventComment({ groupId, eventId, commentId }, deps);
-      expectCalledWith(deps.dispatch, {
-        type: "EVENT_COMMENT_DELETE",
-        calgroupId, eventId, commentId
-      });
-    });
-
-    it("posts API call to delete comment", () => {
-      let deps = getDeps();
-      let spy = sandbox.spy(deps.Svcs.Api, "deleteGroupEventComment");
-      deleteGroupEventComment({ groupId, eventId, commentId }, deps);
-      expectCalledWith(spy, groupId, commentId);
-    });
-  });
-
 
   // Helpers for testing queue request processing
   interface Deps { Svcs: ApiSvc; dispatch: Sinon.SinonSpy; };
@@ -884,25 +811,6 @@ describe("Group Events handlers", function() {
     };
   };
 
-  function makeCommentRequest(deps?: Deps) {
-    return {
-      type: "COMMENT" as "COMMENT",
-      calgroupType: "group" as "group",
-      eventId: "id",
-      text: "Comment text",
-      deps: deps || getDeps()
-    };
-  }
-
-  function makeCommentDeleteRequest(deps?: Deps) {
-    return {
-      type: "DELETE_COMMENT" as "DELETE_COMMENT",
-      calgroupType: "group" as "group",
-      commentId: "commentId",
-      deps: deps || getDeps()
-    };
-  }
-
   function makeQueryRequest(deps?: Deps) {
     return {
       type: "FETCH_QUERY" as "FETCH_QUERY",
@@ -915,29 +823,21 @@ describe("Group Events handlers", function() {
   }
 
   describe("processQueueRequest", () => {
-    it("processes push requests in parallel before fetch requests", (done) => {
+    it("processes push requests before fetch requests", (done) => {
       let deps = getDeps();
       let fetch1 = makeQueryRequest(deps);
       let fetch2 = makeQueryRequest(deps);
-      let push1 = makeCommentRequest(deps);
-      let push2 = makeLabelRequest(deps);
-      let push3 = makeCommentDeleteRequest(deps);
+      let push1 = makeLabelRequest(deps);
 
       // Stub all API calls to resolve right away
       let labelStub = stubApiRet(deps.Svcs, "setPredictGroupLabels");
-      let commentStub = stubComment(deps.Svcs);
-      let commentDeleteStub = stubApiRet(deps.Svcs, "deleteGroupEventComment");
 
       processQueueRequest("group-id", [
         fetch1,
         push1,
-        push2,
-        push3,
         fetch2
       ]).then((ret) => {
         expect(labelStub.callCount).to.equal(1);
-        expect(commentStub.callCount).to.equal(1);
-        expect(commentDeleteStub.callCount).to.equal(1);
         expect(ret).to.deep.equal([fetch1, fetch2]);
       }).then(done, done);
     });
@@ -1080,81 +980,6 @@ describe("Group Events handlers", function() {
           }],
           predict_labels: ["e3", "e4", "e5"]
         });
-      }).then(done, done);
-    });
-  });
-
-  describe("processCommentRequests", () => {
-    var commentStub: Sinon.SinonStub;
-    var deps: Deps;
-
-    beforeEach(() => {
-      deps = getDeps();
-      commentStub = stubComment(deps.Svcs);
-    });
-
-    it("processes multiple comments in parallel", (done) => {
-      let c1 = {
-        ...makeCommentRequest(deps),
-        text: "Test 1"
-      };
-      let c2 = {
-        ...makeCommentRequest(deps),
-        text: "Test 2"
-      };
-      processCommentRequests(groupId, [c1, c2]).then(() => {
-        expectCalledWith(commentStub, groupId, c1.eventId, {
-          body: c1.text
-        });
-        expectCalledWith(commentStub, groupId, c2.eventId, {
-          body: c2.text
-        });
-      }).then(done, done);
-    });
-
-    it("dispatches updates for each comment", (done) => {
-      let c1 = {
-        ...makeCommentRequest(deps),
-        text: "Test 1"
-      };
-      let c2 = {
-        ...makeCommentRequest(deps),
-        text: "Test 2"
-      };
-      processCommentRequests(groupId, [c1, c2]).then(() => {
-        expectCalledWith(deps.dispatch, {
-          type: "EVENT_COMMENT_POST",
-          commentId: "id-" + c1.text,
-          eventId: c1.eventId,
-          calgroupId: groupId,
-          text: c1.text
-        });
-        expectCalledWith(deps.dispatch, {
-          type: "EVENT_COMMENT_POST",
-          commentId: "id-" + c2.text,
-          eventId: c2.eventId,
-          calgroupId: groupId,
-          text: c2.text
-        });
-      }).then(done, done);
-    });
-  });
-
-  describe("processDeleteCommentRequests", () => {
-    it("processes multiple deletions in parallel", (done) => {
-      let deps = getDeps();
-      let stub = stubApiRet(deps.Svcs, "deleteGroupEventComment");
-      let c1 = {
-        ...makeCommentDeleteRequest(deps),
-        commentId: "id1"
-      };
-      let c2 = {
-        ...makeCommentDeleteRequest(deps),
-        commentId: "id2"
-      };
-      processDeleteCommentRequest(groupId, [c1, c2]).then(() => {
-        expectCalledWith(stub, groupId, c1.commentId);
-        expectCalledWith(stub, groupId, c2.commentId);
       }).then(done, done);
     });
   });

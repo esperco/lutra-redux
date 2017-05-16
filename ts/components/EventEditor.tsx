@@ -18,7 +18,6 @@ import { GroupMembers } from "../states/groups";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import LabelList from "./LabelList";
-import TimebombToggle from "./TimebombToggle";
 import Tooltip from "./Tooltip";
 
 // Viewing event in editor will confirm its labels after this time in ms
@@ -34,10 +33,7 @@ export interface Props {
   onChange: (x: ApiT.LabelInfo, active: boolean) => void;
   onForceInstance: () => void;
   onHide: (hidden: boolean) => void;
-  onCommentPost: (eventId: string, text: string) => Promise<any>;
-  onCommentDelete: (eventId: string, commentId: string) => void;
   onConfirm?: () => void;
-  onTimebombToggle?: (eventId: string, value: boolean) => void;
   autoConfirmTimeout?: number;
   labelHrefFn?: (x: ApiT.LabelInfo) => string;
   guestHrefFn?: (x: ApiT.Attendee) => string;
@@ -179,20 +175,7 @@ export class EventEditor extends React.Component<Props, {}> {
             LabelText.InstanceLabelsDescription }
         </div> : null }
 
-      { this.props.onTimebombToggle ?
-        <TimebombToggle loggedInUid={this.props.loggedInUid}
-          event={event}
-          onToggle={this.props.onTimebombToggle} /> :
-        null }
-
       <GuestList guests={event.guests} hrefFn={this.props.guestHrefFn} />
-
-      <CommentList eventId={event.id}
-                   comments={event.comments}
-                   members={this.props.members}
-                   loginDetails={this.props.loginDetails}
-                   onCommentPost={this.props.onCommentPost}
-                   onCommentDelete={this.props.onCommentDelete} />
     </div>
   }
 }
@@ -232,103 +215,6 @@ export class GuestList extends React.Component<{
         { EventText.attendeeStatus(guest.response) }
       </span>
     </div>;
-  }
-}
-
-interface CommentProps {
-  eventId: string;
-  comments: ApiT.GroupEventComment[];
-  members: StoreData<GroupMembers>|undefined;
-  loginDetails: ApiT.LoginResponse|undefined;
-  onCommentPost: (eventId: string, text: string) => Promise<any>;
-  onCommentDelete: (eventId: string, commentId: string) => void;
-}
-
-export class CommentList extends React.Component<CommentProps, {
-  pushing: boolean;
-}> {
-  _textarea: HTMLTextAreaElement;
-
-  constructor(props: CommentProps) {
-    super(props);
-
-    this.state = {
-      pushing: false
-    };
-  }
-
-  componentWillReceiveProps() {
-    this.setState({
-      pushing: false
-    });
-  }
-
-  render() {
-    return <div className="panel">
-      <h4>{ EventText.Comments }</h4>
-      <div className="comment-section">
-        <div>{ _.isEmpty(this.props.comments) ?
-          <div className="no-content">{ EventText.NoComment }</div> :
-          _.map(this.props.comments, (c, i) => this.renderComment(c, i))
-        }</div>
-
-        <div>
-          <textarea placeholder={ EventText.CommentPlaceholder }
-                    ref={(c) => this._textarea = c}
-                    disabled={this.state.pushing} />
-        </div>
-
-        <div>
-          <button className="primary" onClick={(e) => this.validateInput(e)}>
-            Submit
-          </button>
-        </div>
-      </div>
-    </div>;
-  }
-
-  validateInput(e: React.MouseEvent<HTMLButtonElement>) {
-    let text = this._textarea.value;
-    if (!text || _.isEmpty(text) || this.state.pushing) return;
-
-    this.props.onCommentPost(this.props.eventId, text).then(
-      () => this._textarea.value = "");
-
-    this.setState({
-      pushing: true
-    });
-  }
-
-  renderComment(comment: ApiT.GroupEventComment, index: number) {
-    let showDelete = ready(this.props.loginDetails)
-      && (this.props.loginDetails.is_admin ||
-          this.props.loginDetails.uid === comment.author);
-
-    return <div key={comment.id || `comment-${index}`} className="comment">
-      { showDelete ?
-        <button className="comment-delete" onClick={
-          () => this.props.onCommentDelete(this.props.eventId, comment.id)
-        }>
-          <Icon type="remove" />
-        </button> : null
-      }
-      <h5>{ this.getAuthorName(comment.author) }</h5>
-      <div className="time">{ moment(comment.created).fromNow() }</div>
-      { fmtText(comment.text) }
-    </div>;
-  }
-
-  getAuthorName(uid: string) {
-    if (!ready(this.props.members)) return EventText.DefaultUsername;
-
-    let { group_individuals, group_teams } = this.props.members;
-    let gim = _.find(group_individuals, (i) => i.uid === uid);
-    if (! gim) return EventText.DefaultUsername;
-
-    let team = _.find(group_teams, (t) => gim && t.email === gim.email);
-    if (!team) return gim.email;
-
-    return team.name;
   }
 }
 

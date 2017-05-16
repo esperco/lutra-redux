@@ -13,7 +13,8 @@ import * as CommonText from "../text/common";
 import Dropdown from "../components/Dropdown";
 import Icon from "../components/Icon";
 import * as CommonPaths from "../lib/paths";
-import { Home as ChartsPath } from "../time.js/paths";
+import { base as ExecPath } from "../time.js/paths";
+import { base as GroupsPath } from "../groups.js/paths";
 
 class Props {
   state: LoggedInState & ScrollState;
@@ -43,6 +44,10 @@ class TBHeader extends React.Component<Props, {}> {
       <Icon type="accounts" />
     </button>;
 
+    // Charts link depends on whether this is a groups user or not
+    let groups = this.props.state.login.groups;
+    let chartsPath = groups && groups.length ? GroupsPath : ExecPath;
+
     let menu = <div className="dropdown-menu">
       <div className="panel">
         { this.props.state.login.email }
@@ -55,7 +60,7 @@ class TBHeader extends React.Component<Props, {}> {
       </nav>
 
       <nav className="panel">
-        <a href={ChartsPath.href({})}>
+        <a href={chartsPath}>
           <Icon type="charts">{ CommonText.Charts }</Icon>
         </a>
       </nav>
