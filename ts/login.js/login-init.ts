@@ -4,7 +4,7 @@
 
 import * as _ from "lodash";
 import { base as groupsRedirect } from "../groups.js/paths";
-import { base as sweepRedirect } from "../tb.js/paths";
+// import { base as sweepRedirect } from "../tb.js/paths";
 import { base as timeRedirect } from "../time.js/paths";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
@@ -184,14 +184,19 @@ function getDefaultLandingUrl(info: ApiT.LoginResponse) {
   if (info.groups && info.groups.length) {
     return groupsRedirect;
   }
+  return timeRedirect;
 
-  if (info.teams && !!_.find(info.teams,
-    (t) => t.team_executive !== info.uid ||t.team_api.team_labels.length)
-  ) {
-    return timeRedirect;
-  }
+  /*
+    Don't redirect to sweep unless explicit. At least not yet.
+  */
 
-  return sweepRedirect;
+  // if (info.teams && !!_.find(info.teams,
+  //   (t) => t.team_executive !== info.uid ||t.team_api.team_labels.length)
+  // ) {
+  //   return timeRedirect;
+  // }
+
+  // return sweepRedirect;
 }
 
 /*
