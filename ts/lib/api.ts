@@ -509,11 +509,12 @@ namespace Api {
     return JsonHttp.put(url, { value } as ApiT.BoolRequest);
   }
 
-  export function confirmGroupEvent(groupId: string, eventId: string)
-  : Promise<void> {
+  export function confirmGroupEvent(
+    groupId: string, eventId: string, blurb?: string
+  ) : Promise<void> {
     let url = `${prefix}/api/group/confirm-event/`
             + `${myUid()}/${string(groupId)}/${string(eventId)}`;
-    return JsonHttp.put(url);
+    return JsonHttp.put(url, { blurb } as ApiT.GuestContribution);
   }
 
   export function unconfirmGroupEvent(groupId: string, eventId: string)
@@ -523,11 +524,12 @@ namespace Api {
     return JsonHttp.put(url);
   }
 
-  export function confirmTeamEvent(teamId: string, eventId: string)
-  : Promise<void> {
+  export function confirmTeamEvent(
+    teamId: string, eventId: string, blurb?: string
+  ) : Promise<void> {
     let url = `${prefix}/api/team/confirm-event/`
             + `${myUid()}/${string(teamId)}/${string(eventId)}`;
-    return JsonHttp.put(url);
+    return JsonHttp.put(url, { blurb } as ApiT.GuestContribution);
   }
 
   export function unconfirmTeamEvent(teamId: string, eventId: string)
