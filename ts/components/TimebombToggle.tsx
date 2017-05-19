@@ -36,25 +36,9 @@ export class TimebombToggle extends React.Component<Props, {}> {
       return null;
     }
 
+    // No toggle for stage 2
     if (hasTag("Stage2", event.timebomb)) {
-      let ret: JSX.Element;
-
-      // Stage 2 canceled
-      if (event.timebomb[1] === "Event_canceled") {
-        ret = <div className="alert warning">
-          { Text.Canceled }
-        </div>;
-      }
-
-      // Stage 2 confirmed (or not reaction)
-      else {
-        return null; // Don't show confirmed status for now,
-                     // same as if no timebomb at all
-      }
-
-      return <TimebombContainer>
-        { ret }
-      </TimebombContainer>;
+      return null;
     }
 
     else if (hasTag("Stage1", event.timebomb)) {
