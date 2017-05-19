@@ -13,7 +13,6 @@ import * as ApiT from "../lib/apiT";
 import { hasTag, randomString } from "../lib/util";
 import * as Text from "../text/timebomb";
 import { base as helpPath } from "../sweep.js/paths";
-import * as _ from "lodash";
 
 interface Props {
   loggedInUid: string|undefined;
@@ -59,14 +58,9 @@ export class TimebombToggle extends React.Component<Props, {}> {
     }
 
     else if (hasTag("Stage1", event.timebomb)) {
-      let value: boolean|null = null;
-      if (_.includes(event.timebomb[1].confirmed_list,
-                     this.props.loggedInUid)) {
-        value = true;
-      } else if (_.includes(event.timebomb[1].rejected_list,
-                            this.props.loggedInUid)) {
-        value = false;
-      }
+      let value = !!event.timebomb[1].contributors
+        .filter((c) => c.contributes)
+        .length;
       let disabled =
         moment(event.timebomb[1].confirm_by).isSameOrBefore(new Date());
       return <TimebombContainer

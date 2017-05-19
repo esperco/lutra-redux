@@ -1,5 +1,3 @@
-
-import * as _ from "lodash";
 import * as React from "react";
 import { EventInfo } from "../components/EventList";
 import Icon from "../components/Icon";
@@ -92,7 +90,8 @@ const TimebombMessage =
     }
 
     else if (hasTag("Stage1", tb)) {
-      if (_.includes(tb[1].confirmed_list, uid)) {
+      let user = tb[1].contributors.find((c) => c.uid === uid);
+      if (user && user.contributes) {
         return Text.Stage1OnDescription(tb[1].confirm_by);
       } else {
         return Text.Stage1OffDescription(tb[1].confirm_by);

@@ -575,8 +575,11 @@ describe("eventsUpdateReducer", () => {
   it("updates timebomb status", () => {
     let timebomb: ApiT.TimebombState = ["Stage1", {
       confirm_by: "2020-05-03T00:31:21.248Z",
-      confirmed_list: ["uid1"],
-      rejected_list: ["uid2"]
+      contributors: [{
+        uid: "uid1",
+        contributes: true,
+        last_edit: "2020-05-02T00:31:21.248Z"
+      }]
     }];
     let s2 = eventsUpdateReducer(s1, {
       type: "EVENTS_UPDATE",
@@ -760,8 +763,11 @@ describe("eventsUpdateReducer", () => {
     () => {
       let timebomb: ApiT.TimebombState = ["Stage1", {
         confirm_by: "2020-05-03T00:31:21.248Z",
-        confirmed_list: ["uid1"],
-        rejected_list: ["uid2"]
+        contributors: [{
+          uid: "uid1",
+          contributes: true,
+          last_edit: "2020-05-02T00:31:21.248Z"
+        }]
       }];
       let s2 = eventsUpdateReducer(deepFreeze(s1), {
         type: "EVENTS_UPDATE",
