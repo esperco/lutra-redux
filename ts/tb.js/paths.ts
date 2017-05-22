@@ -41,17 +41,6 @@ export const pickEventSetup = new Path({
   hash: ["setup", "events"]
 });
 
-export const eventDetailsSetup = new Path({
-  base,
-  params: {
-    eventId: StringParam
-  },
-  optParams: {
-    period: PeriodParam
-  },
-  hash: ["setup", "events", ":eventId"]
-});
-
 export const slackSetup = new Path({
   base,
   params: {},

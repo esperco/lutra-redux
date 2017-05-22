@@ -195,49 +195,6 @@ function(p, deps) {
 
 
 /*
-  Event detail route -- after user picks an event during onboarding, we
-  provide additional info about how Timebomb works
-*/
-
-export interface EventDetailsSetupRoute {
-  page: "EventDetailsSetup",
-  teamId: string;
-  eventId: string;
-  period?: GenericPeriod;
-}
-
-export const eventDetailSetup = Paths.eventDetailsSetup.route<Deps>(
-function(p, deps) {
-  let team = checkForCalendar(deps);
-  if (! team) return;
-  let teamId = team.teamid;
-  let { eventId, period } = p;
-
-  /*
-    Make sure we have event details (should have already been fetched earlier,
-    but check again just in case).
-  */
-  Events.fetchById({
-    calgroupId: teamId,
-    calgroupType: "team",
-    eventId
-  }, deps);
-
-  // Default timebomb on?
-  TeamPrefs.fetch(teamId, deps);
-
-  deps.dispatch({
-    type: "ROUTE",
-    route: {
-      page: "EventDetailsSetup",
-      teamId,
-      eventId,
-      period
-    }
-  });
-});
-
-/*
   Setup page requesting Slack auth
 */
 
@@ -295,7 +252,6 @@ export type RouteTypes =
   RedirectRoute|
   CalSetupRoute|
   PickEventSetupRoute|
-  EventDetailsSetupRoute|
   SlackSetupRoute|
   SettingsRoute;
 
@@ -312,7 +268,6 @@ export function init({ dispatch, getState, Svcs, Conf }: {
       setup,
       calSetup,
       pickEventSetup,
-      eventDetailSetup,
       slackSetup,
       settings
     ],
