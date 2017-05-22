@@ -723,20 +723,22 @@ export function toggleTimebomb(props: {
     }
     else if (hasTag("Stage1", event.timebomb) && state.login) {
       let uid = state.login.uid;
-      let confirmed_list = props.value ?
-        _.concat(event.timebomb[1].confirmed_list, uid) :
-        _.filter(event.timebomb[1].confirmed_list, (u) => u !== uid);
-      let rejected_list = props.value ?
-        _.filter(event.timebomb[1].rejected_list, (u) => u !== uid) :
-        _.concat(event.timebomb[1].rejected_list, uid);
+      let contributors = event.timebomb[1].contributors
+        .filter((c) => c.uid !== uid);
+      if (props.value) {
+        contributors.push({
+          uid,
+          contributes: true,
+          last_edit: (new Date()).toISOString()
+        });
+      }
       dispatch({
         type: "EVENTS_UPDATE",
         calgroupId: props.calgroupId,
         eventIds: [props.eventId],
         timebomb: ["Stage1", {
           ...event.timebomb[1],
-          confirmed_list,
-          rejected_list
+          contributors
         }]
       });
     }

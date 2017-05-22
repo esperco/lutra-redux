@@ -13,7 +13,6 @@ import * as ApiT from "../lib/apiT";
 import { hasTag, randomString } from "../lib/util";
 import * as Text from "../text/timebomb";
 import { base as helpPath } from "../sweep.js/paths";
-import * as _ from "lodash";
 
 interface Props {
   loggedInUid: string|undefined;
@@ -37,36 +36,15 @@ export class TimebombToggle extends React.Component<Props, {}> {
       return null;
     }
 
+    // No toggle for stage 2
     if (hasTag("Stage2", event.timebomb)) {
-      let ret: JSX.Element;
-
-      // Stage 2 canceled
-      if (event.timebomb[1] === "Event_canceled") {
-        ret = <div className="alert warning">
-          { Text.Canceled }
-        </div>;
-      }
-
-      // Stage 2 confirmed (or not reaction)
-      else {
-        return null; // Don't show confirmed status for now,
-                     // same as if no timebomb at all
-      }
-
-      return <TimebombContainer>
-        { ret }
-      </TimebombContainer>;
+      return null;
     }
 
     else if (hasTag("Stage1", event.timebomb)) {
-      let value: boolean|null = null;
-      if (_.includes(event.timebomb[1].confirmed_list,
-                     this.props.loggedInUid)) {
-        value = true;
-      } else if (_.includes(event.timebomb[1].rejected_list,
-                            this.props.loggedInUid)) {
-        value = false;
-      }
+      let value = !!event.timebomb[1].contributors
+        .filter((c) => c.contributes)
+        .length;
       let disabled =
         moment(event.timebomb[1].confirm_by).isSameOrBefore(new Date());
       return <TimebombContainer

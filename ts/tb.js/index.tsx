@@ -35,7 +35,6 @@ import Header from "./TBHeader";
 import Events from "./TBEvents";
 import CalSetup from "./TBCalSetup";
 import PickEventSetup from "./TBPickEventSetup";
-import EventDetailsSetup from "./TBEventDetailsSetup";
 import SlackSetup from "./TBSlackSetup";
 import Settings from "./TBSettings";
 
@@ -127,11 +126,8 @@ function MainView(props: {
       case "PickEventSetup":
         let { page: p4, ...pickEventProps } = props.state.route;
         return <PickEventSetup {...props} {...pickEventProps} />;
-      case "EventDetailsSetup":
-        let { page: p5, ...eventDetailsSetupProps } = props.state.route;
-        return <EventDetailsSetup {...props} {...eventDetailsSetupProps} />;
       case "SlackSetup":
-        let { page: p6, ...slackSetupProps } = props.state.route;
+        let { page: p5, ...slackSetupProps } = props.state.route;
         return <SlackSetup {...props} {...slackSetupProps} />;
       case "NotFound":
         return <NotFound />;

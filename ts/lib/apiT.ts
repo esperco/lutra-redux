@@ -272,14 +272,24 @@ export interface HashtagState {
   approved?: boolean;
 }
 
+export interface GuestContribution {
+  blurb?: string;
+}
+
+export interface Contributor {
+  uid: uid;
+  contributes: boolean;
+  blurb?: string;
+  last_edit: timestamp;
+}
+
 export type TimebombState =
   ["Stage0", {
     set_timebomb: boolean;
     set_by: string;  // Timestamp
   }]|
   ["Stage1", {
-    confirmed_list: string[];
-    rejected_list: string[];
+    contributors: Contributor[];
     confirm_by: string; // Timestamp
   }]|
   ["Stage2", "Event_confirmed"|"Event_canceled"|"No_reaction"]

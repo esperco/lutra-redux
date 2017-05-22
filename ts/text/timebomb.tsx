@@ -3,7 +3,7 @@ import * as React from "react";
 import Icon from "../components/Icon";
 
 export const TimebombDefault = <span>
-  Require agendas by default for meetings that meet <em>all</em> of
+  Ask for agenda items by default for meetings that meet <em>all</em> of
   the following conditions:
 </span>;
 export const TimebombMinGuests =
@@ -16,19 +16,17 @@ export const SameDomainOnly =
   "Internal meetings only (all attendees share the same email domain)"
 
 export const TBSettingsMsg = (p: { settingsHref: string }) => <span>
-  Tip: Want to have certain events require agendas by default?
+  Tip: Want to ask for agenda items by default for certain types of events?
   Access the <a href={p.settingsHref}>settings page</a> via
   the <Icon type="accounts" /> icon in theupper right corner.
 </span>;
 
-export const SetTimebomb = "Require Agenda?";
-export const ConfirmYes = "Has Agenda";
-export const ConfirmNo = "No Agenda";
+export const SetTimebomb = "Ask for Agenda Items?";
+export const ConfirmYes = "Add to Agenda";
+export const ConfirmNo = "Nothing to Add";
 export const HelpLink = "What is this?";
 export const TimebombLate = "Time to change preference has expired";
-export const Canceled = "Meeting canceled";
-export const Confirmed = "Meeting confirmed";
-export const ConfirmLate = "Confirmation period has expired";
+export const ConfirmLate = "Time to edit agenda items has expired";
 
 export const OnboardingPickEventHeading =
   "Pick an Event";
@@ -51,47 +49,43 @@ export const Stage0OnDescription = (t: string|Date|moment.Moment) => <div>
     Got it. We'll send out an email on
     {" "}<strong>{ moment(t).format("MMMM Do")}</strong>{" "}
     at <strong>{ moment(t).format("h:mm a") }</strong> to
-    the people attending this event to confirm if there's an agenda.
-    If there's no agenda, we'll cancel the meeting one hour before and let
-    everyone know. Otherwise, the meeting will proceed as planned.
+    the people attending this event to check if there's anything they
+    want discussed. We'll send out a second email an hour before the
+    meeting with agenda items.
   </p>
 
   <p>
-    You can also toggle the switch if you don't want us to send the email.
+    Close this message and toggle the checkbox if you
+    don't want us to send the email.
   </p>
 </div>;
 
 export const Stage0OffDescription = () => <div>
   <p>
-    OK. We won't send an email for this meeting.
+    OK. We won't check for agenda items for this meeting.
   </p>
 </div>;
 
 export const Stage1OnDescription = (t: string|Date|moment.Moment) => <div>
   <p>
-    Got it. If no one opts to keep this meeting
-    within <strong>{moment(t).fromNow(true)}</strong>, we'll cancel it and
-    let everyone know via email.
-  </p>
-
-  <p>
-    Toggle the switch to prevent Esper from canceling this meeting.
+    Got it. You're not listed on tomorrow's agenda. You can change your
+    mind below.
   </p>
 </div>;
 
-export const Stage1OffDescription = (t: string|Date|moment.Moment) => <div>
+export const Stage1OffDescription = (t?: string|Date|moment.Moment) => <div>
   <p>
-    Thanks. This meeting is confirmed. If you change your mind, you can still
-    toggle the switch within {moment(t).fromNow(true)}.
+    Confirmed! You've been added to tomorrow's agenda.
+    You can change your mind below.
   </p>
 </div>;
 
 export const Stage2ConfirmedDescription = () => <p>
-  The confirmation period has expired. This meeting has been confirmed.
+  Sorry. We've already sent out the agenda email.
 </p>;
 
 export const Stage2CancelledDescription = () => <p>
-  The confirmation period has expired. This meeting has been canceled.
+  Sorry. We've already sent out an email saying there were no agenda items.
 </p>;
 
 interface DefaultDescriptionProps {
@@ -103,7 +97,7 @@ interface DefaultDescriptionProps {
 }
 export const DefaultDescriptionSetup =
 (p: DefaultDescriptionProps) => <p className="description">
-  Esper defaults to requiring agendas for
+  Esper defaults to asking for agendas for
   all {p.recurring ? "recurring" : ""} meetings
   with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
     " if all attendees share the same email domain" : ""
@@ -112,7 +106,7 @@ export const DefaultDescriptionSetup =
   the <Icon type="accounts" /> icon in the upper right corner.
 </p>;
 
-export const GoToSlackSetup = "Check It Out";
+export const GoToSlackSetup = <span>One More Thing &hellip;</span>;
 export const GoToSlackSetupDescription = <p>
   Prefer <a href="https://slack.com/">Slack</a> to email?
   Esper now supports Slack notifications!
