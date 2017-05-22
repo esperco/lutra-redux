@@ -35,7 +35,8 @@ export const pickEventSetup = new Path({
   base,
   params: {},
   optParams: {
-    period: PeriodParam
+    period: PeriodParam,
+    eventId: StringParam // For next
   },
   hash: ["setup", "events"]
 });

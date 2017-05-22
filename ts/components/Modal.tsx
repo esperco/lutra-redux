@@ -19,7 +19,7 @@ import Overlay from "./Overlay";
 const MODAL_CONTAINER_ID = "esper-modal";
 
 interface BaseProps {
-  children?: JSX.Element|JSX.Element[]|string;
+  children?: React.ReactNode|React.ReactNode[];
   onClose: () => void;
 }
 
@@ -56,7 +56,7 @@ export class ModalBase extends React.Component<BaseProps, {}> {
 
 
 interface ModalProps extends BaseProps {
-  header: JSX.Element|JSX.Element[]|string;
+  header: React.ReactNode;
 }
 
 // Includes header

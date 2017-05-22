@@ -156,6 +156,7 @@ export interface PickEventSetupRoute {
   page: "PickEventSetup";
   teamId: string;
   period: GenericPeriod;
+  eventId?: string;
 }
 
 export const pickEventSetup = Paths.pickEventSetup.route<Deps>(
@@ -173,6 +174,9 @@ function(p, deps) {
     moment(new Date()).add(7, 'days').toDate()
   );
 
+  // Show modal explaining what just happened
+  let eventId = p.eventId;
+
   // Fetch events
   Events.fetchEvents({
     calgroupId: team.teamid,
@@ -184,7 +188,7 @@ function(p, deps) {
     type: "ROUTE",
     route: {
       page: "PickEventSetup",
-      teamId, period
+      teamId, period, eventId
     }
   });
 });

@@ -50,12 +50,13 @@ export const Stage0OnDescription = (t: string|Date|moment.Moment) => <div>
     {" "}<strong>{ moment(t).format("MMMM Do")}</strong>{" "}
     at <strong>{ moment(t).format("h:mm a") }</strong> to
     the people attending this event to check if there's anything they
-    want discussed. We'll send out a second email an hour with the
-    agenda items.
+    want discussed. We'll send out a second email an hour before the
+    meeting with agenda items.
   </p>
 
   <p>
-    Toggle the checkbox if you don't want us to send the email.
+    Close this message and toggle the checkbox if you
+    don't want us to send the email.
   </p>
 </div>;
 
@@ -105,7 +106,7 @@ export const DefaultDescriptionSetup =
   the <Icon type="accounts" /> icon in the upper right corner.
 </p>;
 
-export const GoToSlackSetup = "Check It Out";
+export const GoToSlackSetup = <span>One More Thing &hellip;</span>;
 export const GoToSlackSetupDescription = <p>
   Prefer <a href="https://slack.com/">Slack</a> to email?
   Esper now supports Slack notifications!
