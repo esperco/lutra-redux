@@ -5,11 +5,12 @@ import * as Sinon from "sinon";
 import EventLanding from "./EventLanding";
 import analyticsSvcFactory from "../fakes/analytics-fake";
 import navSvcFactory from "../fakes/nav-fake";
-import { apiSvcFactory, stubApi } from "../fakes/api-fake";
+import { apiSvcFactory } from "../fakes/api-fake";
 import makeEvent from "../fakes/events-fake";
 import { stubLogs } from "../fakes/stubs";
+import * as ApiT from "../lib/apiT";
 import { expectCalledWith } from "../lib/expect-helpers";
-import { stub as stubGlobal } from "../lib/sandbox";
+import { stub as stubGlobal, whenCalled } from "../lib/sandbox";
 
 describe("<EventLanding />", () => {
   const event = makeEvent({
@@ -51,9 +52,9 @@ describe("<EventLanding />", () => {
 
   it("posts keep token on mount if specified", () => {
     let props = getProps();
-    let spy = Sinon.spy(props.Svcs.Api, "postToken");
+    let spy = Sinon.spy(props.Svcs.Api, "postConfirmToken");
     mount(<EventLanding {...props} actionOnMount="keep" />);
-    expectCalledWith(spy, tokens.keep);
+    expectCalledWith(spy, tokens.keep, {});
   });
 
   it("posts cancel token on mount if specified", () => {
@@ -76,132 +77,145 @@ describe("<EventLanding />", () => {
     expect(wrapper.find('.placeholder')).to.have.length.greaterThan(0);
   });
 
-  it("handles Invalid_token error gracefully", (done) => {
+  it("handles Invalid_token error gracefully", async () => {
     let props = getProps();
-    let dfd = stubApi(props.Svcs, "postToken");
+    props.Svcs.Api.postConfirmToken =
+      () => Promise.resolve("Invalid_token" as "Invalid_token");
+
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
-    dfd.resolve("Invalid_token");
-    dfd.promise().then(() => {
-      wrapper = wrapper.update();
-      expect(wrapper.find('.alert.danger')).to.have.length(1);
-    }).then(done, done);
+    await next();
+
+    wrapper = wrapper.update();
+    expect(wrapper.find('.alert.danger')).to.have.length(1);
   });
 
-  it("handles Expired_token error gracefully", (done) => {
+  it("handles Expired_token error gracefully", async () => {
     let props = getProps();
-    let dfd = stubApi(props.Svcs, "postToken");
+    props.Svcs.Api.postConfirmToken =
+      () => Promise.resolve("Expired_token" as "Expired_token");
+
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
-    dfd.resolve("Expired_token");
-    dfd.promise().then(() => {
-      wrapper = wrapper.update();
-      expect(wrapper.find('.alert.danger')).to.have.length(1);
-    }).then(done, done);
+    await next();
+
+    wrapper = wrapper.update();
+    expect(wrapper.find('.alert.danger')).to.have.length(1);
   });
 
-  it("handles random errors gracefully", (done) => {
+  it("handles random errors gracefully", async () => {
     let logs = stubLogs();
     let props = getProps();
-    let dfd = stubApi(props.Svcs, "postToken");
+    props.Svcs.Api.postConfirmToken = () => Promise.reject(new Error("Whoops"));
+
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
-    dfd.reject(new Error("Whoops"));
-    dfd.promise().catch(() => {
-      wrapper = wrapper.update();
-      expect(wrapper.find('.alert.danger')).to.have.length(1);
-      expect(logs.error.called).to.be.true;
-    }).then(done, done);
+    await next();
+
+    wrapper = wrapper.update();
+    expect(wrapper.find('.alert.danger')).to.have.length(1);
+    expect(logs.error.called).to.be.true;
   });
 
-  it("shows error messages for mismatched keep token", (done) => {
+  it("shows error messages for mismatched keep token", async () => {
     let logs = stubLogs();
     let props = getProps();
-    let dfd = stubApi(props.Svcs, "postToken");
+    props.Svcs.Api.postConfirmToken = () => Promise.resolve({
+      token_value: ["Unconfirm_timebomb_event", {
+        event, uid: "123"
+      }] as ["Unconfirm_timebomb_event", ApiT.ConfirmTimebombInfo]
+    });
+
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
-    dfd.resolve({ token_value: ["Unconfirm_timebomb_event", {
-      event, confirm_uid: "123"
-    }]});
-    dfd.promise().then(() => {
-      wrapper = wrapper.update();
-      expect(wrapper.find('.alert.danger')).to.have.length(1);
-      expect(logs.error.called).to.be.true;
-    }).then(done, done);
+    await next();
+
+    wrapper = wrapper.update();
+    expect(wrapper.find('.alert.danger')).to.have.length(1);
+    expect(logs.error.called).to.be.true;
   });
 
-  it("shows error messages for mismatched cancel token", (done) => {
+  it("shows error messages for mismatched cancel token", async () => {
     let logs = stubLogs();
     let props = getProps();
-    let dfd = stubApi(props.Svcs, "postToken");
+    props.Svcs.Api.postToken = () => Promise.resolve({
+      token_value: ["Confirm_timebomb_event", {
+        event, uid: "123"
+      }] as ["Confirm_timebomb_event", ApiT.ConfirmTimebombInfo]
+    });
+
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="cancel" />);
-    dfd.resolve({ token_value: ["Confirm_timebomb_event", {
-      event, confirm_uid: "123"
-    }]});
-    dfd.promise().then(() => {
-      wrapper = wrapper.update();
-      expect(wrapper.find('.alert.danger')).to.have.length(1);
-      expect(logs.error.called).to.be.true;
-    }).then(done, done);
+    await next();
+
+    wrapper = wrapper.update();
+    expect(wrapper.find('.alert.danger')).to.have.length(1);
+    expect(logs.error.called).to.be.true;
   });
 
-  it("renders event upon token returning one", (done) => {
+  it("renders event upon token returning one", async () => {
     let props = getProps();
-    let dfd = stubApi(props.Svcs, "postToken");
+    props.Svcs.Api.postConfirmToken = () => Promise.resolve({
+      token_value: ["Confirm_timebomb_event", {
+        event, uid: "123"
+      }] as ["Confirm_timebomb_event", ApiT.ConfirmTimebombInfo]});
+
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
-    dfd.resolve({ token_value: ["Confirm_timebomb_event", {
-      event, confirm_uid: "123"
-    }]});
-    dfd.promise().then(() => {
-      wrapper = wrapper.update();
-      expect(wrapper.find('.event-info')).to.have.length(1);
-      expect(wrapper.text()).to.include(event.title!);
-    }).then(done, done);
+    await next();
+
+    wrapper = wrapper.update();
+    expect(wrapper.find('.event-info')).to.have.length(1);
+    expect(wrapper.text()).to.include(event.title!);
   });
 
-  it("allows user to toggle token to cancel", (done) => {
+  it("allows user to toggle token to cancel", async () => {
     let props = getProps();
-    let stub = props.Svcs.Api.postToken = Sinon.stub();
-    let p1 = Promise.resolve({ token_value: ["Confirm_timebomb_event", {
-      event, confirm_uid: "123"
-    }]});
-    stub.onFirstCall().returns(p1)
-    stub.onSecondCall().returns(new Promise(() => null));
+    props.Svcs.Api.postConfirmToken = () => Promise.resolve({
+      token_value: ["Confirm_timebomb_event", {
+        event, uid: "123"
+      }] as ["Confirm_timebomb_event", ApiT.ConfirmTimebombInfo]
+    });
+    let spy = Sinon.spy(props.Svcs.Api, "postToken");
 
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
-    p1.then(() => {
-      wrapper = wrapper.update();
-      let unchecked = wrapper
-        .find("input[type=\"radio\"]")
-        .findWhere((c) => !c.prop("checked"));
-      expect(unchecked).to.have.length(1);
 
-      // Reset stub because we made one API call already
-      stub.reset();
-      stub.returns(new Promise(() => null));
-      unchecked.simulate("change", { target: { checked: true }});
-      expectCalledWith(stub, props.tokens.cancel);
-    }).then(done, done);
+    // Wait for keep action on mount to post
+    await next();
+    wrapper = wrapper.update();
+    let unchecked = wrapper
+      .find("input[type=\"radio\"]")
+      .findWhere((c) => !c.prop("checked"));
+    expect(unchecked).to.have.length(1);
+
+    // Toggle radio
+    unchecked.simulate("change", { target: { checked: true }});
+    expectCalledWith(spy, props.tokens.cancel);
   });
 
-  it("allows user to toggle token to keep", (done) => {
+  it("allows user to toggle token to keep", async () => {
     let props = getProps();
-    let stub = props.Svcs.Api.postToken = Sinon.stub();
-    let p1 = Promise.resolve({ token_value: ["Unconfirm_timebomb_event", {
-      event, confirm_uid: "123"
-    }]});
-    stub.onFirstCall().returns(p1)
-    stub.onSecondCall().returns(new Promise(() => null));
+    props.Svcs.Api.postToken = () => Promise.resolve({
+      token_value: ["Unconfirm_timebomb_event", {
+        event, uid: "123"
+      }] as ["Unconfirm_timebomb_event", ApiT.ConfirmTimebombInfo]
+    });
+    let spy = Sinon.spy(props.Svcs.Api, "postConfirmToken");
 
+    let next = whenCalled(EventLanding.prototype, "postToken");
     let wrapper = mount(<EventLanding {...props} actionOnMount="cancel" />);
-    p1.then(() => {
-      wrapper = wrapper.update();
-      let unchecked = wrapper
-        .find("input[type=\"radio\"]")
-        .findWhere((c) => !c.prop("checked"));
-      expect(unchecked).to.have.length(1);
 
-      // Reset stub because we made one API call already
-      stub.reset();
-      stub.returns(new Promise(() => null));
-      unchecked.simulate("change", { target: { checked: true }});
-      expectCalledWith(stub, props.tokens.keep);
-    }).then(done, done);
+    // Wait for cancel action on mount to post
+    await next();
+    wrapper = wrapper.update();
+    let unchecked = wrapper
+      .find("input[type=\"radio\"]")
+      .findWhere((c) => !c.prop("checked"));
+    expect(unchecked).to.have.length(1);
+
+    // Toggle radio
+    unchecked.simulate("change", { target: { checked: true }});
+    expectCalledWith(spy, props.tokens.keep, {});
   });
 });

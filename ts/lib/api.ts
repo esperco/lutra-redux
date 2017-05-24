@@ -560,16 +560,26 @@ namespace Api {
     );
   }
 
-  export function postToken(
-    token: string
+  /*
+    Base function for post token variants below (which type-check different
+    types of bodies to pass along with token).
+  */
+  function _postToken(
+    token: string, body?: any
   ): Promise<ApiT.TokenResponse|TokenErr> {
     return JsonHttp.post(
       prefix + "/api/token/" + string(token),
-      undefined, // body
+      body,
       ignoreTokenErr
     );
   }
 
+  export function postToken(token: string) { return _postToken(token); }
+  export function postConfirmToken(
+    token: string, body: ApiT.GuestContribution
+  ) {
+    return _postToken(token, body);
+  }
 
   /* Invites */
 

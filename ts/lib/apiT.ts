@@ -387,9 +387,9 @@ export interface LoginResponse {
   landing_url?: string;
 }
 
-interface ConfirmTimebombInfo {
+export interface ConfirmTimebombInfo {
   event?: GenericCalendarEvent;
-  confirm_uid: string;
+  uid: string;
 }
 
 type TokenDescription =
