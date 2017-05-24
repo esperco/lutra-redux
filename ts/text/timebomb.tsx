@@ -68,15 +68,15 @@ export const Stage0OffDescription = () => <div>
 
 export const Stage1OnDescription = (t: string|Date|moment.Moment) => <div>
   <p>
-    Got it. You're not listed on tomorrow's agenda. You can change your
-    mind below.
+    Got it. You're not listed on tomorrow's agenda. You can change
+    your&nbsp;mind&nbsp;below.
   </p>
 </div>;
 
 export const Stage1OffDescription = (t?: string|Date|moment.Moment) => <div>
   <p>
-    Confirmed! You've been added to tomorrow's agenda.
-    You can change your mind below.
+    Confirmed. You've been added to tomorrow's agenda. Add more details
+    or change your&nbsp;mind&nbsp;below.
   </p>
 </div>;
 
@@ -106,6 +106,8 @@ export const DefaultDescriptionSetup =
   the <Icon type="accounts" /> icon in the upper right corner.
 </p>;
 
+export const BlurbPlaceholder = "What do you want to discuss?";
+
 export const GoToSlackSetup = <span>One More Thing &hellip;</span>;
 export const GoToSlackSetupDescription = <p>
   Prefer <a href="https://slack.com/">Slack</a> to email?
@@ -119,4 +121,4 @@ export const SlackSetupDescription = <p>
   to agenda check notifications from wherever you are.
 </p>;
 
-export const LandingCTAButton = "Cancel More Meetings";
+export const LandingCTAButton = "Try Esper With Other Meetings";
