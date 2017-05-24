@@ -308,9 +308,15 @@ export interface MergedEventExtra {
   cost: number; // 1 - 5
 }
 
+export interface MatchingEvent {
+  id: string;
+  calendar_id: string;
+}
+
 export interface GenericCalendarEvent {
   id: string;
   calendar_id: string;
+  duplicates: MatchingEvent[];
   start: string; // timestamp;
   end: string;   // timestamp;
   timezone?: string;
@@ -337,11 +343,7 @@ export interface GenericCalendarEvent {
 }
 
 export interface GenericCalendarEvents {
-  events: GenericCalendarEvent[];
-}
-
-export interface GenericCalendarEventsCollection {
-  [calId: string]: GenericCalendarEvents;
+  events?: GenericCalendarEvent[];
 }
 
 export interface Profile {

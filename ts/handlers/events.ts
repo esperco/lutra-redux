@@ -282,10 +282,7 @@ export function processQueryRequest(
         result and merge, but ideally server should just return a
         single list of events here.
       */
-      let events: ApiT.GenericCalendarEvent[] = [];
-      _.each(result, (v) => {
-        events = events.concat(v.events);
-      });
+      let events = result.events || [];
       events.sort(sortFn);
 
       deps.dispatch({
