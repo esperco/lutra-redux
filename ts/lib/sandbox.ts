@@ -5,6 +5,7 @@
 */
 import * as _ from "lodash";
 import * as sinon from "sinon";
+import { Deferred } from "./util";
 export var sandbox: sinon.SinonSandbox = sinon.sandbox.create();
 export default sandbox;
 
@@ -68,4 +69,41 @@ export function spyWithCallback(obj: any, method: string, cbs: {
     return ret;
   }
   return sandbox.stub(obj, method).callsFake(newFn);
+}
+
+/*
+  Stubs a method that returns a promise and calls through. Returns a
+  function that returns a different promise that resolves after each time
+  the method is called.
+*/
+export function whenCalled<O, T = void>(obj: O, method: keyof O) {
+  let orig = obj[method];
+
+  /*
+    Get or create a deferred object for each new call to the stubbed
+    method and resolve it when the original method returns.
+  */
+  let dfds: Deferred<T>[] = [];
+  let stubCallCount = 0;
+  sandbox.stub(obj, method).callsFake(function(this: any) {
+    let dfd = dfds[stubCallCount] = dfds[stubCallCount] || new Deferred<T>();
+    stubCallCount += 1;
+    let p: Promise<any> = (<any> orig).apply(this, arguments);
+    return p.then((x) => {
+      dfd.resolve(x);
+      return x;
+    });
+  });
+
+  /*
+    Get or create a deferred object each time our promise generator is
+    called. These promises will be resolved when the stubbed function
+    is called.
+  */
+  let genCallCount = 0;
+  return () => {
+    let dfd = dfds[genCallCount] = dfds[genCallCount] || new Deferred<T>();
+    genCallCount += 1;
+    return dfd.promise();
+  };
 }
