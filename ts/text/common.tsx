@@ -36,6 +36,7 @@ export const Remove = "Remove";
 export const Refresh = "Refresh";
 export const Repeat = "Repeat";
 export const Save = "Save";
+export const Saved = "Saved";
 export const Search = "Search";
 export const Settings = "Settings";
 export const Show = "Show";
