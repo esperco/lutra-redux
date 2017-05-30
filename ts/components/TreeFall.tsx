@@ -15,8 +15,8 @@ export abstract class TreeFall<P, S> extends React.Component<P, S> {
     this._pending = true; // New props, signal that there is an update queued
   }
 
-  shouldComponentUpdate() {
-    let node = ReactDOM.findDOMNode(this);
+  shouldComponentUpdate(): boolean {
+    let node: Element = ReactDOM.findDOMNode(this);
 
     // Update if visible
     if (node) {
