@@ -97,9 +97,7 @@ describe("Group Events handlers", function() {
       }).then(done, done);
 
       deps.dispatch.reset();
-      dfd.resolve({
-        "cal-id": { events: [e1, e2] }
-      });
+      dfd.resolve({ events: [e1, e2] });
     });
 
     it("dispatches a FETCH_QUERY_FAIL on API call failure", (done) => {
@@ -265,9 +263,7 @@ describe("Group Events handlers", function() {
       }).then(done, done);
 
       deps.dispatch.reset();
-      dfd.resolve({
-        "cal-id": { events: [e1, e2] }
-      });
+      dfd.resolve({ events: [e1, e2] });
     });
 
     it("enqueues multiple fetch periods based on Conf.maxDaysFetch", () => {

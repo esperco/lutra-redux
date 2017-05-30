@@ -429,6 +429,11 @@ function reduceFetchQueryResponse(
 
     // Add actual event data too -- indexed by eventId
     eventMap[event.id] = event;
+
+    // Handle duplicate IDs
+    (event.duplicates || []).forEach((d) => {
+      eventMap[d.id] = event;
+    });
   });
 }
 
@@ -471,6 +476,9 @@ function reduceFetchIdsResponse(
 
   _.each(action.events, (e) => {
     eventMap[e.id] = e;
+    (e.duplicates || []).forEach((d) => {
+      eventMap[d.id] = e;
+    });
   });
 }
 

@@ -196,6 +196,52 @@ describe("group-events / eventsDataReducer", () => {
         .to.deep.equal({ query, eventIds: ["test"], updatedOn: then });
     });
 
+    it("ignores duplicate IDs when populating eventQueries", () => {
+      let now = new Date("2016-11-01 0:0");
+      sandbox.useFakeTimers(now.getTime());
+
+      let e1 = makeEvent({ id: "e1",
+        start: "2016-10-01T08:00:00.000",
+        end:   "2016-10-02T08:00:00.000",
+        duplicates: [{ id: "f1", calendar_id: "x" }]
+      });
+      let e2 = makeEvent({ id: "e2",
+        start: "2016-10-02T09:00:00.000",
+        end:   "2016-10-03T02:00:00.000",
+      });
+
+      let s = initState();
+      let period = fromDates("day",
+        new Date("2016-10-01 0:0"),
+        new Date("2016-10-03 0:0")
+      );
+      let query = { labels: { all: true } };
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "EVENTS_DATA",
+        dataType: "FETCH_QUERY_END",
+        calgroupId,
+        period, query,
+        events: [e1, e2]
+      });
+      let queryKey = stringify(query);
+
+      // 10-1
+      expect(s2.eventQueries[calgroupId][period.start][queryKey])
+        .to.deep.equal({
+          query,
+          eventIds: [e1.id],
+          updatedOn: now
+        });
+
+      // 10-2
+      expect(s2.eventQueries[calgroupId][period.start + 1][queryKey])
+        .to.deep.equal({
+          query,
+          eventIds: [e1.id, e2.id],
+          updatedOn: now
+        });
+    });
+
     it("populates events with updated event data",  () => {
       let e1 = makeEvent({ id: "e1",
         start: "2016-10-01T08:00:00.000",
@@ -232,6 +278,44 @@ describe("group-events / eventsDataReducer", () => {
       expect(s2.events[calgroupId][e1.id]).to.deep.equal(e1);
       expect(s2.events[calgroupId][e2.id]).to.deep.equal(e2);
       expect(s2.events[calgroupId][oldE3.id]).to.deep.equal(oldE3);
+    });
+
+    it("populates duplicate ids in event map", () => {
+      let e1 = makeEvent({ id: "e1",
+        start: "2016-10-01T08:00:00.000",
+        end:   "2016-10-02T08:00:00.000",
+        duplicates: [{
+          id: "f1", calendar_id: "x"
+        }, {
+          id: "f1", calendar_id: "y"
+        }]
+      });
+      let e2 = makeEvent({ id: "e2",
+        start: "2016-10-02T09:00:00.000",
+        end:   "2016-10-03T02:00:00.000",
+        duplicates: [{
+          id: "f2", calendar_id: "z"
+        }]
+      });
+
+      let s = initState();
+      let period = fromDates("day",
+        new Date("2016-10-02 0:0"),
+        new Date("2016-10-04 0:0")
+      );
+      let query = { labels: { all: true } };
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "EVENTS_DATA",
+        dataType: "FETCH_QUERY_END",
+        calgroupId,
+        period, query,
+        events: [e1, e2]
+      });
+
+      expect(s2.events[calgroupId][e1.id]).to.deep.equal(e1);
+      expect(s2.events[calgroupId][e1.duplicates[0].id]).to.deep.equal(e1);
+      expect(s2.events[calgroupId][e2.id]).to.deep.equal(e2);
+      expect(s2.events[calgroupId][e2.duplicates[0].id]).to.deep.equal(e2);
     });
 
     it("populates our recurring events list", () => {
@@ -431,6 +515,22 @@ describe("group-events / eventsDataReducer", () => {
       expect(s2.events[calgroupId]["id1"]).to.deep.equal(e1);
       expect(s2.events[calgroupId]["id2"]).to.deep.equal(e2);
       expect(s2.events[calgroupId]["id3"]).to.deep.equal(e3b);
+    });
+
+    it("processes duplicate IDs", () => {
+      let s = initState();
+      let e1 = makeEvent({ id: "e1a", duplicates: [{
+        id: "e1b", calendar_id: "x"
+      }] });
+      let s2 = eventsDataReducer(deepFreeze(s), {
+        type: "EVENTS_DATA",
+        dataType: "FETCH_IDS_END",
+        calgroupId,
+        eventIds: ["e1a"],
+        events: [e1]
+      });
+      expect(s2.events[calgroupId]["e1a"]).to.deep.equal(e1);
+      expect(s2.events[calgroupId]["e1b"]).to.deep.equal(e1);
     });
 
     it("sets FETCH_ERROR for each event it was not able to fetch", () => {

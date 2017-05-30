@@ -431,7 +431,7 @@ namespace Api {
   /* Events */
 
   export function postForTeamEvents(teamId: string, q: ApiT.CalendarRequest):
-    Promise<ApiT.GenericCalendarEventsCollection>
+    Promise<ApiT.GenericCalendarEvents>
   {
     var url = prefix + "/api/ts/events-team/" + myUid()
             + "/" + string(teamId);
@@ -439,7 +439,7 @@ namespace Api {
   }
 
   export function postForGroupEvents(groupId: string, q: ApiT.CalendarRequest):
-    Promise<ApiT.GenericCalendarEventsCollection>
+    Promise<ApiT.GenericCalendarEvents>
   {
     var url = prefix + "/api/ts/events-group/" + myUid()
             + "/" + string(groupId);

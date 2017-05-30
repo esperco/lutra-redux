@@ -7,6 +7,7 @@ export function makeGenericCalendarEvent(
   var defaultEvent: ApiT.GenericCalendarEvent = {
     id: "id1",
     calendar_id: "calId",
+    duplicates: [],
     start: "2016-03-02T12:14:17.000-08:00",
     end: "2016-03-02T13:14:17.000-08:00",
     title: "Event",
