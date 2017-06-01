@@ -32,6 +32,7 @@ describe("<EventLanding />", () => {
     let nav = navSvcFactory();
     return {
       tokens,
+      onDone: () => null,
       Svcs: {
         ...analytics,
         ...api,

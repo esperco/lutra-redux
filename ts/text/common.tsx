@@ -18,6 +18,7 @@ export const Close = "Close";
 export const Comments = "Comments";
 export const Contact = "Contact Us";
 export const Dismiss = "Dismiss";
+export const Done = "Finish";
 export const Edit = "Edit";
 export const Filter = "Filter";
 export const Filters = "Search and Filtering";
@@ -52,6 +53,8 @@ export const FinishOnboarding = "Start Using Esper!";
 export const More = "More";
 export const SelectAll = "Select All";
 export const ClearAll = "Clear Selection";
+export const Success = "Thanks! You're all set.";
+export const EditResponse = "Need to change something?";
 
 // Navigation
 export const SweepLink = "Agenda Check";

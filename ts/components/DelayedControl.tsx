@@ -70,6 +70,19 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
     );
   }
 
+  /*
+    If there's a submit button external to delayed component, parent
+    component should maintain ref to this component and call getAndClear
+    on the ref.
+
+    This clears the timeout to prevent double-posting and returns a value
+    for the parent component to manually submit.
+  */
+  getAndClear() {
+    this.clearTimeout();
+    return this.state.value;
+  }
+
   setTimeout() {
     this.clearTimeout();
     this._timeout = setTimeout(() => {
@@ -92,7 +105,9 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
   Function wrapper around component because the generic typing acts a bit
   weirdly here.
 */
-export default function delayedControl<T>(props: Props<T>) {
+export default function delayedControl<T>(props: Props<T> & {
+  ref?: (c: DelayedControl<T>) => any;
+}) {
   return React.createElement(DelayedControl, props);
 };
 

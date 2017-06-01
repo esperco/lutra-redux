@@ -5,8 +5,10 @@ require("less/components/_event-landing.less");
 import * as React from "react";
 import * as classNames from "classnames";
 import DataStatus from "../components/DataStatus";
-import Textbox from "../components/AutoTextarea";
+import delay, { DelayedControl } from "../components/DelayedControl";
 import { EventInfo } from "../components/EventList";
+import Icon from "../components/Icon";
+import SuccessMark from "../components/SuccessMark";
 import { BaseTimebombToggle } from "../components/TimebombToggle";
 import { ApiSvc } from "../lib/api";
 import { AnalyticsSvc } from "../lib/analytics";
@@ -14,6 +16,7 @@ import * as ApiT from "../lib/apiT";
 import * as Log from "../lib/log";
 import { NavSvc } from "../lib/routing";
 import { hasTag } from "../lib/util";
+import * as CommonText from "../text/common";
 import * as ErrorText from "../text/error-text";
 import * as EventText from "../text/events";
 import * as TimebombText from "../text/timebomb";
@@ -27,6 +30,7 @@ type TokenAction = keyof TokenMap;
 
 interface Props {
   actionOnMount?: TokenAction;
+  onDone: () => void;
   tokens: TokenMap;
   Svcs: ApiSvc & NavSvc & AnalyticsSvc;
 }
@@ -40,6 +44,8 @@ interface State {
     // Last action we took
   lastBlurb?: string;
     // Last blurb we entered into textbox, if any
+  success?: boolean;
+    // Show success page
 
   // Event returned by token call, if any
   event?: ApiT.GenericCalendarEvent;
@@ -49,10 +55,13 @@ interface State {
 }
 
 export class EventLanding extends React.Component<Props, State> {
+  _textbox: DelayedControl<string>|null = null;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       busy: false,
+      success: false
     };
   }
 
@@ -93,6 +102,8 @@ export class EventLanding extends React.Component<Props, State> {
     this.setState({
       busy: true, error: undefined, lastAction: action, lastBlurb: blurb
     });
+
+    console.info(blurb);
 
     /*
       Call appropriate API -- allow blurb only if keep/confirm token.
@@ -141,11 +152,32 @@ export class EventLanding extends React.Component<Props, State> {
     Log.e("Wrong token", resp.token_value);
   }
 
+  complete = async () => {
+    let action = this.state.lastAction || this.props.actionOnMount;
+    if (action === "keep") {
+      let blurb: string = "";
+      if (this._textbox) {
+        blurb = this._textbox.getAndClear();
+      }
+      await this.postToken("keep", blurb);
+    } else {
+      await this.postToken("cancel");
+    }
+    this.setState({ success: true });
+  }
+
   render() {
+    if (this.state.success) {
+      return <div className="event-landing">
+        { this.renderSuccess() }
+      </div>;
+    }
+
     return <div className="event-landing">
       { this.renderError() }
       { this.renderEvent() }
       { this.renderDataStatus() }
+      { this.renderDone() }
     </div>;
   }
 
@@ -198,9 +230,9 @@ export class EventLanding extends React.Component<Props, State> {
             value={value}
             onChange={(val) => this.postToken(val ? "keep" : "cancel")}
           />
-          { tb && uid && lastAction === "keep" ?
-            this.renderTextbox(tb, uid) : null }
         </div>
+        { tb && uid && lastAction === "keep" ?
+          this.renderTextbox(tb, uid) : null }
       </div>;
     }
 
@@ -258,14 +290,60 @@ export class EventLanding extends React.Component<Props, State> {
     if (hasTag("Stage1", tb)) {
       let contrib = tb[1].contributors.find((c) => c.uid === uid);
       let value = this.state.lastBlurb || (contrib && contrib.blurb) || "";
-      return <Textbox
-        value={value}
-        placeholder={TimebombText.BlurbPlaceholder}
-        onChange={(v) => this.postToken("keep", v)}
-      />;
+      return delay({
+        ref: (c) => this._textbox = c,
+        value,
+        onChange: (v) => this.postToken("keep", v),
+        component: (p) => <textarea
+          placeholder={TimebombText.BlurbPlaceholder}
+          value={p.value}
+          onChange={(e) => p.onChange(e.target.value)}
+        />
+      });
     }
 
     return null;
+  }
+
+  renderDone() {
+    // Render done button if stage 1, else render close button
+    let event = this.state.event;
+    if (event && event.timebomb && hasTag("Stage1", event.timebomb)) {
+      return <button
+          className="cta primary"
+          disabled={this.state.busy}
+          onClick={this.complete}>
+        <Icon type="done">
+          { CommonText.Done }
+        </Icon>
+      </button>;
+    }
+    return this.renderClose();
+  }
+
+  renderClose() {
+    return <button
+        className="cta secondary"
+        disabled={this.state.busy}
+        onClick={this.props.onDone}>
+      <Icon type="close">
+        { CommonText.Close }
+      </Icon>
+    </button>;
+  }
+
+  renderSuccess() {
+    return <div>
+      <SuccessMark>
+        <p>
+          { CommonText.Success }<br />
+          <a onClick={() => this.setState({ success: false })}>
+            { CommonText.EditResponse }
+          </a>
+        </p>
+      </SuccessMark>
+      { this.renderClose() }
+    </div>;
   }
 }
 
