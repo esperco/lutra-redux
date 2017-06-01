@@ -4,9 +4,6 @@
   event.
 */
 
-// LESS
-require("less/sweep.less");
-
 // HTML files
 require("html/sweep.html");
 
