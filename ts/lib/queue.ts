@@ -96,29 +96,33 @@ export class QueueMap<T> {
   Boilerplate for wrapping functions in their own queue
 */
 interface PromiseFn {
-  (...args: any[]): Promise<void>;
+  (...args: any[]): Promise<any>;
 }
 
 // Function is called once at a time. Last invocation wins.
 export function wrapLast<F extends PromiseFn>(fn: F): F {
+  let lastResult: any;
   const queue = new Queue(async (vals: any[][]) => {
     if (vals.length) {
-      await fn(...vals[vals.length - 1]);
+      lastResult = await fn(...vals[vals.length - 1]);
     }
     return [];
   });
-  return ((...args: any[]) => queue.enqueue(args)) as F;
+  return ((...args: any[]) => queue.enqueue(args)
+    .then(() => lastResult)) as F;
 }
 
 // Function is called once at a time on each call in order.
 export function wrapFirst<F extends PromiseFn>(fn: F): F {
+  let lastResult: any;
   const queue = new Queue(async (vals: any[][]) => {
     if (vals.length) {
-      await fn(...vals[0]);
+      lastResult = await fn(...vals[0]);
     }
     return vals.slice(1);
   });
-  return ((...args: any[]) => queue.enqueue(args)) as F;
+  return ((...args: any[]) => queue.enqueue(args)
+    .then(() => lastResult)) as F;
 }
 
 export default Queue;

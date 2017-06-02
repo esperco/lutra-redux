@@ -14,6 +14,7 @@ import { ApiSvc } from "../lib/api";
 import { AnalyticsSvc } from "../lib/analytics";
 import * as ApiT from "../lib/apiT";
 import * as Log from "../lib/log";
+import { wrapLast } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
 import { hasTag } from "../lib/util";
 import * as CommonText from "../text/common";
@@ -103,19 +104,14 @@ export class EventLanding extends React.Component<Props, State> {
       busy: true, error: undefined, lastAction: action, lastBlurb: blurb
     });
 
-    console.info(blurb);
-
     /*
       Call appropriate API -- allow blurb only if keep/confirm token.
       Wrap API call in try block so we can gracefully show an error message.
     */
-    let token = this.props.tokens[action];
-    let { Api } = this.props.Svcs;
+
     let resp: ApiT.TokenResponse|"Invalid_token"|"Expired_token";
     try {
-      resp = await (action === "keep" ?
-        Api.postConfirmToken(token, blurb ? { blurb } : {}) :
-        Api.postToken(token));
+      resp = await this.postTokenAPI(action, blurb);
     }
 
     // Unknown API error
@@ -151,6 +147,14 @@ export class EventLanding extends React.Component<Props, State> {
     this.setState({ busy: false, error: "Other" });
     Log.e("Wrong token", resp.token_value);
   }
+
+  postTokenAPI = wrapLast((action: TokenAction, blurb?: string) => {
+    let token = this.props.tokens[action];
+    let { Api } = this.props.Svcs;
+    return action === "keep" ?
+      Api.postConfirmToken(token, blurb ? { blurb } : {}) :
+      Api.postToken(token);
+  });
 
   complete = async () => {
     let action = this.state.lastAction || this.props.actionOnMount;

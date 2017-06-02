@@ -100,29 +100,35 @@ describe("QueueMap", () => {
 
 describe("wrapFirst", () => {
   it("invokes each call in order", async () => {
-    let stub = Sinon.stub().callsFake(() => Promise.resolve());
+    let stub = Sinon.stub().callsFake(
+      (x: number, y: number) => Promise.resolve(x + y)
+    );
     let fn: (x: number, y: number) => Promise<void> = wrapFirst(stub);
     fn(1, 2);
     fn(3, 4);
-    await fn(5, 6);
+    let ret = await fn(5, 6);
 
     expect(stub.callCount).to.equal(3);
     expectCalledWith(stub, 1, 2);
     expectCalledWith(stub, 3, 4);
     expectCalledWith(stub, 5, 6);
+    expect(ret).to.equal(11);
   });
 });
 
 describe("wrapLast", () => {
   it("invokes first call immediately and then only last call", async () => {
-    let stub = Sinon.stub().callsFake(() => Promise.resolve());
+    let stub = Sinon.stub().callsFake(
+      (x: number, y: number) => Promise.resolve(x + y)
+    );
     let fn: (x: number, y: number) => Promise<void> = wrapLast(stub);
     fn(1, 2);
     fn(3, 4);
-    await fn(5, 6);
+    let ret = await fn(5, 6);
 
     expect(stub.callCount).to.equal(2);
     expectCalledWith(stub, 1, 2);
     expectCalledWith(stub, 5, 6);
+    expect(ret).to.equal(11);
   });
 });
