@@ -120,5 +120,3 @@ export const SlackSetupDescription = <p>
   Esper works better with Slack. Install our Esper bot to respond
   to agenda check notifications from wherever you are.
 </p>;
-
-export const LandingCTAButton = "Try Esper With Other Meetings";

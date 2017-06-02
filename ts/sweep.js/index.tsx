@@ -4,9 +4,6 @@
   event.
 */
 
-// LESS
-require("less/sweep.less");
-
 // HTML files
 require("html/sweep.html");
 
@@ -24,7 +21,7 @@ import Api from "../lib/api";
 import { Nav } from "../lib/routing"
 import { getParamByName } from "../lib/util";
 import { GenericErrorMsg } from "../text/error-text";
-import { LandingCTAButton } from "../text/timebomb";
+import { ModalBase } from "../components/Modal";
 import EventLanding from "./EventLanding";
 
 /*
@@ -49,23 +46,29 @@ let tokens = {
 };
 
 if (action || tokens.keep || tokens.cancel) {
-  let cta = document.getElementById("cta-btn");
-  if (cta) {
-    cta.textContent = LandingCTAButton;
-  }
-
+  let onDone = () => location.search = "";
   let component =
     (action === "keep" || action ==="cancel") && tokens.keep && tokens.cancel ?
     <EventLanding
       actionOnMount={action}
+      onDone={onDone}
       tokens={tokens}
       Svcs={Svcs}
     /> : <div className="alert danger">
       { GenericErrorMsg }
     </div>;
 
-  ReactDOM.render(<div className="panel">
-    { component }
-  </div>, document.getElementById("token-ui"));
+  /*
+    Use ModalBase instead of Modal b/c we don't need a header.
+    onClose is no-op because we don't need to be able to close this modal
+    the normal way (let EventLanding's onDone handle it).
+  */
+  ReactDOM.render(<ModalBase onClose={() => null}>
+    <div className="modal">
+      <div className="panel">
+        { component }
+      </div>
+    </div>
+  </ModalBase>, document.getElementById("main"));
 }
 

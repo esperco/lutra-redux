@@ -1,0 +1,59 @@
+@import (reference) "../_variables";
+
+.success-mark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: @success;
+  fill: none;
+  animation: success-stroke .6s ease-in-out forwards;
+}
+
+.success-mark {
+  width: 6em;
+  height: 6em;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 2;
+  stroke: #fff;
+  stroke-miterlimit: 10;
+  margin: @padding-base auto;
+  box-shadow: inset 0px 0px 0px @success;
+  animation: success-fill .4s ease-in-out .4s forwards,
+             success-scale .3s ease-in-out .9s both;
+}
+
+.success-mark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: success-stroke .3s ease-in-out .8s forwards;
+}
+
+.success-mark-msg {
+  text-align: center;
+  margin-top: (@padding-lg + @padding-base) / 2;
+}
+
+@keyframes success-stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes success-scale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
+
+@keyframes success-fill {
+  100% {
+    // Last var must be at least half of height of mark
+    box-shadow: inset 0px 0px 0px 3.5em @success;
+  }
+}

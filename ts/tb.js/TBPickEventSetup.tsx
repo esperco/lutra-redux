@@ -145,9 +145,9 @@ const TimebombMessage =
     else if (hasTag("Stage1", tb)) {
       let user = tb[1].contributors.find((c) => c.uid === uid);
       if (user && user.contributes) {
-        return TBText.Stage1OnDescription(tb[1].confirm_by);
-      } else {
         return TBText.Stage1OffDescription(tb[1].confirm_by);
+      } else {
+        return TBText.Stage1OnDescription(tb[1].confirm_by);
       }
     }
 

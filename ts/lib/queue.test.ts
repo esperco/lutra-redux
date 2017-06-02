@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as Sinon from "sinon";
 import { expect } from "chai";
-import { Queue, QueueMap } from "./queue";
+import { Queue, QueueMap, wrapFirst, wrapLast } from "./queue";
 import { expectCalledWith } from "./expect-helpers";
 
 describe("Queue", () => {
@@ -95,5 +95,40 @@ describe("QueueMap", () => {
     // on first try because they're under different keys
     expectCalledWith(spy, "id1", [1]);
     expectCalledWith(spy, "id2", [2]);
+  });
+});
+
+describe("wrapFirst", () => {
+  it("invokes each call in order", async () => {
+    let stub = Sinon.stub().callsFake(
+      (x: number, y: number) => Promise.resolve(x + y)
+    );
+    let fn: (x: number, y: number) => Promise<void> = wrapFirst(stub);
+    fn(1, 2);
+    fn(3, 4);
+    let ret = await fn(5, 6);
+
+    expect(stub.callCount).to.equal(3);
+    expectCalledWith(stub, 1, 2);
+    expectCalledWith(stub, 3, 4);
+    expectCalledWith(stub, 5, 6);
+    expect(ret).to.equal(11);
+  });
+});
+
+describe("wrapLast", () => {
+  it("invokes first call immediately and then only last call", async () => {
+    let stub = Sinon.stub().callsFake(
+      (x: number, y: number) => Promise.resolve(x + y)
+    );
+    let fn: (x: number, y: number) => Promise<void> = wrapLast(stub);
+    fn(1, 2);
+    fn(3, 4);
+    let ret = await fn(5, 6);
+
+    expect(stub.callCount).to.equal(2);
+    expectCalledWith(stub, 1, 2);
+    expectCalledWith(stub, 5, 6);
+    expect(ret).to.equal(11);
   });
 });

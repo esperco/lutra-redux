@@ -7,11 +7,17 @@
 @import (reference) "./_panels";
 @import "./_backdrop";
 
+@keyframes slide-down {
+  0% { transform: translateY(-150%); }
+  100% { transform: translateY(0); }
+}
+
 .modal {
   .panel;
   display: flex;
   flex-flow: column nowrap;
   overflow: auto;
+  animation: slide-down 0.6s ease-in-out;
 
   // By default, elements are fixed
   > * {
@@ -22,15 +28,22 @@
 }
 
 // Mobile => Full-screen
+@keyframes modal-expand {
+  0% { top: 50%; bottom: 50%; overflow: hidden; }
+  100% { top: 0; bottom: 0; overflow: hidden; }
+}
+
 @media screen and (max-width: @screen-xs-max) {
   .modal-wrapper {
     .expand;
+    animation: modal-expand 0.6s ease-in-out;
   }
 
   .modal {
     border: 0;
     border-radius: 0;
     height: 100%;
+    animation: none;
 
     // Override panel margins for mobile
     margin-left: 0;
