@@ -273,7 +273,11 @@ const Notifications = (props: Props) => {
     </div>
 
     <div style={{textAlign: "center"}}>
-      <SlackAuth teamId={props.teamId} deps={props} className="cta secondary">
+      {/* Mirror email notifs for Slack if no explicit user action */}
+      <SlackAuth className="cta secondary"
+        teamId={props.teamId} deps={props}
+        tb={!!prefs.tb_allow_email_notif}
+        fb={!!prefs.fb_allow_email_notif}>
         { !!prefs.slack_address ? Text.SlackEditPrompt : Text.SlackAuthPrompt }
       </SlackAuth>
     </div>
