@@ -156,3 +156,22 @@ export async function enableSlack(
   let x = await deps.Svcs.Api.getSlackAuthInfo(teamId);
   return deps.Svcs.Nav.go(x.slack_auth_url);
 }
+
+// Update Slack-related prefs -- enables Slack only if necessary
+export function ensureSlack(
+  teamId: string,
+  prefs: Partial<ApiT.Preferences>,
+  deps: {
+    dispatch: (action: PrefsState.UpdateAction) => void;
+    state: PrefsState.TeamPreferencesState;
+    Svcs: ApiSvc & NavSvc;
+  }
+) {
+  let currentPrefs = deps.state.teamPreferences[teamId];
+  if (ready(currentPrefs)) {
+    if (! currentPrefs.slack_address) {
+      return enableSlack(teamId, prefs, deps);
+    }
+  }
+  return update(teamId, prefs, deps);
+}

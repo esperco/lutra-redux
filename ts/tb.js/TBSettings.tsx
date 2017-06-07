@@ -242,8 +242,7 @@ const Notifications = (props: Props) => {
       </CheckboxItem>
       <CheckboxItem
           checked={!!prefs.slack_address && prefs.tb_allow_slack_notif}
-          inputProps={{disabled: !prefs.slack_address}}
-          onChange={(v) => TeamPrefs.update(props.teamId, {
+          onChange={(v) => TeamPrefs.ensureSlack(props.teamId, {
             tb_allow_slack_notif: v
           }, props)}>
         { Text.TBSlackNotif }
@@ -263,8 +262,7 @@ const Notifications = (props: Props) => {
       </CheckboxItem>
       <CheckboxItem
           checked={!!prefs.slack_address && prefs.fb_allow_slack_notif}
-          inputProps={{disabled: !prefs.slack_address}}
-          onChange={(v) => TeamPrefs.update(props.teamId, {
+          onChange={(v) => TeamPrefs.ensureSlack(props.teamId, {
             fb_allow_slack_notif: v
           }, props)}>
         { Text.FBSlackNotif }
