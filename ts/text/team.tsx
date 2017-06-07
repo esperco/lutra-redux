@@ -1,6 +1,6 @@
 import * as React from "react";
 
-// Team settings
+// Team settings (/tb)
 export const SettingsHeading = "Settings";
 export const CalHeading = "Calendars";
 export const CalDescription = "Which calendars should Esper have access to?";
@@ -8,6 +8,7 @@ export const OnboardingCalDescription = CalDescription +
   " Don't worry. You can change this later!";
 
 export const AgendaHeading = "Agenda Check Defaults";
+export const FeedbackHeading = "Feedback and Ratings Defaults";
 export const NotificationsHeading = "Notifications";
 
 export const TeamName = "Name";

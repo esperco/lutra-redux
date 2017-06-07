@@ -478,6 +478,13 @@ export interface Preferences {
   tb_same_domain: boolean;
   tb_allow_email_notif: boolean;
   tb_allow_slack_notif: boolean;
+  fb?: boolean;
+  fb_guests_min: number;
+  fb_guests_max: number;
+  fb_recurring: boolean;
+  fb_same_domain: boolean;
+  fb_allow_email_notif: boolean;
+  fb_allow_slack_notif: boolean;
   general: GeneralPrefs;
   notes: string;
 }

@@ -19,6 +19,12 @@ export function makePrefs(prefs: Partial<ApiT.Preferences>): ApiT.Preferences {
     tb_same_domain: false,
     tb_allow_email_notif: true,
     tb_allow_slack_notif: true,
+    fb_guests_min: 2,
+    fb_guests_max: 18,
+    fb_recurring: false,
+    fb_same_domain: false,
+    fb_allow_email_notif: true,
+    fb_allow_slack_notif: true,
     general: { current_timezone: "America/Los_Angeles" },
     notes: ""
   };

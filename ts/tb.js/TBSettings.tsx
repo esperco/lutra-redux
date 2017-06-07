@@ -6,7 +6,8 @@ import delay from '../components/DelayedControl';
 import Icon from "../components/Icon";
 import TeamCalendarsSelector from "../components/TeamCalendarsSelector";
 import TextInput from "../components/TextInput";
-import { TimebombSettings } from "../components/TimebombSettings";
+import FeedbackSettings from "../components/FeedbackSettings";
+import TimebombSettings from "../components/TimebombSettings";
 import TimezoneDropdown from "../components/TimezoneDropdown";
 import * as Teams from "../handlers/teams";
 import * as TeamCals from "../handlers/team-cals";
@@ -54,6 +55,11 @@ export default class TBSettings extends React.Component<Props, {}> {
       <h3>{ Text.AgendaHeading }</h3>
       <div className="panel">
         <TimebombDefaults {...props} />
+      </div>
+
+      <h3>{ Text.FeedbackHeading }</h3>
+      <div className="panel">
+        <FeedbackDefaults {...props} />
       </div>
 
       <h3>{ Text.NotificationsHeading }</h3>
@@ -163,6 +169,41 @@ const TimebombDefaults = (props: Props) => {
       tb_same_domain: val.sameDomain
     }, props),
     component: ({ onSubmit, ...props }) => <TimebombSettings {...props} />
+  });
+}
+
+
+const FeedbackDefaults = (props: Props) => {
+  let prefs = props.state.teamPreferences[props.teamId];
+  if (! ready(prefs)) {
+    return <div>
+      <div className="placeholder" />
+      <div className="placeholder" />
+      <div className="placeholder" />
+    </div>;
+  }
+
+  let value = {
+    enabled: !!prefs.fb,
+    minGuests: prefs.fb_guests_min,
+    maxGuests: prefs.fb_guests_max,
+    recurring: prefs.fb_recurring,
+    sameDomain: prefs.fb_same_domain
+  };
+
+  // Add slight delay to give timebomb user enough time to change
+  // recurring option or domain option after hitting default
+  return delay({
+    delay: 2000,
+    value,
+    onChange: (val) => TeamPrefs.update(props.teamId, {
+      fb: val.enabled,
+      fb_guests_min: val.minGuests,
+      fb_guests_max: val.maxGuests,
+      fb_recurring: val.recurring,
+      fb_same_domain: val.sameDomain
+    }, props),
+    component: ({ onSubmit, ...props }) => <FeedbackSettings {...props} />
   });
 }
 
