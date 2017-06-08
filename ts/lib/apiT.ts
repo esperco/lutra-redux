@@ -406,6 +406,7 @@ type TokenDescription =
   ["Unsub_feedback_summary", {}]|
   ["Unsub_ask_feedback", {}]|
   ["Unsub_group_email", {}]|
+  ["Unsub_feedback", {}]|
   ["Unsub_timebomb", {}];
 
 type TokenValue =
@@ -420,6 +421,7 @@ type TokenValue =
   ["Unsub_feedback_summary", {}]|
   ["Unsub_ask_feedback", {}]|
   ["Unsub_group_email", {}]|
+  ["Unsub_feedback", {}]|
   ["Unsub_timebomb", {}];
 
 export interface TokenInfo {
