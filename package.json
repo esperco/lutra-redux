@@ -20,7 +20,7 @@
     "@types/react-dom": "^15.5.0",
     "@types/segment-analytics": "0.0.27",
     "@types/sinon": "^1.16.35",
-    "autoprefixer": "^6.6.1",
+    "autoprefixer": "^6.7.6",
     "chai": "^3.5.0",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.26.2",
@@ -44,7 +44,7 @@
     "sync-exec": "^0.6.2",
     "ts-loader": "^2.0.1",
     "ts-node": "^2.1.0",
-    "typescript": "^2.3.3",
+    "typescript": "^2.3.4",
     "util-inspect": "^0.1.8",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1",
@@ -52,7 +52,6 @@
     "worker-loader": "^0.8.0"
   },
   "dependencies": {
-    "autoprefixer": "^6.7.6",
     "classnames": "^2.2.5",
     "crypto-js": "^3.1.8",
     "focus-trap": "^2.3.0",

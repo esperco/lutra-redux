@@ -9,7 +9,7 @@ TEST_TARGET=ts/**/*.test.*
 default: build
 
 setup:
-	npm install
+	yarn install
 
 clean:
 	rm -rf pub

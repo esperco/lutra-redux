@@ -265,7 +265,9 @@ interface GroupPatch {
 
 // Combines patch queries into single API call
 export const PatchQueue = new QueueMap<GroupPatch>((groupId, q) => {
-  let { Svcs } = _.last(q);
+  let last = _.last(q);
+  if (! last) return Promise.resolve([]);
+  let { Svcs } = last;
   let patch = _.reduce(q,
     (result, v) => ({ ...result, ...v.patch }),
     {} as ApiT.GroupUpdatePatch);
