@@ -1,69 +1,13 @@
-{% extends '_landing.html' %}
-
-{% block title %}Agendas | Esper{% endblock %}
+{% extends '_base.html' %}
 
 {% block head %}
-  {{ super() }}
-  <link href="[[css/sweep--*.css]]" rel="stylesheet" />
+  <script>
+    window.location.href = "/agenda" +
+      window.location.search + window.location.hash;
+  </script>
+  <noscript><meta http-equiv="refresh" content="1; URL='/agenda'" /></noscript>
 {% endblock %}
 
-{% set login_path = "/tb" %}
-
-{% block header_classes %}dark{% endblock %}
-
-{% block main %}
-  <div id="sweep-splash" class="splash dark"
-    style="background-image:
-      linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-      url(img/sweep-splash.jpg)">
-    <div class="container">
-      <div>
-        <h1>Meetings with purpose</h1>
-        <p class="subheading">
-          Esper checks that your meetings have agendas.
-        </p>
-      </div>
-
-      <!-- Quick sign in -->
-      <div class="cta-container">
-        <a id="cta-btn" class="cta primary" href="/tb#!/setup">
-          Sign Up For Free
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Agenda timeline -->
-  <section style="padding-left:0;padding-right:0;">
-    <h2>Protect Your Time</h2>
-    <div class="container-small">
-      {% include 'img/agenda-timeline.svg' %}
-    </div>
-  </section>
-
-  <!-- Slack -->
-  <section id="sweep-slack-splash" class="splash">
-    <div class="container">
-      <h2>Works With Slack</h2>
-      {% include 'img/slack-esper-smile.svg' %}
-    </div>
-  </section>
-
-  <!-- CTA again -->
-  <div class="cta-container" style="text-align: center">
-    <h2>Get Started Today</h2>
-    <div>
-      <a id="cta-btn" class="cta primary" href="/tb#!/setup">
-        Sign Up For Free
-      </a>
-    </div>
-  </div>
-
-  <!-- Replaced by React -->
-  <div id="main"></div>
-{% endblock %}
-
-{% block scripts %}
-  {{ super() }}
-  <script type="text/javascript" src="[[js/sweep--*.js]]"></script>
+{% block body %}
+  <p>This page has moved. Redirecting ...</p>
 {% endblock %}
