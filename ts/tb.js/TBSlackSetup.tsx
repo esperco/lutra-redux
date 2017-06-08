@@ -15,7 +15,7 @@ export const TBSlackSetup =
 
       <div className="slack-setup-actions">
         <div>
-          <SlackAuth teamId={p.teamId} deps={p} />
+          <SlackAuth teamId={p.teamId} deps={p} tb={true} />
         </div>
         <div>
           <a href={Paths.events.href({ onboarding: true })}>

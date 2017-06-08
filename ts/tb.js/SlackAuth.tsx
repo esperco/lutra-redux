@@ -4,6 +4,7 @@
 
 import * as React from "react";
 import { ApiSvc } from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { NavSvc } from "../lib/routing";
 import * as TeamPrefs from "../handlers/team-prefs";
 import * as PrefsState from "../states/team-preferences";
@@ -12,6 +13,8 @@ import Icon from "../components/Icon";
 
 interface Props extends React.HTMLProps<HTMLButtonElement> {
   teamId: string;
+  fb?: boolean;
+  tb?: boolean;
   deps: {
     dispatch: (action: PrefsState.UpdateAction) => void;
     state: PrefsState.TeamPreferencesState;
@@ -27,7 +30,7 @@ export class SlackAuth extends React.Component<Props, State> {
   state = { busy: false };
 
   render() {
-    let { teamId, deps, children, ...btnProps } = this.props;
+    let { teamId, deps, children, tb, fb, ...btnProps } = this.props;
     let childCount = !!React.Children.count(children);
     return <button
       className="cta primary"
@@ -44,9 +47,14 @@ export class SlackAuth extends React.Component<Props, State> {
 
   onBtnClick = () => {
     this.setState({ busy: true });
-    TeamPrefs.enableSlack(this.props.teamId, {
-      tb_allow_slack_notif: true
-    }, this.props.deps)
+    let update: Partial<ApiT.Preferences> = {};
+    if (typeof this.props.tb !== undefined) {
+      update.tb_allow_slack_notif = this.props.tb;
+    }
+    if (typeof this.props.fb !== undefined) {
+      update.fb_allow_slack_notif = this.props.fb;
+    }
+    TeamPrefs.enableSlack(this.props.teamId, update, this.props.deps)
       // Never-ending promise, wait for redirect
       .then(() => new Promise(() => {}))
       .catch((err) => this.setState({ busy: false }));

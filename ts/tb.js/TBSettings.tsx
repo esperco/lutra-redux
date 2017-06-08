@@ -6,7 +6,8 @@ import delay from '../components/DelayedControl';
 import Icon from "../components/Icon";
 import TeamCalendarsSelector from "../components/TeamCalendarsSelector";
 import TextInput from "../components/TextInput";
-import { TimebombSettings } from "../components/TimebombSettings";
+import FeedbackSettings from "../components/FeedbackSettings";
+import TimebombSettings from "../components/TimebombSettings";
 import TimezoneDropdown from "../components/TimezoneDropdown";
 import * as Teams from "../handlers/teams";
 import * as TeamCals from "../handlers/team-cals";
@@ -54,6 +55,11 @@ export default class TBSettings extends React.Component<Props, {}> {
       <h3>{ Text.AgendaHeading }</h3>
       <div className="panel">
         <TimebombDefaults {...props} />
+      </div>
+
+      <h3>{ Text.FeedbackHeading }</h3>
+      <div className="panel">
+        <FeedbackDefaults {...props} />
       </div>
 
       <h3>{ Text.NotificationsHeading }</h3>
@@ -143,7 +149,7 @@ const TimebombDefaults = (props: Props) => {
   }
 
   let value = {
-    enabled: prefs.tb !== false, // Default on if null
+    enabled: !!prefs.tb,
     minGuests: prefs.tb_guests_min,
     maxGuests: prefs.tb_guests_max,
     recurring: prefs.tb_recurring,
@@ -163,6 +169,41 @@ const TimebombDefaults = (props: Props) => {
       tb_same_domain: val.sameDomain
     }, props),
     component: ({ onSubmit, ...props }) => <TimebombSettings {...props} />
+  });
+}
+
+
+const FeedbackDefaults = (props: Props) => {
+  let prefs = props.state.teamPreferences[props.teamId];
+  if (! ready(prefs)) {
+    return <div>
+      <div className="placeholder" />
+      <div className="placeholder" />
+      <div className="placeholder" />
+    </div>;
+  }
+
+  let value = {
+    enabled: !!prefs.fb,
+    minGuests: prefs.fb_guests_min,
+    maxGuests: prefs.fb_guests_max,
+    recurring: prefs.fb_recurring,
+    sameDomain: prefs.fb_same_domain
+  };
+
+  // Add slight delay to give timebomb user enough time to change
+  // recurring option or domain option after hitting default
+  return delay({
+    delay: 2000,
+    value,
+    onChange: (val) => TeamPrefs.update(props.teamId, {
+      fb: val.enabled,
+      fb_guests_min: val.minGuests,
+      fb_guests_max: val.maxGuests,
+      fb_recurring: val.recurring,
+      fb_same_domain: val.sameDomain
+    }, props),
+    component: ({ onSubmit, ...props }) => <FeedbackSettings {...props} />
   });
 }
 
@@ -201,8 +242,7 @@ const Notifications = (props: Props) => {
       </CheckboxItem>
       <CheckboxItem
           checked={!!prefs.slack_address && prefs.tb_allow_slack_notif}
-          inputProps={{disabled: !prefs.slack_address}}
-          onChange={(v) => TeamPrefs.update(props.teamId, {
+          onChange={(v) => TeamPrefs.ensureSlack(props.teamId, {
             tb_allow_slack_notif: v
           }, props)}>
         { Text.TBSlackNotif }
@@ -210,10 +250,34 @@ const Notifications = (props: Props) => {
           { Text.TBSlackNotifDescription }
         </div>
       </CheckboxItem>
+      <CheckboxItem
+          checked={prefs.fb_allow_email_notif}
+          onChange={(v) => TeamPrefs.update(props.teamId, {
+            fb_allow_email_notif: v
+          }, props)}>
+        { Text.FBEmailNotif }
+        <div className="description">
+          { Text.FBEmailNotifyDescription }
+        </div>
+      </CheckboxItem>
+      <CheckboxItem
+          checked={!!prefs.slack_address && prefs.fb_allow_slack_notif}
+          onChange={(v) => TeamPrefs.ensureSlack(props.teamId, {
+            fb_allow_slack_notif: v
+          }, props)}>
+        { Text.FBSlackNotif }
+        <div className="description">
+          { Text.FBSlackNotifDescription }
+        </div>
+      </CheckboxItem>
     </div>
 
     <div style={{textAlign: "center"}}>
-      <SlackAuth teamId={props.teamId} deps={props} className="cta secondary">
+      {/* Mirror email notifs for Slack if no explicit user action */}
+      <SlackAuth className="cta secondary"
+        teamId={props.teamId} deps={props}
+        tb={!!prefs.tb_allow_email_notif}
+        fb={!!prefs.fb_allow_email_notif}>
         { !!prefs.slack_address ? Text.SlackEditPrompt : Text.SlackAuthPrompt }
       </SlackAuth>
     </div>

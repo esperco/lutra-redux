@@ -84,6 +84,7 @@ export function token(info: ApiT.TokenResponse) {
     case "Unsub_feedback_summary":
     case "Unsub_group_email":
     case "Unsub_ask_feedback":
+    case "Unsub_feedback":
     case "Unsub_timebomb":
       return "You've been unsubscribed from these emails.";
 
