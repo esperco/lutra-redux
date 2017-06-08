@@ -58,7 +58,7 @@ var config = {
     tb: "./ts/tb.js/index.tsx",
 
     // Landing page for timebomb
-    sweep: "./ts/sweep.js/index.tsx"
+    agenda: "./ts/agenda.js/index.tsx"
   },
 
   output: {

@@ -7,7 +7,7 @@ export const CalDescription = "Which calendars should Esper have access to?";
 export const OnboardingCalDescription = CalDescription +
   " Don't worry. You can change this later!";
 
-export const SweepHeading = "Agenda Check Defaults";
+export const AgendaHeading = "Agenda Check Defaults";
 export const NotificationsHeading = "Notifications";
 
 export const TeamName = "Name";

@@ -67,7 +67,7 @@ export function token(info: ApiT.TokenResponse) {
       return "Invite accepted. Please login to continue.";
 
     /*
-      Timebomb tokens should not be processed here (see /sweep) but if
+      Timebomb tokens should not be processed here (see /agenda) but if
       they are for whatever reason, just display the appropriate message.
     */
     case "Confirm_timebomb_event":

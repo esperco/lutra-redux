@@ -17,7 +17,7 @@ import Dropdown from "../components/Dropdown";
 import Icon from "../components/Icon";
 import GroupSelector from "./GroupSelector";
 import * as CommonPaths from "../lib/paths";
-import * as SweepPaths from "../tb.js/paths";
+import * as AgendaPaths from "../tb.js/paths";
 import * as TimePaths from "../time.js/paths";
 
 class Props {
@@ -97,8 +97,8 @@ class GroupHeader extends React.Component<Props, {}> {
         <a href={TimePaths.Home.href({})}>
           <Icon type="person">{ CommonText.ExecLink }</Icon>
         </a>
-        <a href={SweepPaths.base}>
-          <Icon type="check">{ CommonText.SweepLink }</Icon>
+        <a href={AgendaPaths.base}>
+          <Icon type="check">{ CommonText.AgendaLink }</Icon>
         </a>
         <a href={Paths.generalSettings.href({ groupId })}>
           <Icon type="settings">{ CommonText.Settings }</Icon>

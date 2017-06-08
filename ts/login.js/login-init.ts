@@ -4,7 +4,7 @@
 
 import * as _ from "lodash";
 import { base as groupsRedirect } from "../groups.js/paths";
-// import { base as sweepRedirect } from "../tb.js/paths";
+// import { base as agendaRedirect } from "../tb.js/paths";
 import { base as timeRedirect } from "../time.js/paths";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
@@ -187,7 +187,7 @@ function getDefaultLandingUrl(info: ApiT.LoginResponse) {
   return timeRedirect;
 
   /*
-    Don't redirect to sweep unless explicit. At least not yet.
+    Don't redirect to agenda unless explicit. At least not yet.
   */
 
   // if (info.teams && !!_.find(info.teams,
@@ -196,7 +196,7 @@ function getDefaultLandingUrl(info: ApiT.LoginResponse) {
   //   return timeRedirect;
   // }
 
-  // return sweepRedirect;
+  // return agendaRedirect;
 }
 
 /*

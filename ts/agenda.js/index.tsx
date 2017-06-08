@@ -5,7 +5,7 @@
 */
 
 // HTML files
-require("html/sweep.html");
+require("html/agenda.html");
 
 ////////////////////////////////////////
 

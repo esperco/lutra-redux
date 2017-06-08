@@ -12,7 +12,7 @@ import Tooltip from "./Tooltip";
 import * as ApiT from "../lib/apiT";
 import { hasTag, randomString } from "../lib/util";
 import * as Text from "../text/timebomb";
-import { base as helpPath } from "../sweep.js/paths";
+import { base as helpPath } from "../agenda.js/paths";
 
 interface Props {
   loggedInUid: string|undefined;

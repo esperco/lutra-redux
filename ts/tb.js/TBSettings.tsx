@@ -51,7 +51,7 @@ export default class TBSettings extends React.Component<Props, {}> {
         <CalendarsSelector {...props} />
       </div>
 
-      <h3>{ Text.SweepHeading }</h3>
+      <h3>{ Text.AgendaHeading }</h3>
       <div className="panel">
         <TimebombDefaults {...props} />
       </div>
