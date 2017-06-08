@@ -76,7 +76,9 @@ export const RenameQueue = new QueueMap<{
   name: string;
   Svcs: ApiSvc;
 }>((teamId, q) => {
-  let { name, Svcs } = _.last(q);
+  let last = _.last(q);
+  if (! last) return Promise.resolve([]);
+  let { name, Svcs } = last;
   return Svcs.Api.setTeamName(teamId, name).then(() => []);
 });
 

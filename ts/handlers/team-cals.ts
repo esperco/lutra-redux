@@ -85,7 +85,9 @@ interface UpdateTeamCals {
 
 // Use last set of calendars in queue for each group
 export const TeamCalQueue = new QueueMap<UpdateTeamCals>((teamId, q) => {
-  let { Svcs, calIds } = _.last(q);
+  let last = _.last(q);
+  if (! last) return Promise.resolve([]);
+  let { Svcs, calIds } = last;
   return Svcs.Api.putTeamTimestatsCalendars(teamId, calIds).then(() => []);
 });
 

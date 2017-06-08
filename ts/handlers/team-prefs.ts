@@ -49,7 +49,9 @@ interface PrefsUpdate {
 }
 
 export const TeamPrefsQueue = new QueueMap<PrefsUpdate>((teamId, q) => {
-  let { Svcs, prefs } = _.last(q);
+  let last = _.last(q);
+  if (! last) return Promise.resolve([]);
+  let { Svcs, prefs } = last;
   return Svcs.Api.putPreferences(teamId, prefs).then(() => []);
 });
 
