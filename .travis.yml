@@ -1,7 +1,10 @@
 language: node_js
 node_js:
-        - "6"
+  - "6"
 script:
-        - npm list
-        - make
-        - npm test
+  - make
+  - make test
+cache:
+  yarn: true
+  directories:
+    - node_modules
