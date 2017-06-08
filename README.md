@@ -11,10 +11,11 @@ higher and the latest version of
 [Yarn](https://yarnpkg.com/lang/en/docs/install/#linux-tab).
 
 To avoid using `sudo` with Yarn, configure Yarn to install globals
-in your home directory:
+in a subdirectory that doesn't require sudo (like `~/.yarn`):
 
 ```
 yarn config set prefix ~/.yarn
+mkdir ~/.yarn
 ```
 
 Then add `~/.yarn` to your path, e.g. in your `.bashrc`:
