@@ -7,6 +7,7 @@ import { LocalStoreSvc } from "./local-store";
 import { AnalyticsSvc } from "./analytics";
 import { ApiSvc } from "./api";
 import * as ApiT from "./apiT";
+import { isAjaxError } from "./json-http";
 import { NavSvc } from "./routing";
 import { hexEncode } from "./util";
 import * as _ from "lodash";
@@ -80,6 +81,15 @@ const sandboxError = new Error("Sandbox");
 // Never resolves -- waiting for redirect
 const redirectPromise = new Promise(function() {});
 
+// Get redirect from conf based on location
+function getRedirect(Conf: {
+  loginRedirect: string|((hexPath: string) => string)
+}) {
+  return (typeof Conf.loginRedirect === "string" ?
+    Conf.loginRedirect :
+    Conf.loginRedirect(hexEncode(location.pathname + location.hash)));
+}
+
 // Returns a promise for when login process is done -- dispatches to store
 export function init(
   dispatch: (action: LoginAction) => any,
@@ -87,9 +97,7 @@ export function init(
   Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc,
   allowSandbox = false
 ): Promise<ApiT.LoginResponse> {
-  let redirect = typeof Conf.loginRedirect === "string" ?
-    Conf.loginRedirect :
-    Conf.loginRedirect(hexEncode(location.pathname + location.hash));
+  let redirect = getRedirect(Conf);
   let credentials = getCredentials(Svcs);
   let { Analytics, Api, Nav } = Svcs;
   if (credentials) {
@@ -141,3 +149,23 @@ export function init(
   return redirectPromise;
 }
 
+/*
+  Special error handler for the login_required error that redirects to
+  login page
+*/
+export function loginRequiredHandler(
+  Conf: { loginRedirect: string|((hexPath: string) => string) },
+  Svcs: NavSvc
+) {
+  return function(err?: Error) {
+    if (err &&
+        isAjaxError(err) &&
+        err.details &&
+        err.details.tag === "Login_required") {
+      let redirect = getRedirect(Conf);
+      redirect += redirect.indexOf("?") >= 0 ? "&" : "?";
+      redirect += "err=login_again";
+      Svcs.Nav.go(getRedirect(Conf));
+    }
+  };
+}

@@ -192,6 +192,7 @@ Api.init(_.extend<typeof Conf>({
   errorHandler: function(id: string, err: Error) {
     DataStatus.dataEndHandler(dispatch)(id);
     ErrorMsg.errorHandler(dispatch)(id, err);
+    Login.loginRequiredHandler(Conf, Svcs)(err);
   }
 }, Conf));
 
