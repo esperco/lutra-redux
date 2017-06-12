@@ -45,6 +45,7 @@ export type Action =
   TeamPreferences.DataAction|
   TeamPreferences.UpdateAction|
   Login.LoginAction|
+  Login.FeatureFlagAction|
   ErrorMsg.ErrorAction|
   Routing.RouteAction<Routes.RouteTypes>|
   Scroll.ScrollAction|

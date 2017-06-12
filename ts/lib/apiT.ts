@@ -373,6 +373,17 @@ export interface Attendee {
   response: "Needs_action"|"Declined"|"Tentative"|"Accepted";
 }
 
+export interface FeatureFlags {
+  team_charts: boolean;   // EA/Exec Charts (/time)
+  group_charts: boolean;  // Group Charts (/groups)
+  tb: boolean; // Agenda
+  fb: boolean; // Feedback
+}
+
+export interface FeatureFlagsApi extends FeatureFlags {
+  uid: string;
+}
+
 export interface LoginResponse {
   uid: string;
   uid_hash: string;
@@ -387,6 +398,7 @@ export interface LoginResponse {
   groups: string[];
   team_members: TeamMember[];
   landing_url?: string;
+  feature_flags: FeatureFlagsApi;
 }
 
 export interface ConfirmTimebombInfo {

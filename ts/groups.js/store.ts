@@ -32,6 +32,8 @@ export const store = createStore(
     switch (action.type) {
       case "LOGIN":
         return Login.loginReducer(state, action);
+      case "FEATURE_FLAG":
+        return Login.featureFlagsReducer(state, action);
       case "ROUTE":
         return Routing.routeReducer(state, action);
       case "GROUP_DATA":
