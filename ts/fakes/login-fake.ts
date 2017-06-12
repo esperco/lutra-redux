@@ -20,6 +20,13 @@ export default function makeLoginInfo(
     teams: [],
     groups: [],
     team_members: [],
+    feature_flags: {
+      uid: "my-uid",
+      team_charts: false,
+      group_charts: false,
+      tb: false,
+      fb: false
+    },
     ...info
   };
 }

@@ -4,10 +4,12 @@ import sandbox from "./sandbox";
 import { apiSvcFactory, stubApi } from "../fakes/api-fake";
 import analyticsFake from "../fakes/analytics-fake";
 import localStoreFake from "../fakes/local-store-fake";
+import makeLogin from "../fakes/login-fake";
 import navFake from "../fakes/nav-fake";
 import { AjaxError } from "./json-http";
 import * as Login  from "./login";
 import * as Sinon from 'sinon';
+import { deepFreeze } from "./util";
 
 describe("Login", function() {
   describe("init", function() {
@@ -176,6 +178,32 @@ describe("Login", function() {
       expect(s1.login).to.be.undefined;
       expect(s2.loggedInAsAdmin).to.be.true;
       expect(s2.login).to.deep.equal(info);
+    });
+  });
+
+  describe("featureFlagReducer", function() {
+    it("should merge feature flags patch", function() {
+      let login = makeLogin({
+        feature_flags: {
+          uid: "my-uid",
+          team_charts: true,
+          group_charts: false,
+          tb: true,
+          fb: false
+        }
+      });
+      let s1: Login.LoggedInState = deepFreeze({ login });
+      let s2 = Login.featureFlagsReducer(s1, {
+        type: "FEATURE_FLAG",
+        flags: { group_charts: true, tb: false }
+      });
+      expect(s2.login.feature_flags).to.deep.equal({
+        uid: "my-uid",
+        team_charts: true,
+        group_charts: true,
+        tb: false,
+        fb: false
+      });
     });
   });
 

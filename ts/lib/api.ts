@@ -173,6 +173,19 @@ namespace Api {
     return JsonHttp.get(url);
   }
 
+  export function getFeatureFlags(uid?: string): Promise<ApiT.FeatureFlagsApi> {
+    let url = `${prefix}/api/feature-flags/${myUid()}/${uid || myUid()}`;
+    return JsonHttp.get(url);
+  }
+
+  export function patchFeatureFlags(
+    flags: Partial<ApiT.FeatureFlags>,
+    uid?: string
+  ): Promise<ApiT.FeatureFlagsApi> {
+    let url = `${prefix}/api/feature-flags/${myUid()}/${uid || myUid()}`;
+    return JsonHttp.patch(url, flags);
+  }
+
 
   /* Teams */
 

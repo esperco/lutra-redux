@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { apiSvcFactory, stubApi, stubApiPlus } from "../fakes/api-fake";
 import makePrefs from "../fakes/team-preferences-fake";
+import makeLogin from "../fakes/login-fake";
 import * as PrefHandlers from "../handlers/team-prefs";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { sandbox } from "../lib/sandbox";
@@ -115,7 +116,7 @@ describe("Team preference handlers", () => {
       function getDeps() {
         return {
           dispatch: sandbox.spy(),
-          state: initState(),
+          state: { ...initState(), login: makeLogin({}) },
           Svcs: apiSvcFactory()
         };
       }
@@ -158,6 +159,7 @@ describe("Team preference handlers", () => {
           dispatch: sandbox.spy(),
           state: {
             ...initState(),
+            login: makeLogin({}),
             teamPreferences: { [teamId]: { ...oldPrefs, ...prefs } }
           },
           Svcs: apiSvcFactory()
@@ -182,6 +184,16 @@ describe("Team preference handlers", () => {
         let ret = await PrefHandlers.autosetTimebomb(teamId, deps);
         expect(ret).to.deep.equal({ ...oldPrefs, tb: false });
         expect(stub.called).to.be.false;
+      });
+
+      it("makes API call to set feature flag if unset", async () => {
+        let deps = getDeps({ tb: undefined });
+        deps.state.login.feature_flags.tb = false;
+        let spy = sandbox.spy(deps.Svcs.Api, "patchFeatureFlags");
+        let { dfd } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd.resolve(undefined);
+        await PrefHandlers.autosetTimebomb(teamId, deps);
+        expectCalledWith(spy, { tb: true });
       });
     });
   });

@@ -41,6 +41,17 @@ describe("Routes", function() {
 
   let pathname = "/groups";
   describe("eventList", function() {
+    it("should set feature flag for group_charts", () => {
+      let deps = getDeps();
+      let spy = sandbox.spy(deps.Svcs.Api, "patchFeatureFlags");
+      Routes.eventList({
+        pathname,
+        hash: "#!/event-list/group-id-123?" +
+              "showFilters=1&eventId=abc&period=w,2400,2401"
+      }, deps);
+      expectCalledWith(spy, { group_charts: true });
+    });
+
     it("should dispatch a GroupEvents state", function() {
       let deps = getDeps();
       Routes.eventList({

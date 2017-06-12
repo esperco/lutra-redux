@@ -46,6 +46,27 @@ export function loginReducer<S extends LoginState>(
   return state;
 }
 
+export interface FeatureFlagAction {
+  type: "FEATURE_FLAG";
+  flags: Partial<ApiT.FeatureFlags>;
+}
+
+export function featureFlagsReducer<S extends LoginState>(
+  state: S, action: FeatureFlagAction
+) {
+  state = _.clone(state);
+  if (state.login) {
+    state.login = {
+      ...state.login,
+      feature_flags: {
+        ...state.login.feature_flags,
+        ...action.flags
+      }
+    };
+  }
+  return state;
+}
+
 // Grab credentials from local storage
 export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
   let credentials = svcs.LocalStore.get(storedLoginKey);

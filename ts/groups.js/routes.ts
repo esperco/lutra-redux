@@ -9,6 +9,7 @@ import { GenericPeriod, fromDates } from "../lib/period";
 import * as Calcs from "../handlers/group-calcs";
 import * as Events from "../handlers/events";
 import * as Select from "../handlers/events-select";
+import { ensureFlags } from "../handlers/feature-flags";
 import * as InviteEmails from "../handlers/invite-emails";
 import * as Suggestions from "../handlers/suggestions";
 import * as Groups from "../handlers/groups"
@@ -40,6 +41,7 @@ export function goToSetup(Svcs: Routing.NavSvc) {
 export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
   let groupIdMaybe = Groups.cleanGroupId(p.groupId, deps.state);
   if (groupIdMaybe) {
+    ensureFlags({ group_charts: true }, deps);
     let groupId = groupIdMaybe;
     let calgroupId = groupId;
     let calgroupType = "group" as "group";
