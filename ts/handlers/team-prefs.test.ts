@@ -81,10 +81,7 @@ describe("Team preference handlers", () => {
         dispatch: sandbox.spy(),
         state: {
           ...initState(),
-          teamPreferences: { [teamId]: oldPrefs },
-          login: {
-
-          }
+          teamPreferences: { [teamId]: oldPrefs }
         },
         Svcs: apiSvcFactory()
       };
