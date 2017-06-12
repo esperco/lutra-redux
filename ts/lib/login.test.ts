@@ -178,4 +178,45 @@ describe("Login", function() {
       expect(s2.login).to.deep.equal(info);
     });
   });
+
+  describe("loginRequiredHandler", function() {
+    const Conf = { loginRedirect: "//something/login" };
+
+    it("should redirect to login for login_required error", () => {
+      let Svcs = navFake();
+      let spy = sandbox.spy(Svcs.Nav, "go");
+      Login.loginRequiredHandler(Conf, Svcs)(new AjaxError({
+        method: "GET",
+        url: "/api/login/uid/info",
+        reqBody: "",
+        code: 401,
+        respBody: JSON.stringify({
+          http_status_code: 401,
+          error_message: "Login required",
+          error_details: ["Login_required", {
+            uid: "some_uid",
+            email: "email@example.com"
+          }]
+        })
+      }));
+      expectCalledWith(spy, Conf.loginRedirect);
+    });
+
+    it("should not redirect for other errors", () => {
+      let Svcs = navFake();
+      let spy = sandbox.spy(Svcs.Nav, "go");
+      Login.loginRequiredHandler(Conf, Svcs)(new AjaxError({
+        method: "GET",
+        url: "/api/login/uid/info",
+        reqBody: "",
+        code: 400,
+        respBody: JSON.stringify({
+          http_status_code: 400,
+          error_message: "Need to be logged in as admin",
+          error_details: "Admin_privilege_required"
+        })
+      }));
+      expect(spy.called).to.be.false;
+    });
+  });
 });
