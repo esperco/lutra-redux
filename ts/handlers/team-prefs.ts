@@ -1,11 +1,12 @@
 import * as _ from "lodash";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
-import { LoginState } from "../lib/login";
+import { LoginState, FeatureFlagAction } from "../lib/login";
 import { NavSvc } from "../lib/routing";
 import { QueueMap } from "../lib/queue";
 import * as PrefsState from "../states/team-preferences";
 import { ready } from "../states/data-status";
+import { ensureFlags } from "./feature-flags";
 
 export function fetch(teamId: string, deps: {
   dispatch: (action: PrefsState.DataAction) => void;
@@ -83,10 +84,15 @@ export async function update(
 
 // Auto-set timebomb preferences for new team (if applicable)
 export async function autosetTimebomb(teamId: string, deps: {
-  dispatch: (action: PrefsState.DataAction|PrefsState.UpdateAction) => void;
-  state: PrefsState.TeamPreferencesState;
+  dispatch: (
+    action: PrefsState.DataAction|PrefsState.UpdateAction|FeatureFlagAction
+  ) => void;
+  state: PrefsState.TeamPreferencesState & LoginState;
   Svcs: ApiSvc;
 }) {
+  // Make sure feature flag set for timebomb
+  ensureFlags({ tb: true }, deps);
+
   // Make sure we have prefs
   let prefs = await fetch(teamId, deps);
 
@@ -104,7 +110,7 @@ export async function autosetTimebomb(teamId: string, deps: {
     });
   }
 
-  // Already define, return as is
+  // Already defined, return as is
   return prefs;
 }
 
