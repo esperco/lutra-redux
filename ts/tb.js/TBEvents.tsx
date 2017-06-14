@@ -7,7 +7,7 @@ import FixedPeriodSelector from "../components/FixedPeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
-import { Settings } from "../lib/paths";
+import { settings } from "../lib/paths";
 import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
@@ -52,7 +52,7 @@ export default class TBEventList extends React.Component<Props, {}> {
           { onboarding ? this.renderOnboardingMsg() : null }
 
           <TBEventsList
-            noContentMessage={noContentMessage(Settings.href({}))}
+            noContentMessage={noContentMessage(settings.href({}))}
             onTimebombToggle={this.timebombToggle}
             onPeriodChange={this.periodChange}
             {...baseProps}
@@ -65,7 +65,7 @@ export default class TBEventList extends React.Component<Props, {}> {
   renderOnboardingMsg() {
     let prefs = this.props.state.teamPreferences[this.props.teamId];
     if (ready(prefs)) {
-      let settingsHref = Settings.href({});
+      let settingsHref = settings.href({});
       return <div className="alert info">
         { !!prefs.tb ? <DefaultDescriptionSetup
           settingsHref={settingsHref}

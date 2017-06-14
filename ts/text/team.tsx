@@ -1,6 +1,6 @@
 import * as React from "react";
 
-// Team settings (/tb)
+// Team settings (/settings)
 export const SettingsHeading = "Settings";
 export const CalHeading = "Calendars";
 export const CalDescription = "Which calendars should Esper have access to?";
@@ -39,6 +39,9 @@ export const SlackAuthPrompt =
   "You need to connect to Slack to enable Slack notifications";
 export const SlackEditPrompt =
   "Change Slack Team";
+
+export const TeamChartsSettingsLink = "Individual Chart Settings";
+export const GroupChartsSettingsLink = "Enterprise Chart Settings";
 
 export function noContentMessage(href: string) {
   return <div className="no-content-msg">

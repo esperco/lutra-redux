@@ -106,16 +106,16 @@ class GroupHeader extends React.Component<Props, {}> {
       </nav>
 
       <nav className="panel">
-        <a href={CommonPaths.Home.href({})}>
+        <a href={CommonPaths.home.href({})}>
           <Icon type="home">{ CommonText.Home }</Icon>
         </a>
-        <a href={CommonPaths.Contact.href({})}>
+        <a href={CommonPaths.contact.href({})}>
           <Icon type="contact">{ CommonText.Contact }</Icon>
         </a>
-        <a href={CommonPaths.Privacy.href({})}>
+        <a href={CommonPaths.privacy.href({})}>
           <Icon type="privacy">{ CommonText.Privacy }</Icon>
         </a>
-        <a href={CommonPaths.Terms.href({})}>
+        <a href={CommonPaths.terms.href({})}>
           <Icon type="terms">{ CommonText.Terms }</Icon>
         </a>
       </nav>

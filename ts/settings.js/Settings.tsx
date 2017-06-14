@@ -12,6 +12,8 @@ import * as Teams from "../handlers/teams";
 import * as TeamCals from "../handlers/team-cals";
 import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
+import { settings as groupSettings } from "../groups.js/paths";
+import { manage } from "../lib/paths";
 import { NavSvc } from "../lib/routing";
 import { ready } from '../states/data-status';
 import * as Text from "../text/team";
@@ -26,9 +28,15 @@ export interface Props {
   Conf?: { maxDaysFetch?: number; };
 }
 
+// Hash IDs
+const calId = "cals";
+const agendaId = "agenda";
+const feedbackId = "feedback";
+const notificationsId = "notifications";
+
 export default class Settings extends React.Component<Props, {}> {
   render() {
-    return <div className="container">
+    return <div id="team-settings" className="container">
       <h2>
         { Text.SettingsHeading }
       </h2>
@@ -38,9 +46,22 @@ export default class Settings extends React.Component<Props, {}> {
   }
 
   renderMenu() {
+    let { feature_flags, groups } = this.props.state.login;
+
     return <nav className="menu">
-      <a href="">Hello</a>
-      <a href="">World</a>
+      <a href={"#" + calId}>{ Text.CalHeading }</a>
+      <a href={"#" + agendaId}>{ Text.AgendaHeading }</a>
+      <a href={"#" + feedbackId}>{ Text.FeedbackHeading }</a>
+      <a href={"#" + notificationsId}>{ Text.NotificationsHeading }</a>
+
+      { feature_flags.team_charts ?
+        <a href={manage.href({})}>{ Text.TeamChartsSettingsLink }</a> :
+        null }
+
+      { feature_flags.group_charts && groups.length ?
+        <a href={groupSettings.href({ groupId: groups[0] })}>
+          { Text.GroupChartsSettingsLink }
+        </a> : null }
     </nav>;
   }
 
@@ -51,26 +72,25 @@ export default class Settings extends React.Component<Props, {}> {
         <GeneralSettings {...props} />
       </div>
 
-      <h3>{ Text.CalHeading }</h3>
+      <h3 id={calId}>{ Text.CalHeading }</h3>
       <p className="description">
         { Text.CalDescription }
       </p>
-
       <div className="panel">
         <CalendarsSelector {...props} />
       </div>
 
-      <h3>{ Text.AgendaHeading }</h3>
+      <h3 id={agendaId}>{ Text.AgendaHeading }</h3>
       <div className="panel">
         <TimebombDefaults {...props} />
       </div>
 
-      <h3>{ Text.FeedbackHeading }</h3>
+      <h3 id={feedbackId}>{ Text.FeedbackHeading }</h3>
       <div className="panel">
         <FeedbackDefaults {...props} />
       </div>
 
-      <h3>{ Text.NotificationsHeading }</h3>
+      <h3 id={notificationsId}>{ Text.NotificationsHeading }</h3>
       <div className="panel">
         <Notifications {...props} />
       </div>

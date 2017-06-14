@@ -80,10 +80,10 @@ export class AppHeader extends React.Component<Props, {}> {
       </div>
 
       <nav className="panel">
-        <a href={CommonPaths.Settings.href({})}>
+        <a href={CommonPaths.settings.href({})}>
           <Icon type="settings">{ CommonText.Settings }</Icon>
         </a>
-        <a href={CommonPaths.Contact.href({})}>
+        <a href={CommonPaths.contact.href({})}>
           <Icon type="contact">{ CommonText.Contact }</Icon>
         </a>
         <a href={this.props.Conf.logoutRedirect}>

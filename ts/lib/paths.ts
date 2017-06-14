@@ -3,9 +3,10 @@
 */
 import { Path } from "./routing";
 
-export const Home = new Path({ base: "/" });
-export const Contact = new Path({ base: "/contact" });
-export const Privacy = new Path({ base: "/privacy-policy" });
-export const Terms = new Path({ base: "/terms-of-use" });
+export const home = new Path({ base: "/" });
+export const contact = new Path({ base: "/contact" });
+export const privacy = new Path({ base: "/privacy-policy" });
+export const terms = new Path({ base: "/terms-of-use" });
 
-export const Settings = new Path({ base: "/settings" });
+export const settings = new Path({ base: "/settings" });
+export const manage = new Path({ base: "/manage" });
