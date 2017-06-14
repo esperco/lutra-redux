@@ -4,11 +4,8 @@
   (the user's exec team)
 */
 
-// LESS
-require("less/tb.less");
-
 // HTML files
-require("html/tb.html");
+require("html/settings.html");
 
 
 //////////////////////////////////////
@@ -23,26 +20,26 @@ import * as Log from "../lib/log";
 import Analytics from "../lib/analytics";
 import Api from "../lib/api";
 import LocalStore from "../lib/local-store";
+import * as Routing from "../lib/routing";
 import { store, dispatch, getState } from "./store";
 
 // Components
 import App from "../components/App";
 import Header from "../components/AppHeader";
-import NotFound from "../components/NotFound";
-import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
-import Events from "./TBEvents";
-import CalSetup from "./TBCalSetup";
-import PickEventSetup from "./TBPickEventSetup";
-import SlackSetup from "./TBSlackSetup";
+import Settings from "./Settings";
+
+// Handlers
+import * as Teams from "../handlers/teams";
+import * as TeamCals from "../handlers/team-cals";
+import * as TeamPrefs from "../handlers/team-prefs";
+
 
 // Store Types
-import { LoggedInState, DispatchFn } from "./types";
+import { LoggedInState } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
 import * as Login from "../lib/login";
-import * as Routing from "../lib/routing";
-import * as Routes from "./routes";
 
 /*
   Helper initialization
@@ -68,66 +65,25 @@ store.subscribe(() => {
   let appProps = { state, dispatch };
   let props = { state, dispatch, Svcs, Conf };
 
+  // Check for exec team to show settings for (redirect otherwise while
+  // we try to init)
+  let execTeam = Teams.getSelfExecTeam({ state });
+
   ReactDOM.render(
     <App {...appProps} >
-      <Header active="agenda-check" {...props} />
+      <Header {...props} />
       <ScrollContainer className="content"
-        scrollKey={getScrollKey(props.state)}
         onScrollChange={(direction) => props.dispatch({
           type: "SCROLL", direction
         })}>
-        <MainView {...props} />
+        { execTeam ?
+          <Settings teamId={execTeam.teamid} {...props} /> :
+          <div className="spinner" /> }
       </ScrollContainer>
     </App>,
     document.getElementById("main")
   );
 });
-
-// Scroll key is used to reset scrollTop on container
-function getScrollKey(state: LoggedInState) {
-  if (state.route) {
-    let route = state.route;
-    switch (route.page) {
-      case "Events":
-      case "PickEventSetup":
-        return route.period.start;
-      default:
-        return route.page;
-    }
-  }
-  return;
-}
-
-// View routing
-function MainView(props: {
-  state: LoggedInState;
-  dispatch: DispatchFn;
-  Svcs: typeof Svcs;
-  Conf: typeof Conf;
-}) {
-  if (props.state.route) {
-    switch(props.state.route.page) {
-      case "Redirect":
-        return <div className="spinner" />;
-      case "Events":
-        let { page: p1, ...eventProps } = props.state.route;
-        return <Events {...props} {...eventProps} />;
-      case "CalSetup":
-        let { page: p2, ...calSetupProps } = props.state.route;
-        return <CalSetup {...props} {...calSetupProps} />;
-      case "PickEventSetup":
-        let { page: p3, ...pickEventProps } = props.state.route;
-        return <PickEventSetup {...props} {...pickEventProps} />;
-      case "SlackSetup":
-        let { page: p4, ...slackSetupProps } = props.state.route;
-        return <SlackSetup {...props} {...slackSetupProps} />;
-      case "NotFound":
-        return <NotFound />;
-    }
-  }
-  return <Loading />;
-}
-
 
 /* Redux-Dependent Initialization  */
 
@@ -143,9 +99,15 @@ Api.init(_.extend<typeof Conf>({
 }, Conf));
 
 // This starts the login process
-Login.init(dispatch, Conf, Svcs).then((info) => {
+Login.init(dispatch, Conf, Svcs).then(async (info) => {
   // Things that should be initialized after login go here
 
-  // This starts the router
-  Routes.init({ dispatch, getState, Svcs, Conf });
+  // Ensure exec team
+  let deps = { state: getState(), dispatch, Svcs }
+  let team = await Teams.ensureSelfExecTeam(deps);
+
+  // Fetch info for user's team
+  TeamCals.fetchAvailableCalendars(team.teamid, deps);
+  TeamCals.fetchSelectedCalendars(team.teamid, deps);
+  TeamPrefs.fetch(team.teamid, deps);
 });

@@ -54,11 +54,20 @@ var config = {
     // Single event pages + Esper link landing
     events: "./ts/events.js/index.tsx",
 
+    // Single user settings page
+    settings: "./ts/settings.js/index.tsx",
+
     // Timebomb for your own team
     tb: "./ts/tb.js/index.tsx",
 
     // Landing page for timebomb
-    agenda: "./ts/agenda.js/index.tsx"
+    agenda: "./ts/agenda.js/index.tsx",
+
+    // Feedback for your own team
+    // fb: "./ts/fb.js/index.tsx",
+
+    // Landing page for feedback
+    // ratings: "./ts/ratings.js/index.tsx"
   },
 
   output: {

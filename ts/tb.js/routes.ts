@@ -80,7 +80,7 @@ export const events = Paths.events.route<Deps>(async function(p, deps) {
 
 /*
   Call setup to create a team. Not an actual route.
-  Redirects to settings?onboarding=1
+  Redirects to cal setup.
 */
 
 export const setup = Paths.setup.route<Deps>(async function(p, deps) {
@@ -217,43 +217,12 @@ export const slackSetup = Paths.slackSetup.route<Deps>(function(p, deps) {
   });
 });
 
-
-/*
-  Settings is both one of our onboarding screens and place to actually
-  change settings for stuff.
-*/
-
-export interface SettingsRoute {
-  page: "Settings";
-  teamId: string;
-}
-
-export const settings = Paths.settings.route<Deps>(function(p, deps) {
-  let team = checkForTeam(deps);
-  if (! team) return;
-  let teamId = team.teamid;
-
-  // Fetch info for user's team
-  TeamCals.fetchAvailableCalendars(team.teamid, deps);
-  TeamCals.fetchSelectedCalendars(team.teamid, deps);
-  TeamPrefs.fetch(team.teamid, deps);
-
-  deps.dispatch({
-    type: "ROUTE",
-    route: {
-      page: "Settings",
-      teamId
-    }
-  });
-});
-
 export type RouteTypes =
   EventsRoute|
   RedirectRoute|
   CalSetupRoute|
   PickEventSetupRoute|
-  SlackSetupRoute|
-  SettingsRoute;
+  SlackSetupRoute;
 
 export function init({ dispatch, getState, Svcs, Conf }: {
   dispatch: (action: Action) => any,
@@ -268,8 +237,7 @@ export function init({ dispatch, getState, Svcs, Conf }: {
       setup,
       calSetup,
       pickEventSetup,
-      slackSetup,
-      settings
+      slackSetup
     ],
 
     // Deps

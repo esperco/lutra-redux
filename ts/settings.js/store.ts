@@ -7,9 +7,7 @@ import * as Log from "../lib/log";
 import { State, Action, DispatchFn } from "./types";
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
-import * as Events from "../states/events";
 import * as Login from "../lib/login";
-import * as Routing from "../lib/routing";
 import * as Scroll from "../states/scroll";
 import * as TeamCalendars from "../states/team-cals";
 import * as TeamPreferences from "../states/team-preferences";
@@ -27,14 +25,8 @@ export const store = createStore(
         return Login.loginReducer(state, action);
       case "FEATURE_FLAG":
         return Login.featureFlagsReducer(state, action);
-      case "ROUTE":
-        return Routing.routeReducer(state, action);
       case "SCROLL":
         return Scroll.scrollReducer(state, action);
-      case "EVENTS_DATA":
-        return Events.eventsDataReducer(state, action);
-      case "EVENTS_UPDATE":
-        return Events.eventsUpdateReducer(state, action);
       case "TEAM_CALENDAR_DATA":
         return TeamCalendars.teamCalendarDataReducer(state, action);
       case "TEAM_CALENDAR_UPDATE":

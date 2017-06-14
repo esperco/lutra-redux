@@ -13,12 +13,6 @@ export const events = new Path({
   hash: ["events"]
 });
 
-export const settings = new Path({
-  base,
-  params: {},
-  hash: ["settings"]
-});
-
 export const setup = new Path({
   base,
   params: {},

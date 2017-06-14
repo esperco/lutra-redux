@@ -1,12 +1,31 @@
 @import (reference) "../_variables";
 
-h2 a:first-child {
-  padding-right: @padding-small;
-  color: @link-muted;
-}
+#team-settings {
+  nav {
+    margin-left: -@padding-small;
+    margin-right: -@padding-small;
+  }
 
-h3 + .description {
-  margin-top: @padding-small;
-  font-weight: @font-size-small;
-  color: @text-muted;
+  @media screen and (min-width: @screen-sm-min) {
+    display: flex;
+    flex-wrap: wrap;
+
+    h2 { width: 100%; }
+    nav {
+      margin-left: -@padding-small;
+      margin-right: @padding-base;
+    }
+
+    .content {
+      flex-basis: 1em;
+      flex-grow: 1;
+      margin-top: -@font-size-h2;
+    }
+  }
+
+  h3 + .description {
+    margin-top: @padding-small;
+    font-weight: @font-size-small;
+    color: @text-muted;
+  }
 }

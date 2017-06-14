@@ -1,6 +1,5 @@
 import { State } from "./types";
 import * as DataStatus from "../states/data-status";
-import * as Events from "../states/events";
 import * as TeamCalendars from "../states/team-cals";
 import * as TeamPreferences from "../states/team-preferences";
 
@@ -11,7 +10,6 @@ import * as TeamPreferences from "../states/team-preferences";
 export default function initState(): State {
   return {
     ...DataStatus.initState(),
-    ...Events.initState(),
     ...TeamCalendars.initState(),
     ...TeamPreferences.initState()
   };
