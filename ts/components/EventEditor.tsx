@@ -3,6 +3,7 @@
 */
 
 require("less/components/_event-editor.less");
+require("less/components/_event-info.less");
 import * as _ from "lodash";
 import * as React from "react";
 import * as moment from "moment";
@@ -100,7 +101,7 @@ export class EventEditor extends React.Component<Props, {}> {
     let event = this.props.event;
     let mStart = moment(event.start);
     let mEnd = moment(event.end);
-    return <div className={classNames("event-editor", {
+    return <div className={classNames("event-editor", "event-info", {
       hidden: event.hidden
     })}>
       <Dropdown
@@ -121,7 +122,7 @@ export class EventEditor extends React.Component<Props, {}> {
         </div></div>}
       />
 
-      <h3>{ event.title ||
+      <h3 className="event-title">{ event.title ||
         <span className="no-title">{ EventText.NoTitle }</span>
       }</h3>
 

@@ -1,0 +1,80 @@
+/*
+  Event info class is used to namespace styling for event-specific fields.
+  Used by both InlineInfo, EventList, and EventEditor
+*/
+@import (reference) "../_variables";
+
+.event-info {
+  .inline-info {
+    font-size: @font-size-small;
+    color: @text-muted;
+
+    > * {
+      display: inline-block;
+      margin-top: 0;
+      &::before {
+        content: "\2022";
+        display: inline-block;
+        text-align: center;
+        width: @padding-base;
+      }
+
+      &:first-child::before {
+        display: none;
+      }
+    }
+  }
+
+  .no-title {
+    font-style: italic;
+    color: @text-muted;
+  }
+
+  .time { margin-top: 0; }
+
+  .time, .location {
+    font-size: @font-size-small;
+    color: @text-muted;
+  }
+
+  .cost::before {
+    color: @text-muted;
+  }
+
+  // .cost-1 {
+  //   color: @text-muted;
+  // }
+
+  // .cost-2 {
+  //   color: @degree-2;
+  // }
+
+  // .cost-3 {
+  //   color: @degree-3;
+  // }
+
+  .cost-4 {
+    color: @degree-4;
+    font-weight: bold;
+  }
+
+  .cost-5 {
+    color: @degree-5;
+    font-weight: bold;
+  }
+
+  &.hidden {
+    .event-title {
+      text-decoration: line-through;
+      color: @text-muted;
+    }
+
+    .tag-list, .tag-list ~ * {
+      display: none;
+    }
+
+    .tag-list ~ .panel {
+      display: block;
+    }
+  }
+}

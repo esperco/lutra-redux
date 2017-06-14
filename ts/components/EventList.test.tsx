@@ -2,7 +2,8 @@ import * as React from 'react';
 import * as Sinon from 'sinon';
 import { expect } from "chai";
 import { shallow } from 'enzyme';
-import { EventList, EventDisplay, PlaceholderEvent } from "./EventList";
+import { EventList, EventDisplay } from "./EventList";
+import EventPlaceholder from "./EventPlaceholder";
 import Tooltip from './Tooltip';
 import Waypoint from './Waypoint';
 import makeEvent from "../fakes/events-fake";
@@ -37,7 +38,7 @@ describe("EventList", () => {
     let wrapper = shallow(<EventList
       events={[e1, "FETCHING", e3]} { ...defaultsProps }
     />);
-    expect(wrapper.find(PlaceholderEvent)).to.have.length(1);
+    expect(wrapper.find(EventPlaceholder)).to.have.length(1);
     expect(wrapper.find(EventDisplay)).to.have.length(2);
   });
 

@@ -2,7 +2,6 @@
   Styling for a list of events
 */
 @import (reference) "../_variables";
-@import "./_event-editor";
 
 .event-list .hidden-events {
   padding: 0;
@@ -69,10 +68,6 @@
     }
   }
 
-  .no-title {
-    .event-editor .no-title;
-  }
-
   .event-body > * + * {
     margin-top: @padding-small;
   }
@@ -88,32 +83,6 @@
     margin-top: 0
   }
 
-  .cost::before {
-    color: @text-muted;
-  }
-
-  // .cost-1 {
-  //   color: @text-muted;
-  // }
-
-  // .cost-2 {
-  //   color: @degree-2;
-  // }
-
-  // .cost-3 {
-  //   color: @degree-3;
-  // }
-
-  .cost-4 {
-    color: @degree-4;
-    font-weight: bold;
-  }
-
-  .cost-5 {
-    color: @degree-5;
-    font-weight: bold;
-  }
-
   .event-actions {
     display: flex;
 
@@ -121,27 +90,6 @@
 
     .tag-list {
       flex: 1 1 auto;
-    }
-  }
-}
-
-.event-info {
-  font-size: @font-size-small;
-  color: @text-muted;
-
-  > * {
-    display: inline-block;
-    margin-top: 0;
-
-    &::before {
-      content: "\2022";
-      display: inline-block;
-      text-align: center;
-      width: @padding-base;
-    }
-
-    &:first-child::before {
-      display: none;
     }
   }
 }
