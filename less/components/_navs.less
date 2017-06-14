@@ -1,80 +1,49 @@
 @import (reference) "../_variables";
 @nav-border-thickness: 1px;
 
-header nav a {
-  display: block;
-  padding: @padding-small;
-  text-decoration: none;
-}
+header nav {
+  display: flex;
+  max-width: calc(~"100% + " 2 * @padding-base);
+  overflow-x: auto;
 
-@media screen and (min-width: @screen-sm-min) {
-  header nav {
-    display: flex;
-    max-width: calc(~"100% + " 2 * @padding-base);
-    overflow-x: auto;
-
-    &:first-child {
-      margin-left: -@padding-base;
-    }
-
-    &:last-child {
-      margin-right: -@padding-base;
-    }
-
-    a {
-      display: inline-block;
-      flex: 1000 1000 1em;
-      min-width: 1em;
-      text-align: center;
-      margin-top: 0;
-      height: @navbar-height;
-      line-height: @navbar-height;
-      padding: 0 @padding-small;
-
-      &.active {
-        border-bottom: @nav-border-thickness solid @link-color;
-      }
-
-      &:hover, &:focus {
-        border-bottom: @nav-border-thickness solid @link-color;
-        text-decoration: none;
-      }
-
-      &:after {
-        display: block;
-        content: " ";
-      }
-    }
+  &:first-child {
+    margin-left: -@padding-base;
   }
-}
 
-nav {
+  &:last-child {
+    margin-right: -@padding-base;
+  }
+
   a {
+    display: inline-block;
+    flex: 1000 1000 1em;
+    min-width: 1em;
+    text-align: center;
+    margin-top: 0;
+    height: @navbar-height;
+    line-height: @navbar-height;
+    padding: 0 @padding-small;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.3em; // Don't cut off bottom of letters
+
+    &.active {
+      border-bottom: @nav-border-thickness solid @link-color;
+    }
+
+    &:hover, &:focus {
+      border-bottom: @nav-border-thickness solid @link-color;
+      text-decoration: none;
+    }
+
+    &:after {
+      display: block;
+      content: " ";
+    }
   }
-}
 
-@media screen and (max-width: @screen-xs-max) {
-  header nav {
-    a {
-      padding: @padding-small @padding-base;
-
-      &.active, &:hover, &:focus {
-        color: @text-highlight;
-        background: @text-highlight-bg;
-      }
-    }
-
-    &:first-child {
-      margin-left: -@padding-base;
-    }
-
-    &:last-child {
-      margin-right: -@padding-base;
-      margin-bottom: @padding-small;
-    }
+  // Labels only on mobile
+  @media screen and (max-width: @screen-xs-max) {
+    .icon-label > i + span { display: none; }
   }
 }

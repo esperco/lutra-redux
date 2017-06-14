@@ -1,32 +1,8 @@
 @import (reference) "../_variables";
-@import (reference) "./_navs";
 
 header#app-header {
   nav {
-    display: flex;
-    margin: 0;
-
-    a {
-      flex-basis: auto;
-      height: @navbar-height;
-      line-height: @navbar-height;
-      padding: 0 @padding-small;
-      background: inherit;
-
-      &.active, &:hover, &:focus {
-        color: @link-color;
-        border-bottom: @nav-border-thickness solid @link-color;
-      }
-
-      &:hover, &:focus {
-        color: @link-hover-color;
-      }
-    }
-    &:last-child { margin-right: 0; }
-
-    // Labels only on mobile
-    @media screen and (max-width: @screen-xs-max) {
-      .icon-label > i + span { display: none; }
-    }
+    a { flex-basis: auto; }
+    &:last-child { margin-right: -@padding-small; }
   }
 }

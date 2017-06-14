@@ -64,12 +64,12 @@ export class AppHeader extends React.Component<Props, {}> {
         <Link href={agendaPath} active={active === "agenda-check"}>
           <Icon type="agenda-check">{ CommonText.AgendaLink }</Icon>
         </Link>
-        { this.renderAccountsDropdown() }
+        { this.renderDropdown() }
       </nav>
     </header>;
   }
 
-  renderAccountsDropdown() {
+  renderDropdown() {
     let toggle = <button>
       <Icon type="options-v" />
     </button>;

@@ -26,14 +26,27 @@ export interface Props {
   Conf?: { maxDaysFetch?: number; };
 }
 
-export default class TBSettings extends React.Component<Props, {}> {
+export default class Settings extends React.Component<Props, {}> {
   render() {
-    let { children, ...props } = this.props;
     return <div className="container">
       <h2>
         { Text.SettingsHeading }
       </h2>
+      { this.renderMenu() }
+      { this.renderContent() }
+    </div>;
+  }
 
+  renderMenu() {
+    return <nav className="menu">
+      <a href="">Hello</a>
+      <a href="">World</a>
+    </nav>;
+  }
+
+  renderContent() {
+    let { children, ...props } = this.props;
+    return <div className="content">
       <div className="panel">
         <GeneralSettings {...props} />
       </div>
