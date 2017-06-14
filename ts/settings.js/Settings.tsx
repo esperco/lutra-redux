@@ -3,7 +3,6 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
-import Icon from "../components/Icon";
 import TeamCalendarsSelector from "../components/TeamCalendarsSelector";
 import TextInput from "../components/TextInput";
 import FeedbackSettings from "../components/FeedbackSettings";
@@ -16,7 +15,6 @@ import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
 import { ready } from '../states/data-status';
 import * as Text from "../text/team";
-import * as Paths from "./paths";
 import SlackAuth from "./SlackAuth";
 import { LoggedInState, DispatchFn } from './types';
 
@@ -33,9 +31,6 @@ export default class TBSettings extends React.Component<Props, {}> {
     let { children, ...props } = this.props;
     return <div className="container">
       <h2>
-        <a href={Paths.events.href({})}>
-          <Icon type="previous" />
-        </a>
         { Text.SettingsHeading }
       </h2>
 

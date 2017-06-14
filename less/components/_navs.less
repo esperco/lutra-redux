@@ -1,5 +1,5 @@
 @import (reference) "../_variables";
-@nav-border-thickness: 3px;
+@nav-border-thickness: 1px;
 
 header nav a {
   display: block;
@@ -36,8 +36,6 @@ header nav a {
       }
 
       &:hover, &:focus {
-        color: @text-highlight;
-        background: @text-highlight-bg;
         border-bottom: @nav-border-thickness solid @link-color;
         text-decoration: none;
       }
@@ -55,7 +53,28 @@ nav {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-transform: uppercase;
     line-height: 1.3em; // Don't cut off bottom of letters
+  }
+}
+
+@media screen and (max-width: @screen-xs-max) {
+  header nav {
+    a {
+      padding: @padding-small @padding-base;
+
+      &.active, &:hover, &:focus {
+        color: @text-highlight;
+        background: @text-highlight-bg;
+      }
+    }
+
+    &:first-child {
+      margin-left: -@padding-base;
+    }
+
+    &:last-child {
+      margin-right: -@padding-base;
+      margin-bottom: @padding-small;
+    }
   }
 }

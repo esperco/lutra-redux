@@ -8,3 +8,4 @@ export const Contact = new Path({ base: "/contact" });
 export const Privacy = new Path({ base: "/privacy-policy" });
 export const Terms = new Path({ base: "/terms-of-use" });
 
+export const Settings = new Path({ base: "/settings" });

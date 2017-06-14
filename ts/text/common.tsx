@@ -57,6 +57,8 @@ export const Success = "Thanks! You're all set.";
 export const EditResponse = "Need to change something?";
 
 // Navigation
+export const ChartLink = "Charts";
+export const RatingsLink = "Ratings";
 export const AgendaLink = "Agenda Check";
 export const ExecLink = "Esper for Individuals";
 export const GroupsLink = "Esper for Enterprise";

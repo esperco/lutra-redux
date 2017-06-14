@@ -4,10 +4,7 @@
 
 import * as DataStatus from "../states/data-status";
 import * as ErrorMsg from "../states/error-msg";
-import * as Events from "../states/events";
 import * as Login from "../lib/login";
-import * as Routing from "../lib/routing";
-import * as Routes from "./routes";
 import * as Scroll from "../states/scroll";
 import * as TeamCalendars from "../states/team-cals";
 import * as TeamPreferences from "../states/team-preferences";
@@ -18,8 +15,6 @@ import * as TeamPreferences from "../states/team-preferences";
 */
 export type Action =
   DataStatus.DataAction|
-  Events.EventsDataAction|
-  Events.EventsUpdateAction|
   TeamCalendars.TeamCalendarDataAction|
   TeamCalendars.TeamCalendarUpdateAction|
   TeamPreferences.DataAction|
@@ -28,7 +23,6 @@ export type Action =
   Login.FeatureFlagAction|
   Scroll.ScrollAction|
   ErrorMsg.ErrorAction|
-  Routing.RouteAction<Routes.RouteTypes>|
   { type: "@@INIT" };
 
 /*
@@ -36,12 +30,10 @@ export type Action =
 */
 export interface State extends
   DataStatus.DataState,
-  Events.EventsState,
   ErrorMsg.ErrorMsgState,
   TeamCalendars.TeamCalendarState,
   TeamPreferences.TeamPreferencesState,
   Login.LoginState,
-  Routing.RouteState<Routes.RouteTypes>,
   Scroll.ScrollState { };
 
 // Variant of state where we're logged in
