@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Sinon from 'sinon';
 import { expect } from "chai";
 import { shallow } from 'enzyme';
-import { EventList, EventDisplay } from "./EventList";
+import { EventPredictionsList, EventDisplay } from "./EventPredictionsList";
 import EventPlaceholder from "./EventPlaceholder";
 import Tooltip from './Tooltip';
 import Waypoint from './Waypoint';
@@ -26,16 +26,16 @@ const defaultsProps = {
   eventHrefFn: () => "http://esper.com"
 };
 
-describe("EventList", () => {
+describe("EventPredictionsList", () => {
   it("renders an EventDisplay for each valid event", () => {
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1, e2, e3]} { ...defaultsProps }
     />);
     expect(wrapper.find(EventDisplay)).to.have.length(3);
   });
 
   it("renders a placeholder if fetching", () => {
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1, "FETCHING", e3]} { ...defaultsProps }
     />);
     expect(wrapper.find(EventPlaceholder)).to.have.length(1);
@@ -43,7 +43,7 @@ describe("EventList", () => {
   });
 
   it("doesn't render undefined events", () => {
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1, undefined, e3]} { ...defaultsProps }
     />);
     expect(wrapper.find(EventDisplay)).to.have.length(2);
@@ -51,7 +51,7 @@ describe("EventList", () => {
 
   it("doesn't render hidden, confirmed events", () => {
     let e1a = { ...e1, hidden: true, labels_confirmed: true };
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1a, e2]} { ...defaultsProps }
     />);
     let eventDisplay = wrapper.find(EventDisplay);
@@ -61,7 +61,7 @@ describe("EventList", () => {
 
   it("renders hidden, unconfirmed events", () => {
     let e1a = { ...e1, hidden: true, labels_confirmed: false };
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1a, e2]} { ...defaultsProps }
     />);
     let eventDisplay = wrapper.find(EventDisplay);
@@ -71,7 +71,7 @@ describe("EventList", () => {
   it("does not hide events after props update", () => {
     let e1a = { ...e1, hidden: true, labels_confirmed: false };
     let e1b = { ...e1, hidden: true, labels_confirmed: true };
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1a, e2]} { ...defaultsProps }
     />);
     wrapper.setProps({ events: [e1b, e2] });
@@ -83,7 +83,7 @@ describe("EventList", () => {
   it("updates confirmation status when EventDisplay fires " +
      "onExplicitConfirm firing", () => {
     let e1a = { ...e1, hidden: true, labels_confirmed: false };
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1a]} { ...defaultsProps }
     />);
     let eventDisplay = wrapper.find(EventDisplay);
@@ -99,7 +99,7 @@ describe("EventList", () => {
 
   it("renders hidden, confirmed events after clicking button", () => {
     let e1a = { ...e1, hidden: true, labels_confirmed: true };
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1a, e2]} { ...defaultsProps }
     />);
     let button = shallow(wrapper.find(Tooltip).prop('target'));
@@ -112,7 +112,7 @@ describe("EventList", () => {
 
   it("re-hides hidden, confirmed events if button is clicked twice", () => {
     let e1a = { ...e1, hidden: true, labels_confirmed: true };
-    let wrapper = shallow(<EventList
+    let wrapper = shallow(<EventPredictionsList
       events={[e1a, e2]} { ...defaultsProps }
     />);
     let button = shallow(wrapper.find(Tooltip).prop('target'));

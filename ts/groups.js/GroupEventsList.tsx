@@ -7,7 +7,7 @@ import * as React from "react";
 import { generalSettings } from "./paths";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import DayBox from "../components/DayBox";
-import EventList, { SharedProps } from "../components/EventList";
+import EventPredictionsList, { SharedProps } from "../components/EventPredictionsList";
 import TreeFall from "../components/TreeFall";
 import Waypoint from "../components/Waypoint";
 import * as Events from "../handlers/events";
@@ -258,10 +258,10 @@ class QueryDay extends TreeFall<DayProps, {}> {
       { this.renderWaypoint() }
       <DayBox date={dateForDay(this.props.day)}>
         {/*
-          Wrap EventList with extra div so flexbox doesn't expand height of
-          EventList when it's too short.
+          Wrap EventPredictionsList with extra div so flexbox doesn't expand
+          height of EventPredictionsList when it's too short.
         */}
-        <div><EventList
+        <div><EventPredictionsList
           events={calEvents}
           selectedEventIds={this.props.selectedEventIds}
           {...eventProps}

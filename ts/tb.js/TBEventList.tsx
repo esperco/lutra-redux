@@ -6,7 +6,9 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import DayBox from "../components/DayBox";
-import EventList, { SharedProps } from "../components/EventList";
+import { InlineInfo, Box, Title } from "../components/EventInfo";
+import EventList from "../components/EventList";
+import TimebombToggle from "../components/TimebombToggle";
 import TreeFall from "../components/TreeFall";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
@@ -41,9 +43,6 @@ export default class TBEventList extends React.Component<Props, {}> {
 
     let { start, end } = toDays(period);
     let queryDays = queryState.slice(start, end);
-    let loggedInUid =
-      this.props.state.login ? this.props.state.login.uid : undefined;
-
     let total = 0;
     let loaded = iter(
       { ...this.props, calgroupId, query: {} },
@@ -57,10 +56,9 @@ export default class TBEventList extends React.Component<Props, {}> {
 
       { _.map(queryDays, (d, i) =>
         <QueryDay key={i} day={start + i}
-          loggedInUid={loggedInUid}
           result={d[queryKey]}
           eventMap={eventMap}
-          onTimebombToggle={this.props.onTimebombToggle}
+          cb={this.renderEvent}
         />
       ) }
 
@@ -70,15 +68,31 @@ export default class TBEventList extends React.Component<Props, {}> {
     </div>;
   }
 
+  renderEvent = (event: ApiT.GenericCalendarEvent) => {
+    let loggedInUid =
+      this.props.state.login ? this.props.state.login.uid : undefined;
+    return <Box event={event} className="panel">
+      <div>
+        <h4><Title event={event} /></h4>
+        <InlineInfo event={event} />
+      </div>
+      <TimebombToggle
+        loggedInUid={loggedInUid}
+        event={event}
+        onToggle={this.props.onTimebombToggle} />
+    </Box>;
+  }
+
   next = () => this.props.onPeriodChange(add(this.props.period, 1));
 }
 
 
-interface DayProps extends SharedProps {
+interface DayProps {
   day: number; // Period day index
   loggedInUid?: string;
   result: StoreData<QueryResult>;
   eventMap: EventMap;
+  cb: (e: ApiT.GenericCalendarEvent) => React.ReactNode;
 }
 
 class QueryDay extends TreeFall<DayProps, {}> {
@@ -101,9 +115,9 @@ class QueryDay extends TreeFall<DayProps, {}> {
           EventList when it's too short.
         */}
         <div><EventList
+          className="panel"
           events={calEvents}
-          loggedInUid={this.props.loggedInUid}
-          onTimebombToggle={this.props.onTimebombToggle}
+          cb={this.props.cb}
         /></div>
       </DayBox>
       { this.renderWaypoint() }

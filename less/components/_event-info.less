@@ -78,3 +78,40 @@
     }
   }
 }
+
+/*
+  Event box is our standard compact UI for interacting with an event. Meant
+  for use in a list or if surrounded by other content.
+*/
+.event-box, .event-box.panel {
+  padding: @padding-base - (@padding-small / 2);
+  display: flex;
+  align-items: center;
+  flex-flow: row wrap;
+
+  > * {
+    flex: 1000 1000 250px;
+    margin-top: 0;
+    padding: @padding-small / 2;
+    min-width: 250px;
+
+    @media screen and (min-width: @screen-sm-min) {
+      // See https://github.com/philipwalton/flexbugs#11-min-and-max-size-declarations-are-ignored-when-wrapping-flex-items
+      min-width: 300px;
+      flex-basis: 300px;
+    }
+  }
+
+  &.past {
+    .event-title {
+      font-weight: normal;
+      color: @text-muted;
+    }
+  }
+
+  .event-title {
+    display: inline-block;
+    margin-right: @padding-small;
+    label { display: inline; }
+  }
+}

@@ -6,7 +6,7 @@ import * as React from "react";
 import * as classNames from "classnames";
 import DataStatus from "../components/DataStatus";
 import delay, { DelayedControl } from "../components/DelayedControl";
-import EventInlineInfo from "../components/EventInlineInfo";
+import { InlineInfo } from "../components/EventInfo";
 import Icon from "../components/Icon";
 import SuccessMark from "../components/SuccessMark";
 import { BaseTimebombToggle } from "../components/TimebombToggle";
@@ -226,7 +226,7 @@ export class EventLanding extends React.Component<Props, State> {
             })}>
               { this.state.event.title || EventText.NoTitle }
             </h2>
-            <EventInlineInfo event={this.state.event} includeDay={true} />
+            <InlineInfo event={this.state.event} includeDay={true} />
           </div>
           <BaseTimebombToggle
             name={"timebomb-" + this.state.event.id}

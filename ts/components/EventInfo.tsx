@@ -1,8 +1,9 @@
 /*
-  Displays some generic information about an event
+  Components for displaying generic information about an Event
 */
 require("less/components/_event-info.less");
 import * as _ from "lodash";
+import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
 import * as ApiT from "../lib/apiT";
@@ -10,13 +11,14 @@ import Icon from "./Icon";
 import Tooltip from "./Tooltip";
 import * as EventText from "../text/events";
 
-export interface Props {
+export interface InlineProps {
   event: ApiT.GenericCalendarEvent;
   includeDay?: boolean;
 }
 
-export function EventInlineInfo({ event, includeDay }: Props) {
-  return <div className="event-info"><div className="inline-info">
+// Inline info about an event
+export const InlineInfo = ({ event, includeDay }: InlineProps) => <div
+  className="event-info"><div className="inline-info">
     <div className="time">
       <span className="start">
         { moment(event.start).format(includeDay ? "MMM D, h:mm a" : "h:mm a") }
@@ -55,6 +57,43 @@ export function EventInlineInfo({ event, includeDay }: Props) {
         { _.repeat("$", event.merged.cost) }
       </span> : null }
   </div></div>;
+
+
+/*
+  Event box is a simple wrapper around displaying an event.
+*/
+
+export interface BoxProps {
+  className?: string;
+  event: ApiT.GenericCalendarEvent;
+  children: React.ReactNode|React.ReactNode[];
 }
 
-export default EventInlineInfo;
+export const Box =
+  (p: BoxProps) => <div className={classNames("event-info", "event-box", {
+    past: moment(p.event.end).isBefore(new Date()),
+  }, p.className)}>
+    { p.children }
+  </div>;
+
+
+/*
+  Render event title
+*/
+
+export interface TitleProps {
+  event: ApiT.GenericCalendarEvent;
+  href?: string;
+}
+
+export const Title = (p: TitleProps) => {
+  let cls = classNames("event-title", {
+    "no-title": !p.event.title
+  });
+  let title = p.event.title ? p.event.title : EventText.NoTitle;
+  return p.href ? <a href={p.href} className={cls}>
+    { title }
+  </a> : <span className={cls}>
+    { title }
+  </span>;
+};
