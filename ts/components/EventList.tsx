@@ -6,11 +6,12 @@ require("less/components/_event-info.less");
 import * as React from "react";
 import * as ApiT from "../lib/apiT";
 import EventPlaceholder from "./EventPlaceholder";
-import { ready, StoreData } from "../states/data-status";
+import { EventDataList } from "./QueryDay";
+import { ready } from "../states/data-status";
 
 export interface Props {
   className?: string;
-  events: (StoreData<ApiT.GenericCalendarEvent>|undefined)[];
+  events: EventDataList;
   cb: (e: ApiT.GenericCalendarEvent) => React.ReactNode
 }
 
