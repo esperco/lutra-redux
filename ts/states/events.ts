@@ -113,6 +113,7 @@ export interface EventsUpdateAction {
   rmLabels?: ApiT.LabelInfo[];
   hidden?: boolean;
   timebomb?: ApiT.TimebombState;
+  passive?: boolean; // Update is triggered by passive scroling
 }
 
 export function eventsDataReducer<S extends EventsState> (
@@ -318,10 +319,10 @@ function reduceEventUpdate(
   return compactObject({
     ...event,
 
-    // Udpate labels
+    // Update labels
     labels,
-    labels_predicted: false,
-    labels_confirmed: true,
+    labels_predicted: action.passive ? event.labels_predicted : false,
+    labels_confirmed: action.passive ? event.labels_confirmed : true,
     has_recurring_labels: (labels !== event.labels) ?
       !!recurring : event.has_recurring_labels,
 

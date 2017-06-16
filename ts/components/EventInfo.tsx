@@ -63,18 +63,20 @@ export const InlineInfo = ({ event, includeDay }: InlineProps) => <div
   Event box is a simple wrapper around displaying an event.
 */
 
-export interface BoxProps {
+export interface BoxProps extends React.HTMLAttributes<HTMLDivElement>{
   className?: string;
   event: ApiT.GenericCalendarEvent;
   children: React.ReactNode|React.ReactNode[];
 }
 
-export const Box =
-  (p: BoxProps) => <div className={classNames("event-info", "event-box", {
+export const Box = (p: BoxProps) => {
+  let { className, event, children, ...divProps } = p;
+  return <div className={classNames("event-info", "event-box", {
     past: moment(p.event.end).isBefore(new Date()),
-  }, p.className)}>
+  }, p.className)} {...divProps} >
     { p.children }
   </div>;
+};
 
 
 /*
@@ -87,13 +89,10 @@ export interface TitleProps {
 }
 
 export const Title = (p: TitleProps) => {
-  let cls = classNames("event-title", {
-    "no-title": !p.event.title
-  });
-  let title = p.event.title ? p.event.title : EventText.NoTitle;
-  return p.href ? <a href={p.href} className={cls}>
+  let title = p.event.title ?
+    <span>{ p.event.title }</span> :
+    <span className="no-title">{ EventText.NoTitle }></span>;
+  return p.href ? <a href={p.href}>
     { title }
-  </a> : <span className={cls}>
-    { title }
-  </span>;
+  </a> : title;
 };

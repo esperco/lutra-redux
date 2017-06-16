@@ -583,6 +583,9 @@ export function setGroupEventLabels(props: {
   active?: boolean;
   hidden?: boolean;
 
+  // Passive confirmation
+  passive?: boolean;
+
   // If we have a query + period context, we can refresh the current calc
   context?: {
     query: QueryFilter;
@@ -659,7 +662,8 @@ export function setGroupEventLabels(props: {
     recurringEventIds: recurringIds.toList(),
     addLabels: props.label && props.active ? [props.label] : [],
     rmLabels: !props.label || props.active ? [] : [props.label],
-    hidden: props.label && _.isUndefined(props.hidden) ? false : props.hidden
+    hidden: props.label && _.isUndefined(props.hidden) ? false : props.hidden,
+    passive: props.passive
   }));
 
   // Also need to set new group labels (but not for hashtags)

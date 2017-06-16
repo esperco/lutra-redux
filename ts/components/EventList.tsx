@@ -12,7 +12,7 @@ import { ready } from "../states/data-status";
 export interface Props {
   className?: string;
   events: EventDataList;
-  cb: (e: ApiT.GenericCalendarEvent) => React.ReactNode
+  cb: (e: ApiT.GenericCalendarEvent) => React.ReactNode;
 }
 
 /*

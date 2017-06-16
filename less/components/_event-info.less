@@ -68,14 +68,6 @@
       text-decoration: line-through;
       color: @text-muted;
     }
-
-    .tag-list, .tag-list ~ * {
-      display: none;
-    }
-
-    .tag-list ~ .panel {
-      display: block;
-    }
   }
 }
 
@@ -113,5 +105,6 @@
     display: inline-block;
     margin-right: @padding-small;
     label { display: inline; }
+    * + * { margin-top: 0; }
   }
 }
