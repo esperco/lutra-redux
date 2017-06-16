@@ -7,18 +7,21 @@
 require("less/components/_event-info.less");
 import * as React from "react";
 import { Box, BoxProps } from "../components/EventInfo";
+import * as ApiT from "../lib/apiT";
 import Waypoint from "./Waypoint";
 import * as classNames from "classnames";
 
 // Viewing event in list will confirm its labels after this time in ms
 const DEFAULT_AUTO_CONFIRM_TIMEOUT = 3000;
 
-export interface Props extends BoxProps {
+export interface SpanProps {
+  event: ApiT.GenericCalendarEvent;
   onConfirm: () => void;
   autoConfirmTimeout?: number;
 }
 
-export class EventConfirmBox extends React.Component<Props, {}> {
+// Standalone confirmation span if this is all we need
+export class EventConfirmSpan extends React.Component<SpanProps, {}> {
   _timeout?: number;
 
   // Don't fire confirmation timeout if we skipped past it really fast
@@ -30,25 +33,17 @@ export class EventConfirmBox extends React.Component<Props, {}> {
 
   render() {
     let { event } = this.props;
-    let { className, onConfirm, autoConfirmTimeout, ...props } = this.props;
     let unconfirmed = event.labels_predicted && !event.labels_confirmed;
-    return <Box
-      className={classNames(className, {
-        "has-predictions": event.labels_predicted,
-        unconfirmed,
-        hidden: event.hidden
-      })}
-      {...props}>
-        { this.props.children }
-        { !event.labels_confirmed ?
-          <span className="confirm-waypoint">
-            <Waypoint
-              fireOnRapidScroll={false}
-              onEnter={this.setConfirmTimeout}
-              onLeave={this.clearConfirmTimeout}
-            />
-          </span> : null }
-      </Box>;
+    if (unconfirmed) {
+      return <span className="confirm-waypoint">
+        <Waypoint
+          fireOnRapidScroll={false}
+          onEnter={this.setConfirmTimeout}
+          onLeave={this.clearConfirmTimeout}
+        />
+      </span>;
+    }
+    return null;
   }
 
   // Once event has been viewed. Auto-confirm after a short timeout.
@@ -66,6 +61,29 @@ export class EventConfirmBox extends React.Component<Props, {}> {
       delete this._timeout;
     }
   }
+}
+
+
+export interface Props extends SpanProps, BoxProps {}
+
+export const EventConfirmBox = (props: Props) => {
+  let { event } = props;
+  let { className, onConfirm, autoConfirmTimeout, ...boxProps } = props;
+  let unconfirmed = event.labels_predicted && !event.labels_confirmed;
+  return <Box
+    className={classNames(className, {
+      "has-predictions": event.labels_predicted,
+      unconfirmed,
+      hidden: event.hidden
+    })}
+    {...boxProps}>
+      { props.children }
+      <EventConfirmSpan
+        event={event}
+        onConfirm={onConfirm}
+        autoConfirmTimeout={autoConfirmTimeout}
+      />
+    </Box>;
 }
 
 export default EventConfirmBox;
