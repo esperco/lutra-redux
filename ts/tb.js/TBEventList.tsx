@@ -14,17 +14,16 @@ import * as ApiT from "../lib/apiT";
 import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { MoreEvents } from "../text/events";
-import { State as StoreState, DispatchFn } from './types';
+import { LoggedInState as StoreState } from './types';
 
 interface Props {
   teamId: string;
   period: GenericPeriod;
   noContentMessage: JSX.Element|string;
+  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   onPeriodChange: (p: GenericPeriod) => void;
   onTimebombToggle: (eventId: string, val: boolean) => void;
-
   state: StoreState;
-  dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
 }
@@ -62,7 +61,10 @@ export default class TBEventList extends React.Component<Props, {}> {
       this.props.state.login ? this.props.state.login.uid : undefined;
     return <Box key={event.id} event={event} className="panel">
       <div>
-        <h4><Title event={event} /></h4>
+        <h4><Title
+          event={event}
+          href={this.props.eventHrefFn && this.props.eventHrefFn(event)}
+        /></h4>
         <InlineInfo event={event} />
       </div>
       <TimebombToggle

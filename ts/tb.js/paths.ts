@@ -8,7 +8,8 @@ export const events = new Path({
   params: {},
   optParams: {
     period: PeriodParam,
-    onboarding: BooleanParam
+    onboarding: BooleanParam,
+    eventId: StringParam
   },
   hash: ["events"]
 });

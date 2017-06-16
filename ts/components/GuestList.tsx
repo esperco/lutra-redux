@@ -15,7 +15,7 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
 
 export const GuestList = ({ className, event, hrefFn, ...props }: Props) => {
   let { guests } = event;
-  if (!guests || guests.length) return null;
+  if (!guests || !guests.length) return null;
 
   return <div className={classNames(className, "guest-list")}>
     <h4>{ Text.Attendees }</h4>
