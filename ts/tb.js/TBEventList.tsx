@@ -62,7 +62,7 @@ export default class TBEventList extends React.Component<Props, {}> {
       this.props.state.login ? this.props.state.login.uid : undefined;
     return <Box key={event.id} event={event} className="panel">
       <div>
-        <h4 className="event-title"><Title event={event} /></h4>
+        <h4><Title event={event} /></h4>
         <InlineInfo event={event} />
       </div>
       <TimebombToggle

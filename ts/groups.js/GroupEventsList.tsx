@@ -131,16 +131,15 @@ export class EventsList extends React.Component<Props, State> {
   }
 
   renderEvent = (event: ApiT.GenericCalendarEvent) => {
-    let selected = this.props.state.selectedEvents[event.id] ||
+    let selected = !!(this.props.state.selectedEvents[event.id] ||
       (useRecurringLabels(event) &&
-       this.state.selectedRecurringIds[event.recurring_event_id]);
+       this.state.selectedRecurringIds[event.recurring_event_id]));
 
     return <EventConfirmBox key={event.id}
       className="panel" event={event}
       onConfirm={() => this.confirm(event.id, true)}>
       <div>
-        <h4 className="event-title"
-            onClick={() => this.confirm(event.id, false)}>
+        <h4 onClick={() => this.confirm(event.id, false)}>
           <CheckboxItem checked={selected}
                         onChange={(v) => this.toggleSelect(event.id, v)}>
             <span className="sr-only">{ EventText.Select }</span>

@@ -66,16 +66,17 @@ export class EventConfirmSpan extends React.Component<SpanProps, {}> {
 
 export interface Props extends SpanProps, BoxProps {}
 
+export const confirmClasses = (event: ApiT.GenericCalendarEvent) => ({
+  "has-predictions": event.labels_predicted,
+  unconfirmed: event.labels_predicted && !event.labels_confirmed,
+  hidden: event.hidden
+});
+
 export const EventConfirmBox = (props: Props) => {
   let { event } = props;
   let { className, onConfirm, autoConfirmTimeout, ...boxProps } = props;
-  let unconfirmed = event.labels_predicted && !event.labels_confirmed;
   return <Box
-    className={classNames(className, {
-      "has-predictions": event.labels_predicted,
-      unconfirmed,
-      hidden: event.hidden
-    })}
+    className={classNames(className, confirmClasses(event))}
     {...boxProps}>
       { props.children }
       <EventConfirmSpan
