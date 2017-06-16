@@ -6,7 +6,8 @@
 import * as React from 'react';
 import { InlineInfo, Box, Title } from "../components/EventInfo";
 import EventList from "../components/EventList";
-import { EventDataList, mapQueryDays } from "../components/QueryDay";
+import { EventDataList } from "../components/QueryDay";
+import QueryDayList from "../components/QueryDayList";
 import TimebombToggle from "../components/TimebombToggle";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
@@ -30,19 +31,18 @@ interface Props {
 
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
-    let { teamId: calgroupId, state, period } = this.props;
-    let { total, loaded, queryDays } = mapQueryDays({
-      calgroupId,
-      period,
-      state,
-      query: {},
-      cb: this.renderEventList
-    });
-
+    let { teamId: calgroupId, state, period, noContentMessage } = this.props;
     return <div className="tb-event-list">
-      { loaded && !total ?
-        <div>{ this.props.noContentMessage }</div> : null }
-      { queryDays }
+      <QueryDayList
+        maxDays={this.props.Conf && this.props.Conf.maxDaysFetch}
+        calgroupId={calgroupId}
+        period={period}
+        state={state}
+        query={{}}
+        cb={this.renderEventList}
+        onLoadPrefix={(total) => total ? null : noContentMessage}
+      />
+
       <div className="load-more">
         <button onClick={this.next}>{ MoreEvents }</button>
       </div>
@@ -60,9 +60,9 @@ export default class TBEventList extends React.Component<Props, {}> {
   renderEvent = (event: ApiT.GenericCalendarEvent) => {
     let loggedInUid =
       this.props.state.login ? this.props.state.login.uid : undefined;
-    return <Box event={event} className="panel">
+    return <Box key={event.id} event={event} className="panel">
       <div>
-        <h4><Title event={event} /></h4>
+        <h4 className="event-title"><Title event={event} /></h4>
         <InlineInfo event={event} />
       </div>
       <TimebombToggle
