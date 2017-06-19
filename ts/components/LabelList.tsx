@@ -8,7 +8,7 @@ import {
 } from "../lib/event-labels";
 import * as LabelText from "../text/labels";
 
-interface Props {
+export interface Props {
   labels: LabelSet;           // Default labels to show in dropdown
   searchLabels?: LabelSet;    // Set of labels to use for autocomplete
   labelHrefFn?: (label: ApiT.LabelInfo) => string;

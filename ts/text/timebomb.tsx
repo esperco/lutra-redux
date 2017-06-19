@@ -24,7 +24,6 @@ export const TBSettingsMsg = (p: { settingsHref: string }) => <span>
 export const SetTimebomb = "Ask for Agenda Items?";
 export const ConfirmYes = "Add to Agenda";
 export const ConfirmNo = "Nothing to Add";
-export const HelpLink = "What is this?";
 export const TimebombLate = "Time to change preference has expired";
 export const ConfirmLate = "Time to edit agenda items has expired";
 

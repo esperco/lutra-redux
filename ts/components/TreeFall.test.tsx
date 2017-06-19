@@ -7,6 +7,17 @@ import TreeFall from './TreeFall';
 import Waypoint from './Waypoint';
 import { sandbox } from '../lib/sandbox';
 
+// Helper function to stub jQuery bits to simulate being in view / out
+export function stubJQ(top=0, height=50, parentHeight=100) {
+  sandbox.restore();
+  sandbox.stub(ReactDOM, 'findDOMNode').callsFake(() => 'div');
+  sandbox.stub($.fn, 'offsetParent').callsFake(() => ({
+    outerHeight: () => parentHeight
+  }));
+  sandbox.stub($.fn, 'position').callsFake(() => ({ left: 0, top }));
+  sandbox.stub($.fn, 'outerHeight').callsFake(() => height);
+}
+
 describe('TreeFall', () => {
   class TestClass extends TreeFall<{ cats: number }, {}> {
     render() {
@@ -15,17 +26,6 @@ describe('TreeFall', () => {
         { this.renderWaypoint() }
       </div>;
     }
-  }
-
-  // Helper function to stub jQuery bits to simulate being in view / out
-  function stubJQ(top: number, height: number, parentHeight: number) {
-    sandbox.restore();
-    sandbox.stub(ReactDOM, 'findDOMNode').callsFake(() => 'div');
-    sandbox.stub($.fn, 'offsetParent').callsFake(() => ({
-      outerHeight: () => parentHeight
-    }));
-    sandbox.stub($.fn, 'position').callsFake(() => ({ left: 0, top }));
-    sandbox.stub($.fn, 'outerHeight').callsFake(() => height);
   }
 
   // Helper that returns rendered test component with a prop change

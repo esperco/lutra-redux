@@ -1,15 +1,20 @@
 import * as React from 'react';
 import { roundStr } from '../lib/util';
+import { Hide as HideCommon, Show as ShowCommon } from "./common";
 
 export const NoTitle = "Untitled Event";
 export const NotFound = "Event Not Found";
 export const Recurring = "Recurring Event";
 export const FilterEvents = "Filter by Keyword";
 export const DefaultUsername = "Esper User";
+
+export const Hide = HideCommon;
 export const HideDescription = "Remove all tags and exclude this event " +
   "from charts and stats.";
 export const HideMultiDescription = "Remove all tags and exclude all " +
-  "selected events from charts and stats."
+  "selected events from charts and stats.";
+
+export const Show = ShowCommon;
 export const ShowDescription = "This event is currently hidden from charts " +
   "and stats. Click to include it.";
 export const ShowMultiDescription = "One or more of these events are " +

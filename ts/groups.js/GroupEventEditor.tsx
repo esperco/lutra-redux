@@ -4,13 +4,22 @@
 import * as _ from "lodash";
 import * as React from "react";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
+import { EventConfirmSpan } from "../components/EventConfirmBox";
 import EventEditor from "../components/EventEditor";
+import LabelList from "../components/LabelList";
+import RecurringLabelModifier from "../components/RecurringLabelModifier";
+import GuestList from "../components/GuestList";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet } from "../lib/event-labels";
 import { QueryFilter } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
+import { ready } from "../states/data-status";
+import * as Text from "../text/events";
+
+// Viewing event in editor will confirm its labels after this time in ms
+const DEFAULT_AUTO_CONFIRM_TIMEOUT = 1500;
 
 interface Props {
   groupId: string;
@@ -31,9 +40,7 @@ export class GroupEventEditor extends React.Component<Props, {}> {
   render() {
     let eventId = _.keys(this.props.state.selectedEvents)[0];
     let eventMap = this.props.state.events[this.props.groupId] || {};
-    let members = this.props.state.groupMembers[this.props.groupId];
-    let loggedInUid =
-      this.props.state.login ? this.props.state.login.uid : undefined;
+    let event = eventMap[eventId];
     let { labels, searchLabels } = this.props;
     let context = {
       query: this.props.query,
@@ -41,33 +48,64 @@ export class GroupEventEditor extends React.Component<Props, {}> {
     };
 
     return <EventEditor
-      loggedInUid={loggedInUid}
-      event={eventMap[eventId]}
-      members={members}
-      labels={labels}
-      searchLabels={searchLabels}
-      loginDetails={this.props.state.login}
-      onChange={(label, active) => Events.setGroupEventLabels({
-        groupId: this.props.groupId,
-        eventIds: eventId ? [eventId] : [],
-        label, active, context
-      }, this.props)}
-      onConfirm={() => Events.setGroupEventLabels({
-        groupId: this.props.groupId,
-        eventIds: eventId ? [eventId] : []
-      }, this.props)}
-      onForceInstance={() => Events.setGroupEventLabels({
-        groupId: this.props.groupId,
-        eventIds: eventId ? [eventId] : []
-      }, this.props, { forceInstance: true })}
-      onHide={(hidden) => Events.setGroupEventLabels({
-        groupId: this.props.groupId,
-        eventIds: eventId ? [eventId] : [],
-        hidden, context
-      }, this.props)}
-      labelHrefFn={this.props.labelHrefFn}
-      guestHrefFn={this.props.guestHrefFn}
-    />
+      event={event}
+      menu={(event) => <div className="dropdown-menu">
+        <div className="menu">
+          <button
+            className="hide-btn"
+            onClick={() => Events.setGroupEventLabels({
+              groupId: this.props.groupId,
+              eventIds: eventId ? [eventId] : [],
+              hidden: !event.hidden, context
+            }, this.props)}
+          >
+            <span>{ event.hidden ? Text.Show : Text.Hide }</span>
+            <div className="description">
+              { event.hidden ?
+                Text.ShowDescription :
+                Text.HideDescription }
+            </div>
+          </button>
+        </div>
+      </div>}
+    >
+      { ready(event) ? <div>
+        <EventConfirmSpan
+          event={event}
+          onConfirm={() => Events.setGroupEventLabels({
+            groupId: this.props.groupId,
+            eventIds: eventId ? [eventId] : [],
+            passive: false
+          }, this.props)}
+          autoConfirmTimeout={DEFAULT_AUTO_CONFIRM_TIMEOUT}
+        />
+
+        <LabelList
+          events={[event]}
+          labels={labels}
+          labelHrefFn={this.props.labelHrefFn}
+          searchLabels={searchLabels}
+          onChange={(eventIds, label, active) => Events.setGroupEventLabels({
+            groupId: this.props.groupId,
+            eventIds, label, active, context
+          }, this.props)}
+        />
+
+        <RecurringLabelModifier
+          event={event}
+          onForceInstance={() => Events.setGroupEventLabels({
+            groupId: this.props.groupId,
+            eventIds: eventId ? [eventId] : []
+          }, this.props, { forceInstance: true })}
+        />
+
+        <GuestList
+          className="panel"
+          event={event}
+          hrefFn={this.props.guestHrefFn}
+        />
+      </div> : null }
+    </EventEditor>
   }
 }
 

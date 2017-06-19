@@ -30,6 +30,7 @@ export interface EventsRoute {
   teamId: string;
   onboarding: boolean; // Show onboarding helper msg for new user
                        // Automatically set defaults if necessary.
+  eventId?: string;    // Selected event
 };
 
 export interface RedirectRoute {
@@ -40,6 +41,7 @@ export const events = Paths.events.route<Deps>(async function(p, deps) {
   let team = checkForCalendar(deps);
   if (! team) return;
   let teamId = team.teamid;
+  let eventId = p.eventId;
   let onboarding = !!p.onboarding;
 
   // Onboarding mode -> auto set defaults
@@ -71,7 +73,7 @@ export const events = Paths.events.route<Deps>(async function(p, deps) {
     type: "ROUTE",
     route: {
       page: "Events",
-      period, teamId,
+      period, teamId, eventId,
       onboarding
     }
   });

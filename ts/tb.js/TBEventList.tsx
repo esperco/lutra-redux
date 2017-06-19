@@ -3,66 +3,44 @@
   and normal home views
 */
 
-import * as _ from 'lodash';
 import * as React from 'react';
-import DayBox from "../components/DayBox";
-import EventList, { SharedProps } from "../components/EventList";
-import TreeFall from "../components/TreeFall";
+import { InlineInfo, Box, Title } from "../components/EventInfo";
+import EventList from "../components/EventList";
+import { EventDataList } from "../components/QueryDay";
+import QueryDayList from "../components/QueryDayList";
+import TimebombToggle from "../components/TimebombToggle";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
-import { iter } from "../lib/event-query-iter";
-import { stringify } from "../lib/event-queries";
-import { GenericPeriod, toDays, dateForDay, add } from "../lib/period";
+import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
-import { StoreData } from "../states/data-status";
-import { EventMap, QueryResult } from "../states/events";
 import { MoreEvents } from "../text/events";
-import { State as StoreState, DispatchFn } from './types';
+import { LoggedInState as StoreState } from './types';
 
 interface Props {
   teamId: string;
   period: GenericPeriod;
   noContentMessage: JSX.Element|string;
+  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   onPeriodChange: (p: GenericPeriod) => void;
   onTimebombToggle: (eventId: string, val: boolean) => void;
-
   state: StoreState;
-  dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
 }
 
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
-    let { teamId: calgroupId, state, period } = this.props;
-    let queryState = state.eventQueries[calgroupId] || [];
-    let eventMap = state.events[calgroupId] || {};
-    let queryKey = stringify({});
-
-    let { start, end } = toDays(period);
-    let queryDays = queryState.slice(start, end);
-    let loggedInUid =
-      this.props.state.login ? this.props.state.login.uid : undefined;
-
-    let total = 0;
-    let loaded = iter(
-      { ...this.props, calgroupId, query: {} },
-      this.props.state,
-      () => { total += 1; }
-    );
-
+    let { teamId: calgroupId, state, period, noContentMessage } = this.props;
     return <div className="tb-event-list">
-      { loaded && !total ?
-        <div>{ this.props.noContentMessage }</div> : null }
-
-      { _.map(queryDays, (d, i) =>
-        <QueryDay key={i} day={start + i}
-          loggedInUid={loggedInUid}
-          result={d[queryKey]}
-          eventMap={eventMap}
-          onTimebombToggle={this.props.onTimebombToggle}
-        />
-      ) }
+      <QueryDayList
+        maxDays={this.props.Conf && this.props.Conf.maxDaysFetch}
+        calgroupId={calgroupId}
+        period={period}
+        state={state}
+        query={{}}
+        cb={this.renderEventList}
+        onLoadPrefix={(total) => total ? null : noContentMessage}
+      />
 
       <div className="load-more">
         <button onClick={this.next}>{ MoreEvents }</button>
@@ -70,54 +48,31 @@ export default class TBEventList extends React.Component<Props, {}> {
     </div>;
   }
 
+  renderEventList = (events: EventDataList) => {
+    return <EventList
+      className="panel"
+      events={events}
+      cb={this.renderEvent}
+    />;
+  }
+
+  renderEvent = (event: ApiT.GenericCalendarEvent) => {
+    let loggedInUid =
+      this.props.state.login ? this.props.state.login.uid : undefined;
+    return <Box key={event.id} event={event} className="panel">
+      <div>
+        <h4><Title
+          event={event}
+          href={this.props.eventHrefFn && this.props.eventHrefFn(event)}
+        /></h4>
+        <InlineInfo event={event} />
+      </div>
+      <TimebombToggle
+        loggedInUid={loggedInUid}
+        event={event}
+        onToggle={this.props.onTimebombToggle} />
+    </Box>;
+  }
+
   next = () => this.props.onPeriodChange(add(this.props.period, 1));
-}
-
-
-interface DayProps extends SharedProps {
-  day: number; // Period day index
-  loggedInUid?: string;
-  result: StoreData<QueryResult>;
-  eventMap: EventMap;
-}
-
-class QueryDay extends TreeFall<DayProps, {}> {
-  render() {
-    if (! this.props.result || this.props.result === "FETCH_ERROR") {
-      return this.renderEmpty();
-    }
-
-    let calEvents: (StoreData<ApiT.GenericCalendarEvent>|undefined)[] =
-      this.props.result === "FETCHING" ? ["FETCHING"] :
-      _.map(this.props.result.eventIds, (id) => this.props.eventMap[id]);
-
-    if (_.isEmpty(calEvents)) return this.renderEmpty();;
-
-    return <div>
-      { this.renderWaypoint() }
-      <DayBox date={dateForDay(this.props.day)}>
-        {/*
-          Wrap EventList with extra div so flexbox doesn't expand height of
-          EventList when it's too short.
-        */}
-        <div><EventList
-          events={calEvents}
-          loggedInUid={this.props.loggedInUid}
-          onTimebombToggle={this.props.onTimebombToggle}
-        /></div>
-      </DayBox>
-      { this.renderWaypoint() }
-    </div>;
-  }
-
-  /*
-    Need to render something (rather than null) if no data so we
-    can check visibility when deciding whether to update. Use a span
-    (since that shouldn't affect * + * CSS selectors or other spacing)
-  */
-  renderEmpty() {
-    return <span>
-      { this.renderWaypoint() }
-    </span>;
-  }
 }

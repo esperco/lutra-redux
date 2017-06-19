@@ -1,76 +1,49 @@
 import * as React from 'react';
-import * as Sinon from 'sinon';
 import { expect } from "chai";
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
+import Dropdown from "./Dropdown";
 import EventEditor, { Props } from "./EventEditor";
+import { Title } from "./EventInfo";
+import EventPlaceholder from "./EventPlaceholder";
 import makeEvent from "../fakes/events-fake";
-import { stubRAF, stubTimeouts } from "../fakes/stubs";
-import { LabelSet } from "../lib/event-labels";
 
 describe("<EventEditor />", () => {
-  const event = makeEvent({ labels_confirmed: false });
-
-  /* Timeout stubs */
-  var timeouts: {
-    fn: Function;
-    time: number;
-    cleared?: boolean;
-  }[] = [];
-
-  beforeEach(() => {
-    stubRAF();
-    timeouts = stubTimeouts();
-  });
-
-  function makeEditor(props: Partial<Props>) {
-    let fullProps: Props = {
-      event: "FETCHING",
-      members: undefined,
-      labels: new LabelSet([]),
-      searchLabels: new LabelSet([]),
-      loginDetails: undefined,
-      onChange: () => null,
-      onForceInstance: () => null,
-      onHide: () => null,
-      ...props
-    };
-    return mount(<EventEditor {...fullProps} />);
+  function getWrapper(props: Partial<Props> = {}) {
+    return shallow(
+      <EventEditor
+        event={makeEvent()}
+        {...props}
+      >
+        <div className="child" />
+      </EventEditor>
+    );
   }
 
-  it("renders placeholder if passed FETCHING", () => {
-    expect(makeEditor({ event: "FETCHING" }).find('.placeholder'))
-      .to.have.length.greaterThan(0);
+  it("renders event info and child", () => {
+    let wrapper = getWrapper();
+    expect(wrapper.find(Title)).to.have.length(1);
+    expect(wrapper.find(".child")).to.have.length(1);
   });
 
-  it("sets timeout to confirm event", () => {
-    let spy = Sinon.spy();
-    makeEditor({ event, onConfirm: spy, autoConfirmTimeout: 1234 });
-    expect(timeouts).to.have.length(1);
-    expect(timeouts[0].time).to.equal(1234);
-
-    expect(spy.called).to.be.false;
-    timeouts[0].fn();
-    expect(spy.called).to.be.true;
-  });
-
-  it("clears timeout when unmounted", () => {
-    makeEditor({ event }).unmount();
-    expect(timeouts[0].cleared).to.be.ok;
-  });
-
-  it("resets timeout when we get a new event", () => {
-    makeEditor({ event, onConfirm: () => null }).setProps({
-      event: makeEvent({ id: "new-id-2", labels_confirmed: false })
+  it("renders Dropdown if menu passed", () => {
+    let wrapper = getWrapper({
+      menu: (e) => <div className="menu"></div>
     });
-    expect(timeouts).to.have.length(2);
-    expect(timeouts[0].cleared).to.be.ok;
+    expect(wrapper.find(Dropdown)).to.have.length(1);
   });
 
-  it("sets timeout when transitioning from FETCHING to a new event", () => {
-    let wrapper = makeEditor({ event: "FETCHING", onConfirm: () => null });
-    expect(timeouts).to.have.length(0);
+  it("renders placeholder if passed FETCHING", () => {
+    let wrapper = getWrapper({
+      event: "FETCHING"
+    });
+    expect(wrapper.find(EventPlaceholder)).to.have.length(1);
+  });
 
-    wrapper.setProps({ event });
-    expect(timeouts).to.have.length(1);
+  it("handles errors gracefully", () => {
+    getWrapper({ event: "FETCH_ERROR"  });
+  });
+
+  it("handles undefined events gracefully", () => {
+    getWrapper({ event: undefined  });
   });
 });

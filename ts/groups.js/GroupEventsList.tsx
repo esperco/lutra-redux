@@ -6,29 +6,29 @@ import * as _ from "lodash";
 import * as React from "react";
 import { generalSettings } from "./paths";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
-import DayBox from "../components/DayBox";
-import EventList, { SharedProps } from "../components/EventList";
-import TreeFall from "../components/TreeFall";
-import Waypoint from "../components/Waypoint";
+import CheckboxItem from "../components/CheckboxItem";
+import { EventConfirmBox } from "../components/EventConfirmBox";
+import { InlineInfo, Title } from "../components/EventInfo";
+import EventPredictionsList from "../components/EventPredictionsList";
+import LabelList from "../components/LabelList";
+import QueryDayList from "../components/QueryDayList";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LabelSet, useRecurringLabels } from "../lib/event-labels";
-import { QueryFilter, stringify } from "../lib/event-queries";
-import { iter } from "../lib/event-query-iter";
-import { GenericPeriod, toDays, dateForDay } from "../lib/period";
+import { QueryFilter } from "../lib/event-queries";
+import { GenericPeriod } from "../lib/period";
 import { NavSvc } from "../lib/routing";
-import { StoreData, ready } from "../states/data-status";
-import { EventMap, QueryResult } from "../states/events";
-import { Loading } from "../text/data-status";
+import { ready } from "../states/data-status";
 import * as CommonText from "../text/common";
+import * as EventText from "../text/events";
 import * as GroupText from "../text/groups";
 
 interface Props {
   groupId: string;
   period: GenericPeriod;
   query: QueryFilter;
-  eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
+  eventHrefFn: (ev: ApiT.GenericCalendarEvent) => string;
   labelHrefFn?: (l: ApiT.LabelInfo) => string;
   clearAllHrefFn?: () => string;
   selectAllHrefFn?: () => string;
@@ -43,114 +43,67 @@ interface Props {
 }
 
 interface State {
-  daysToShow: number;
+  selectedRecurringIds: Record<string, true>;
 }
 
 export class EventsList extends React.Component<Props, State> {
-  // Sparsely-populated array. Indices refer to the period type's day-index
-  _refs: QueryDay[];
-
   constructor(props: Props) {
     super(props);
-    this._refs = [];
-    this.state = { daysToShow: this.getDaysIncr() };
+    this.state = {
+      selectedRecurringIds: this.getRecurringSelectedIds(props)
+    };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (! _.isEqual(this.props.period, nextProps.period)) {
-      this._refs = [];
-      this.setState({ daysToShow: this.getDaysIncr() });
-    }
+  /*
+    Update which events are selected by virtue of being recurring events
+    on each props update so we can show which events are selected.
+  */
+  componentWillReceiveProps(props: Props) {
+    this.setState({
+      selectedRecurringIds: this.getRecurringSelectedIds(props)
+    });
   }
 
-  getDaysIncr() {
-    return (this.props.Conf && this.props.Conf.maxDaysFetch) || Infinity;
-  }
-
-  render() {
-    let { groupId, state, period, query } = this.props;
-    let queryState = state.eventQueries[groupId] || [];
-    let eventMap = state.events[groupId] || {};
-
-    let { start, end } = toDays(period);
-    let endToShow = Math.min(start + this.state.daysToShow - 1, end);
-    let queryDays = queryState.slice(start, endToShow + 1);
-    let queryKey = stringify(query);
-    let loggedInUid =
-      this.props.state.login ? this.props.state.login.uid : undefined;
-
-    // Only show more if we're not busy fetching stuff
-    let canShowMore = endToShow < end &&
-      !_.find(queryDays, (d) => d[queryKey] === "FETCHING")
-
-    /* Determine if any recurring events are selected */
-    let selectedRecurringIds: {[recurringId: string]: true} = {};
+  getRecurringSelectedIds(props: Props) {
+    let selectedRecurringIds: Record<string, true> = {};
     for (let key in this.props.state.selectedEvents) {
-      let events = this.props.state.events[groupId] || {};
+      let events = this.props.state.events[this.props.groupId] || {};
       let event = events[key];
       if (ready(event) && useRecurringLabels(event)) {
         selectedRecurringIds[event.recurring_event_id] = true;
       }
     }
+    return selectedRecurringIds;
+  }
 
-    /*
-      Check if all events are loaded. Don't display certain elemetns if
-      no events or if not loaded.
-    */
-    let total = 0;
-    let loaded = iter(
-      { ...this.props, calgroupId: this.props.groupId },
-      this.props.state,
-      () => { total += 1; }
+  render() {
+    let { groupId: calgroupId, state, period } = this.props;
+    let noContentMessage = GroupText.noContentMessage(
+      generalSettings.href({ groupId: calgroupId })
     );
 
-    return <div className="group-events-list">
-      { /*
-          Render select all only if all events are here since we can't really
-          select all if we don't know which events to selet.
-        */
-        loaded && total > 0 ? this.renderSelectAll() : null }
+    return <QueryDayList
+      className="group-events-list"
+      maxDays={this.props.Conf && this.props.Conf.maxDaysFetch}
+      calgroupId={calgroupId}
+      period={period}
+      state={state}
+      query={{}}
+      cb={(events) => <EventPredictionsList
+        className="panel"
+        events={events}
+        cb={this.renderEvent}
+      />}
 
-      { loaded && !total ?
-        GroupText.noContentMessage(generalSettings.href({ groupId })) :
-        null }
-
-      { _.map(queryDays, (d, i) =>
-        <QueryDay key={i} day={start + i}
-          ref={(c) => this._refs[start + i] = c}
-          loggedInUid={loggedInUid}
-          result={d[queryKey]}
-          selectedEventIds={this.props.state.selectedEvents}
-          selectedRecurringIds={selectedRecurringIds}
-          eventMap={eventMap}
-          eventHrefFn={this.props.eventHrefFn}
-          labelHrefFn={this.props.labelHrefFn}
-          labels={this.props.labels}
-          searchLabels={this.props.searchLabels}
-          onChange={this.onChange}
-          onConfirm={this.onConfirm}
-          onHideChange={this.onHideChange}
-          onToggleSelect={this.props.toggleHrefFn && this.onToggleSelect}
-          autoConfirmTimeout={
-            /* If admin, don't autoconfirm */
-            this.props.state.loggedInAsAdmin ?
-            Infinity : undefined
-          }
-        />
-      ) }
-
-      { canShowMore ?
-
-        /* Use different key so it re-updates if nothing new in update */
-        <div className="loading-msg">
-          <Waypoint key={endToShow} onEnter={this.showMore} />
-          { Loading }
-        </div> :
-
-        /* Select all button at end too */
-        (loaded && total > 0 ? this.renderSelectAll() : null)
-      }
-    </div>;
+      /*
+        Render select all only if all events are here since we can't really
+        select all if we don't know which events to selet.
+      */
+      onLoadPrefix={(total) => total ?
+        this.renderSelectAll() : noContentMessage}
+      onLoadSuffix={(total) => total ?
+        this.renderSelectAll() : null}
+    />;
   }
 
   renderSelectAll() {
@@ -177,7 +130,42 @@ export class EventsList extends React.Component<Props, State> {
     return null;
   }
 
-  onChange = (eventIds: string[], label: ApiT.LabelInfo, active: boolean) => {
+  renderEvent = (event: ApiT.GenericCalendarEvent) => {
+    let selected = !!(this.props.state.selectedEvents[event.id] ||
+      (useRecurringLabels(event) &&
+       this.state.selectedRecurringIds[event.recurring_event_id]));
+
+    return <EventConfirmBox key={event.id}
+      className="panel" event={event}
+      onConfirm={() => this.confirm(event.id, true)}>
+      <div>
+        <h4 onClick={() => this.confirm(event.id, false)}>
+          <CheckboxItem checked={selected}
+                        onChange={(v) => this.toggleSelect(event.id, v)}>
+            <span className="sr-only">{ EventText.Select }</span>
+          </CheckboxItem>
+          <Title event={event} href={this.props.eventHrefFn(event)} />
+        </h4>
+
+        <button className="hide-btn"
+                onClick={() => this.hideChange(event.id, !event.hidden)}>
+          { event.hidden ? CommonText.Show : CommonText.Hide }
+        </button>
+
+        <InlineInfo event={event} />
+      </div>
+
+      { event.hidden ? null : <LabelList
+        labels={this.props.labels}
+        searchLabels={this.props.searchLabels}
+        events={[event]}
+        onChange={this.onLabel}
+        labelHrefFn={this.props.labelHrefFn}
+      /> }
+    </EventConfirmBox>;
+  }
+
+  onLabel = (eventIds: string[], label: ApiT.LabelInfo, active: boolean) => {
     Events.setGroupEventLabels({
       groupId: this.props.groupId,
       eventIds, label, active,
@@ -188,17 +176,19 @@ export class EventsList extends React.Component<Props, State> {
     }, this.props);
   }
 
-  onConfirm = (eventIds: string[]) => {
+  confirm(eventId: string, passive: boolean) {
     Events.setGroupEventLabels({
       groupId: this.props.groupId,
-      eventIds
+      eventIds: [ eventId ],
+      passive
     }, this.props);
   }
 
-  onHideChange = (eventIds: string[], hidden: boolean) => {
+  hideChange(eventId: string, hidden: boolean) {
     Events.setGroupEventLabels({
       groupId: this.props.groupId,
-      eventIds, hidden,
+      eventIds: [eventId],
+      hidden,
       context: {
         period: this.props.period,
         query: this.props.query
@@ -206,80 +196,11 @@ export class EventsList extends React.Component<Props, State> {
     }, this.props);
   }
 
-  onToggleSelect = (eventId: string, value: boolean) => {
+  toggleSelect(eventId: string, value: boolean) {
     if (this.props.toggleHrefFn) {
       let url = this.props.toggleHrefFn(eventId, value);
       this.props.Svcs.Nav.go(url);
     }
-  }
-
-  showMore = () => {
-    let incr = this.props.Conf && this.props.Conf.maxDaysFetch;
-    if (incr) {
-      this.setState({
-        daysToShow: this.state.daysToShow + this.getDaysIncr()
-      });
-    }
-  }
-}
-
-
-interface DayProps extends SharedProps {
-  day: number; // Period day index
-  loggedInUid?: string;
-  result: StoreData<QueryResult>;
-  selectedEventIds: Record<string, true>;
-  selectedRecurringIds: Record<string, true>;
-  eventMap: EventMap;
-}
-
-/*
-  QueryDay component should update if and only if visible. Waypoints are added
-  to top and bottom (or just one waypoint if not content) which force an
-  update when we scroll into view.
-*/
-class QueryDay extends TreeFall<DayProps, {}> {
-  render() {
-    if (! this.props.result || this.props.result === "FETCH_ERROR") {
-      return this.renderEmpty();
-    }
-
-    let calEvents: (StoreData<ApiT.GenericCalendarEvent>|undefined)[] =
-      this.props.result === "FETCHING" ? ["FETCHING"] :
-      _.map(this.props.result.eventIds, (id) => this.props.eventMap[id]);
-
-    if (_.isEmpty(calEvents)) return this.renderEmpty();
-    let {
-      day, result, selectedEventIds, selectedRecurringIds, eventMap,
-      ...eventProps
-    } = this.props;
-
-    return <div>
-      { this.renderWaypoint() }
-      <DayBox date={dateForDay(this.props.day)}>
-        {/*
-          Wrap EventList with extra div so flexbox doesn't expand height of
-          EventList when it's too short.
-        */}
-        <div><EventList
-          events={calEvents}
-          selectedEventIds={this.props.selectedEventIds}
-          {...eventProps}
-        /></div>
-      </DayBox>
-      { this.renderWaypoint() }
-    </div>;
-  }
-
-  /*
-    Need to render something (rather than null) if no data so we
-    can check visibility when deciding whether to update. Use a span
-    (since that shouldn't affect * + * CSS selectors or other spacing)
-  */
-  renderEmpty() {
-    return <span>
-      { this.renderWaypoint() }
-    </span>;
   }
 }
 

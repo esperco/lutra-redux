@@ -5,14 +5,12 @@
 require("less/components/_timebomb-toggle.less");
 import * as moment from "moment";
 import * as React from "react";
-import Icon from "./Icon";
 import CheckboxItem from "./CheckboxItem";
 import RadioItem from "./RadioItem";
 import Tooltip from "./Tooltip";
 import * as ApiT from "../lib/apiT";
 import { hasTag, randomString } from "../lib/util";
 import * as Text from "../text/timebomb";
-import { base as helpPath } from "../agenda.js/paths";
 
 interface Props {
   loggedInUid: string|undefined;
@@ -55,7 +53,6 @@ export class TimebombToggle extends React.Component<Props, {}> {
           value={value}
           onChange={(val) => this.props.onToggle(event.id, val)}
         />
-        <HelpLink />
       </TimebombContainer>;
     }
 
@@ -73,17 +70,10 @@ export class TimebombToggle extends React.Component<Props, {}> {
             { Text.SetTimebomb }
           </CheckboxItem>
         </div>
-        <HelpLink />
       </TimebombContainer>;
     }
   }
 }
-
-export const HelpLink =
-  () => <a className="help-link" href={helpPath} target="_blank">
-    <Icon type="help">{ Text.HelpLink }</Icon>
-  </a>;
-
 
 interface OptionProps {
   name: string;

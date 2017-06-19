@@ -14,38 +14,13 @@
     + * { margin-top: 0; }
   }
 
-  &.hidden {
-    h3 {
-      text-decoration: line-through;
-      color: @text-muted;
-    }
-
-    .tag-list, .tag-list ~ * {
-      display: none;
-    }
-
-    .tag-list ~ .panel {
-      display: block;
-    }
-  }
-
-  .no-title {
-    font-style: italic;
-    color: @text-muted;
-  }
-
-  .time { margin-top: 0; }
-
-  .time, .location {
-    font-size: @font-size-small;
-    color: @text-muted;
-  }
-
-  .description, .recurring-labels {
+  .description {
     font-size: @font-size-small;
   }
 
   .recurring-labels {
+    font-size: @font-size-small;
+
     .description {
       margin-right: @padding-small;
     }

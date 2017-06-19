@@ -1,0 +1,50 @@
+/*
+  Styling for stuff related to event predictions and labeling
+*/
+@import (reference) "../_variables";
+
+.event-predictions-list {
+  .hidden-events {
+    padding: 0;
+
+    > button {
+      width: 100%;
+    }
+  }
+}
+
+.event-box {
+  &.hidden {
+    .event-title, .event-title a {
+      color: @text-muted;
+      text-decoration: line-through;
+    }
+  }
+
+  &.unconfirmed {
+    border-left: @border-radius-small solid @info;
+  }
+
+  .hide-btn {
+    color: @text-muted;
+    margin-top: 0;
+    font-weight: normal;
+    line-height: inherit;
+  }
+
+  .hide-btn + * {
+    margin-top: 0
+  }
+
+  .tag-list {
+    flex-basis: 100%;
+  }
+}
+
+.event-info {
+  .confirm-waypoint {
+    display: inline;
+    padding: 0;
+    margin: 0;
+  }
+}
