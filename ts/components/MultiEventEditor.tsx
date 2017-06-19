@@ -9,12 +9,13 @@ import { ok, StoreData } from "../states/data-status";
 import * as EventText from "../text/events";
 import Dropdown from "./Dropdown";
 import { EditorCls } from "./EventEditor";
+import EventPlaceholder from "./EventPlaceholder";
 import Icon from "./Icon";
 
-interface Props {
+export interface Props {
   events: (StoreData<ApiT.GenericCalendarEvent>|undefined)[];
-  menu: (events: ApiT.GenericCalendarEvent[]) => JSX.Element;
-  children: React.ReactNode|React.ReactNode[];
+  menu?: (events: ApiT.GenericCalendarEvent[]) => JSX.Element;
+  children?: React.ReactNode|React.ReactNode[];
 }
 
 export const MultiEventEditor = ({ events, menu, children } : Props) => {
@@ -33,6 +34,12 @@ export const MultiEventEditor = ({ events, menu, children } : Props) => {
       }
     }
   });
+
+  if (hasFetching) {
+    return <div className={EditorCls}>
+      <EventPlaceholder />
+    </div>;
+  }
 
   if (! validEvents.length) {
     return <div className={EditorCls}>

@@ -13,7 +13,7 @@ import { Loading } from "../text/data-status";
 import QueryDay, { QueryDayCB } from "./QueryDay";
 import Waypoint from "./Waypoint";
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
+export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   calgroupId: string;
   period: GenericPeriod;
   query: QueryFilter;
@@ -41,7 +41,9 @@ export class QueryDayList extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (! _.isEqual(this.props.period, nextProps.period)) {
+    if (! _.isEqual(this.props.period, nextProps.period) ||
+        ! _.isEqual(this.props.query, nextProps.query) ||
+        ! _.isEqual(this.props.calgroupId, nextProps.calgroupId)) {
       this.setState({ daysToShow: this.getDaysIncr() });
     }
   }

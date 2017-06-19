@@ -26,19 +26,20 @@ export interface LocationProps extends BaseEventProps {
 }
 
 // Inline info about an event
-export const InlineInfo = ({ event, includeDay }: InlineProps) => <div
-  className="event-info"><div className="inline-info">
+export const InlineInfo = ({ event, includeDay }: InlineProps) => {
+  let guests = (event.guests || []).filter((g) => g.response !== "Declined");
+  return <div className="event-info"><div className="inline-info">
     <Time event={event} includeDay={includeDay} />
     <Location event={event} inline={true} />
 
-    { event.guests && event.guests.length ?
+    { guests.length ?
       <Tooltip
         target={<span className="guests">
           <Icon type="person" />
-          { event.guests.length }
+          { guests.length }
         </span>}
         title={EventText.attendeeMsgShort(
-          event.guests.map((g) => g.display_name || g.email)
+          guests.map((g) => g.display_name || g.email)
         )}
       /> : null }
 
@@ -46,7 +47,8 @@ export const InlineInfo = ({ event, includeDay }: InlineProps) => <div
       <span className={"cost cost-" + event.merged.cost }>
         { _.repeat("$", event.merged.cost) }
       </span> : null }
-  </div></div>;
+  </div></div>;}
+;
 
 
 /*
