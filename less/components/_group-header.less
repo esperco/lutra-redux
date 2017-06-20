@@ -1,0 +1,28 @@
+@import (reference) "../_variables";
+
+header h1 button {
+  height: @navbar-height;
+  line-height: @navbar-height;
+  text-transform: none;
+  margin-left: -@padding-base;
+  display: flex;
+  align-items: center;
+
+  > :first-child {
+    font-size: @font-size-large;
+    font-weight: 600;
+  }
+}
+
+nav.group-selector > * {
+  display: flex;
+
+  > *:first-child {
+    flex-grow: 1;
+  }
+
+  > * + * {
+    margin-top: 0;
+    margin-left: @padding-small;
+  }
+}
