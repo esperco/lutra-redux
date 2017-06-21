@@ -70,7 +70,7 @@ export class AppHeader extends React.Component<Props, {}> {
   }
 
   renderDropdown() {
-    let toggle = <button>
+    let toggle = <button className="ellipsis-btn">
       <Icon type="options-v" />
     </button>;
 

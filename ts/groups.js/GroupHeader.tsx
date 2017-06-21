@@ -2,26 +2,24 @@
   Header element for groups pages
 */
 
+require("less/components/_group-header.less");
 import * as React from 'react';
 import * as Conf from 'config';
 import { LoggedInState, DispatchFn } from './types';
 import { ready } from "../states/data-status";
-import { ScrollState } from "../states/scroll";
 import { makeNewGroup } from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
 import * as Paths from "./paths";
 import * as CommonText from "../text/common";
 import * as GroupText from "../text/groups";
+import Header from "../components/AppHeader";
 import Dropdown from "../components/Dropdown";
 import Icon from "../components/Icon";
-import GroupSelector from "./GroupSelector";
-import * as CommonPaths from "../lib/paths";
-import * as AgendaPaths from "../tb.js/paths";
 import * as TimePaths from "../time.js/paths";
 
 class Props {
-  state: LoggedInState & ScrollState;
+  state: LoggedInState;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
   Conf: typeof Conf; // Don't use config directly -- let index pass it
@@ -34,15 +32,16 @@ function routeHasGroupId(x: any): x is {groupId: string} {
 
 class GroupHeader extends React.Component<Props, {}> {
   render() {
-    return <header className={
-      this.props.state.lastScroll === "down" ? "hide" : ""
-    }>
-      <h2 className="logo-mark"><a href="#!/">
-        <img alt="Esper" src="/img/esper-logo-purple.svg" />
-      </a></h2>
-      { this.renderGroupWidget() }
-      { this.renderAccountsDropdown() }
-    </header>;
+    let groupId = this.getGroupId();
+    if (groupId) {
+      return <Header active="charts" {...this.props}>
+        <Dropdown
+          toggle={this.renderToggle(groupId)}
+          menu={this.renderMenu(groupId)}
+        />
+      </Header>;
+    }
+    return <Header {...this.props} />;
   }
 
   // Get active group Id, if any
@@ -55,111 +54,62 @@ class GroupHeader extends React.Component<Props, {}> {
   }
 
   // Get active group, if any
-  getGroup() {
-    let groupId = this.getGroupId();
-    if (groupId) {
-      let summary = this.props.state.groupSummaries[groupId];
-      if (ready(summary)) return summary;
-    }
-    return undefined;
+  getSummary(groupId: string) {
+    let summary = this.props.state.groupSummaries[groupId];
+    if (ready(summary)) return summary;
+    return;
   }
 
-  renderGroupWidget() {
-    let summary = this.getGroup();
-    if (summary) {
-      return <h1>
-        { summary.group_name }
-      </h1>;
-    }
-
-    // Return something (acts as a spacer)
-    return <div />;
+  renderToggle(groupId: string) {
+    let summary = this.getSummary(groupId);
+    return <h1><button>
+      { summary ?
+        <span>{ summary.group_name }</span> :
+        <span className="placeholder" /> }
+      <Icon type="caret-down" />
+    </button></h1>;
   }
 
-  renderAccountsDropdown() {
-    let toggle = <button>
-      <Icon type="accounts" />
-    </button>;
-
-    let groupId = this.getGroupId() || "default";
-    let menu = <div className="dropdown-menu">
-      <div className="panel">
-        { this.props.state.login.email }
-      </div>
-
-      { this.renderGroupsSelector(groupId) }
+  renderMenu(groupId: string) {
+    return <div className="dropdown-menu">
+      <nav className="panel group-selector">
+        { this.props.state.login.groups.map(
+          (thisId) => this.renderGroup(thisId, thisId === groupId)
+        ) }
+      </nav>
 
       <div className="menu">
-        <button onClick={this.create}>{ GroupText.CreateGroup }</button>
+        <button onClick={this.create}>
+          <Icon type="add">
+            { GroupText.CreateGroup }
+          </Icon>
+        </button>
       </div>
 
+      {/* TODO: Replace with list of teams and specific links */}
       <nav className="panel">
         <a href={TimePaths.Home.href({})}>
           <Icon type="person">{ CommonText.ExecLink }</Icon>
         </a>
-        <a href={AgendaPaths.base}>
-          <Icon type="check">{ CommonText.AgendaLink }</Icon>
-        </a>
-        <a href={Paths.generalSettings.href({ groupId })}>
-          <Icon type="settings">{ CommonText.Settings }</Icon>
-        </a>
-      </nav>
-
-      <nav className="panel">
-        <a href={CommonPaths.home.href({})}>
-          <Icon type="home">{ CommonText.Home }</Icon>
-        </a>
-        <a href={CommonPaths.contact.href({})}>
-          <Icon type="contact">{ CommonText.Contact }</Icon>
-        </a>
-        <a href={CommonPaths.privacy.href({})}>
-          <Icon type="privacy">{ CommonText.Privacy }</Icon>
-        </a>
-        <a href={CommonPaths.terms.href({})}>
-          <Icon type="terms">{ CommonText.Terms }</Icon>
-        </a>
-      </nav>
-
-      <nav className="panel">
-        <a href={this.props.Conf.logoutRedirect}>
-          <Icon type="logout">{ CommonText.Logout }</Icon>
-        </a>
       </nav>
     </div>;
-
-    return <Dropdown
-      toggle={toggle}
-      menu={menu}
-    />;
   }
 
-  renderGroupsSelector(groupId?: string) {
-    let login = this.props.state.login;
-    if (login.groups.length > 1) {
-      let hrefFn = (() => {
-        if (this.props.state.route) {
-          switch (this.props.state.route.page) {
-            case "GroupGeneralSettings":
-            case "GroupNotificationSettings":
-            case "GroupMiscSettings":
-              return (groupId: string) => Paths.generalSettings.href({
-                groupId
-              });
-          }
-        }
-        return (groupId: string) => Paths.eventList.href({ groupId });
-      })();
+  renderGroup(groupId: string, active?: boolean) {
+    let summary = this.getSummary(groupId);
+    return <span key={groupId} className={active ? "active" : ""}>
+      <a href={Paths.eventList.href({ groupId })}>
+        <Icon type={ active ? "check" : "people" }>
+          { summary ?
+            <span>{ summary.group_name }</span> :
+            <span className="placeholder" /> }
+        </Icon>
+      </a>
 
-      return <div className="panel">
-        <h4>{ GroupText.Groups }</h4>
-        <GroupSelector
-          selected={groupId}
-          state={this.props.state}
-          getHref={hrefFn}
-        />
-      </div>;
-    }
-    return null;
+      <a href={Paths.settings.href({ groupId })}>
+        <Icon type="settings" />
+      </a>
+    </span>;
   }
 
   create = () => {
