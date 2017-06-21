@@ -6,6 +6,7 @@
 import * as _ from "lodash";
 import * as React from "react";
 import { iter } from "../lib/event-query-iter";
+import * as ApiT from "../lib/apiT";
 import { stringify, QueryFilter } from "../lib/event-queries";
 import { GenericPeriod, toDays } from "../lib/period";
 import { EventsState } from "../states/events";
@@ -19,6 +20,7 @@ export interface Props extends React.HTMLAttributes<HTMLDivElement> {
   query: QueryFilter;
   state: EventsState;
   cb: QueryDayCB;
+  filter?: (event: ApiT.GenericCalendarEvent) => boolean;
 
   // Max number of days to show on each scroll
   maxDays?: number;
@@ -58,7 +60,7 @@ export class QueryDayList extends React.Component<Props, State> {
       period,
       query,
       state: storeState,
-      cb,
+      cb, filter,
       maxDays,
       onLoadPrefix,
       onLoadSuffix,
@@ -85,6 +87,7 @@ export class QueryDayList extends React.Component<Props, State> {
           result={d[queryKey]}
           eventMap={eventMap}
           cb={cb}
+          filter={filter}
         />) }
 
       { /* Use different key so it re-updates if nothing new in update */

@@ -13,6 +13,7 @@ import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
+import { hasTag } from "../lib/util";
 import { MoreEvents } from "../text/events";
 import { LoggedInState as StoreState } from './types';
 
@@ -39,6 +40,10 @@ export default class TBEventList extends React.Component<Props, {}> {
         state={state}
         query={{}}
         cb={this.renderEventList}
+        filter={(e) => {
+          // Filter out events that we can set new timebombs for only
+          return !!e.timebomb && hasTag("Stage0", e.timebomb)}
+        }
         onLoadPrefix={(total) => total ? null : noContentMessage}
       />
 
