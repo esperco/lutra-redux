@@ -18,7 +18,7 @@ export const SameDomainOnly =
 export const TBSettingsMsg = (p: { settingsHref: string }) => <span>
   Tip: Want to ask for agenda items by default for certain types of events?
   Access the <a href={p.settingsHref}>settings page</a> via
-  the <Icon type="accounts" /> icon in theupper right corner.
+  the <Icon type="options-v" /> icon in the upper right corner.
 </span>;
 
 export const SetTimebomb = "Ask for Agenda Items?";
@@ -102,7 +102,7 @@ export const DefaultDescriptionSetup =
     " if all attendees share the same email domain" : ""
   }. You can change this on a per-event basis or change the defaults by going
   to the <a href={p.settingsHref}>settings&nbsp;page</a> via
-  the <Icon type="accounts" /> icon in the upper right corner.
+  the <Icon type="options-v" /> icon in the upper right corner.
 </p>;
 
 export const BlurbPlaceholder = "What do you want to discuss?";
