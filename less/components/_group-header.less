@@ -5,12 +5,19 @@ header h1 button {
   line-height: @navbar-height;
   text-transform: none;
   margin-left: -@padding-base;
+  max-width: calc(~"100% + " @padding-base);
   display: flex;
   align-items: center;
 
   > :first-child {
     font-size: @font-size-large;
     font-weight: 600;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+
+  > :last-child {
+    flex: 0 0 auto;
   }
 }
 
