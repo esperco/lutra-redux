@@ -1,13 +1,13 @@
 import * as _ from "lodash";
 import * as React from "react";
 import Tooltip from "../components/Tooltip";
+import TeamCalendars from "../containers/TeamCalendars";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import * as CommonText from "../text/common";
 import * as PrefsState from "../states/team-preferences";
 import * as Text from "../text/team";
-import { CalendarsSelector } from "../settings.js/Settings";
 import * as Paths from "./paths";
 import { LoggedInState } from "./types";
 
@@ -32,7 +32,7 @@ export const TBCalSetup = (props: Props) => {
     </p>
 
     <div className="panel">
-      <CalendarsSelector {...props} />
+      <TeamCalendars {...props} />
     </div>
 
     <div className="onboarding-footer">

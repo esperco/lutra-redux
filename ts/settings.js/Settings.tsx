@@ -3,13 +3,12 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
-import TeamCalendarsSelector from "../components/TeamCalendarsSelector";
 import TextInput from "../components/TextInput";
 import FeedbackSettings from "../components/FeedbackSettings";
 import TimebombSettings from "../components/TimebombSettings";
 import TimezoneDropdown from "../components/TimezoneDropdown";
+import TeamCalendars from "../containers/TeamCalendars";
 import * as Teams from "../handlers/teams";
-import * as TeamCals from "../handlers/team-cals";
 import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
 import { settings as groupSettings } from "../groups.js/paths";
@@ -77,7 +76,7 @@ export default class Settings extends React.Component<Props, {}> {
         { Text.CalDescription }
       </p>
       <div className="panel">
-        <CalendarsSelector {...props} />
+        <TeamCalendars {...props} />
       </div>
 
       <h3 id={agendaId}>{ Text.AgendaHeading }</h3>
@@ -140,30 +139,6 @@ const GeneralSettings = (props: Props) => {
     </div>
   </div>;
 }
-
-
-export const CalendarsSelector = (props: Props) => {
-  let calState = props.state.teamCalendars[props.teamId] || {};
-  let { available, selected } = calState;
-  if (! ready(available) || !ready(selected)) {
-    return <div>
-      <div className="placeholder" />
-      <div className="placeholder" />
-      <div className="placeholder" />
-    </div>;
-  }
-
-  return <div>
-    <TeamCalendarsSelector
-      available={available}
-      selected={selected}
-      onChange={(cal, value) => TeamCals.toggleCalendar({
-        teamId: props.teamId,
-        cal, value
-      }, props)}
-    />
-  </div>;
-};
 
 
 const TimebombDefaults = (props: Props) => {
