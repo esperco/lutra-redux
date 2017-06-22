@@ -82,7 +82,7 @@ export interface TitleProps {
 
 export const Title = (p: TitleProps) => {
   let title = p.event.title || <span className="no-title">
-    { EventText.NoTitle }>
+    { EventText.NoTitle }
   </span>;
   return p.href ? <a className="event-title" href={p.href}>
     { title }
