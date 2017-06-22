@@ -33,8 +33,8 @@ import NotFound from "../components/NotFound";
 import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
 import CalSetup from "../containers/CalSetup";
+import SlackSetup from "../containers/SlackSetup";
 import Events from "./TBEvents";
-import SlackSetup from "./TBSlackSetup";
 
 // Store Types
 import { LoggedInState, DispatchFn } from "./types";
@@ -119,7 +119,11 @@ function MainView(props: {
         />;
       case "SlackSetup":
         let { page: p3, ...slackSetupProps } = props.state.route;
-        return <SlackSetup {...props} {...slackSetupProps} />;
+        return <SlackSetup
+          {...props} {...slackSetupProps}
+          className="slack-agenda-setup"
+          next={Paths.events.href({})}
+        />;
       case "NotFound":
         return <NotFound />;
     }

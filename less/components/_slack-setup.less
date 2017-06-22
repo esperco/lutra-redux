@@ -8,7 +8,6 @@
     left: 0;
     right: 0;
     overflow: auto;
-    background-image: ~"url(/img/slack-agenda.png)";
     background-size: auto 80vh;
     background-repeat: no-repeat;
     background-position: 60vw center;
@@ -19,6 +18,12 @@
     .container {
       max-width: 400px;
     }
+  }
+}
+
+.slack-agenda-setup {
+  @media screen and (min-width: @screen-sm-min) {
+    background-image: ~"url(/img/slack-agenda.png)";
   }
 }
 
