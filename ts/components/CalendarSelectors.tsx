@@ -10,7 +10,13 @@ import Icon from "./Icon";
 
 /* Select a single day */
 
-interface DaySelectorProps {
+interface BaseProps {
+  // Inclusive
+  minDate?: Date;
+  maxDate?: Date;
+}
+
+interface DaySelectorProps extends BaseProps {
   value?: Date;
   onChange: (date: Date) => void;
 }
@@ -19,7 +25,7 @@ interface DaySelectorState {
   view: Date;   // Date in currently viewed month
 }
 
-abstract class CalSelectorBase<P, S extends DaySelectorState>
+abstract class CalSelectorBase<P extends BaseProps, S extends DaySelectorState>
     extends React.Component<P, S>
 {
   render() {
@@ -28,11 +34,11 @@ abstract class CalSelectorBase<P, S extends DaySelectorState>
     );
     return <div className="calendar calendar-selector">
       <header>
-        <button onClick={() => this.incr(-1)}>
+        <button onClick={() => this.incr(-1)} disabled={this.prevDisabled()}>
           <Icon type="previous" />
         </button>
         <h4>{ moment(this.state.view).format("MMM YYYY") }</h4>
-        <button onClick={() => this.incr(1)}>
+        <button onClick={() => this.incr(1)} disabled={this.nextDisabled()}>
           <Icon type="next" />
         </button>
       </header>
@@ -45,17 +51,46 @@ abstract class CalSelectorBase<P, S extends DaySelectorState>
 
   renderWeek(start: Date, end: Date) {
     return <div className="week" key={start.getTime()}>
-      { iterDaysInRange(start, end, (d) => this.renderDay(d))}
+      { iterDaysInRange(start, end,
+        (d) => this.renderDay(d, this.dayDisabled(d))) }
     </div>;
   }
 
-  abstract renderDay(date: Date): JSX.Element;
+  abstract renderDay(date: Date, disabled: boolean): JSX.Element;
 
   // Increment view by month
   incr(i: number) {
     this.setState({
       view: moment(this.state.view).clone().add(i, 'month').toDate()
     });
+  }
+
+  nextDisabled() {
+    let { maxDate } = this.props;
+    return !!(
+      maxDate &&
+      moment(this.state.view).clone().endOf('month').isSameOrAfter(maxDate)
+    );
+  }
+
+  prevDisabled() {
+    let { minDate } = this.props;
+    return !!(
+      minDate &&
+      moment(this.state.view).clone().startOf('month').isSameOrBefore(minDate)
+    );
+  }
+
+  dayDisabled(thisDate: Date) {
+    let minDate = this.props.minDate &&
+      moment(this.props.minDate).startOf('day');
+    let maxDate = this.props.maxDate &&
+      moment(this.props.maxDate).startOf('day');
+    let cmpDate = moment(thisDate).startOf('day');
+    return !!(
+      (minDate && cmpDate.isBefore(minDate)) ||
+      (maxDate && cmpDate.isAfter(maxDate))
+    );
   }
 }
 
@@ -69,9 +104,10 @@ export class DaySelector extends
     };
   }
 
-  renderDay(date: Date) {
+  renderDay(date: Date, disabled: boolean) {
     let active = this.props.value &&
-      this.props.value.getTime() === date.getTime();
+      this.props.value.getTime() === date.getTime() &&
+      !disabled;
     let classes = classNames("day", {
       start: active,
       end: active,
@@ -82,6 +118,7 @@ export class DaySelector extends
     return <button
       key={date.getTime()}
       className={classes}
+      disabled={disabled}
       onClick={() => this.props.onChange(date)}>
       { moment(date).format("D") }
     </button>;
@@ -91,7 +128,7 @@ export class DaySelector extends
 
 /* Select a range of days */
 
-interface RangeProps {
+interface RangeProps extends BaseProps {
   value?: [Date, Date]; // Current selection, if any
   initialView?: Date;       // Date in currently viewed month
   onChange: (range: [Date, Date]) => void;
@@ -113,8 +150,8 @@ export class RangeSelector extends
     };
   }
 
-  renderDay(date: Date) {
-    let activeState = this.activeState(date);
+  renderDay(date: Date, disabled: boolean) {
+    let activeState = disabled ? null : this.activeState(date);
     let classes = classNames("day", {
       start: activeState === "start",
       active: !!activeState,
@@ -125,6 +162,7 @@ export class RangeSelector extends
     return <button
       key={date.getTime()}
       className={classes}
+      disabled={disabled}
       onClick={() => this.selectDay(date)}
       onMouseEnter={() => this.enterDay(date)}>
       { moment(date).format("D") }

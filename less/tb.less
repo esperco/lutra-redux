@@ -34,8 +34,6 @@
 
 // Timebomb event page styling
 .tb-event-list {
-  margin-top: @padding-lg;
-
   .no-content-msg {
     padding: @padding-base;
     text-align: center;
@@ -48,4 +46,22 @@
     width: 100%;
     border: 1px solid @border-color;
   }
+}
+
+.tb-too-soon-tooltip {
+  text-align: center;
+  padding: @padding-small;
+  border-top: 1px solid @border-color;
+  border-bottom: 1px solid @border-color;
+  color: @text-muted;
+  font-size: @font-size-small;
+  cursor: default;
+}
+
+.tb-messages {
+  @media screen and (min-width: @screen-sm-min) {
+    margin-top: @padding-lg - @padding-base;
+  }
+
+  + * { margin-top: @padding-lg; }
 }

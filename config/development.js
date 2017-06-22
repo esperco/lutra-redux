@@ -13,7 +13,8 @@ module.exports = {
   maxDaysFetch: 5,
   esperVersion: "lutra-redux",
   logLevel: 0,
-  logTag: "Esper"
+  logTag: "Esper",
+  tbMinIncr: 0
 
   // Uncomment to test Raven in dev
   // , ravenUrl: "https://bbe6d54536694df0a01801dce5a012c1@sentry.io/115523"

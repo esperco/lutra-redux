@@ -14,6 +14,7 @@ declare module "config" {
     logLevel: number; // => minmum level to log
     logTag?: string;
     ravenUrl?: string;
+    tbMinIncr?: number; // Number of days to set as minimum date for agenda
   };
   export = config;
 }

@@ -27,22 +27,6 @@ export const ConfirmNo = "Nothing to Add";
 export const TimebombLate = "Time to change preference has expired";
 export const ConfirmLate = "Time to edit agenda items has expired";
 
-export const OnboardingPickEventHeading =
-  "Pick an Event";
-export const OnboardingPickEventDescription = <div>
-  <p>
-    Select "{SetTimebomb}" for an event that should require an agenda.
-  </p>
-</div>;
-
-export const onboardingNoContent =
-  (href: string) => <div className="no-content-msg">
-    Missing calendar events? You may need to share additional calendars
-    with Esper. <a href={href}>
-      Go back to the calendar selection page.
-    </a>
-  </div>;
-
 export const Stage0OnDescription = (t: string|Date|moment.Moment) => <div>
   <p>
     Got it. We'll send out an email on
@@ -86,6 +70,12 @@ export const Stage2ConfirmedDescription = () => <p>
 export const Stage2CancelledDescription = () => <p>
   Sorry. We've already sent out an email saying there were no agenda items.
 </p>;
+
+export const TBTooSoonShort = "Some events not shown";
+
+export const TBTooSoonLong = "Esper requests agenda items 24 hours before a " +
+  "meeting begins. Events that are starting within the next 24 hours may " +
+  "not be shown.";
 
 interface DefaultDescriptionProps {
   settingsHref: string;

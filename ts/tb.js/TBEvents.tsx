@@ -7,37 +7,40 @@ import * as React from 'react';
 import Icon from "../components/Icon";
 import FixedPeriodSelector from "../components/FixedPeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
+import Tooltip from "../components/Tooltip";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { settings } from "../lib/paths";
-import { GenericPeriod } from "../lib/period";
+import { GenericPeriod, index } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { noContentMessage } from "../text/team";
-import { TBSettingsMsg, DefaultDescriptionSetup } from "../text/timebomb";
+import {
+  TBSettingsMsg,
+  DefaultDescriptionSetup,
+  TBTooSoonShort, TBTooSoonLong
+} from "../text/timebomb";
 import TBEventsList from "./TBEventList";
 import TBEventEditor from "./TBEventEditor";
 import * as Paths from "./paths";
 import { LoggedInState as StoreState, DispatchFn } from './types';
 
-export interface BaseProps {
+export interface Props {
   teamId: string;
   period: GenericPeriod;
   eventId?: string;
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
-  Conf?: { maxDaysFetch?: number; };
-}
-
-interface Props extends BaseProps {
-  onboarding: boolean;
+  Conf?: { maxDaysFetch?: number; tbMinIncr?: number; };
 }
 
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
-    let { onboarding, eventId, ...baseProps } = this.props;
+    let { eventId, ...baseProps } = this.props;
+    let { Conf } = this.props;
+    let minIndex = index(new Date(), "day") + ((Conf && Conf.tbMinIncr) || 0);
     return <div id="tb-events" className={classNames("sidebar-layout", {
       "show-right": !!eventId
     })}>
@@ -49,6 +52,7 @@ export default class TBEventList extends React.Component<Props, {}> {
             <FixedPeriodSelector
               value={this.props.period}
               onChange={this.periodChange}
+              minIndex={minIndex}
             />
           </header>
 
@@ -59,7 +63,16 @@ export default class TBEventList extends React.Component<Props, {}> {
               type: "SCROLL", direction
             })}>
             <div className="container">
-              { onboarding ? this.renderOnboardingMsg() : null }
+              { this.props.period.start <= minIndex ?
+                <div className="tb-messages">
+                  { this.renderPrefsMsg() }
+                  <div className="tb-too-soon-tooltip"><Tooltip
+                    target={<span><Icon type="info">
+                      { TBTooSoonShort }
+                    </Icon></span>}
+                    title={TBTooSoonLong}
+                  /></div>
+                </div> : null }
 
               <TBEventsList
                 noContentMessage={noContentMessage(settings.href({}))}
@@ -88,7 +101,7 @@ export default class TBEventList extends React.Component<Props, {}> {
     </div>;
   }
 
-  renderOnboardingMsg() {
+  renderPrefsMsg() {
     let prefs = this.props.state.teamPreferences[this.props.teamId];
     if (ready(prefs)) {
       let settingsHref = settings.href({});
@@ -102,7 +115,12 @@ export default class TBEventList extends React.Component<Props, {}> {
         /> : <TBSettingsMsg settingsHref={settingsHref} /> }
       </div>;
     }
-    return <div className="placeholder" />;
+
+    else if (prefs === "FETCHING") {
+      return <div className="placeholder" />;
+    }
+
+    return null;
   }
 
   timebombToggle = (eventId: string, value: boolean) => {

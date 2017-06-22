@@ -9,6 +9,7 @@ export const Month = `Month`;
 export const Quarter = `Quarter`;
 export const Custom = `Custom`;
 
+export const Earliest = `Upcoming`;
 export const Today = `Today`;
 export const ThisWeek = `This Week`;
 export const ThisMonth = `This Month`;

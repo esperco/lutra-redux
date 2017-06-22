@@ -38,7 +38,7 @@ export const TBCalSetup = (props: Props) => {
     <div className="onboarding-footer">
       { hasCals && !isSaving ?
         <NextButton onClick={
-          () => props.Svcs.Nav.go(Paths.pickEventSetup.href({}))
+          () => props.Svcs.Nav.go(Paths.activate.href({}))
         } /> :
         <Tooltip
           target={<span><NextButton disabled /></span>}

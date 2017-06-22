@@ -1,4 +1,4 @@
-import { Path, StringParam, BooleanParam } from "../lib/routing";
+import { Path, StringParam } from "../lib/routing";
 import { PeriodParam } from "../lib/period";
 
 export const base = "/tb";
@@ -8,7 +8,6 @@ export const events = new Path({
   params: {},
   optParams: {
     period: PeriodParam,
-    onboarding: BooleanParam,
     eventId: StringParam
   },
   hash: ["events"]
@@ -26,14 +25,10 @@ export const calSetup = new Path({
   hash: ["setup", "cal"]
 });
 
-export const pickEventSetup = new Path({
+export const activate = new Path({
   base,
   params: {},
-  optParams: {
-    period: PeriodParam,
-    eventId: StringParam // For next
-  },
-  hash: ["setup", "events"]
+  hash: ["setup", "activate"]
 });
 
 export const slackSetup = new Path({

@@ -11,7 +11,7 @@ import DayBox from "../components/DayBox";
 import TreeFall from "../components/TreeFall";
 import * as ApiT from "../lib/apiT";
 import { dateForDay } from "../lib/period";
-import { StoreData } from "../states/data-status";
+import { StoreData, ready } from "../states/data-status";
 import { EventMap, QueryResult } from "../states/events";
 
 export type EventDataList =
@@ -24,6 +24,7 @@ interface DayProps {
   result: StoreData<QueryResult>;
   eventMap: EventMap;
   cb: QueryDayCB;
+  filter?: (event: ApiT.GenericCalendarEvent) => boolean;
 }
 
 export class QueryDay extends TreeFall<DayProps, {}> {
@@ -36,7 +37,12 @@ export class QueryDay extends TreeFall<DayProps, {}> {
       this.props.result === "FETCHING" ? ["FETCHING"] :
       this.props.result.eventIds.map((id) => this.props.eventMap[id]);
 
-    if (! calEvents.length) return this.renderEmpty();;
+    if (this.props.filter) {
+      let filterFn = this.props.filter;
+      calEvents = calEvents.filter((e) => ready(e) ? filterFn(e) : true);
+    }
+
+    if (! calEvents.length) return this.renderEmpty();
 
     return <div>
       { this.renderWaypoint() }
