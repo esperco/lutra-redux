@@ -13,6 +13,7 @@ import * as CommonText from "../text/common";
 import Dropdown from "../components/Dropdown";
 import Icon from "../components/Icon";
 import * as CommonPaths from "../lib/paths";
+import { base as ratingsPath } from "../fb.js/paths";
 import { base as agendaPath } from "../tb.js/paths";
 import { base as execPath } from "../time.js/paths";
 import { base as groupsPath } from "../groups.js/paths";
@@ -58,9 +59,13 @@ export class AppHeader extends React.Component<Props, {}> {
         <Link href={chartsPath} active={active === "charts"}>
           <Icon type="charts">{ CommonText.ChartLink }</Icon>
         </Link>
-        {/* <Link href="" active={active === "ratings"}>
-          <Icon type="ratings">{ CommonText.RatingsLink }</Icon>
-        </Link> */}
+
+        {/* Agenda not ready for prod yet */}
+        { Conf.production ? null :
+          <Link href={ratingsPath} active={active === "ratings"}>
+            <Icon type="ratings">{ CommonText.RatingsLink }</Icon>
+          </Link> }
+
         <Link href={agendaPath} active={active === "agenda-check"}>
           <Icon type="agenda-check">{ CommonText.AgendaLink }</Icon>
         </Link>

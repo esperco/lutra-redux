@@ -114,6 +114,38 @@ export async function autosetTimebomb(teamId: string, deps: {
   return prefs;
 }
 
+// Auto-set feedback preferences for new team (if applicable)
+export async function autosetFeedback(teamId: string, deps: {
+  dispatch: (
+    action: PrefsState.DataAction|PrefsState.UpdateAction|FeatureFlagAction
+  ) => void;
+  state: PrefsState.TeamPreferencesState & LoginState;
+  Svcs: ApiSvc;
+}) {
+  // Make sure feature flag set for feedback
+  ensureFlags({ fb: true }, deps);
+
+  // Make sure we have prefs
+  let prefs = await fetch(teamId, deps);
+
+  // If feedback undefined, turn it on
+  if (typeof prefs.fb === "undefined") {
+    return update(teamId, { fb: true }, {
+      ...deps,
+      state: {
+        ...deps.state,
+        teamPreferences: {
+          ...deps.state.teamPreferences,
+          [teamId]: prefs
+        }
+      }
+    });
+  }
+
+  // Already defined, return as is
+  return prefs;
+}
+
 export function toggleDailyAgenda(
   teamId: string,
   val: boolean,

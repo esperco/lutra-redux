@@ -757,6 +757,21 @@ export function toggleTimebomb(props: {
   return Promise.resolve();
 }
 
+export function toggleFeedback(props: {
+  calgroupId: string;
+  calgroupType: "group"|"team";
+  eventId: string;
+  value: boolean;
+}, deps: {
+  dispatch: (a: EventsUpdateAction) => any;
+  state: EventsState & LoginState;
+  Svcs: ApiSvc;
+}) {
+  // let event = (deps.state.events[props.calgroupId] || {})[props.eventId];
+  // TODO: Actual feedback toggling
+  return Promise.resolve();
+}
+
 // Refresh current view with a given set of periods
 export function refresh(props: {
   calgroupId: string,
