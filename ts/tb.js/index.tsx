@@ -23,6 +23,7 @@ import * as Log from "../lib/log";
 import Analytics from "../lib/analytics";
 import Api from "../lib/api";
 import LocalStore from "../lib/local-store";
+import * as Paths from "./paths";
 import { store, dispatch, getState } from "./store";
 
 // Components
@@ -31,8 +32,8 @@ import Header from "../components/AppHeader";
 import NotFound from "../components/NotFound";
 import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
+import CalSetup from "../containers/CalSetup";
 import Events from "./TBEvents";
-import CalSetup from "./TBCalSetup";
 import SlackSetup from "./TBSlackSetup";
 
 // Store Types
@@ -112,7 +113,10 @@ function MainView(props: {
         return <Events {...props} {...eventProps} />;
       case "CalSetup":
         let { page: p2, ...calSetupProps } = props.state.route;
-        return <CalSetup {...props} {...calSetupProps} />;
+        return <CalSetup
+          {...props} {...calSetupProps}
+          next={Paths.activate.href({})}
+        />;
       case "SlackSetup":
         let { page: p3, ...slackSetupProps } = props.state.route;
         return <SlackSetup {...props} {...slackSetupProps} />;
