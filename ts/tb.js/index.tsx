@@ -4,9 +4,6 @@
   (the user's exec team)
 */
 
-// LESS
-require("less/tb.less");
-
 // HTML files
 require("html/tb.html");
 

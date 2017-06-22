@@ -1,7 +1,7 @@
 /*
   Main events view
 */
-
+require("less/components/_event-messages.less");
 import * as classNames from "classnames";
 import * as React from 'react';
 import Icon from "../components/Icon";
@@ -15,13 +15,12 @@ import { settings } from "../lib/paths";
 import { GenericPeriod, index } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
-import { noContentMessage } from "../text/team";
 import {
   TBSettingsMsg,
   DefaultDescriptionSetup,
   TBTooSoonShort, TBTooSoonLong
 } from "../text/timebomb";
-import TBEventsList from "./TBEventList";
+import TBEventList from "./TBEventList";
 import TBEventEditor from "./TBEventEditor";
 import * as Paths from "./paths";
 import { LoggedInState as StoreState, DispatchFn } from './types';
@@ -36,7 +35,7 @@ export interface Props {
   Conf?: { maxDaysFetch?: number; tbMinIncr?: number; };
 }
 
-export default class TBEventList extends React.Component<Props, {}> {
+export default class TBEvents extends React.Component<Props, {}> {
   render() {
     let { eventId, ...baseProps } = this.props;
     let { Conf } = this.props;
@@ -64,9 +63,9 @@ export default class TBEventList extends React.Component<Props, {}> {
             })}>
             <div className="container">
               { this.props.period.start <= minIndex ?
-                <div className="tb-messages">
+                <div className="event-messages">
                   { this.renderPrefsMsg() }
-                  <div className="tb-too-soon-tooltip"><Tooltip
+                  <div className="timeline-info"><Tooltip
                     target={<span><Icon type="info">
                       { TBTooSoonShort }
                     </Icon></span>}
@@ -74,8 +73,7 @@ export default class TBEventList extends React.Component<Props, {}> {
                   /></div>
                 </div> : null }
 
-              <TBEventsList
-                noContentMessage={noContentMessage(settings.href({}))}
+              <TBEventList
                 eventHrefFn={this.eventHref}
                 onTimebombToggle={this.timebombToggle}
                 onPeriodChange={this.periodChange}

@@ -1,8 +1,7 @@
 /*
-  TB-specific wrapper around standard event list -- shared between setup
-  and normal home views
+  TB-specific wrapper around standard event list
 */
-
+require("less/components/_event-list-container.less");
 import * as React from 'react';
 import { InlineInfo, Box, Title } from "../components/EventInfo";
 import EventList from "../components/EventList";
@@ -11,16 +10,17 @@ import QueryDayList from "../components/QueryDayList";
 import TimebombToggle from "../components/TimebombToggle";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
+import { settings } from "../lib/paths";
 import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { hasTag } from "../lib/util";
 import { MoreEvents } from "../text/events";
+import { noContentMessage } from "../text/team";
 import { LoggedInState as StoreState } from './types';
 
 interface Props {
   teamId: string;
   period: GenericPeriod;
-  noContentMessage: JSX.Element|string;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   onPeriodChange: (p: GenericPeriod) => void;
   onTimebombToggle: (eventId: string, val: boolean) => void;
@@ -31,8 +31,8 @@ interface Props {
 
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
-    let { teamId: calgroupId, state, period, noContentMessage } = this.props;
-    return <div className="tb-event-list">
+    let { teamId: calgroupId, state, period } = this.props;
+    return <div className="event-list-container">
       <QueryDayList
         maxDays={this.props.Conf && this.props.Conf.maxDaysFetch}
         calgroupId={calgroupId}
@@ -44,7 +44,8 @@ export default class TBEventList extends React.Component<Props, {}> {
           // Filter out events that we can set new timebombs for only
           return !!e.timebomb && hasTag("Stage0", e.timebomb)}
         }
-        onLoadPrefix={(total) => total ? null : noContentMessage}
+        onLoadPrefix={(total) => total ? null :
+          noContentMessage(settings.href({}))}
       />
 
       <div className="load-more">
