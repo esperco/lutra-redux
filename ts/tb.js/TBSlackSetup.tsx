@@ -2,7 +2,7 @@ require("less/components/_slack-setup.less");
 import * as React from "react";
 import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
-import SlackAuth from "../settings.js/SlackAuth";
+import SlackAuth from "../containers/SlackAuth";
 import * as PrefsState from "../states/team-preferences";
 import * as TBText from "../text/timebomb";
 import * as Paths from "./paths";

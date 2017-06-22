@@ -1,15 +1,15 @@
 /*
-  Generic Slack auth button
+  Redux-aware Slack auth button
 */
 
 import * as React from "react";
+import Icon from "../components/Icon";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { NavSvc } from "../lib/routing";
 import * as TeamPrefs from "../handlers/team-prefs";
 import * as PrefsState from "../states/team-preferences";
 import * as TBText from "../text/timebomb";
-import Icon from "../components/Icon";
 
 interface Props extends React.HTMLProps<HTMLButtonElement> {
   teamId: string;

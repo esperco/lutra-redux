@@ -7,6 +7,7 @@ import TextInput from "../components/TextInput";
 import FeedbackSettings from "../components/FeedbackSettings";
 import TimebombSettings from "../components/TimebombSettings";
 import TimezoneDropdown from "../components/TimezoneDropdown";
+import SlackAuth from "../containers/SlackAuth";
 import TeamCalendars from "../containers/TeamCalendars";
 import * as Teams from "../handlers/teams";
 import * as TeamPrefs from "../handlers/team-prefs";
@@ -16,7 +17,6 @@ import { manage } from "../lib/paths";
 import { NavSvc } from "../lib/routing";
 import { ready } from '../states/data-status';
 import * as Text from "../text/team";
-import SlackAuth from "./SlackAuth";
 import { LoggedInState, DispatchFn } from './types';
 
 export interface Props {
