@@ -25,6 +25,7 @@ export const Filters = "Search and Filtering";
 export const Help = "Help";
 export const Hide = "Hide";
 export const Home = "Home";
+export const Info = "Info";
 export const Location = "Location";
 export const Logout = "Sign out";
 export const Next = "Next";

@@ -7,6 +7,7 @@ import * as React from 'react';
 import Icon from "../components/Icon";
 import FixedPeriodSelector from "../components/FixedPeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
+import Tooltip from "../components/Tooltip";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
@@ -15,7 +16,11 @@ import { GenericPeriod, index } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { noContentMessage } from "../text/team";
-import { TBSettingsMsg, DefaultDescriptionSetup } from "../text/timebomb";
+import {
+  TBSettingsMsg,
+  DefaultDescriptionSetup,
+  TBTooSoonShort, TBTooSoonLong
+} from "../text/timebomb";
 import TBEventsList from "./TBEventList";
 import TBEventEditor from "./TBEventEditor";
 import * as Paths from "./paths";
@@ -62,7 +67,16 @@ export default class TBEventList extends React.Component<Props, {}> {
               type: "SCROLL", direction
             })}>
             <div className="container">
-              { onboarding ? this.renderOnboardingMsg() : null }
+              { this.props.period.start <= minIndex ?
+                <div className="tb-messages">
+                  { this.renderPrefsMsg() }
+                  <div className="tb-too-soon-tooltip"><Tooltip
+                    target={<span><Icon type="info">
+                      { TBTooSoonShort }
+                    </Icon></span>}
+                    title={TBTooSoonLong}
+                  /></div>
+                </div> : null }
 
               <TBEventsList
                 noContentMessage={noContentMessage(settings.href({}))}
@@ -91,7 +105,7 @@ export default class TBEventList extends React.Component<Props, {}> {
     </div>;
   }
 
-  renderOnboardingMsg() {
+  renderPrefsMsg() {
     let prefs = this.props.state.teamPreferences[this.props.teamId];
     if (ready(prefs)) {
       let settingsHref = settings.href({});
@@ -105,7 +119,12 @@ export default class TBEventList extends React.Component<Props, {}> {
         /> : <TBSettingsMsg settingsHref={settingsHref} /> }
       </div>;
     }
-    return <div className="placeholder" />;
+
+    else if (prefs === "FETCHING") {
+      return <div className="placeholder" />;
+    }
+
+    return null;
   }
 
   timebombToggle = (eventId: string, value: boolean) => {

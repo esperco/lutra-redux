@@ -87,6 +87,12 @@ export const Stage2CancelledDescription = () => <p>
   Sorry. We've already sent out an email saying there were no agenda items.
 </p>;
 
+export const TBTooSoonShort = "Some events not shown";
+
+export const TBTooSoonLong = "Esper requests agenda items 24 hours before a " +
+  "meeting begins. Events that are starting within the next 24 hours may " +
+  "not be shown.";
+
 interface DefaultDescriptionProps {
   settingsHref: string;
   minGuests: number;
