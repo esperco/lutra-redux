@@ -22,7 +22,7 @@ import { Nav } from "../lib/routing"
 import { getParamByName } from "../lib/util";
 import { GenericErrorMsg } from "../text/error-text";
 import { ModalBase } from "../components/Modal";
-import EventLanding from "./EventLanding";
+import AgendaLanding from "./AgendaLanding";
 
 /*
   Helper initialization
@@ -49,7 +49,7 @@ if (action || tokens.keep || tokens.cancel) {
   let onDone = () => location.search = "";
   let component =
     (action === "keep" || action ==="cancel") && tokens.keep && tokens.cancel ?
-    <EventLanding
+    <AgendaLanding
       actionOnMount={action}
       onDone={onDone}
       tokens={tokens}
@@ -61,7 +61,7 @@ if (action || tokens.keep || tokens.cancel) {
   /*
     Use ModalBase instead of Modal b/c we don't need a header.
     onClose is no-op because we don't need to be able to close this modal
-    the normal way (let EventLanding's onDone handle it).
+    the normal way (let AgendaLanding's onDone handle it).
   */
   ReactDOM.render(<ModalBase onClose={() => null}>
     <div className="modal">
