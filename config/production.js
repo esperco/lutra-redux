@@ -12,5 +12,6 @@ module.exports = {
   esperVersion: "lutra-redux",
   logLevel: 3, // Warn and above,
   logTag: "Esper",
+  tbMinIncr: 1,
   ravenUrl: "https://bbe6d54536694df0a01801dce5a012c1@sentry.io/115523"
 };

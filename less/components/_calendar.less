@@ -37,7 +37,6 @@
     }
 
     &.today {
-      border: 1px solid @border-color;
       color: @info;
     }
 
@@ -73,16 +72,17 @@
     border-radius: 0;
 
     &.today {
-      border: 0;
       color: @info;
     }
 
     &.start {
-      border-radius: @border-radius-small 0 0 @border-radius-small;
+      border-top-left-radius: 1em;
+      border-bottom-left-radius: 1em;
     }
 
     &.end {
-      border-radius: 0 @border-radius-small @border-radius-small 0;
+      border-top-right-radius: 1em;
+      border-bottom-right-radius: 1em;
     }
 
     &:hover, &:focus {

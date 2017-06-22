@@ -11,7 +11,7 @@ import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { settings } from "../lib/paths";
-import { GenericPeriod } from "../lib/period";
+import { GenericPeriod, index } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import { noContentMessage } from "../text/team";
@@ -28,7 +28,7 @@ export interface BaseProps {
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
-  Conf?: { maxDaysFetch?: number; };
+  Conf?: { maxDaysFetch?: number; tbMinIncr?: number; };
 }
 
 interface Props extends BaseProps {
@@ -38,6 +38,8 @@ interface Props extends BaseProps {
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
     let { onboarding, eventId, ...baseProps } = this.props;
+    let { Conf } = this.props;
+    let minIndex = index(new Date(), "day") + ((Conf && Conf.tbMinIncr) || 0);
     return <div id="tb-events" className={classNames("sidebar-layout", {
       "show-right": !!eventId
     })}>
@@ -49,6 +51,7 @@ export default class TBEventList extends React.Component<Props, {}> {
             <FixedPeriodSelector
               value={this.props.period}
               onChange={this.periodChange}
+              minIndex={minIndex}
             />
           </header>
 

@@ -6,17 +6,21 @@
 require("less/components/_period-selectors.less");
 import * as React from "react";
 import {
-  GenericPeriod, Period,
+  GenericPeriod, Period, dateForDay,
   index, toDays, bounds, add
 } from "../lib/period";
 import Dropdown from "./Dropdown";
 import Icon from "./Icon";
 import { DaySelector } from "./CalendarSelectors";
-import { fmtPeriod, Today } from "../text/periods";
+import { fmtPeriod, Today, Earliest } from "../text/periods";
 
 interface Props {
   value: GenericPeriod;
   onChange: (period: Period<"day">) => void;
+
+  // Inclusive, day index
+  minIndex?: number;
+  maxIndex?: number;
 }
 
 export class FixedPeriodSelector extends React.Component<Props, {}> {
@@ -24,8 +28,12 @@ export class FixedPeriodSelector extends React.Component<Props, {}> {
 
   render() {
     let start = bounds(this.props.value)[0];
+    let { minIndex, maxIndex } = this.props;
+    let days = toDays(this.props.value);
+    let disablePrev = !!(minIndex && days.start <= minIndex);
+    let disableNext = !!(maxIndex && days.end >= maxIndex);
     return <div className="period-selector">
-      <button onClick={() => this.incr(-1)}>
+      <button disabled={disablePrev} onClick={() => this.incr(-1)}>
         <Icon type="previous" />
       </button>
 
@@ -41,27 +49,45 @@ export class FixedPeriodSelector extends React.Component<Props, {}> {
           <DaySelector
             value={start}
             onChange={this.change}
+            minDate={minIndex ? dateForDay(minIndex) : undefined}
+            maxDate={maxIndex ? dateForDay(maxIndex) : undefined}
           />
           { this.renderPresets() }
         </div>}
       />
 
-      <button onClick={() => this.incr(1)}>
+      <button disabled={disableNext} onClick={() => this.incr(1)}>
         <Icon type="next" />
       </button>
     </div>;
   }
 
   renderPresets() {
+    let date = new Date();
+    let label = Today;
+    if (this.props.minIndex && index(date, "day") < this.props.minIndex) {
+      date = dateForDay(this.props.minIndex);
+      label = Earliest;
+    }
     return <div className="presets panel">
-      <button onClick={() => this.change(new Date())}>
-        { Today }
+      <button onClick={() => this.change(date)}>
+        { label }
       </button>
     </div>;
   }
 
   incr(i: number) {
-    this.props.onChange(add(toDays(this.props.value), i));
+    let days = toDays(this.props.value);
+    let next = add(days, i);
+    if (this.props.minIndex && next.start < this.props.minIndex) {
+      next.start = this.props.minIndex;
+      next.end = next.start + (days.end - days.start);
+    }
+    else if (this.props.maxIndex && next.end > this.props.maxIndex) {
+      next.end = this.props.maxIndex;
+      next.start = next.end - (days.end - days.start);
+    }
+    this.props.onChange(next);
   }
 
   change = (date: Date) => {
