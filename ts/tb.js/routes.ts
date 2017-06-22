@@ -1,7 +1,6 @@
 import * as moment from "moment";
 import * as Paths from "./paths";
 import { Action, State } from "./types";
-import * as OnboardingFlag from "./onboarding-flag";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
@@ -18,7 +17,11 @@ interface Deps {
   dispatch: (action: Action) => any,
   state: State,
   Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc & LocalStoreSvc,
-  Conf: { cacheDuration?: number; maxDaysFetch?: number; }
+  Conf: {
+    cacheDuration?: number;
+    maxDaysFetch?: number;
+    tbMinIncr?: number;
+  }
 }
 
 
@@ -28,8 +31,6 @@ export interface EventsRoute {
   page: "Events";
   period: GenericPeriod;
   teamId: string;
-  onboarding: boolean; // Show onboarding helper msg for new user
-                       // Automatically set defaults if necessary.
   eventId?: string;    // Selected event
 };
 
@@ -37,31 +38,25 @@ export interface RedirectRoute {
   page: "Redirect";
 }
 
-export const events = Paths.events.route<Deps>(async function(p, deps) {
-  let team = checkForCalendar(deps);
+export const events = Paths.events.route<Deps>((p, deps) => {
+  let team = checkForFlag(deps);
   if (! team) return;
   let teamId = team.teamid;
   let eventId = p.eventId;
-  let onboarding = !!p.onboarding;
 
-  // Onboarding mode -> auto set defaults
-  if (onboarding) {
-
-    // Render redirect while waiting for timebomb settings to finish
-    deps.dispatch({ type: "ROUTE", route: { page: "Redirect" }});
-    await TeamPrefs.autosetTimebomb(teamId, deps);
-
-    // Clear flag since, if we get here, we've "cleared" onboarding
-    OnboardingFlag.unset(deps.Svcs);
+  // Default period = today + 6 (7 days total) - in prod incr slightly
+  // so we don't fetch for today (too early)
+  let start = moment(new Date());
+  if (deps.Conf.tbMinIncr) {
+    start = start.add(deps.Conf.tbMinIncr, 'day');
   }
-
-  // Default period = today + 6 (7 days total)
   let period = p.period || fromDates(
-    new Date(),
-    moment(new Date()).add(6, 'days').toDate()
+    start.toDate(),
+    start.clone().add(6, 'days').toDate()
   );
 
-  // Fetch events
+  // Fetch prefs + events
+  TeamPrefs.fetch(teamId, deps);
   Events.fetchEvents({
     calgroupId: team.teamid,
     calgroupType: "team",
@@ -73,8 +68,7 @@ export const events = Paths.events.route<Deps>(async function(p, deps) {
     type: "ROUTE",
     route: {
       page: "Events",
-      period, teamId, eventId,
-      onboarding
+      period, teamId, eventId
     }
   });
 });
@@ -86,11 +80,9 @@ export const events = Paths.events.route<Deps>(async function(p, deps) {
 */
 
 export const setup = Paths.setup.route<Deps>(async function(p, deps) {
+  deps.dispatch({ type: "ROUTE", route: { page: "Redirect" }});
   await Teams.ensureSelfExecTeam(deps);
   deps.Svcs.Nav.go(Paths.calSetup.href({}));
-
-  // We're in onboarding mode if we get here. Set flag!
-  OnboardingFlag.set(deps.Svcs);
 });
 
 // Function that redirects to setup if no team found
@@ -98,7 +90,7 @@ export const checkForTeam = function(deps: Deps): ApiT.Team|undefined {
   let team = Teams.getSelfExecTeam(deps);
   if (team) return team;
   deps.Svcs.Nav.go(Paths.setup.href({}));
-  return;
+  return; // Return undefined to signal wait for redirect
 }
 
 
@@ -130,11 +122,10 @@ export const calSetup = Paths.calSetup.route<Deps>(function(p, deps) {
   });
 });
 
-
 // Function that redirects to settings if no calendars found
 export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
   let team = checkForTeam(deps);
-  if (! team) return;
+  if (! team) return; // Wait for redirect
 
   // Two sources of calendar info -> teamCalendars has priority
   let cals = deps.state.teamCalendars[team.teamid];
@@ -145,55 +136,44 @@ export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
 
   // No cals, go to onboarding
   deps.Svcs.Nav.go(Paths.calSetup.href({}));
-  return;
+  return; // Return undefined to signal wait for redirect
 }
 
 
 /*
-  Pick event setup route --> onboarding step where we ask user to pick an
-  event to enable timebomb for
+  Auto-enables timebomb if necessary and sets feature flag. Not a real page.
+  Redirects to event list when done.
+
+  TODO: Redirect to welcome page.
 */
 
-export interface PickEventSetupRoute {
-  page: "PickEventSetup";
-  teamId: string;
-  period: GenericPeriod;
-  eventId?: string;
-}
+export const activate = Paths.activate.route<Deps>(
+  async (p, deps) => {
+    let team = checkForCalendar(deps);
+    if (! team) return; // Wait for redirect
+    let teamId = team.teamid;
 
-export const pickEventSetup = Paths.pickEventSetup.route<Deps>(
-function(p, deps) {
-  let team = checkForCalendar(deps);
-  if (! team) return;
-  let teamId = team.teamid;
+    // Render redirect while waiting for timebomb settings to finish
+    deps.dispatch({ type: "ROUTE", route: { page: "Redirect" }});
+    await TeamPrefs.autosetTimebomb(teamId, deps);
 
-  /*
-    Default period = 1 days from now + 6 days -- start 1 day from now
-    because that's the earliest we can set a time bomb.
-  */
-  let period = p.period || fromDates(
-    moment(new Date()).add(1, 'days').toDate(),
-    moment(new Date()).add(7, 'days').toDate()
-  );
-
-  // Show modal explaining what just happened
-  let eventId = p.eventId;
-
-  // Fetch events
-  Events.fetchEvents({
-    calgroupId: team.teamid,
-    calgroupType: "team",
-    period, query: {}
-  }, deps);
-
-  deps.dispatch({
-    type: "ROUTE",
-    route: {
-      page: "PickEventSetup",
-      teamId, period, eventId
-    }
+    // Done, go to events
+    deps.Svcs.Nav.go(Paths.events.href({}));
   });
-});
+
+// Function that redirects to activation if feature flag isn't found
+export const checkForFlag = function(deps: Deps): ApiT.Team|undefined {
+  let team = checkForCalendar(deps);
+  if (! team) return; // Wait for redirect
+
+  if (deps.state.login && deps.state.login.feature_flags.tb) {
+    return team;
+  }
+
+  // Flag unset, activate
+  deps.Svcs.Nav.go(Paths.activate.href({}));
+  return; // Return undefined to signal wait for redirect
+};
 
 
 /*
@@ -223,7 +203,6 @@ export type RouteTypes =
   EventsRoute|
   RedirectRoute|
   CalSetupRoute|
-  PickEventSetupRoute|
   SlackSetupRoute;
 
 export function init({ dispatch, getState, Svcs, Conf }: {
@@ -232,24 +211,19 @@ export function init({ dispatch, getState, Svcs, Conf }: {
   Svcs: AnalyticsSvc & ApiSvc & Routing.NavSvc & LocalStoreSvc,
   Conf: { cacheDuration?: number; maxDaysFetch?: number; }
 }) {
-  let onboarding = OnboardingFlag.get(Svcs);
   Routing.init<Deps>(
     [ // Routes
       events,
       setup,
       calSetup,
-      pickEventSetup,
+      activate,
       slackSetup
     ],
 
     // Deps
     () => ({ dispatch, state: getState(), Svcs, Conf }),
 
-    /*
-      Opts - set onboarding flag if local storage tells us do (this lets us
-      re-initiate onboarding even if user was logged out or redirected via
-      Oauth to, e.g., Slack)
-    */
-    { home: () => Paths.events.href({ onboarding }) }
+    // Homepage
+    { home: () => Paths.events.href({}) }
   );
 }

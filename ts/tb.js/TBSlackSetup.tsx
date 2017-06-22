@@ -28,7 +28,7 @@ export const TBSlackSetup =
           <SlackAuth teamId={p.teamId} deps={p} tb={true} />
         </div>
         <div>
-          <a href={Paths.events.href({ onboarding: true })}>
+          <a href={Paths.events.href({})}>
             { TBText.SkipSlackAction }
           </a>
         </div>

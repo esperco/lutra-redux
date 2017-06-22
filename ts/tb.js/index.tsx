@@ -33,7 +33,6 @@ import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
 import Events from "./TBEvents";
 import CalSetup from "./TBCalSetup";
-import PickEventSetup from "./TBPickEventSetup";
 import SlackSetup from "./TBSlackSetup";
 
 // Store Types
@@ -89,7 +88,6 @@ function getScrollKey(state: LoggedInState) {
     let route = state.route;
     switch (route.page) {
       case "Events":
-      case "PickEventSetup":
         return route.period.start;
       default:
         return route.page;
@@ -115,11 +113,8 @@ function MainView(props: {
       case "CalSetup":
         let { page: p2, ...calSetupProps } = props.state.route;
         return <CalSetup {...props} {...calSetupProps} />;
-      case "PickEventSetup":
-        let { page: p3, ...pickEventProps } = props.state.route;
-        return <PickEventSetup {...props} {...pickEventProps} />;
       case "SlackSetup":
-        let { page: p4, ...slackSetupProps } = props.state.route;
+        let { page: p3, ...slackSetupProps } = props.state.route;
         return <SlackSetup {...props} {...slackSetupProps} />;
       case "NotFound":
         return <NotFound />;

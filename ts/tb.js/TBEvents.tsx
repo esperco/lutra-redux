@@ -26,7 +26,7 @@ import TBEventEditor from "./TBEventEditor";
 import * as Paths from "./paths";
 import { LoggedInState as StoreState, DispatchFn } from './types';
 
-export interface BaseProps {
+export interface Props {
   teamId: string;
   period: GenericPeriod;
   eventId?: string;
@@ -36,13 +36,9 @@ export interface BaseProps {
   Conf?: { maxDaysFetch?: number; tbMinIncr?: number; };
 }
 
-interface Props extends BaseProps {
-  onboarding: boolean;
-}
-
 export default class TBEventList extends React.Component<Props, {}> {
   render() {
-    let { onboarding, eventId, ...baseProps } = this.props;
+    let { eventId, ...baseProps } = this.props;
     let { Conf } = this.props;
     let minIndex = index(new Date(), "day") + ((Conf && Conf.tbMinIncr) || 0);
     return <div id="tb-events" className={classNames("sidebar-layout", {
