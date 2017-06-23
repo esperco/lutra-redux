@@ -1,0 +1,24 @@
+/*
+  For messages at beginning of timebomb
+*/
+@import (reference) "../_variables";
+
+.event-messages {
+  @media screen and (min-width: @screen-sm-min) {
+    margin-top: @padding-lg - @padding-base;
+    text-align: center;
+  }
+
+  + * { margin-top: @padding-lg; }
+}
+
+// For insertion in flow of event list
+.timeline-info {
+  text-align: center;
+  padding: @padding-small;
+  border-top: 1px solid @border-color;
+  border-bottom: 1px solid @border-color;
+  color: @text-muted;
+  font-size: @font-size-small;
+  cursor: default; // So tooltip doesn't get text selection cursor
+}

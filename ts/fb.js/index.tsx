@@ -1,11 +1,11 @@
 /*
-  This is the entry point and main file for /tb. It should log
-  in our user (if possible) and render timebomb-only UI for a single team
+  This is the entry point and main file for /fb. It should log
+  in our user (if possible) and render feedback-only UI for a single team
   (the user's exec team)
 */
 
 // HTML files
-require("html/tb.html");
+require("html/fb.html");
 
 
 //////////////////////////////////////
@@ -31,7 +31,7 @@ import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
 import CalSetup from "../containers/CalSetup";
 import SlackSetup from "../containers/SlackSetup";
-import Events from "./TBEvents";
+import Events from "./FBEvents";
 
 // Store Types
 import { LoggedInState, DispatchFn } from "./types";
@@ -67,7 +67,7 @@ store.subscribe(() => {
 
   ReactDOM.render(
     <App {...appProps} >
-      <Header active="agenda-check" {...props} />
+      <Header active="ratings" {...props} />
       <ScrollContainer className="content"
         scrollKey={getScrollKey(props.state)}
         onScrollChange={(direction) => props.dispatch({
@@ -118,7 +118,7 @@ function MainView(props: {
         let { page: p3, ...slackSetupProps } = props.state.route;
         return <SlackSetup
           {...props} {...slackSetupProps}
-          className="slack-agenda-setup"
+          className="slack-ratings-setup"
           next={Paths.events.href({})}
         />;
       case "NotFound":

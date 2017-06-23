@@ -1,24 +1,25 @@
+/*
+  Calendar setup page for onboarding
+*/
+
+require("less/components/_cal-setup.less");
 import * as _ from "lodash";
 import * as React from "react";
 import Tooltip from "../components/Tooltip";
-import { ApiSvc } from "../lib/api";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import * as CommonText from "../text/common";
-import * as PrefsState from "../states/team-preferences";
+import { DataState } from "../states/data-status";
 import * as Text from "../text/team";
-import { CalendarsSelector } from "../settings.js/Settings";
-import * as Paths from "./paths";
-import { LoggedInState } from "./types";
+import TeamCalendars, { Props as BaseProps } from "./TeamCalendars";
 
-interface Props extends React.HTMLProps<HTMLButtonElement> {
-  teamId: string;
-  dispatch: (action: PrefsState.UpdateAction) => any;
-  state: LoggedInState;
-  Svcs: ApiSvc & NavSvc;
+export type Props = BaseProps & {
+  next: string;
+  state: DataState;
+  Svcs: NavSvc;
 }
 
-export const TBCalSetup = (props: Props) => {
+export const CalSetup = (props: Props) => {
   let teamCals = props.state.teamCalendars[props.teamId];
   let hasCals = !!teamCals &&
     ready(teamCals.selected) &&
@@ -32,13 +33,13 @@ export const TBCalSetup = (props: Props) => {
     </p>
 
     <div className="panel">
-      <CalendarsSelector {...props} />
+      <TeamCalendars {...props} />
     </div>
 
     <div className="onboarding-footer">
       { hasCals && !isSaving ?
         <NextButton onClick={
-          () => props.Svcs.Nav.go(Paths.activate.href({}))
+          () => props.Svcs.Nav.go(props.next)
         } /> :
         <Tooltip
           target={<span><NextButton disabled /></span>}
@@ -56,4 +57,4 @@ const NextButton = (p: React.HTMLProps<HTMLButtonElement>) => {
   </button>;
 }
 
-export default TBCalSetup;
+export default CalSetup;

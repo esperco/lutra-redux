@@ -1,5 +1,5 @@
 /*
-  TB-specific wrapper around standard event list
+  FB-specific wrapper around standard event list
 */
 require("less/components/_event-list-container.less");
 import * as React from 'react';
@@ -7,13 +7,12 @@ import { InlineInfo, Box, Title } from "../components/EventInfo";
 import EventList from "../components/EventList";
 import { EventDataList } from "../components/QueryDay";
 import QueryDayList from "../components/QueryDayList";
-import TimebombToggle from "../components/TimebombToggle";
+import FeedbackToggle from "../components/FeedbackToggle";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { settings } from "../lib/paths";
 import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
-import { hasTag } from "../lib/util";
 import { MoreEvents } from "../text/events";
 import { noContentMessage } from "../text/team";
 import { LoggedInState as StoreState } from './types';
@@ -23,13 +22,13 @@ interface Props {
   period: GenericPeriod;
   eventHrefFn?: (ev: ApiT.GenericCalendarEvent) => string;
   onPeriodChange: (p: GenericPeriod) => void;
-  onTimebombToggle: (eventId: string, val: boolean) => void;
+  onFeedbackToggle: (eventId: string, val: boolean) => void;
   state: StoreState;
   Svcs: ApiSvc & NavSvc;
   Conf?: { maxDaysFetch?: number; };
 }
 
-export default class TBEventList extends React.Component<Props, {}> {
+export default class FBEventList extends React.Component<Props, {}> {
   render() {
     let { teamId: calgroupId, state, period } = this.props;
     return <div className="event-list-container">
@@ -40,10 +39,6 @@ export default class TBEventList extends React.Component<Props, {}> {
         state={state}
         query={{}}
         cb={this.renderEventList}
-        filter={(e) => {
-          // Filter out events that we can set new timebombs for only
-          return !!e.timebomb && hasTag("Stage0", e.timebomb)}
-        }
         onLoadPrefix={(total) => total ? null :
           noContentMessage(settings.href({}))}
       />
@@ -63,8 +58,6 @@ export default class TBEventList extends React.Component<Props, {}> {
   }
 
   renderEvent = (event: ApiT.GenericCalendarEvent) => {
-    let loggedInUid =
-      this.props.state.login ? this.props.state.login.uid : undefined;
     return <Box key={event.id} event={event} className="panel">
       <div>
         <h4><Title
@@ -73,10 +66,9 @@ export default class TBEventList extends React.Component<Props, {}> {
         /></h4>
         <InlineInfo event={event} />
       </div>
-      <TimebombToggle
-        loggedInUid={loggedInUid}
+      <FeedbackToggle
         event={event}
-        onToggle={this.props.onTimebombToggle} />
+        onToggle={(val) => this.props.onFeedbackToggle(event.id, val)} />
     </Box>;
   }
 

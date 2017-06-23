@@ -1,25 +1,27 @@
 /*
-  Generic Slack auth button
+  Redux-aware Slack auth button
 */
 
 import * as React from "react";
+import Icon from "../components/Icon";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { NavSvc } from "../lib/routing";
 import * as TeamPrefs from "../handlers/team-prefs";
 import * as PrefsState from "../states/team-preferences";
-import * as TBText from "../text/timebomb";
-import Icon from "../components/Icon";
+import * as Text from "../text/slack";
 
-interface Props extends React.HTMLProps<HTMLButtonElement> {
+export interface Deps {
+  dispatch: (action: PrefsState.UpdateAction) => void;
+  state: PrefsState.TeamPreferencesState;
+  Svcs: ApiSvc & NavSvc;
+}
+
+export interface Props extends React.HTMLProps<HTMLButtonElement> {
   teamId: string;
   fb?: boolean;
   tb?: boolean;
-  deps: {
-    dispatch: (action: PrefsState.UpdateAction) => void;
-    state: PrefsState.TeamPreferencesState;
-    Svcs: ApiSvc & NavSvc;
-  }
+  deps: Deps;
 }
 
 interface State {
@@ -40,7 +42,7 @@ export class SlackAuth extends React.Component<Props, State> {
     >
       <Icon type="slack">
         { childCount ? this.props.children :
-          <span>{ TBText.SlackSetupAction }</span> }
+          <span>{ Text.SlackSetupAction }</span> }
       </Icon>
     </button>;
   }

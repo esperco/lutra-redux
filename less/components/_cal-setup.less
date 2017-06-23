@@ -1,0 +1,33 @@
+@import (reference) "../_variables";
+
+@media screen and (min-width: @screen-sm-min) {
+  .onboarding {
+    > h2:first-child {
+      margin-top: @padding-lg;
+      display: inline-block
+    }
+
+    > h2:first-child + .event-info {
+      display: inline-block;
+      padding-left: @padding-small;
+    }
+  }
+}
+
+// Onboarding
+.onboarding-footer {
+  max-width: 500px;
+  margin-top: @padding-xl;
+  margin-left: auto;
+  margin-right: auto;
+
+  .description {
+    font-size: @font-size-small;
+    color: @text-muted;
+  }
+
+  > button, > span > button {
+    margin-top: @padding-base;
+    width: 100%;
+  }
+}

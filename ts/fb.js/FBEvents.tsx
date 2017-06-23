@@ -15,13 +15,9 @@ import { settings } from "../lib/paths";
 import { GenericPeriod, index } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
-import {
-  TBSettingsMsg,
-  DefaultDescriptionSetup,
-  TBTooSoonShort, TBTooSoonLong
-} from "../text/timebomb";
-import TBEventList from "./TBEventList";
-import TBEventEditor from "./TBEventEditor";
+import * as Text from "../text/feedback";
+import FBEventList from "./FBEventList";
+import FBEventEditor from "./FBEventEditor";
 import * as Paths from "./paths";
 import { LoggedInState as StoreState, DispatchFn } from './types';
 
@@ -32,15 +28,14 @@ export interface Props {
   state: StoreState;
   dispatch: DispatchFn;
   Svcs: ApiSvc & NavSvc;
-  Conf?: { maxDaysFetch?: number; tbMinIncr?: number; };
+  Conf?: { maxDaysFetch?: number; };
 }
 
-export default class TBEvents extends React.Component<Props, {}> {
+export default class FBEvents extends React.Component<Props, {}> {
   render() {
     let { eventId, ...baseProps } = this.props;
-    let { Conf } = this.props;
-    let minIndex = index(new Date(), "day") + ((Conf && Conf.tbMinIncr) || 0);
-    return <div id="tb-events" className={classNames("sidebar-layout", {
+    let minIndex = index(new Date(), "day");
+    return <div id="fb-events" className={classNames("sidebar-layout", {
       "show-right": !!eventId
     })}>
       {/* Main Content Area */}
@@ -67,15 +62,15 @@ export default class TBEvents extends React.Component<Props, {}> {
                   { this.renderPrefsMsg() }
                   <div className="timeline-info"><Tooltip
                     target={<span><Icon type="info">
-                      { TBTooSoonShort }
+                      { Text.FBExpiredShort }
                     </Icon></span>}
-                    title={TBTooSoonLong}
+                    title={Text.FBExpiredLong}
                   /></div>
                 </div> : null }
 
-              <TBEventList
+              <FBEventList
                 eventHrefFn={this.eventHref}
-                onTimebombToggle={this.timebombToggle}
+                onFeedbackToggle={this.feedbackToggle}
                 onPeriodChange={this.periodChange}
                 {...baseProps}
               />
@@ -91,9 +86,9 @@ export default class TBEvents extends React.Component<Props, {}> {
                 onClick={() => this.props.Svcs.Nav.go(this.eventHref())}>
           <Icon type="close" />
         </button>
-        <TBEventEditor
+        <FBEventEditor
           {...this.props}
-          onTimebombToggle={this.timebombToggle}
+          onFeedbackToggle={this.feedbackToggle}
         />
       </div>
     </div>;
@@ -104,13 +99,13 @@ export default class TBEvents extends React.Component<Props, {}> {
     if (ready(prefs)) {
       let settingsHref = settings.href({});
       return <div className="alert info">
-        { !!prefs.tb ? <DefaultDescriptionSetup
+        { !!prefs.fb ? <Text.DefaultDescriptionSetup
           settingsHref={settingsHref}
-          minGuests={prefs.tb_guests_min}
-          maxGuests={prefs.tb_guests_max}
-          recurring={prefs.tb_recurring}
-          sameDomain={prefs.tb_same_domain}
-        /> : <TBSettingsMsg settingsHref={settingsHref} /> }
+          minGuests={prefs.fb_guests_min}
+          maxGuests={prefs.fb_guests_max}
+          recurring={prefs.fb_recurring}
+          sameDomain={prefs.fb_same_domain}
+        /> : <Text.FBSettingsMsg settingsHref={settingsHref} /> }
       </div>;
     }
 
@@ -121,8 +116,8 @@ export default class TBEvents extends React.Component<Props, {}> {
     return null;
   }
 
-  timebombToggle = (eventId: string, value: boolean) => {
-    Events.toggleTimebomb({
+  feedbackToggle = (eventId: string, value: boolean) => {
+    Events.toggleFeedback({
       calgroupId: this.props.teamId,
       calgroupType: "team",
       eventId,

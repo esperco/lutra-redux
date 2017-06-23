@@ -96,16 +96,3 @@ export const DefaultDescriptionSetup =
 </p>;
 
 export const BlurbPlaceholder = "What do you want to discuss?";
-
-export const GoToSlackSetup = <span>One More Thing &hellip;</span>;
-export const GoToSlackSetupDescription = <p>
-  Prefer <a href="https://slack.com/">Slack</a> to email?
-  Esper now supports Slack notifications!
-</p>;
-export const SlackSetupAction = "Connect to Slack";
-export const SkipSlackAction = "Use Esper without Slack";
-export const SlackSetupHeading = SlackSetupAction;
-export const SlackSetupDescription = <p>
-  Esper works better with Slack. Install our Esper bot to respond
-  to agenda check notifications from wherever you are.
-</p>;
