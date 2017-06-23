@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as Sinon from "sinon";
 import { expect } from "chai";
-import { Queue, QueueMap, wrapFirst, wrapLast } from "./queue";
+import { Queue, QueueMap, wrapFirst, wrapLast, wrapMerge } from "./queue";
 import { expectCalledWith } from "./expect-helpers";
 
 describe("Queue", () => {
@@ -130,5 +130,25 @@ describe("wrapLast", () => {
     expectCalledWith(stub, 1, 2);
     expectCalledWith(stub, 5, 6);
     expect(ret).to.equal(11);
+  });
+});
+
+describe("wrapMerge", () => {
+  it("invokes first call immediately and merges remainder", async () => {
+    let stub = Sinon.stub().callsFake(
+      ({x, y}: { x?: number; y?: number; }) =>
+        Promise.resolve((x || 0) + (y || 0))
+    );
+    let fn: (p: { x?: number; y?: number; }) => Promise<void>
+      = wrapMerge(stub);
+    fn({ x: 1, y: 2 });
+    fn({ x: 3 });
+    fn({ y: 4 });
+    let ret = await fn({ x: 5 });
+
+    expect(stub.callCount).to.equal(2);
+    expectCalledWith(stub, { x: 1, y: 2 });
+    expectCalledWith(stub, { x: 5, y: 4 });
+    expect(ret).to.equal(9);
   });
 });

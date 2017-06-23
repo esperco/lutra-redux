@@ -125,4 +125,24 @@ export function wrapFirst<F extends PromiseFn>(fn: F): F {
     .then(() => lastResult)) as F;
 }
 
+// Function takes a single arg which is merged with other args
+interface MergePromiseFn<P> {
+  (props: P): Promise<any>;
+}
+
+export function wrapMerge<P, F extends MergePromiseFn<P>>(fn: F): F {
+  let lastResult: any;
+  const queue = new Queue(async (vals: P[]) => {
+    if (vals.length) {
+      let prop = vals.reduce((prev, curr) => ({
+        ...(prev as any), // To get around spread type restrictions
+        ...(curr as any)
+      }));
+      lastResult = await fn(prop);
+    }
+    return [];
+  });
+  return ((props: P) => queue.enqueue(props).then(() => lastResult)) as F;
+}
+
 export default Queue;

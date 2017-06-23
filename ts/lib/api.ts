@@ -593,6 +593,11 @@ namespace Api {
   ) {
     return _postToken(token, body);
   }
+  export function postRatingsToken<K extends keyof ApiT.GuestEventFeedback>(
+    token: string, body: Pick<ApiT.GuestEventFeedback, K>
+  ) {
+    return _postToken(token, body);
+  }
 
   /* Invites */
 

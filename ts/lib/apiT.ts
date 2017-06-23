@@ -243,19 +243,6 @@ export interface EventLookupResponse {
   result?: EventLookupResult;
 }
 
-export interface EventFeedbackUpdate {
-  notes?: string;
-  attended?: boolean;
-  rating?: number;
-}
-
-export interface EventFeedback extends EventFeedbackUpdate {
-  teamid: string;
-  eventid: string;
-}
-
-export type EventFeedbackAction = string;
-
 export interface PredictedLabel {
   label: LabelInfo;
   score: number; // Float between 0 and 1
@@ -270,6 +257,23 @@ export interface HashtagState {
   hashtag: HashtagApi;
   label?: LabelInfo;
   approved?: boolean;
+}
+
+export interface GuestEventFeedback {
+  uid: string;
+  stars?: number; // 1-5
+  is_organizer: boolean;
+  didnt_attend: boolean;
+
+  // Tags - True = positive, false = negative, null = clear
+  agenda?: boolean;
+  on_time?: boolean;
+  good_time_mgmt?: boolean;
+  contributed?: boolean;
+  presence_useful?: boolean;
+  action_items?: boolean;
+
+  // Pending: Blurb?
 }
 
 export interface GuestContribution {
@@ -329,7 +333,7 @@ export interface GenericCalendarEvent {
   predicted_attended?: number;         // Floating score
   comments: GroupEventComment[];
   // hashtags: HashtagState[];         // Exists, but deprecate
-  feedback?: EventFeedback;
+  feedback?: GuestEventFeedback;
   location?: string;
   all_day: boolean;
   guests: Attendee[];
@@ -406,9 +410,16 @@ export interface ConfirmTimebombInfo {
   uid: string;
 }
 
+export interface EventForGuest {
+  uid: string; // Requester
+  event?: GenericCalendarEvent;
+  feedback?: GuestEventFeedback;
+}
+
 type TokenDescription =
   ["Confirm_timebomb_event", {}]|
   ["Unconfirm_timebomb_event", {}]|
+  ["Feedback", {}]|
   ["Invite_join_group", {}]|
   ["Invite_join_team", {}]|
   ["Login", {}]|
@@ -424,6 +435,7 @@ type TokenDescription =
 type TokenValue =
   ["Confirm_timebomb_event", ConfirmTimebombInfo]|
   ["Unconfirm_timebomb_event", ConfirmTimebombInfo]|
+  ["Feedback", EventForGuest]|
   ["Invite_join_group", {}]|
   ["Invite_join_team", {}]|
   ["Login", LoginResponse]|
