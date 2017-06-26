@@ -15,13 +15,13 @@ const location = "Some place";
 const description = "Hello world."
 const guests: ApiT.Attendee[] = [{
   email: "a@b.com",
-  response: "Accepted"
+  response: "Declined"
 }, {
   email: "c@d.com",
   response: "Accepted"
 }, {
   email: "e@f.com",
-  response: "Declined"
+  response: "Accepted"
 }];
 const merged = {
   sources: [{ eventid: "id", calid: "calid", teamid: "teamid" }],
@@ -38,19 +38,14 @@ describe("<InlineInfo />", () => {
     stubRAF();
   });
 
-  it("does not include day in time by default", () => {
+  it("does not include day in time", () => {
     let wrapper = mount(<InlineInfo event={event} />);
     expect(wrapper.text()).not.contains("May 1");
   });
 
-  it("includes day in time if includeDay passed", () => {
-    let wrapper = mount(<InlineInfo event={event} includeDay={true} />);
-    expect(wrapper.text()).contains("May 1");
-  });
-
   it("does not include declined guests in tooltip", () => {
     let wrapper = mount(<InlineInfo event={event} />);
-    expect(wrapper.find('.guests').text()).to.equal("Person2");
+    expect(wrapper.find('.guests').text()).to.equal("c@d.com and e@f.com");
   });
 
   it("includes cost as a number of dollar signs", () => {
@@ -116,6 +111,11 @@ describe("<Time />", () => {
     expect(mount(<Time event={makeEvent({
       recurring_event_id: "some-id"
     })} />).find('.recurring')).to.have.length(1);
+  });
+
+  it("includes day in time", () => {
+    let wrapper = mount(<Time event={event} />);
+    expect(wrapper.text()).contains("May 1");
   });
 });
 

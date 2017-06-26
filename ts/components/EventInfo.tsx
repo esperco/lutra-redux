@@ -16,32 +16,17 @@ export interface BaseEventProps {
   event: ApiT.GenericCalendarEvent;
 }
 
-export interface InlineProps extends BaseEventProps {
-  includeDay?: boolean;
-}
-
-export interface LocationProps extends BaseEventProps {
+export interface InlineOptProps extends BaseEventProps {
   event: ApiT.GenericCalendarEvent;
   inline?: boolean;
 }
 
 // Inline info about an event
-export const InlineInfo = ({ event, includeDay }: InlineProps) => {
-  let guests = (event.guests || []).filter((g) => g.response !== "Declined");
+export const InlineInfo = ({ event }: BaseEventProps) => {
   return <div className="event-info"><div className="inline-info">
-    <Time event={event} includeDay={includeDay} />
+    <Time event={event} inline={true} />
     <Location event={event} inline={true} />
-
-    { guests.length ?
-      <Tooltip
-        target={<span className="guests">
-          <Icon type="person" />
-          { guests.length }
-        </span>}
-        title={EventText.attendeeMsgShort(
-          guests.map((g) => g.display_name || g.email)
-        )}
-      /> : null }
+    <GuestsSummary event={event} inline={false} />
 
     { event.merged && event.merged.cost ?
       <span className={"cost cost-" + event.merged.cost }>
@@ -91,31 +76,71 @@ export const Title = (p: TitleProps) => {
   </span>;
 };
 
-export const Time = ({ event, includeDay }: InlineProps) => {
-  return <div className="time">
-    <span className="start">
-      { moment(event.start).format(includeDay ? "MMM D, h:mm a" : "h:mm a") }
+export const Time = ({ event, inline }: InlineOptProps) => {
+  let timeSpan = <span><span className="start">
+      { moment(event.start).format(inline ? "h:mm a" : "MMM D, h:mm a") }
     </span>{" to "}<span className="end">
       { moment(event.end).format("h:mm a") }
-    </span>{" "}
+    </span></span>;
 
-    { event.recurring_event_id ?
-      <Tooltip
-        target={<span className="recurring">
-          <Icon type="repeat" />
-        </span>}
-        title={EventText.Recurring}
-      /> : null }
+  let recurring = event.recurring_event_id ?
+    <Tooltip
+      target={<span className="recurring">
+        <Icon type="repeat" />
+      </span>}
+      title={EventText.Recurring}
+    /> : null;
+
+  if (inline) {
+    return <span className="time">
+      { timeSpan } { recurring }
+    </span>
+  }
+
+  return <div className="time">
+    <Icon type="time">{ timeSpan }</Icon> { recurring }
   </div>;
 };
 
-export const Location = ({ event, inline }: LocationProps) => {
-  return event.location ? <div className="location">
-    { inline ? null : <Icon type="location" /> }
-    { inline && event.location.length > 25 ?
-      <span>{ event.location.slice(0, 22) }&hellip;</span> :
-      event.location }
-  </div> : null;
+export const Location = ({ event, inline }: InlineOptProps) => {
+  let { location } = event;
+  if (! location) return null;
+
+  if (inline) {
+    return <span className="location">
+      { location.length > 25 ?
+        <span>{ location.slice(0, 22) }&hellip;</span> :
+        location }
+    </span>;
+  }
+
+  return <div className="location">
+    <Icon type="location">{ event.location }</Icon>
+  </div>;
+};
+
+export const GuestsSummary = ({ event, inline }: InlineOptProps) => {
+  let { guests } = event;
+  guests = (event.guests || []).filter((g) => g.response !== "Declined");
+  if (! guests.length) return null;
+
+  let msg = EventText.attendeeMsgShort(
+    guests.map((g) => g.display_name || g.email)
+  );
+
+  if (inline) {
+    return <Tooltip
+      target={<span className="guests">
+        <Icon type="person" />
+        { guests.length }
+      </span>}
+      title={msg}
+    />;
+  }
+
+  return <div className="guests">
+    <Icon type="person">{ msg }</Icon>
+  </div>;
 };
 
 export const Description = ({ event }: BaseEventProps) => {

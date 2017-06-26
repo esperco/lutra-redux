@@ -49,6 +49,7 @@ export class GroupEventEditor extends React.Component<Props, {}> {
 
     return <EventEditor
       event={event}
+      showGuests={false}
       menu={(event) => <div className="dropdown-menu">
         <div className="menu">
           <button
