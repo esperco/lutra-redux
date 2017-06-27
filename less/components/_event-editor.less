@@ -63,4 +63,16 @@
       text-decoration: line-through;
     }
   }
+
+  label {
+    font-weight: 600;
+  }
+
+  label + .description {
+    margin-top: 0;
+    color: @text-muted;
+  }
+
+  * + textarea { margin-top: @padding-base; }
+  label + textarea { margin-top: @padding-small; }
 }

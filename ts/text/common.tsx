@@ -44,6 +44,7 @@ export const Settings = "Settings";
 export const Show = "Show";
 export const Slack = "Slack";
 export const Terms = "Terms of Use";
+export const Time = "Time";
 
 // UX
 export const Calculating = <span className="calculating">

@@ -13,9 +13,13 @@
 
   textarea {
     min-height: 10em;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    border: 1px solid @border-color;
+    border-radius: @border-radius-small;
+    box-shadow: inset @down-box-shadow;
   }
-
-  * + textarea { margin-top: @padding-base; }
 
   button.cta {
     display: block;

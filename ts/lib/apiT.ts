@@ -259,22 +259,39 @@ export interface HashtagState {
   approved?: boolean;
 }
 
-export interface GuestEventFeedback {
-  uid: string;
-  stars?: number; // 1-5
+export interface EventFeedback {
+  stars: number|null; // 1-5
   is_organizer: boolean;
   didnt_attend: boolean;
 
-  // Tags - True = positive, false = negative, null = clear
-  agenda?: boolean;
-  on_time?: boolean;
-  good_time_mgmt?: boolean;
-  contributed?: boolean;
-  presence_useful?: boolean;
-  action_items?: boolean;
+  // Tags - True = positive, false = negative, undefined/null = clear
+  agenda: boolean|null;
+  on_time: boolean|null;
+  good_time_mgmt: boolean|null;
+  contributed: boolean|null;
+  presence_useful: boolean|null;
+  action_items: boolean|null;
 
-  // Pending: Blurb?
+  notes: string|null;
 }
+
+/*
+  Type for what we get back from server -- this is technically inaccurate
+  because the server should always return a default boolean for
+  is_organizer and didnt_attend (and undefined instead of null for tags) but
+  this set up makes it easier to type optimistic updates and the possibility
+  of both null/undefined here just makes the front-end more robust.
+*/
+export type GuestEventFeedback = {
+  uid: string;
+} & Partial<EventFeedback>;
+
+/*
+  Type for what we post to the server. Use Pick rather than Partial because
+  we need to post null rather than undefined back to server to unset.
+*/
+export type GuestEventFeedbackPatch<K extends keyof EventFeedback> =
+  Pick<EventFeedback, K>;
 
 export interface GuestContribution {
   blurb?: string;
