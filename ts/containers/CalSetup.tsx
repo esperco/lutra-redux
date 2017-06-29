@@ -2,7 +2,7 @@
   Calendar setup page for onboarding
 */
 
-require("less/components/_cal-setup.less");
+require("less/components/_onboarding.less");
 import * as _ from "lodash";
 import * as React from "react";
 import Tooltip from "../components/Tooltip";

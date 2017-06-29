@@ -2,9 +2,24 @@ import * as moment from "moment"
 import * as React from "react";
 import Icon from "../components/Icon";
 
+export const ActivateHeading = "Agenda Check";
+export const ActivateDescription = <div>
+  <p>
+    Agenda Check ensures that you and your guests are prepared for
+    upcoming meetings.
+  </p>
+  <p>
+    With Agenda Check on, Esper will email your meeting guests 24 hours
+    before a meeting to ask for agenda items. We'll send
+    a second email one hour before the meeting with the collected
+    agenda items to get everyone on the same page.
+  </p>
+</div>;
+export const ActivateCTA = "Enable Agenda Check";
+
 export const TimebombDefault = <span>
   Ask for agenda items by default for meetings that meet <em>all</em> of
-  the following conditions:
+  the following conditioagenns:
 </span>;
 export const TimebombMinGuests =
   "Minimum number of guests";
@@ -86,12 +101,13 @@ interface DefaultDescriptionProps {
 }
 export const DefaultDescriptionSetup =
 (p: DefaultDescriptionProps) => <p className="description">
-  Esper defaults to asking for agendas for
+  Agenda check has been enabled for
   all {p.recurring ? "recurring" : ""} meetings
   with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
     " if all attendees share the same email domain" : ""
-  }. You can change this on a per-event basis or change the defaults by going
-  to the <a href={p.settingsHref}>settings&nbsp;page</a> via
+  } by default. You can change this on a per-event basis below or
+  change the defaults by going to
+  the <a href={p.settingsHref}>settings&nbsp;page</a> via
   the <Icon type="options-v" /> icon in the upper right corner.
 </p>;
 
