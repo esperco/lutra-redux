@@ -10,7 +10,7 @@ export const ActivateDescription = <div>
   </p>
   <p>
     With Agenda Check on, Esper will email your meeting guests 24 hours
-    before a meeting to ask for agenda items. We'll then send
+    before a meeting to ask for agenda items. We'll send
     a second email one hour before the meeting with the collected
     agenda items to get everyone on the same page.
   </p>
