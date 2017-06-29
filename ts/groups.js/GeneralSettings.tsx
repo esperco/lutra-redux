@@ -461,7 +461,7 @@ class NextButton extends React.Component<Subprops, {}> {
     return <div className="onboarding-end">
       <p>{ disabled ? Text.NoTeamBtnTooltip : null }</p>
       <div>
-        <button className="primary" disabled={disabled} onClick={this.next}>
+        <button className="primary cta" disabled={disabled} onClick={this.next}>
           { Text.GroupOnboardingEnd }
         </button>
       </div>

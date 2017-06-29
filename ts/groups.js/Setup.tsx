@@ -24,7 +24,7 @@ class Setup extends React.Component<Props, {}> {
       { Text.GroupOnboardingDescription }
 
       <div className="onboarding-start-row">
-        <button className="primary" onClick={this.start}>
+        <button className="primary cta" onClick={this.start}>
           { Text.GroupOnboardingStart }
         </button>
       </div>
