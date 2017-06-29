@@ -105,8 +105,8 @@ export const DefaultDescriptionSetup =
   all {p.recurring ? "recurring" : ""} meetings
   with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
     " if all attendees share the same email domain" : ""
-  } by default. You can change this on a per-event basis or change
-  the defaults by going to
+  } by default. You can change this on a per-event basis below or
+  change the defaults by going to
   the <a href={p.settingsHref}>settings&nbsp;page</a> via
   the <Icon type="options-v" /> icon in the upper right corner.
 </p>;

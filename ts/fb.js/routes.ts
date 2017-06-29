@@ -136,11 +136,13 @@ export const checkForCalendar = function(deps: Deps): ApiT.Team|undefined {
 
 
 /*
-  Auto-enables feedback if necessary and sets feature flag. Not a real page.
-  Redirects to event list when done.
-
-  TODO: Redirect to welcome page.
+  Page with button to activate feedback
 */
+
+export interface ActivateRoute {
+  page: "Activate";
+  teamId: string;
+}
 
 export const activate = Paths.activate.route<Deps>(
   async (p, deps) => {
@@ -148,12 +150,8 @@ export const activate = Paths.activate.route<Deps>(
     if (! team) return; // Wait for redirect
     let teamId = team.teamid;
 
-    // Render redirect while waiting for feedback settings to finish
-    deps.dispatch({ type: "ROUTE", route: { page: "Redirect" }});
-    await TeamPrefs.autosetFeedback(teamId, deps);
-
-    // Done, go to events
-    deps.Svcs.Nav.go(Paths.events.href({}));
+    // Render redirect while waiting for timebomb settings to finish
+    deps.dispatch({ type: "ROUTE", route: { page: "Activate", teamId }});
   });
 
 // Function that redirects to activation if feature flag isn't found
@@ -198,6 +196,7 @@ export type RouteTypes =
   EventsRoute|
   RedirectRoute|
   CalSetupRoute|
+  ActivateRoute|
   SlackSetupRoute;
 
 export function init({ dispatch, getState, Svcs, Conf }: {

@@ -31,6 +31,7 @@ import Loading from "../components/Loading";
 import ScrollContainer from "../components/ScrollContainer";
 import CalSetup from "../containers/CalSetup";
 import SlackSetup from "../containers/SlackSetup";
+import Activate from "./FBActivate";
 import Events from "./FBEvents";
 
 // Store Types
@@ -121,6 +122,9 @@ function MainView(props: {
           className="slack-ratings-setup"
           next={Paths.events.href({})}
         />;
+      case "Activate":
+        let { page: p4, ...activateProps } = props.state.route;
+        return <Activate {...props} {...activateProps} />;
       case "NotFound":
         return <NotFound />;
     }
