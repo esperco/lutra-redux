@@ -2,7 +2,7 @@
   This is the new-group / onboarding page
 */
 
-require("less/components/_group-onboarding.less");
+require("less/components/_onboarding.less");
 import * as React from 'react';
 import { makeNewGroup } from "../handlers/groups";
 import { ApiSvc } from "../lib/api";
@@ -19,11 +19,11 @@ class Props {
 
 class Setup extends React.Component<Props, {}> {
   render() {
-    return <div id="group-onboarding" className="container">
+    return <div id="group-onboarding" className="container onboarding">
       <h2>{ Text.GroupOnboardingHeader }</h2>
       { Text.GroupOnboardingDescription }
 
-      <div className="onboarding-start-row">
+      <div className="onboarding-footer">
         <button className="primary cta" onClick={this.start}>
           { Text.GroupOnboardingStart }
         </button>

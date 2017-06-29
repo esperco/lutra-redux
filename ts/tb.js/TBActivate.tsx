@@ -1,3 +1,8 @@
+/*
+  Page with button to activate agenda check
+*/
+
+require("less/components/_onboarding.less");
 import * as _ from "lodash";
 import * as React from "react";
 import * as TeamPrefs from "../handlers/team-prefs"

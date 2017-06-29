@@ -458,7 +458,7 @@ class MemberCalendarModal extends React.Component<SingleMemberProps & {
 class NextButton extends React.Component<Subprops, {}> {
   render() {
     let disabled = !this.props.members.group_teams.length;
-    return <div className="onboarding-end">
+    return <div className="onboarding-footer">
       <p>{ disabled ? Text.NoTeamBtnTooltip : null }</p>
       <div>
         <button className="primary cta" disabled={disabled} onClick={this.next}>
