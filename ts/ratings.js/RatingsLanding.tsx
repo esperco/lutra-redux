@@ -11,7 +11,7 @@ import SuccessMark from "../components/SuccessMark";
 import { ApiSvc } from "../lib/api";
 import { AnalyticsSvc } from "../lib/analytics";
 import * as ApiT from "../lib/apiT";
-import { merge } from "../lib/feedback";
+import { expand, toPick } from "../lib/feedback";
 import * as Log from "../lib/log";
 import { wrapMerge } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
@@ -20,13 +20,8 @@ import * as CommonText from "../text/common";
 import * as ErrorText from "../text/error-text";
 import * as FeedbackText from "../text/feedback";
 
-export type ActionOnMount =
-  ApiT.GuestEventFeedbackPatch<"stars">|
-  ApiT.GuestEventFeedbackPatch<"is_organizer">|
-  ApiT.GuestEventFeedbackPatch<"didnt_attend">;
-
 export interface Props {
-  actionOnMount?: ActionOnMount;
+  actionOnMount?: Partial<ApiT.EventFeedback>;
   onDone: () => void;
   token: string;
   Svcs: ApiSvc & NavSvc & AnalyticsSvc;
@@ -72,9 +67,7 @@ export class RatingsLanding extends React.Component<Props, State> {
   }
 
   // Special identification handling for inital token post
-  async postInitToken<K extends keyof ApiT.EventFeedback>(
-    action: ApiT.GuestEventFeedbackPatch<K>
-  ) {
+  async postInitToken(action: Partial<ApiT.EventFeedback>) {
     let info = await this.postToken(action);
     if (info && info.uid) {
       this.props.Svcs.Analytics.identifyUID(info.uid);
@@ -89,12 +82,12 @@ export class RatingsLanding extends React.Component<Props, State> {
     optional in second overload, but have to deal this issue:
     https://github.com/Microsoft/TypeScript/issues/16053
   */
-  postToken = async <K extends keyof ApiT.EventFeedback>(
-    action: ApiT.GuestEventFeedbackPatch<K>
-  ) : Promise<ApiT.EventForGuest|void> => {
+  postToken = async (action: Partial<ApiT.EventFeedback>):
+    Promise<ApiT.EventForGuest|void> =>
+  {
     // Clean up action
     let { model } = this.state;
-    let mergedAction = model && merge(model.feedback, action);
+    action = expand(action, model && model.feedback);
 
     // Busy indicator - optimistic UI updates
     this.setState({
@@ -103,7 +96,7 @@ export class RatingsLanding extends React.Component<Props, State> {
         ...model,
         feedback: {
           ...model.feedback,
-          ...mergedAction
+          ...action
         }
       } : undefined
     });
@@ -115,7 +108,7 @@ export class RatingsLanding extends React.Component<Props, State> {
     let resp: ApiT.TokenResponse|"Invalid_token"|"Expired_token";
     try {
       // Post merged action to guarantee state clearing
-      resp = await this.postTokenAPI(mergedAction || action);
+      resp = await this.postTokenAPI(action);
     }
 
     // Unknown API error
@@ -154,12 +147,10 @@ export class RatingsLanding extends React.Component<Props, State> {
     Log.e("Wrong token", resp.token_value);
   }
 
-  postTokenAPI = wrapMerge(<K extends keyof ApiT.EventFeedback>(
-    action: ApiT.GuestEventFeedbackPatch<K>
-  ) => {
+  postTokenAPI = wrapMerge((action: Partial<ApiT.EventFeedback>) => {
     let { token, Svcs } = this.props;
     let { Api } = Svcs;
-    return Api.postRatingsToken(token, action);
+    return Api.postRatingsToken(token, toPick(action));
   });
 
   complete = async () => {

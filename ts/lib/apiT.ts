@@ -728,7 +728,6 @@ export interface LabelChangeRequest {
 export interface EventLabels {
   id: string;
   labels?: string[];
-  attended?: boolean;
   hidden?: boolean;
 }
 

@@ -11,9 +11,7 @@ import * as Text from "../text/feedback";
 
 export interface Props {
   value: ApiT.GuestEventFeedback;
-  onChange: <K extends keyof ApiT.EventFeedback>(
-    val: ApiT.GuestEventFeedbackPatch<K>
-  ) => void;
+  onChange: (val: Partial<ApiT.EventFeedback>) => void;
 }
 
 export const FeedbackTags = (props: Props) => {
@@ -58,9 +56,7 @@ interface ButtonProps extends Props {
 const PosFeedbackButton = ({ name, value, onChange }: ButtonProps) => {
   let active = value[name] === true;
   return <button
-    onClick={() => onChange({
-      [name]: active ? null : true
-    } as { agenda: null|true } /* Typecast because pick is weird */ )}
+    onClick={() => onChange({ [name]: active ? null : true })}
     className={classNames("secondary", { active })}
   >
     { Text.PostiveTags[name] }
@@ -70,9 +66,7 @@ const PosFeedbackButton = ({ name, value, onChange }: ButtonProps) => {
 const NegFeedbackButton = ({ name, value, onChange }: ButtonProps) => {
   let active = value[name] === false;
   return <button
-    onClick={() => onChange({
-      [name]: active ? null : false
-    } as { agenda: null|false } /* Typecast because pick is weird */ )}
+    onClick={() => onChange({ [name]: active ? null : false })}
     className={classNames("secondary", { active })}
   >
     { Text.NegativeTags[name] }

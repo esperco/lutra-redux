@@ -18,11 +18,12 @@ import * as ReactDOM from "react-dom";
 import * as Log from "../lib/log";
 import Analytics from "../lib/analytics";
 import Api from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { Nav } from "../lib/routing"
 import { getParamByName } from "../lib/util";
 import { GenericErrorMsg } from "../text/error-text";
 import { ModalBase } from "../components/Modal";
-import RatingsLanding, { ActionOnMount } from "./RatingsLanding";
+import RatingsLanding from "./RatingsLanding";
 
 /*
   Helper initialization
@@ -44,16 +45,18 @@ if (token) {
   let onDone = () => location.search = "";
 
   // Handle email button options
-  let actionOnMount: ActionOnMount|undefined;
+  let actionOnMount: Partial<ApiT.EventFeedback> = {};
   let stars = parseInt(getParamByName("stars", location.search));
   let didnt_attend = !!getParamByName("didnt_attend", location.search);
   let is_organizer = !!getParamByName("is_organizer", location.search);
   if (!isNaN(stars) && stars >= 1 && stars <= 5) {
-    actionOnMount = { stars };
-  } else if (didnt_attend) {
-    actionOnMount = { didnt_attend };
-  } else if (is_organizer) {
-    actionOnMount = { is_organizer };
+    actionOnMount.stars = stars;
+  }
+  if (didnt_attend) {
+    actionOnMount.didnt_attend = didnt_attend;
+  }
+  if (is_organizer) {
+    actionOnMount.is_organizer = is_organizer;
   }
 
   let component = token ? <RatingsLanding
