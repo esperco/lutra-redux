@@ -10,7 +10,7 @@ import { POSITIVE_FEEDBACK_THRESHOLD } from "../lib/feedback";
 import * as Text from "../text/feedback";
 
 export interface Props {
-  value: ApiT.GuestEventFeedback;
+  value: Partial<ApiT.EventFeedback>;
   onChange: (val: Partial<ApiT.EventFeedback>) => void;
 }
 

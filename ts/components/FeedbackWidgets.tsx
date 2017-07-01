@@ -49,7 +49,7 @@ export class FeedbackWidgets extends React.Component<Props, {}> {
     return delay({
       ref: (c) => this._textbox = c,
       value,
-      onChange: (notes) => this.props.onChange({ notes }),
+      onChange: (x) => this.props.onChange({ notes: x.trim() }),
       component: (p) => <div>
         <label htmlFor={this._id}>{ Text.TextFeedbackLabel }</label>
         <textarea

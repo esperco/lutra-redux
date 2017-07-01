@@ -82,9 +82,9 @@ export class RatingsLanding extends React.Component<Props, State> {
     optional in second overload, but have to deal this issue:
     https://github.com/Microsoft/TypeScript/issues/16053
   */
-  postToken = async (action: Partial<ApiT.EventFeedback>):
-    Promise<ApiT.EventForGuest|void> =>
-  {
+  async postToken(
+    action: Partial<ApiT.EventFeedback>
+  ): Promise<ApiT.EventForGuest|void> {
     // Clean up action
     let { model } = this.state;
     action = expand(action, model && model.feedback);
@@ -215,7 +215,10 @@ export class RatingsLanding extends React.Component<Props, State> {
       return <div>
         <div className="lead-in">{ FeedbackText.LandingQ }</div>
         <EventEditor event={event} showDescription={false}>
-          <FeedbackWidgets value={feedback} onChange={this.postToken} />
+          <FeedbackWidgets
+            value={feedback}
+            onChange={(v) => this.postToken(v)}
+          />
         </EventEditor>
         <button
           className="cta primary"

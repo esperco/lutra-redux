@@ -17,8 +17,8 @@ export function expand(
   patch: Partial<ApiT.EventFeedback>,
   original?: Partial<ApiT.EventFeedback>
 ): Partial<ApiT.EventFeedback> {
-  // ApiT.GuestEventFeedback allows undefined stars
-  let originalStars = original ? original.stars || null : null;
+  // Use stars as a proxy for understanding what needs to change
+  let originalStars = original ? original.stars || null : undefined;
 
   // Clone patch so we can mutate below
   patch = { ...patch };
@@ -36,11 +36,14 @@ export function expand(
 
   // If stars are changing, we need to nullify inconsistent tags
   // Ignore if orginal stars are null though (since tags should already be null)
+  // Also ignore if original is undefined (since we don't want to inadvertently
+  // clobber server values we don't know about)
   let patchPositive = patch.stars ?
     patch.stars >= POSITIVE_FEEDBACK_THRESHOLD : null;
   let origPositive = originalStars ?
     originalStars >= POSITIVE_FEEDBACK_THRESHOLD : null;
   if (typeof patch.stars !== "undefined" &&
+      typeof originalStars !== "undefined" &&
       originalStars !== null &&
       patchPositive !== origPositive) {
 

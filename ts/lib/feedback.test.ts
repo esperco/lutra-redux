@@ -76,6 +76,15 @@ describe("expand", () => {
     });
   });
 
+  it("should not nullify tags if original undefined", () => {
+    let ret = expand({ stars: 3 });
+    expect(ret).to.deep.equal({
+      stars: 3,
+      is_organizer: false,
+      didnt_attend: false
+    });
+  });
+
   it("should allow posting notes", () => {
     let ret = expand({ notes: "Hello" }, { stars: 3 });
     expect(ret).to.deep.equal({ notes: "Hello" });
