@@ -1,11 +1,25 @@
 @import (reference) "../_variables";
 
+@media screen and (min-width: @screen-sm-min) {
+  .modal-wrapper {
+    max-width: 550px;
+  }
+}
+
 .event-landing {
-  .flex {
-    align-items: center;
+  h3 {
+    font-size: @font-size-h2;
   }
 
-  textarea { min-height: 10em; }
+  textarea {
+    min-height: 10em;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    border: 1px solid @border-color;
+    border-radius: @border-radius-small;
+    box-shadow: inset @down-box-shadow;
+  }
 
   button.cta {
     display: block;
@@ -34,3 +48,10 @@
   background: transparent;
   border: 2px dashed @border-color;
 }
+
+.lead-in {
+  font-size: @font-size-large;
+  font-weight: 300;
+}
+
+.lead-in + * { margin-top: 0; }

@@ -64,10 +64,10 @@ var config = {
     agenda: "./ts/agenda.js/index.tsx",
 
     // Feedback for your own team
-    fb: "./ts/fb.js/index.tsx"
+    fb: "./ts/fb.js/index.tsx",
 
     // Landing page for feedback
-    // ratings: "./ts/ratings.js/index.tsx"
+    ratings: "./ts/ratings.js/index.tsx"
   },
 
   output: {

@@ -2,7 +2,7 @@ import * as React from "react";
 import { expect } from "chai";
 import { mount } from 'enzyme';
 import * as Sinon from "sinon";
-import EventLanding from "./EventLanding";
+import AgendaLanding from "./AgendaLanding";
 import analyticsSvcFactory from "../fakes/analytics-fake";
 import navSvcFactory from "../fakes/nav-fake";
 import { apiSvcFactory } from "../fakes/api-fake";
@@ -12,7 +12,7 @@ import * as ApiT from "../lib/apiT";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stub as stubGlobal, whenCalled } from "../lib/sandbox";
 
-describe("<EventLanding />", () => {
+describe("<AgendaLanding />", () => {
   const event = makeEvent({
     id: "id-1",
     title: "My Event Title",
@@ -54,27 +54,27 @@ describe("<EventLanding />", () => {
   it("posts keep token on mount if specified", () => {
     let props = getProps();
     let spy = Sinon.spy(props.Svcs.Api, "postConfirmToken");
-    mount(<EventLanding {...props} actionOnMount="keep" />);
+    mount(<AgendaLanding {...props} actionOnMount="keep" />);
     expectCalledWith(spy, tokens.keep, {});
   });
 
   it("posts cancel token on mount if specified", () => {
     let props = getProps();
     let spy = Sinon.spy(props.Svcs.Api, "postToken");
-    mount(<EventLanding {...props} actionOnMount="cancel" />);
+    mount(<AgendaLanding {...props} actionOnMount="cancel" />);
     expectCalledWith(spy, tokens.cancel);
   });
 
   it("calls Analytics page on mount", () => {
     let props = getProps();
     let spy = Sinon.spy(props.Svcs.Analytics, "page");
-    mount(<EventLanding {...props} actionOnMount="keep" />);
+    mount(<AgendaLanding {...props} actionOnMount="keep" />);
     expectCalledWith(spy, location.pathname, { action: "keep" });
   });
 
   it("renders placeholders while waiting for response", () => {
     let props = getProps();
-    let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="keep" />);
     expect(wrapper.find('.placeholder')).to.have.length.greaterThan(0);
   });
 
@@ -83,8 +83,8 @@ describe("<EventLanding />", () => {
     props.Svcs.Api.postConfirmToken =
       () => Promise.resolve("Invalid_token" as "Invalid_token");
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="keep" />);
     await next();
 
     wrapper = wrapper.update();
@@ -96,8 +96,8 @@ describe("<EventLanding />", () => {
     props.Svcs.Api.postConfirmToken =
       () => Promise.resolve("Expired_token" as "Expired_token");
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="keep" />);
     await next();
 
     wrapper = wrapper.update();
@@ -109,8 +109,8 @@ describe("<EventLanding />", () => {
     let props = getProps();
     props.Svcs.Api.postConfirmToken = () => Promise.reject(new Error("Whoops"));
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="keep" />);
     await next();
 
     wrapper = wrapper.update();
@@ -127,8 +127,8 @@ describe("<EventLanding />", () => {
       }] as ["Unconfirm_timebomb_event", ApiT.ConfirmTimebombInfo]
     });
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="keep" />);
     await next();
 
     wrapper = wrapper.update();
@@ -145,8 +145,8 @@ describe("<EventLanding />", () => {
       }] as ["Confirm_timebomb_event", ApiT.ConfirmTimebombInfo]
     });
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="cancel" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="cancel" />);
     await next();
 
     wrapper = wrapper.update();
@@ -161,8 +161,8 @@ describe("<EventLanding />", () => {
         event, uid: "123"
       }] as ["Confirm_timebomb_event", ApiT.ConfirmTimebombInfo]});
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="keep" />);
     await next();
 
     wrapper = wrapper.update();
@@ -179,8 +179,8 @@ describe("<EventLanding />", () => {
     });
     let spy = Sinon.spy(props.Svcs.Api, "postToken");
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="keep" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="keep" />);
 
     // Wait for keep action on mount to post
     await next();
@@ -204,8 +204,8 @@ describe("<EventLanding />", () => {
     });
     let spy = Sinon.spy(props.Svcs.Api, "postConfirmToken");
 
-    let next = whenCalled(EventLanding.prototype, "postToken");
-    let wrapper = mount(<EventLanding {...props} actionOnMount="cancel" />);
+    let next = whenCalled(AgendaLanding.prototype, "postToken");
+    let wrapper = mount(<AgendaLanding {...props} actionOnMount="cancel" />);
 
     // Wait for cancel action on mount to post
     await next();

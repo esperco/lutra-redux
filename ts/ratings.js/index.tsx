@@ -1,11 +1,11 @@
 /*
-  Landing page for timebomb-only product -- login not required. Doesn't use
+  Landing page for ratings-only product -- login not required. Doesn't use
   Redux or do anything fancy. Can use email tokens to confirm or delete an
   event.
 */
 
 // HTML files
-require("html/agenda.html");
+require("html/ratings.html");
 
 ////////////////////////////////////////
 
@@ -18,11 +18,12 @@ import * as ReactDOM from "react-dom";
 import * as Log from "../lib/log";
 import Analytics from "../lib/analytics";
 import Api from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { Nav } from "../lib/routing"
 import { getParamByName } from "../lib/util";
 import { GenericErrorMsg } from "../text/error-text";
 import { ModalBase } from "../components/Modal";
-import AgendaLanding from "./AgendaLanding";
+import RatingsLanding from "./RatingsLanding";
 
 /*
   Helper initialization
@@ -39,20 +40,29 @@ Api.init(Conf);
 /*
   Only render component if we have tokens to work with.
 */
-let action = getParamByName("action", location.search);
-let tokens = {
-  keep: getParamByName("keep", location.search),
-  cancel: getParamByName("cancel", location.search)
-};
-
-if (action || tokens.keep || tokens.cancel) {
+let token = getParamByName("token", location.search);
+if (token) {
   let onDone = () => location.search = "";
-  let component =
-    (action === "keep" || action ==="cancel") && tokens.keep && tokens.cancel ?
-    <AgendaLanding
-      actionOnMount={action}
+
+  // Handle email button options
+  let actionOnMount: Partial<ApiT.EventFeedback> = {};
+  let stars = parseInt(getParamByName("stars", location.search));
+  let didnt_attend = !!getParamByName("didnt_attend", location.search);
+  let is_organizer = !!getParamByName("is_organizer", location.search);
+  if (!isNaN(stars) && stars >= 1 && stars <= 5) {
+    actionOnMount.stars = stars;
+  }
+  if (didnt_attend) {
+    actionOnMount.didnt_attend = didnt_attend;
+  }
+  if (is_organizer) {
+    actionOnMount.is_organizer = is_organizer;
+  }
+
+  let component = token ? <RatingsLanding
+      actionOnMount={actionOnMount}
       onDone={onDone}
-      tokens={tokens}
+      token={token}
       Svcs={Svcs}
     /> : <div className="alert danger">
       { GenericErrorMsg }
@@ -61,7 +71,7 @@ if (action || tokens.keep || tokens.cancel) {
   /*
     Use ModalBase instead of Modal b/c we don't need a header.
     onClose is no-op because we don't need to be able to close this modal
-    the normal way (let AgendaLanding's onDone handle it).
+    the normal way (let RatingsLanding's onDone handle it).
   */
   ReactDOM.render(<ModalBase onClose={() => null}>
     <div className="modal">

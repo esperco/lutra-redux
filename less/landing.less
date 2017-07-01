@@ -132,9 +132,9 @@ h1, h2 { margin-top: -0.2em; }
     .cta.secondary {
       border-color: @off-white;
       color: @off-white;
-      &:hover {
-        background: @off-white;
-        color: @text-color;
+
+      &:hover, &:focus {
+        background: fadeout(@off-white, 90%);
       }
     }
   }

@@ -66,7 +66,8 @@ export const IconMappings = {
   "search": "fa-search",
   "settings": "fa-cog",
   "slack": "fa-slack",
-  "terms": "fa-legal"
+  "terms": "fa-legal",
+  "time": "fa-clock-o"
 };
 
 export type IconType = keyof (typeof IconMappings);
@@ -121,7 +122,8 @@ function getTextForIcon(icon: IconType): string {
     "search": Text.Search,
     "settings": Text.Settings,
     "slack": Text.Slack,
-    "terms": Text.Terms
+    "terms": Text.Terms,
+    "time": Text.Time
   }[icon];
 }
 

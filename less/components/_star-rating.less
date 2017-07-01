@@ -1,0 +1,10 @@
+@import (reference) "../_variables";
+
+.star-rating {
+  button {
+    font-size: @font-size-h2;
+    padding: 0 @padding-small;
+  }
+
+  * + .stars { margin-top: @padding-small; }
+}

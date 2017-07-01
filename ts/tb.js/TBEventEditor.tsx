@@ -20,16 +20,12 @@ export class TBEventEditor extends React.Component<Props, {}> {
     let eventMap = this.props.state.events[this.props.teamId] || {};
     let event = this.props.eventId ? eventMap[this.props.eventId] : undefined;
     let loggedInUid = this.props.state.login.uid;
-    return <EventEditor event={event}>
-      { ready(event) ? <div>
+    return <EventEditor event={event} showGuests={false}>
+      { ready(event) ? <div className="panel">
         <TimebombToggle
           loggedInUid={loggedInUid}
           event={event}
           onToggle={this.props.onTimebombToggle} />
-
-        <span />{/*
-          So panel border below triggers even if timebomb toggle is null
-        */}
 
         <GuestList className="panel" event={event} />
       </div> : null }

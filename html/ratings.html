@@ -2,6 +2,11 @@
 
 {% block title %}Ratings | Esper{% endblock %}
 
+{% block head %}
+  {{ super() }}
+  <link href="[[css/ratings--*.css]]" rel="stylesheet" />
+{% endblock %}
+
 {% set login_path = "/time" %}
 
 {% block header_classes %}dark{% endblock %}
@@ -58,4 +63,12 @@
       </a>
     </div>
   </div>
+
+  <!-- Replaced by React -->
+  <div id="main"></div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript" src="[[js/ratings--*.js]]"></script>
 {% endblock %}

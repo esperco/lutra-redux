@@ -60,3 +60,39 @@ export const DefaultDescriptionSetup =
   the <a href={p.settingsHref}>settings&nbsp;page</a> via
   the <Icon type="options-v" /> icon in the upper right corner.
 </p>;
+
+export const LandingQ = "How was this meeting?";
+export const StarRatingsLabel = "Rate this meeting";
+export const StarRatingsDescription = <p>
+  Esper will aggregate ratings and send the average to the
+  meeting organizer.
+</p>;
+
+export const PositiveButtonLabel = "Great! What went well?";
+export const PostiveTags = {
+  agenda: "Had Agenda",
+  on_time: "On Time",
+  good_time_mgmt: "Good Time Management",
+  contributed: "I Contributed",
+  presence_useful: "My Presence Was Useful",
+  action_items: "Had Action Items"
+};
+
+export const NegativeButtonLabel = "What needs improvement?";
+export const NegativeTags = {
+  agenda: "No Agenda",
+  on_time: "Started Late",
+  good_time_mgmt: "Poor Time Management",
+  contributed: "I Didn't Contribute",
+  presence_useful: "I Wasn't Needed",
+  action_items: "No Action Items"
+};
+
+export const IsOrganizer = "I am the meeting organizer.";
+export const IsOrganizerTooltip =
+  "Meeting organizers will receive a meeting feedback summary via email.";
+export const DidntAttend = "I didn't attend.";
+
+export const TextFeedbackLabel =
+  "Anything other feedback for the meeting organizer?";
+export const BlurbPlaceholder = "Optional feedback";

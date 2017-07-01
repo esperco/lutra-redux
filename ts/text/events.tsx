@@ -37,12 +37,14 @@ export function attendeeStatus(
 }
 
 export function attendeeMsgShort(attendees: string[]) {
-  if (attendees.length === 0) { return ""; }
-  if (attendees.length === 1) { return attendees[0]; }
-  if (attendees.length === 2) {
+  let length = attendees.length;
+  if (length === 0) { return ""; }
+  if (length === 1) { return attendees[0]; }
+  if (length === 2) {
     return `${attendees[0]} and ${attendees[1]}`;
   }
-  return `${attendees[0]} and ${attendees.length - 1} others`;
+  return `${attendees[0]}, ${attendees[1]}, and ` +
+         `${length - 2} other${length > 3 ? "s" : ""}`;
 }
 
 /*

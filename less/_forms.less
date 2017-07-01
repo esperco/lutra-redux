@@ -58,7 +58,6 @@ input[type=checkbox], input[type=radio], input[type=submit] {
   with form inputs. Use .form-row to align horizontally.
 */
 label {
-  font-size: @font-size-small;
   font-weight: bold;
   display: block;
   cursor: pointer;
@@ -112,6 +111,7 @@ label + input, label + textarea, label + select, label + button.input-style {
 
     > label { // Tweak this to adjust "column" width
       min-width: 6rem;
+      font-size: @font-size-small;
     }
   }
 }

@@ -3,10 +3,9 @@
 */
 require("less/components/_event-landing.less");
 import * as React from "react";
-import * as classNames from "classnames";
 import DataStatus from "../components/DataStatus";
 import delay, { DelayedControl } from "../components/DelayedControl";
-import { InlineInfo } from "../components/EventInfo";
+import EventEditor from "../components/EventEditor";
 import Icon from "../components/Icon";
 import SuccessMark from "../components/SuccessMark";
 import { BaseTimebombToggle } from "../components/TimebombToggle";
@@ -19,7 +18,6 @@ import { NavSvc } from "../lib/routing";
 import { hasTag } from "../lib/util";
 import * as CommonText from "../text/common";
 import * as ErrorText from "../text/error-text";
-import * as EventText from "../text/events";
 import * as TimebombText from "../text/timebomb";
 
 type TokenMap = {
@@ -55,7 +53,7 @@ interface State {
   uid?: string;
 }
 
-export class EventLanding extends React.Component<Props, State> {
+export class AgendaLanding extends React.Component<Props, State> {
   _textbox: DelayedControl<string>|null = null;
 
   constructor(props: Props) {
@@ -219,24 +217,16 @@ export class EventLanding extends React.Component<Props, State> {
       let value = !!tb && this.getValue(tb);
       return <div>
         { tb ? this.renderAlert(tb) : null }
-        <div className="flex">
-          <div>
-            <h2 className={classNames({
-              "no-title": !this.state.event.title
-            })}>
-              { this.state.event.title || EventText.NoTitle }
-            </h2>
-            <InlineInfo event={this.state.event} includeDay={true} />
-          </div>
+        <EventEditor event={this.state.event} showDescription={false}>
           <BaseTimebombToggle
             name={"timebomb-" + this.state.event.id}
             disabled={disabled}
             value={value}
             onChange={(val) => this.postToken(val ? "keep" : "cancel")}
           />
-        </div>
-        { tb && uid && lastAction === "keep" ?
-          this.renderTextbox(tb, uid) : null }
+          { tb && uid && lastAction === "keep" ?
+            this.renderTextbox(tb, uid) : null }
+        </EventEditor>
       </div>;
     }
 
@@ -351,4 +341,4 @@ export class EventLanding extends React.Component<Props, State> {
   }
 }
 
-export default EventLanding;
+export default AgendaLanding;

@@ -114,8 +114,7 @@ header.landing-header {
       border-color: @off-white;
       color: @off-white;
       &:hover {
-        background: @off-white;
-        color: @text-color;
+        background: fadeout(@off-white, 90%);
       }
     }
   }
@@ -138,10 +137,9 @@ header.landing-header {
 
       a.cta.secondary {
         border-color: @link-color;
-        color: @shade-rel-dark;
+        color: @link-color;
         &:hover {
-          background: @link-color;
-          color: @off-white;
+          background: fadeout(@link-color, 90%);
         }
       }
     }

@@ -243,19 +243,6 @@ export interface EventLookupResponse {
   result?: EventLookupResult;
 }
 
-export interface EventFeedbackUpdate {
-  notes?: string;
-  attended?: boolean;
-  rating?: number;
-}
-
-export interface EventFeedback extends EventFeedbackUpdate {
-  teamid: string;
-  eventid: string;
-}
-
-export type EventFeedbackAction = string;
-
 export interface PredictedLabel {
   label: LabelInfo;
   score: number; // Float between 0 and 1
@@ -271,6 +258,40 @@ export interface HashtagState {
   label?: LabelInfo;
   approved?: boolean;
 }
+
+export interface EventFeedback {
+  stars: number|null; // 1-5
+  is_organizer: boolean;
+  didnt_attend: boolean;
+
+  // Tags - True = positive, false = negative, undefined/null = clear
+  agenda: boolean|null;
+  on_time: boolean|null;
+  good_time_mgmt: boolean|null;
+  contributed: boolean|null;
+  presence_useful: boolean|null;
+  action_items: boolean|null;
+
+  notes: string|null;
+}
+
+/*
+  Type for what we get back from server -- this is technically inaccurate
+  because the server should always return a default boolean for
+  is_organizer and didnt_attend (and undefined instead of null for tags) but
+  this set up makes it easier to type optimistic updates and the possibility
+  of both null/undefined here just makes the front-end more robust.
+*/
+export type GuestEventFeedback = {
+  uid: string;
+} & Partial<EventFeedback>;
+
+/*
+  Type for what we post to the server. Use Pick rather than Partial because
+  we need to post null rather than undefined back to server to unset.
+*/
+export type GuestEventFeedbackPatch<K extends keyof EventFeedback> =
+  Pick<EventFeedback, K>;
 
 export interface GuestContribution {
   blurb?: string;
@@ -329,7 +350,7 @@ export interface GenericCalendarEvent {
   predicted_attended?: number;         // Floating score
   comments: GroupEventComment[];
   // hashtags: HashtagState[];         // Exists, but deprecate
-  feedback?: EventFeedback;
+  feedback?: GuestEventFeedback;
   location?: string;
   all_day: boolean;
   guests: Attendee[];
@@ -406,9 +427,16 @@ export interface ConfirmTimebombInfo {
   uid: string;
 }
 
+export interface EventForGuest {
+  uid: string; // Requester
+  event?: GenericCalendarEvent;
+  feedback?: GuestEventFeedback;
+}
+
 type TokenDescription =
   ["Confirm_timebomb_event", {}]|
   ["Unconfirm_timebomb_event", {}]|
+  ["Feedback", {}]|
   ["Invite_join_group", {}]|
   ["Invite_join_team", {}]|
   ["Login", {}]|
@@ -424,6 +452,7 @@ type TokenDescription =
 type TokenValue =
   ["Confirm_timebomb_event", ConfirmTimebombInfo]|
   ["Unconfirm_timebomb_event", ConfirmTimebombInfo]|
+  ["Feedback", EventForGuest]|
   ["Invite_join_group", {}]|
   ["Invite_join_team", {}]|
   ["Login", LoginResponse]|
@@ -699,7 +728,6 @@ export interface LabelChangeRequest {
 export interface EventLabels {
   id: string;
   labels?: string[];
-  attended?: boolean;
   hidden?: boolean;
 }
 
