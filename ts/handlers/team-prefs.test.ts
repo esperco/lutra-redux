@@ -132,8 +132,15 @@ describe("Team preference handlers", () => {
         dfd2.resolve(undefined);
 
         let ret = await PrefHandlers.autosetTimebomb(teamId, deps);
-        expect(ret).to.deep.equal({ ...preferences, tb: true });
-        expectCalledWith(stub, teamId, { ...preferences, tb: true });
+        expect(ret).to.deep.equal({ ...preferences,
+          tb: true,
+          tb_same_domain: true
+        });
+        expectCalledWith(stub, teamId, {
+          ...preferences,
+          tb: true,
+          tb_same_domain: true
+        });
       });
 
       it("does not timebomb to on if already false", async function() {
@@ -172,8 +179,16 @@ describe("Team preference handlers", () => {
         dfd.resolve(undefined);
 
         let ret = await PrefHandlers.autosetTimebomb(teamId, deps);
-        expect(ret).to.deep.equal({ ...oldPrefs, tb: true });
-        expectCalledWith(stub, teamId, { ...oldPrefs, tb: true });
+        expect(ret).to.deep.equal({
+          ...oldPrefs,
+          tb: true,
+          tb_same_domain: true
+        });
+        expectCalledWith(stub, teamId, {
+          ...oldPrefs,
+          tb: true,
+          tb_same_domain: true
+        });
       });
 
       it("does not timebomb to on if already false", async function() {
@@ -194,6 +209,112 @@ describe("Team preference handlers", () => {
         dfd.resolve(undefined);
         await PrefHandlers.autosetTimebomb(teamId, deps);
         expectCalledWith(spy, { tb: true });
+      });
+    });
+  });
+
+  describe("autosetFeedback", () => {
+    afterEach(() => {
+      PrefHandlers.TeamPrefsQueue.reset();
+    });
+
+    describe("with no prefs", () => {
+      function getDeps() {
+        return {
+          dispatch: sandbox.spy(),
+          state: { ...initState(), login: makeLogin({}) },
+          Svcs: apiSvcFactory()
+        };
+      }
+
+      it("sets feedback to on if undefined", async function() {
+        let deps = getDeps();
+        let preferences = makePrefs({ fb: undefined });
+
+        let dfd1 = stubApi(deps.Svcs, "getPreferences");
+        dfd1.resolve(preferences);
+
+        let { dfd: dfd2, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd2.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetFeedback(teamId, deps);
+        expect(ret).to.deep.equal({ ...preferences,
+          fb: true,
+          fb_same_domain: true
+        });
+        expectCalledWith(stub, teamId, {
+          ...preferences,
+          fb: true,
+          fb_same_domain: true
+        });
+      });
+
+      it("does not feedback to on if already false", async function() {
+        let deps = getDeps();
+        let preferences = makePrefs({ fb: false });
+
+        let dfd1 = stubApi(deps.Svcs, "getPreferences");
+        dfd1.resolve(preferences);
+
+        let { dfd: dfd2, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd2.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetFeedback(teamId, deps);
+        expect(ret).to.deep.equal(preferences);
+        expect(stub.called).to.be.false;
+      });
+    });
+
+    describe("with existing prefs", () => {
+      const oldPrefs = makePrefs({ fb: false });
+      function getDeps(prefs: Partial<typeof oldPrefs>) {
+        return {
+          dispatch: sandbox.spy(),
+          state: {
+            ...initState(),
+            login: makeLogin({}),
+            teamPreferences: { [teamId]: { ...oldPrefs, ...prefs } }
+          },
+          Svcs: apiSvcFactory()
+        };
+      }
+
+      it("sets feedback to on if undefined", async function() {
+        let deps = getDeps({ fb: undefined });
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetFeedback(teamId, deps);
+        expect(ret).to.deep.equal({
+          ...oldPrefs,
+          fb: true,
+          fb_same_domain: true
+        });
+        expectCalledWith(stub, teamId, {
+          ...oldPrefs,
+          fb: true,
+          fb_same_domain: true
+        });
+      });
+
+      it("does not set feedback to on if already false", async function() {
+        let deps = getDeps({ fb: false });
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd.resolve(undefined);
+
+        let ret = await PrefHandlers.autosetFeedback(teamId, deps);
+        expect(ret).to.deep.equal({ ...oldPrefs, fb: false });
+        expect(stub.called).to.be.false;
+      });
+
+      it("makes API call to set feature flag if unset", async () => {
+        let deps = getDeps({ fb: undefined });
+        deps.state.login.feature_flags.fb = false;
+        let spy = sandbox.spy(deps.Svcs.Api, "patchFeatureFlags");
+        let { dfd } = stubApiPlus(deps.Svcs, "putPreferences");
+        dfd.resolve(undefined);
+        await PrefHandlers.autosetFeedback(teamId, deps);
+        expectCalledWith(spy, { fb: true });
       });
     });
   });
