@@ -98,7 +98,7 @@ export async function autosetTimebomb(teamId: string, deps: {
 
   // If timebomb undefined, turn it on
   if (typeof prefs.tb === "undefined") {
-    return update(teamId, { tb: true }, {
+    return update(teamId, { tb: true, tb_same_domain: true }, {
       ...deps,
       state: {
         ...deps.state,
@@ -130,7 +130,7 @@ export async function autosetFeedback(teamId: string, deps: {
 
   // If feedback undefined, turn it on
   if (typeof prefs.fb === "undefined") {
-    return update(teamId, { fb: true }, {
+    return update(teamId, { fb: true, fb_same_domain: true }, {
       ...deps,
       state: {
         ...deps.state,
