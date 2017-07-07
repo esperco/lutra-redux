@@ -31,10 +31,11 @@ var config = {
     groups: "./ts/groups.js/index.tsx",
     vendor: [
       'tslib',
+      'lodash',
+      './js/lodash-shims',
       './js/promise-fetch',
       'crypto-js/sha1',
       'jquery',
-      'lodash',
       'react',
       'react-dom',
 
