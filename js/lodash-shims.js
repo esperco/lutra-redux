@@ -2,16 +2,6 @@
   Polyfill some ES6 native functions using lodash
 */
 
-// Feature check to verify we're on IE11.
-if (typeof window.crypto === "undefined" &&
-    typeof window.msCrypto === "undefined") {
-  let update = confirm(
-    "Esper requires a modern browser to function properly. Please " +
-    "update your browser before continuing."
-  );
-  if (update) location.href = "https://outdatedbrowser.com/";
-}
-
 function _shimPrototype(obj, name, shim) {
   if (! obj.prototype[name]) {
     Object.defineProperty(obj.prototype, name, {

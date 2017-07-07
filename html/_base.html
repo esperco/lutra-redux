@@ -4,9 +4,20 @@
   <meta charset="utf-8">
   <title>{% block title %}Esper{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="text/javascript">
+    // Feature check to verify we're on IE11.
+    if (typeof window.crypto === "undefined" &&
+        typeof window.msCrypto === "undefined") {
+      var update = confirm(
+        "Esper requires a modern browser to function properly. Please " +
+        "update your browser before continuing."
+      );
+      if (update) location.href = "http://outdatedbrowser.com/";
+    }
+  </script>
   {% block head %}{% endblock %}
   <link rel="shortcut icon" href="[[../assets/favicon.ico]]">
-  {% include '_anti-clickjack.html' %}
+out  {% include '_anti-clickjack.html' %}
 </head>
 <body>
   {% block body %}
