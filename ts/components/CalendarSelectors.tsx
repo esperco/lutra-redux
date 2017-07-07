@@ -2,7 +2,7 @@
   Components for selecting time periods
 */
 require("less/components/_calendar.less");
-import * as _ from "lodash";
+import { range } from "lodash";
 import * as React from "react";
 import * as moment from "moment";
 import * as classNames from "classnames";
@@ -279,9 +279,9 @@ export function WeekHeadings(props: {
   let end = props.end || 6;
   let format = props.format || "ddd";
   return <div className="week-headings">
-    { _.map( _.range(start, end + 1), (i) => <div key={i}>
+    { range(start, end + 1).map((i) => <div key={i}>
       { moment().weekday(i).format(format) }
-    </div> ) }
+    </div>) }
   </div>;
 }
 

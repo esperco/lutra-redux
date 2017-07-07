@@ -2,7 +2,6 @@
   Init function that parses query params, returns props for component
 */
 
-import * as _ from "lodash";
 import { base as groupsRedirect } from "../groups.js/paths";
 // import { base as agendaRedirect } from "../tb.js/paths";
 import { base as timeRedirect } from "../time.js/paths";
@@ -149,7 +148,7 @@ async function handleLoginInfo(
     getDefaultLandingUrl(info);
 
   // Check for team approval
-  let team = _.find(info.teams,
+  let team = info.teams.find(
     (t) => t.team_executive === info.uid && !t.team_approved
   );
   if (team) {
@@ -190,7 +189,7 @@ function getDefaultLandingUrl(info: ApiT.LoginResponse) {
     Don't redirect to agenda unless explicit. At least not yet.
   */
 
-  // if (info.teams && !!_.find(info.teams,
+  // if (info.teams && !!info.teams.find(
   //   (t) => t.team_executive !== info.uid ||t.team_api.team_labels.length)
   // ) {
   //   return timeRedirect;
@@ -206,7 +205,7 @@ function getDefaultLandingUrl(info: ApiT.LoginResponse) {
   https://esper.com/https://esper.com/path/to/thing
 */
 function cleanLandingUrl(url: string, l: LocationLite) {
-  if (_.startsWith(url, l.origin)) {
+  if (url.startsWith(l.origin)) {
     return url;
   } else if (url[0] === "/") {
     return url;

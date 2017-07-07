@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import { isEqual } from "lodash";
 import * as moment from "moment-timezone";
 import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
@@ -22,9 +22,9 @@ import { defaultGroupName } from "../text/groups";
 */
 export function cleanGroupId(groupId: string, state: LoginState): string|null {
   if (state.login) {
-    if (_.includes(state.login.groups, groupId)) {
+    if (state.login.groups.includes(groupId)) {
       return groupId;
-    } else if (_.isString(state.login.groups[0])) {
+    } else if (typeof state.login.groups[0] === "string") {
       return state.login.groups[0];
     }
   }
@@ -265,10 +265,10 @@ interface GroupPatch {
 
 // Combines patch queries into single API call
 export const PatchQueue = new QueueMap<GroupPatch>((groupId, q) => {
-  let last = _.last(q);
+  let last = q[q.length - 1];
   if (! last) return Promise.resolve([]);
   let { Svcs } = last;
-  let patch = _.reduce(q,
+  let patch = q.reduce(
     (result, v) => ({ ...result, ...v.patch }),
     {} as ApiT.GroupUpdatePatch);
   return Svcs.Api.patchGroupDetails(groupId, patch).then(() => []);
@@ -324,8 +324,8 @@ export function processGroupLabelUpdates(
 
   // Get all new labels
   let newLabels: Record<string, boolean> = {};
-  _.each(queue,
-    (q) => _.each(q.newLabels,
+  queue.forEach(
+    (q) => q.newLabels.forEach(
       (l) => newLabels[l.normalized] = true
     )
   );
@@ -336,18 +336,17 @@ export function processGroupLabelUpdates(
   if (last) {
     let labels = last.labels;
     return Api.putGroupLabels(groupId, {
-      labels: _.map(labels, (l) => l.original)
+      labels: labels.map((l) => l.original)
     })
 
     // Separate API call for colors (batch for effiency)
     .then(() => Api.batch(() => Promise.all(
-      _(labels)
+      labels
         .filter((l) => newLabels[l.normalized])
         .map((l) => Api.setGroupLabelColor(groupId, {
           label: l.original,
           color: l.color || "#999999"
         }))
-        .value()
     )))
 
     // Clear queue
@@ -378,7 +377,7 @@ export function setGroupLabels(props: {
     });
 
     // Make changes only if new labels
-    if (! _.isEqual(labels, groupLabels.group_labels)) {
+    if (! isEqual(labels, groupLabels.group_labels)) {
 
       // Update state
       deps.dispatch({

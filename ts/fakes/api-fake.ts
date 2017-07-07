@@ -2,7 +2,6 @@
   Returns a fake ApiSvc for testing -- all functions currently just
   return empty promises.
 */
-import * as _ from "lodash";
 import { default as Api, ApiSvc } from "../lib/api";
 import { Deferred } from "../lib/util";
 import * as Sinon from "sinon";
@@ -28,7 +27,7 @@ export function stubApiPlus(svc: ApiSvc, name: string) {
 export function stubApiRet(svc: ApiSvc, name: string, val?: any) {
   let Api: any = svc.Api;
   let stub = Sinon.stub(Api, name).callsFake(function(...args: any[]) {
-    if (_.isFunction(val)) {
+    if (typeof val === "function") {
       return Promise.resolve(val(...args));
     }
     return Promise.resolve(val);
@@ -40,14 +39,16 @@ export function stubApiRet(svc: ApiSvc, name: string, val?: any) {
 export function apiSvcFactory(): ApiSvc {
   // Iterate over each function and (with some exceptions) replace with one
   // that returns a generic promise
-  let newApi: any = _.clone(Api);
-  _.each(Api, (v, k) => {
-    if (k && _.isFunction(v) && v !== Api.batch) {
+  let newApi: any = { ...Api };
+  for (let key in Api) {
+    let k = key as keyof typeof Api;
+    let v = Api[k];
+    if (k && typeof v === "function" && v !== Api.batch) {
       newApi[k] = function() {
         return new Promise(() => {});
       }
     }
-  });
+  };
 
   // Batch is a special case -- execute function immediately
   newApi.batch = function batch(fn: () => any) {

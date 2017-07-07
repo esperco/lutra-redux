@@ -3,7 +3,7 @@
 */
 
 require("less/components/_min-cost.less");
-import * as _ from 'lodash';
+import { range } from 'lodash';
 import * as React from 'react';
 import RadioItem from '../components/RadioItem';
 import { randomString } from '../lib/util';
@@ -19,15 +19,16 @@ export interface Props {
 export class MinCostSelector extends React.Component<Props, {}> {
   render() {
     let name = randomString();
-    let value = _.isNumber(this.props.value) ? this.props.value : MIN_COST;
+    let value = typeof this.props.value === "number" ?
+      this.props.value : MIN_COST;
     return <div className="min-cost-selector">
-      { _.map(_.range(MIN_COST, MAX_COST + 1), (n) =>
+      { range(MIN_COST, MAX_COST + 1).map((n) =>
         <RadioItem key={n} name={name}
           checked={value === n}
           className={value === n ? "active" : ""}
           onChange={(v) => v && this.props.onChange(n)}
         >
-          { _.repeat("$", n) }
+          { "$".repeat(n) }
         </RadioItem> )}
     </div>;
   }

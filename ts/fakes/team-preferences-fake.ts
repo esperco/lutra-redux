@@ -1,5 +1,4 @@
 import * as ApiT from "../lib/apiT";
-import * as _ from "lodash";
 
 export function makePrefs(prefs: Partial<ApiT.Preferences>): ApiT.Preferences {
   let def: ApiT.Preferences = {
@@ -28,7 +27,7 @@ export function makePrefs(prefs: Partial<ApiT.Preferences>): ApiT.Preferences {
     general: { current_timezone: "America/Los_Angeles" },
     notes: ""
   };
-  return _.extend(def, prefs);
+  return { ...def, ...prefs };
 }
 
 export default makePrefs;

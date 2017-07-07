@@ -2,7 +2,7 @@
   Components for displaying generic information about an Event
 */
 require("less/components/_event-info.less");
-import * as _ from "lodash";
+import { repeat } from "lodash";
 import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
@@ -30,7 +30,7 @@ export const InlineInfo = ({ event }: BaseEventProps) => {
 
     { event.merged && event.merged.cost ?
       <span className={"cost cost-" + event.merged.cost }>
-        { _.repeat("$", event.merged.cost) }
+        { repeat("$", event.merged.cost) }
       </span> : null }
   </div></div>;}
 ;

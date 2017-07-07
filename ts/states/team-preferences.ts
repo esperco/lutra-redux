@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { ok, ready, StoreData } from "./data-status";
 import { EventsState, resetForCalgroupId } from "./events";
@@ -50,7 +49,7 @@ export function dataReducer<S extends TeamPreferencesState> (
     update = "FETCH_ERROR";
   }
 
-  return _.extend({}, state, {
+  return Object.assign({}, state, {
     teamPreferences: {
       ...state.teamPreferences,
       [action.teamId]: update
@@ -66,7 +65,7 @@ export function updateReducer
   let { teamId, preferences: update } = action;
   let current = state.teamPreferences[teamId];
   if (ready(current)) {
-    return _.extend({}, state, resetForCalgroupId(teamId, state), {
+    return Object.assign({}, state, resetForCalgroupId(teamId, state), {
       teamPreferences: {
         ...state.teamPreferences,
         [teamId]: { ...current, ...update }

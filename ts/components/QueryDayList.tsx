@@ -3,7 +3,7 @@
   a fixed number of events until we scroll such that events are visible.
 */
 
-import * as _ from "lodash";
+import { isEqual } from "lodash";
 import * as React from "react";
 import { iter } from "../lib/event-query-iter";
 import * as ApiT from "../lib/apiT";
@@ -43,9 +43,9 @@ export class QueryDayList extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (! _.isEqual(this.props.period, nextProps.period) ||
-        ! _.isEqual(this.props.query, nextProps.query) ||
-        ! _.isEqual(this.props.calgroupId, nextProps.calgroupId)) {
+    if (! isEqual(this.props.period, nextProps.period) ||
+        ! isEqual(this.props.query, nextProps.query) ||
+        ! isEqual(this.props.calgroupId, nextProps.calgroupId)) {
       this.setState({ daysToShow: this.getDaysIncr() });
     }
   }

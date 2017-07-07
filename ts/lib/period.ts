@@ -1,7 +1,6 @@
 /*
   Helpers for representing a period of time as an absolute integer
 */
-import * as _ from "lodash";
 import * as moment from "moment";
 import { ParamType, NumberArrayParam } from "./routing";
 
@@ -110,7 +109,7 @@ export function toRange(period: GenericPeriod, maxDate?: Date): GenericPeriod {
     let [start, end] = bounds(period);
     period = fromDates("week", start, end);
   } else {
-    period = _.clone(period);
+    period = Object.assign({}, period);
   }
 
   if (period.start === period.end) {

@@ -7,7 +7,6 @@
   </CheckboxItem>
 */
 require("less/components/_checkboxes.less");
-import * as _ from "lodash";
 import * as React from "react";
 import * as classNames from "classnames";
 import { randomString } from "../lib/util";
@@ -27,7 +26,7 @@ export class CheckboxItem extends React.Component<Props, {}> {
   _ref: HTMLInputElement;
 
   render() {
-    let inputProps = _.clone(this.props.inputProps || {});
+    let inputProps = { ...this.props.inputProps };
     inputProps.id = inputProps.id || randomString();
     inputProps.onChange = this.handleChange;
     if (typeof this.props.checked === "undefined") {

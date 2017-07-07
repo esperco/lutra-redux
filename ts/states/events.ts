@@ -2,8 +2,7 @@
   Shared state management code for storing both events by groupId
   or a teamId.
 */
-
-import * as _ from "lodash";
+import { forEach, range, findLast, mapValues } from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
 import { updateLabelList, useRecurringLabels } from "../lib/event-labels";
@@ -119,21 +118,21 @@ export interface EventsUpdateAction {
 export function eventsDataReducer<S extends EventsState> (
   state: S, action: EventsDataAction
 ) {
-  state = _.clone(state);
+  state = Object.assign({}, state);
   let queryDays = () => {
-    state.eventQueries = _.clone(state.eventQueries);
+    state.eventQueries = Object.assign({}, state.eventQueries);
     return (state.eventQueries[action.calgroupId] =
-      _.clone(state.eventQueries[action.calgroupId]) || []);
+      Object.assign({}, state.eventQueries[action.calgroupId]) || []);
   };
   let eventMap = () => {
-    state.events = _.clone(state.events);
+    state.events = Object.assign({}, state.events);
     return (state.events[action.calgroupId] =
-      _.clone(state.events[action.calgroupId]) || {});
+      Object.assign({}, state.events[action.calgroupId]) || {});
   };
   let recurringMap = () => {
-    state.recurringEvents = _.clone(state.recurringEvents);
+    state.recurringEvents = Object.assign({}, state.recurringEvents);
     return (state.recurringEvents[action.calgroupId] =
-      _.clone(state.recurringEvents[action.calgroupId]) || {});
+      Object.assign({}, state.recurringEvents[action.calgroupId]) || {});
   };
 
   switch (action.dataType) {
@@ -179,8 +178,8 @@ export function eventsUpdateReducer<S extends EventsState>(
   };
 
   // Reduce recurring ids to individual ids and process
-  _.each(recurringEventIds || [], (recurId) => {
-    _.each(state.recurringEvents[calgroupId][recurId], (v, k) => {
+  forEach(recurringEventIds || [], (recurId) => {
+    forEach(state.recurringEvents[calgroupId][recurId], (v, k) => {
       if (v && k) {
         setEventsToUpdate(eventsMap[k], true);
       }
@@ -188,9 +187,9 @@ export function eventsUpdateReducer<S extends EventsState>(
   });
 
   // Update individual events
-  _.each(eventIds, (id) => setEventsToUpdate(eventsMap[id]));
+  eventIds.forEach((id) => setEventsToUpdate(eventsMap[id]));
 
-  let daysToUpdate = _(daysToUpdateMap).keys().map((n) => parseInt(n)).value();
+  let daysToUpdate = Object.keys(daysToUpdateMap).map((n) => parseInt(n));
   let update: Partial<EventsState> = {
     events: {
       ...state.events,
@@ -200,7 +199,7 @@ export function eventsUpdateReducer<S extends EventsState>(
     // Actual invalidation happens here
     ...invalidateDays(state, action.calgroupId, daysToUpdate)
   };
-  return _.extend({}, state, update);
+  return Object.assign({}, state, update);
 }
 
 /*
@@ -215,7 +214,7 @@ function setDaysToUpdate(
   let period = fromDates("day",
     moment(event.start).toDate(),
     moment(event.end).toDate());
-  _.each(_.range(period.start, period.end + 1), (day) => {
+  forEach(range(period.start, period.end + 1), (day) => {
     updateMap[day] = true;
   });
 }
@@ -230,10 +229,10 @@ export function invalidatePeriodReducer<S extends EventsState>(
     Get earliest event on start day (if any) and latest event on end day
     (if any) and use those to see if we should invalidate beyond period.
   */
-  _.each(state.eventQueries[calgroupId][start], (result) => {
+  forEach(state.eventQueries[calgroupId][start], (result) => {
     if (ready(result)) {
       let firstEvent: ApiT.GenericCalendarEvent|undefined;
-      _.find(result.eventIds, (id) => {
+      result.eventIds.find((id) => {
         let event = (state.events[calgroupId] || {})[id];
         if (ready(event)) {
           firstEvent = event;
@@ -250,10 +249,10 @@ export function invalidatePeriodReducer<S extends EventsState>(
   });
 
   // Do the same for the last event
-  _.each(state.eventQueries[calgroupId][end], (result) => {
+  forEach(state.eventQueries[calgroupId][end], (result) => {
     if (ready(result)) {
       let lastEvent: ApiT.GenericCalendarEvent|undefined;
-      _.findLast(result.eventIds, (id) => {
+      findLast(result.eventIds, (id) => {
         let event = (state.events[calgroupId] || {})[id];
         if (ready(event)) {
           lastEvent = event;
@@ -270,8 +269,8 @@ export function invalidatePeriodReducer<S extends EventsState>(
   });
 
   // Apply updated start and end days to invalidation
-  let update = invalidateDays(state, calgroupId, _.range(start, end + 1));
-  return _.extend({}, state, update);
+  let update = invalidateDays(state, calgroupId, range(start, end + 1));
+  return Object.assign({}, state, update);
 }
 
 // Invalidate each query on each of the specified days
@@ -280,8 +279,8 @@ function invalidateDays(
 ): Partial<EventsState> {
   let queryDays = state.eventQueries[groupId] || [];
   let queryDaysUpdate: EventsQueryState = [];
-  _.each(days, (i) => {
-    queryDaysUpdate[i] = _.mapValues(queryDays[i] || {},
+  days.forEach((i) => {
+    queryDaysUpdate[i] = mapValues(queryDays[i] || {},
       (v, k) => ready(v) ? { ...v, invalid: true } : v
     );
   });
@@ -306,7 +305,8 @@ function reduceEventUpdate(
 
   // Special behavior for labeling
   let labels = event.labels;
-  let hidden = _.isUndefined(action.hidden) ? event.hidden : action.hidden;
+  let hidden = typeof action.hidden === "undefined" ?
+    event.hidden : action.hidden;
   if (hidden) {
     labels = [];
   } else if (action.addLabels || action.rmLabels) {
@@ -330,14 +330,15 @@ function reduceEventUpdate(
     hidden,
 
     // Update timebomb
-    timebomb: _.isUndefined(action.timebomb) ? event.timebomb : action.timebomb
+    timebomb: typeof action.timebomb === "undefined" ?
+      event.timebomb : action.timebomb
   });
 }
 
 // Merges group event query day arrays, returns a new state
 function mergeQueryStates(...states: EventsQueryState[]): EventsQueryState {
   let ret: EventsQueryState = [];
-  _.each(states, (s) => {
+  states.forEach((s) => {
     // Use normal iterator because of sparesly populated array
     for (let i in s) {
       ret[i] = s[i];
@@ -358,7 +359,7 @@ export function makeQueryState(
   let { start, end } = toDays(period);
   let queryKey = stringify(query);
   for (let i = start; i <= end; i++) {
-    let queryMap = addTo[i] = _.clone(addTo[i]) || {};
+    let queryMap = addTo[i] = Object.assign({}, addTo[i]) || {};
     queryMap[queryKey] = {
       query,
       eventIds,
@@ -374,11 +375,11 @@ export function makeQueryState(
 function reduceFetchQueryRequest(
   queryDays: EventsQueryState, action: EventsFetchQueryRequestAction
 ) {
-  _.each(action.periods, (period) => {
+  action.periods.forEach((period) => {
     let days = toDays(period);
     let queryKey = stringify(action.query);
     for (let i = days.start; i <= days.end; i++) {
-      let queryMap = queryDays[i] = _.clone(queryDays[i]) || {};
+      let queryMap = queryDays[i] = Object.assign({}, queryDays[i]) || {};
       if (! ok(queryMap[queryKey])) {
         queryMap[queryKey] = "FETCHING";
       }
@@ -397,7 +398,7 @@ function reduceFetchQueryResponse(
   let queryKey = stringify(action.query);
   let eventIdLists: string[][] = [];
   for (let i = days.start; i <= days.end; i++) {
-    let queryMap = queryDays[i] = _.clone(queryDays[i]) || {};
+    let queryMap = queryDays[i] = Object.assign({}, queryDays[i]) || {};
     let eventIds = eventIdLists[i] = [];
     queryMap[queryKey] = {
       query: action.query,
@@ -407,13 +408,13 @@ function reduceFetchQueryResponse(
   }
 
   // For each event ...
-  _.each(action.events, (event) => {
+  action.events.forEach((event) => {
     let period = fromDates("day",
       moment(event.start).toDate(),
       moment(event.end).toDate());
 
     // Add to list for each day it touches (if day is inside specified period)
-    _.each(_.range(period.start, period.end + 1), (day) => {
+    forEach(range(period.start, period.end + 1), (day) => {
       let eventIdList = eventIdLists[day];
       if (eventIdList) {
         eventIdList.push(event.id);
@@ -445,7 +446,7 @@ function reduceFetchQueryFail(
   let days = toDays(action.period);
   let queryKey = stringify(action.query);
   for (let i = days.start; i <= days.end; i++) {
-    let queryMap = queryDays[i] = _.clone(queryDays[i]) || {};
+    let queryMap = queryDays[i] = Object.assign({}, queryDays[i]) || {};
     if (! ready(queryMap[queryKey])) {
       queryMap[queryKey] = "FETCH_ERROR";
     }
@@ -456,7 +457,7 @@ function reduceFetchIdsRequest(
   eventMap: StoreMap<ApiT.GenericCalendarEvent>,
   action: EventsFetchIdsRequestAction
 ) {
-  _.each(action.eventIds, (id) => {
+  action.eventIds.forEach((id) => {
     if (! ok(eventMap[id])) {
       eventMap[id] = "FETCHING";
     }
@@ -469,13 +470,13 @@ function reduceFetchIdsResponse(
 ) {
   // Anything id in the list gets marked as error unless replaced by
   // actual data
-  _.each(action.eventIds, (id) => {
+  action.eventIds.forEach((id) => {
     if (! ready(eventMap[id])) {
       eventMap[id] = "FETCH_ERROR";
     }
   });
 
-  _.each(action.events, (e) => {
+  action.events.forEach((e) => {
     eventMap[e.id] = e;
     (e.duplicates || []).forEach((d) => {
       eventMap[d.id] = e;

@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 
 export function makeGenericCalendarEvent(
@@ -20,7 +19,7 @@ export function makeGenericCalendarEvent(
     transparent: false,
     description_messageids: []
   };
-  return _.extend(defaultEvent, props) as ApiT.GenericCalendarEvent;
+  return { ...defaultEvent, ...props };
 }
 
 export default makeGenericCalendarEvent;

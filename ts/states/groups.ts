@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import { sortBy, uniq } from "lodash";
 import * as ApiT from "../lib/apiT";
 import { LoginState } from "../lib/login";
 import { ok, ready, StoreMap } from "./data-status";
@@ -118,24 +118,24 @@ export interface GroupDeleteTeamAction {
 export function groupPreferencesReducer<S extends GroupState>(
   state: S, action: GroupPreferencesAction
 ) {
-  state = _.clone(state);
+  state = Object.assign({}, state);
   let groupPreferences = state.groupPreferences
-                       = _.clone(state.groupPreferences);
+                       = Object.assign({}, state.groupPreferences);
 
   if (action.dataType === "FETCH_START") {
-    _.each(action.groupIds, (id) => {
+    action.groupIds.forEach((id) => {
       if (!ok(groupPreferences[id])) {
         groupPreferences[id] = "FETCHING";
       }
     });
   } else {
     if (action.dataType === "FETCH_END") {
-      _.each(action.groupIds, (id) => {
+      action.groupIds.forEach((id) => {
         groupPreferences[id] = "FETCH_ERROR";
       });
     }
 
-    _.each(action.groupPrefs, (prefs) => {
+    action.groupPrefs.forEach((prefs) => {
       groupPreferences[prefs.groupid] = {
         daily_breakdown: prefs.daily_breakdown,
         weekly_breakdown: prefs.weekly_breakdown,
@@ -152,14 +152,14 @@ export function groupPreferencesReducer<S extends GroupState>(
 export function groupDataReducer<S extends GroupState & LoginState> (
   state: S, action: GroupDataAction
 ) {
-  state = _.clone(state);
-  let groupSummaries = state.groupSummaries = _.clone(state.groupSummaries);
-  let groupLabels = state.groupLabels = _.clone(state.groupLabels);
-  let groupMembers = state.groupMembers = _.clone(state.groupMembers);
+  state = Object.assign({}, state);
+  let groupSummaries = state.groupSummaries = Object.assign({}, state.groupSummaries);
+  let groupLabels = state.groupLabels = Object.assign({}, state.groupLabels);
+  let groupMembers = state.groupMembers = Object.assign({}, state.groupMembers);
 
   // If data start -- mark as fetching if none
   if (action.dataType === "FETCH_START") {
-    _.each(action.groupIds, (id) => {
+    action.groupIds.forEach((id) => {
       if (!ok(groupSummaries[id])) {
         groupSummaries[id] = "FETCHING";
       }
@@ -178,7 +178,7 @@ export function groupDataReducer<S extends GroupState & LoginState> (
     // Anything id in the list gets marked as error unless replaced by
     // actual data
     if (action.dataType === "FETCH_END") {
-      _.each(action.groupIds, (id) => {
+      action.groupIds.forEach((id) => {
         groupSummaries[id] = "FETCH_ERROR";
         if (action.withLabels) {
           groupLabels[id] = "FETCH_ERROR";
@@ -190,7 +190,7 @@ export function groupDataReducer<S extends GroupState & LoginState> (
     }
 
     let newGroupIds: string[] = [];
-    _.each(action.groups, (g) => {
+    action.groups.forEach((g) => {
       newGroupIds.push(g.groupid);
 
       groupSummaries[g.groupid] = {
@@ -211,7 +211,7 @@ export function groupDataReducer<S extends GroupState & LoginState> (
 
             TODO: Fix if server API changes.
           */
-          group_labels: _.sortBy(g.group_labels, (l) => l.normalized)
+          group_labels: sortBy(g.group_labels, (l) => l.normalized)
         };
       }
 
@@ -228,7 +228,7 @@ export function groupDataReducer<S extends GroupState & LoginState> (
     if (state.login) {
       state.login = {
         ...state.login,
-        groups: _.uniq(state.login.groups.concat(action.groupIds))
+        groups: uniq(state.login.groups.concat(action.groupIds))
       };
     }
   }
@@ -285,7 +285,7 @@ export function groupUpdateReducer
     }
   }
 
-  return _.extend({}, state, update);
+  return Object.assign({}, state, update);
 }
 
 // Add GIM but ensure no e-mail OR uid duplication
@@ -295,10 +295,10 @@ export function groupAddGIMReducer<S extends GroupState>(
   let { groupId, gim, member } = action;
   let current = state.groupMembers[groupId];
   if (ready(current)) {
-    let group_individuals = _.clone(current.group_individuals);
-    let index = _.findIndex(group_individuals,
-      (i) => (i.email && i.email === gim.email) ||
-             (i.uid && i.uid === gim.uid));
+    let group_individuals = Object.assign({}, current.group_individuals);
+    let index = group_individuals.findIndex(
+      (i) => !!(i.email && i.email === gim.email) ||
+             !!(i.uid && i.uid === gim.uid));
 
     // Existing email or UID => merge
     if (index > -1) {
@@ -314,10 +314,10 @@ export function groupAddGIMReducer<S extends GroupState>(
     }
 
     // Check if there's an associated team as well
-    let group_teams = _.clone(current.group_teams);
+    let group_teams = Object.assign({}, current.group_teams);
     if (member) {
       let m = member; // Fix reference for type-checking purposes
-      let index = _.findIndex(group_teams, (t) => t.teamid === m.teamid);
+      let index = group_teams.findIndex((t) => t.teamid === m.teamid);
       if (index > -1) {
         group_teams[index] = { ...group_teams[index], ...m }
       } else {
@@ -325,7 +325,7 @@ export function groupAddGIMReducer<S extends GroupState>(
       }
     }
 
-    return _.extend({}, state, {
+    return Object.assign({}, state, {
       groupMembers: {
         ...state.groupMembers,
         [groupId]: {
@@ -346,15 +346,15 @@ export function groupDeleteGIMReducer<S extends GroupState>(
   let current = state.groupMembers[groupId];
 
   if (ready(current)) {
-    return _.extend({}, state, {
+    return Object.assign({}, state, {
       groupMembers: {
         ...state.groupMembers,
         [groupId]: {
           ...current,
-          group_individuals: _.filter(current.group_individuals,
+          group_individuals: current.group_individuals.filter(
             (i) => !((i.uid && i.uid === gim.uid) ||
                      (i.email && i.email === gim.email))),
-          group_teams: _.filter(current.group_teams,
+          group_teams: current.group_teams.filter(
             (t) => !(t.email && t.email === gim.email))
         }
       }
@@ -372,9 +372,9 @@ export function groupAddTeamReducer<S extends GroupState>(
   let current = state.groupMembers[groupId];
 
   if (ready(current)) {
-    let group_teams = _.clone(current.group_teams);
+    let group_teams = Object.assign({}, current.group_teams);
     group_teams.push(member);
-    return _.extend({}, state, {
+    return Object.assign({}, state, {
       groupMembers: {
         ...state.groupMembers,
         [groupId]: {
@@ -395,12 +395,12 @@ export function groupDeleteTeamReducer<S extends GroupState>(
   let current = state.groupMembers[groupId];
 
   if (ready(current)) {
-    return _.extend({}, state, {
+    return Object.assign({}, state, {
       groupMembers: {
         ...state.groupMembers,
         [groupId]: {
           ...current,
-          group_teams: _.filter(current.group_teams,
+          group_teams: current.group_teams.filter(
             (t) => t.teamid !== teamId)
         }
       }

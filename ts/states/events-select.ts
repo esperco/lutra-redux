@@ -1,7 +1,7 @@
 /*
   Track which current events have been selected by user
 */
-import * as _ from 'lodash';
+import { forEach } from 'lodash';
 import { useRecurringLabels } from "../lib/event-labels";
 import { ready } from "./data-status";
 import { EventsState } from "./events";
@@ -22,8 +22,8 @@ export type ToggleEventAction = {
 export function reduceEventToggling<S extends EventsSelectState & EventsState> (
   state: S, action: ToggleEventAction
 ): S {
-  let selectedEvents = action.clear ? {} : _.clone(state.selectedEvents);
-  _.each(action.eventIds, (value, eventId) => {
+  let selectedEvents = action.clear ? {} : Object.assign({}, state.selectedEvents);
+  forEach(action.eventIds, (value, eventId) => {
     if (! eventId) return;
     if (value) {
       selectedEvents[eventId] = true;
@@ -45,7 +45,7 @@ export function reduceEventToggling<S extends EventsSelectState & EventsState> (
       }
     }
   });
-  return _.extend({}, state, { selectedEvents });
+  return Object.assign({}, state, { selectedEvents });
 }
 
 export function initState() {

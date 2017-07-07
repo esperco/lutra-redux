@@ -1,5 +1,4 @@
 import { Group } from "../lib/apiT";
-import * as _ from "lodash";
 
 export function makeGroup(params: Partial<Group> = {}): Group {
   let def = {
@@ -12,7 +11,7 @@ export function makeGroup(params: Partial<Group> = {}): Group {
     group_tb_recurring: false,
     group_tb_same_domain: false
   };
-  return _.extend(def, params);
+  return { ...def, ...params };
 }
 
 export default makeGroup;

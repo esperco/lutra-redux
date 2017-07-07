@@ -2,7 +2,7 @@
   This is the main view for the group page
 */
 
-import * as _ from 'lodash';
+import { values } from "lodash";
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { eventList } from "./paths";
@@ -57,7 +57,7 @@ class GroupEvents extends React.Component<Props, {}> {
     return <div className={classNames("sidebar-layout", {
       "show-left": this.props.showFilters,
       "hide-left": this.props.showFilters === false,
-      "show-right": _.size(this.props.state.selectedEvents) > 0
+      "show-right": Object.keys(this.props.state.selectedEvents).length > 0
     })}>
 
       {/* Filters Sidebar -- delayed URL update */}
@@ -153,7 +153,7 @@ class GroupEvents extends React.Component<Props, {}> {
   }
 
   renderFilterAlert(searchLabels: LabelSet) {
-    if (_.isEmpty(this.props.query)) return null;
+    if (! Object.keys(this.props.query).length) return null;
 
     return <div className="alert info">
       <button onClick={() => this.update({ query: {} })}>
@@ -194,7 +194,7 @@ class GroupEvents extends React.Component<Props, {}> {
     labels: LabelSet;
     searchLabels: LabelSet;
   }) {
-    let numEvents = _.size(this.props.state.selectedEvents);
+    let numEvents = Object.keys(this.props.state.selectedEvents).length;
     let { showFilters, eventId, selectMode, ...props } = this.props;
     if (numEvents === 0) return null;
     if (numEvents === 1) {
@@ -221,7 +221,7 @@ class GroupEvents extends React.Component<Props, {}> {
     let labels = new LabelSet(
       ready(groupLabels) ? groupLabels.group_labels : []
     );
-    let searchLabels = labels.with(... _.values(labelSuggestions));
+    let searchLabels = labels.with(... values(labelSuggestions));
     labels.sort();
     searchLabels.sort();
     return { labels, searchLabels };
@@ -233,7 +233,7 @@ class GroupEvents extends React.Component<Props, {}> {
     let groupMembers = state.groupMembers[groupId];
     let guests = ready(groupMembers) ?
       guestSetFromGroupMembers(groupMembers) : new GuestSet([]);
-    let guestSuggestions = _.values(state.guestSuggestions[groupId]);
+    let guestSuggestions = values(state.guestSuggestions[groupId]);
     guests.push(...guestSuggestions);
     guests.sort();
     return guests;

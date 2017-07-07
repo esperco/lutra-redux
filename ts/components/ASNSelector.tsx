@@ -3,7 +3,6 @@
   are mapped to the AllSomeNone type.
 */
 
-import * as _ from "lodash";
 import * as React from "react";
 import * as ASN from "../lib/asn";
 import CheckboxItem from "../components/CheckboxItem";
@@ -39,7 +38,7 @@ export class ASNSelector extends React.Component<Props, {}> {
         { this.props.allText }
       </CheckboxItem> : null }
 
-      { _.map(this.props.choices, (choice) =>
+      { this.props.choices.map((choice) =>
         <CheckboxItem key={"choice-" + choice.id}
           checked={ASN.isSelected(selected, choice.id)}
           onChange={(v) => this.toggle(choice.id, v)}
@@ -67,7 +66,7 @@ export class ASNSelector extends React.Component<Props, {}> {
     let selected = ASN.update(
       this.props.selected || DEFAULT_ASN,
       delta,
-      _.map(this.props.choices, (c) => c.id)
+      this.props.choices.map((c) => c.id)
     );
     this.props.onChange(selected);
   }

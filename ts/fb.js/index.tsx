@@ -13,7 +13,6 @@ require("html/fb.html");
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />
 import * as Conf from "config";
-import * as _ from "lodash";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as Log from "../lib/log";
@@ -50,9 +49,10 @@ let Svcs = {
   Nav: Routing.Nav
 };
 
-Log.init(_.extend({
+Log.init({
+  ...Conf,
   logTrace: Conf.production
-}, Conf));
+});
 
 // Render view(s) hooked up to store
 store.subscribe(() => {
@@ -136,7 +136,8 @@ function MainView(props: {
 /* Redux-Dependent Initialization  */
 
 // Sets API prefixes -- needs dispatch for error handling
-Api.init(_.extend<typeof Conf>({
+Api.init({
+  ...Conf,
   startHandler: DataStatus.dataStartHandler(dispatch),
   successHandler: DataStatus.dataEndHandler(dispatch),
   errorHandler: function(id: string, err: Error) {
@@ -144,7 +145,7 @@ Api.init(_.extend<typeof Conf>({
     ErrorMsg.errorHandler(dispatch)(id, err);
     Login.loginRequiredHandler(Conf, Svcs)(err);
   }
-}, Conf));
+});
 
 // This starts the login process
 Login.init(dispatch, Conf, Svcs).then((info) => {

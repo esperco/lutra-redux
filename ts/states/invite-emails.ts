@@ -1,7 +1,7 @@
 /*
   Store list of emails to auto-suggest for invites
 */
-import * as _ from "lodash";
+
 import { ready, StoreData } from "./data-status";
 
 export interface InviteState {
@@ -20,12 +20,12 @@ export interface UpdateInviteStateAction {
 export function updateInviteStateReducer<S extends InviteState>(
   state: S, action: UpdateInviteStateAction
 ) {
-  let inviteEmails = _.clone(state.inviteEmails);
+  let inviteEmails = Object.assign({}, state.inviteEmails);
 
   // Actual data -> update
   if (ready(action.inviteEmails)) {
     if (ready(inviteEmails)) {
-      inviteEmails = { ...inviteEmails, ...action.inviteEmails };
+      inviteEmails = Object.assign({}, inviteEmails, action.inviteEmails);
     } else {
       inviteEmails = action.inviteEmails;
     }
@@ -36,5 +36,5 @@ export function updateInviteStateReducer<S extends InviteState>(
     inviteEmails = action.inviteEmails;
   }
 
-  return _.extend({}, state, { inviteEmails });
+  return Object.assign({}, state, { inviteEmails });
 }

@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
 import { OrderedSet } from '../lib/util';
 
@@ -271,7 +270,7 @@ export interface ZoneName {
   searchFmt: string;
 }
 
-export var Zones: ZoneName[] = _.map(supportedTimezones, (z) => {
+export var Zones: ZoneName[] = supportedTimezones.map((z) => {
   var m = moment.tz(z.id);
   return {
     id: z.id,

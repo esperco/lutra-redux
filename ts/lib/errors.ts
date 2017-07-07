@@ -2,8 +2,6 @@
   Converts API error variants into typed literals
 */
 
-import * as _ from "lodash";
-
 /*
   Type of variants (tagged unions) using atdgen's convention.
 
@@ -57,7 +55,7 @@ export type ErrorDetails = {
 };
 
 export function errorDetail(variant: Variant): ErrorDetails {
-  if (_.isString(variant)) {
+  if (typeof variant === "string") {
     return { tag: variant } as ErrorDetails;
   } else {
     let [tag, value] = variant;

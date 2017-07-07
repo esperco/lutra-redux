@@ -3,7 +3,6 @@
 */
 
 require("less/components/_color-picker.less");
-import * as _ from "lodash";
 import * as React from "react";
 import { presets, colorForText } from "../lib/colors";
 import { randomString } from "../lib/util";
@@ -23,7 +22,7 @@ export class ColorPicker extends React.Component<Props, {}> {
 
   render() {
     return <div className="color-picker">
-      { _.map(presets, (c) => this.renderOne(c)) }
+      { presets.map((c) => this.renderOne(c)) }
       <span className="remainder" />
     </div>;
   }

@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import { isEqual, union } from "lodash";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LoginState, FeatureFlagAction } from "../lib/login";
@@ -50,7 +50,7 @@ interface PrefsUpdate {
 }
 
 export const TeamPrefsQueue = new QueueMap<PrefsUpdate>((teamId, q) => {
-  let last = _.last(q);
+  let last = q[q.length - 1];
   if (! last) return Promise.resolve([]);
   let { Svcs, prefs } = last;
   return Svcs.Api.putPreferences(teamId, prefs).then(() => []);
@@ -162,7 +162,8 @@ export function toggleDailyAgenda(
 
   let email = deps.state.login.email;
   let current = prefs.email_types.daily_agenda.recipients
-  let recipients = val ? _.union(current, [email]) : _.without(current, email);
+  let recipients = val ? union(current, [email]) :
+    current.filter((e) => e !== email);
   return update(teamId, {
     email_types: {
       ...prefs.email_types,
@@ -187,7 +188,7 @@ export async function enableSlack(
     Svcs: ApiSvc & NavSvc;
   }
 ) {
-  if (! _.isEqual(prefs, {})) {
+  if (! isEqual(prefs, {})) {
     await update(teamId, prefs, deps);
   }
 

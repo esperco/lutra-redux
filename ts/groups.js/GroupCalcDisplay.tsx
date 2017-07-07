@@ -3,7 +3,7 @@
 */
 
 require("less/components/_calc-display.less");
-import * as _ from 'lodash';
+import { map, sortBy } from 'lodash';
 import * as React from 'react';
 import BarChart from "../components/BarChart";
 import Tooltip from "../components/Tooltip";
@@ -44,7 +44,7 @@ export class GroupCalcDisplay extends TreeFall<Props, {}> {
 
     return <div className="calc-display">
       <Stats results={results} />
-      { _.isEmpty(results.labelResults) ? null :
+      { !Object.keys(results.labelResults) ? null :
         <LabelChart {...props} results={results} /> }
       { this.renderWaypoint() }
     </div>;
@@ -101,7 +101,7 @@ export function LabelChart({ results, labels, labelHrefFn } : {
   labels: LabelSet;
   labelHrefFn?: (l?: ApiT.LabelInfo) => string;
 }) {
-  let values = _.map(results.labelResults, (data, normalized) => {
+  let values = map(results.labelResults, (data, normalized) => {
     let label = normalized ? labels.getByKey(normalized) : undefined;
     let displayAs: string|JSX.Element = "";
     if (label) {
@@ -116,7 +116,7 @@ export function LabelChart({ results, labels, labelHrefFn } : {
       color: label && label.color
     };
   });
-  values = _.sortBy(values, (v) => -v.value);
+  values = sortBy(values, (v) => -v.value);
 
   return <div className="label-chart">
     <h3>{ EventText.PeopleHoursByLabelTitle }</h3>

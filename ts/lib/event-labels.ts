@@ -1,7 +1,7 @@
 /*
   Event label helpers
 */
-import * as _ from "lodash";
+import { sortBy } from "lodash";
 import * as ApiT from "./apiT";
 import { ColorMap, getColorForMap } from "./colors";
 import { ChoiceSet } from "../lib/util";
@@ -35,7 +35,7 @@ export class LabelSet extends ChoiceSet<ApiT.LabelInfo> {
   }
 
   push(...labels: ApiT.LabelInfo[]) {
-    _.each(labels, (label) => {
+    labels.forEach((label) => {
       let key = this._keyFn(label);
       let hashKey = normalizeHashtag(label.normalized);
 
@@ -78,9 +78,9 @@ export function getLabelCounts(
   });
 
   // Iterate through each event
-  _.each(events, (ev) => {
+  events.forEach((ev) => {
     let eventLabels = getLabels(ev);
-    _.each(eventLabels, (l) => {
+    eventLabels.forEach((l) => {
       counts[l.normalized] = (counts[l.normalized] || 0) + 1;
       labels.push(l);
       selected.push(l);
@@ -166,7 +166,7 @@ export function filter(
 ): [ApiT.LabelInfo|undefined, ApiT.LabelInfo[]] {
   str = normalize(str);
   let filtered = labels.filter(
-    (l) => _.includes(l.normalized, str),
+    (l) => l.normalized.includes(str),
     limit
   );
   let match = labels.getByKey(str);
@@ -213,5 +213,5 @@ export function updateLabelList(labels: ApiT.LabelInfo[], update: {
   let labelSet = new LabelSet(labels);
   labelSet.pull(...(update.rm || []));
   labelSet.push(...(update.add || []));
-  return _.sortBy(labelSet.toList(), (l) => l.normalized);
+  return sortBy(labelSet.toList(), (l) => l.normalized);
 }

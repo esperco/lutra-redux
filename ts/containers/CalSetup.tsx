@@ -3,7 +3,6 @@
 */
 
 require("less/components/_onboarding.less");
-import * as _ from "lodash";
 import * as React from "react";
 import Tooltip from "../components/Tooltip";
 import { NavSvc } from "../lib/routing";
@@ -24,7 +23,7 @@ export const CalSetup = (props: Props) => {
   let hasCals = !!teamCals &&
     ready(teamCals.selected) &&
     teamCals.selected.length > 0;
-  let isSaving = !_.isEmpty(props.state.apiCalls);
+  let isSaving = !!Object.keys(props.state.apiCalls);
 
   return <div className="container onboarding">
     <h2>{ Text.CalHeading }</h2>

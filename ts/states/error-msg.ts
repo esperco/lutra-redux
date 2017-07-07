@@ -1,7 +1,6 @@
 /*
   Error state -- used for showing an error message to the user
 */
-import * as _ from "lodash";
 import { ErrorDetails } from "../lib/errors";
 import { isAjaxError } from "../lib/json-http";
 
@@ -30,15 +29,15 @@ export function errorReducer<S extends ErrorMsgState>(
   state: S, action: ErrorAction
 ) {
   // Clone, don't mutate
-  state = _.clone(state);
+  state = Object.assign({}, state);
   let errors = state.errors = state.errors || [];
-  errors = _.clone(errors);
+  errors = Object.assign({}, errors);
 
   // Add error to list
   if (action.type === "ADD_ERROR") {
     // If error exists already, replace. Else, append.
-    let index = _.findIndex(errors || [], action.details ?
-      (e) => (e.details && action.details &&
+    let index = (errors || []).findIndex(action.details ?
+      (e) => !!(e.details && action.details &&
               e.details.tag === action.details.tag) :
       (e) => (!e.details && e.code === action.code));
 
@@ -54,7 +53,7 @@ export function errorReducer<S extends ErrorMsgState>(
 
   // Remove error
   else {
-    errors = _.filter(errors, (e) => _.isString(action.value) ?
+    errors = errors.filter((e) => typeof action.value === "string" ?
       !e.details || e.details.tag !== action.value :
       !!e.details || e.code !== action.value
     );

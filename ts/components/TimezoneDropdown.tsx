@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as React from 'react';
 import { Zones } from "../lib/timezones";
 import Dropdown from "./Dropdown";
@@ -11,7 +10,7 @@ interface Props {
 }
 
 export const TimezoneDropdown = (props: Props) => {
-  let timezone = _.find(Zones, (z) => z.id === props.value);
+  let timezone = Zones.find((z) => z.id === props.value);
   let zoneName = timezone ? timezone.display : "";
   return props.disabled ?
     <input type="text" readOnly disabled value={zoneName} /> :

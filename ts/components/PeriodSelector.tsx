@@ -3,7 +3,7 @@
 */
 
 require("less/components/_period-selectors.less");
-import * as _ from "lodash";
+import { isEqual } from "lodash";
 import * as React from "react";
 import { GenericPeriod, fromDates, bounds, add } from "../lib/period";
 import Dropdown from "./Dropdown";
@@ -63,8 +63,8 @@ export class PeriodSelector extends React.Component<Props, {}> {
   renderPresets() {
     if (this.props.presets) {
       return <div className="presets panel">
-        { _.map(this.props.presets, (d, i) => <button key={i}
-          className={_.isEqual(d.value, this.props.value) ? "active" : ""}
+        { this.props.presets.map((d, i) => <button key={i}
+          className={isEqual(d.value, this.props.value) ? "active" : ""}
           onClick={() => this.change(d.value)}>
             { d.displayAs }
           </button>) }

@@ -1,7 +1,6 @@
 /*
   Fetch invite emails
 */
-import * as _ from "lodash";
 import { ApiSvc } from "../lib/api";
 import { ok } from "../states/data-status";
 import { UpdateInviteStateAction, InviteState } from "../states/invite-emails"
@@ -23,7 +22,7 @@ export function fetch(deps: {
 
   return deps.Svcs.Api.getInviteEmails().then(({ emails }) => {
     let inviteEmails: Record<string, true> = {};
-    _.each(emails, (e) => {
+    emails.forEach((e) => {
       inviteEmails[e] = true;
     });
 

@@ -1,7 +1,7 @@
 /*
   Error state -- used for showing an error message to the user
 */
-import * as _ from "lodash";
+import { isEqual } from "lodash";
 export type AlertType = "GO_TO_GROUPS";
 
 export interface AlertState {
@@ -26,17 +26,17 @@ export function alertReducer<S extends AlertState>(
   let { alerts } = state;
   let { alert } = action;
 
-  let indexOfCurrent = _.findIndex(alerts, (a) => _.isEqual(a, alert));
+  let indexOfCurrent = alerts.findIndex((a) => isEqual(a, alert));
   if (action.type === "ADD_ALERT" && indexOfCurrent < 0) {
     alerts = [...alerts, alert];
   }
 
   else if (action.type === "REMOVE_ALERT" && indexOfCurrent >= 0) {
-    alerts = _.clone(alerts);
+    alerts = { ...alerts };
     alerts.splice(indexOfCurrent, 1);
   }
 
-  return _.extend({}, state, { alerts });
+  return Object.assign({}, state, { alerts });
 }
 
 export function initState(): AlertState {

@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import * as React from "react";
 import Icon from "./Icon";
 import TagList from "./TagList";
@@ -44,7 +43,7 @@ export class LabelList extends React.Component<Props, {}> {
 
   toggle = (label: ApiT.LabelInfo, val: boolean, method: "click"|"enter") => {
     this.props.onChange(
-      _.map(this.props.events, (e) => e.id),
+      this.props.events.map((e) => e.id),
       label, val
     );
     if (method === "click" && this._tagList) {

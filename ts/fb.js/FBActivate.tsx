@@ -3,7 +3,6 @@
 */
 
 require("less/components/_onboarding.less");
-import * as _ from "lodash";
 import * as React from "react";
 import * as TeamPrefs from "../handlers/team-prefs"
 import { ApiSvc } from "../lib/api";
@@ -22,7 +21,7 @@ interface Props extends React.HTMLProps<HTMLButtonElement> {
 }
 
 export const FBActivate = (props: Props) => {
-  let isSaving = !_.isEmpty(props.state.apiCalls);
+  let isSaving = !!Object.keys(props.state.apiCalls).length;
   return <div className="container onboarding">
     <h2>{ Text.ActivateHeading }</h2>
     <div className="description">

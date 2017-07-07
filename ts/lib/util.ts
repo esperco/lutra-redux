@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import { sortBy } from "lodash";
 import * as stringify from "json-stable-stringify";
 
 // Return a random alphanumeric string
@@ -115,19 +115,20 @@ export function escapeBrackets(s: string) {
 
 // Removes undefined values from plain object
 export function compactObject<T extends Object>(o: T): T {
-  var clone: any = _.clone(o);
-  _.each(clone, function(v, k) {
-    if(_.isUndefined(v) && _.isString(k)) {
+  var clone: any = Object.assign({}, o);
+  for (let k in clone) {
+    let v = clone[k];
+    if (typeof v === "undefined") {
       delete clone[k];
     }
-  });
+  }
   return clone;
 }
 
 // Makes a boolean record out of a string list
 export function makeRecord(keys: string[]): Record<string, true> {
   let r: Record<string, true> = {};
-  _.each(keys, (k) => {
+  keys.forEach((k) => {
     r[k] = true;
   });
   return r;
@@ -136,11 +137,12 @@ export function makeRecord(keys: string[]): Record<string, true> {
 // Inverse of make record -- returns string list of records
 export function recordToList(r: Record<string, boolean>): string[] {
   let ret: string[] = [];
-  _.each(r, (v, k) => {
-    if (k && v) {
+  for (let k in r) {
+    let v = r[k];
+    if (v) {
       ret.push(k);
     }
-  });
+  }
   return ret;
 }
 
@@ -288,15 +290,13 @@ export class OrderedSet<T> {
   }
 
   sort(keyFn?: (t: T) => string|number): void {
-    this.list = _(this.list)
-      .filter((key) => this.hasKey(key))
-      .sortBy((key) => keyFn ? keyFn(this.getByKey(key)) : key)
-      .value();
+    let list = this.list.filter((key) => this.hasKey(key));
+    this.list = sortBy(list, (key) => keyFn ? keyFn(this.getByKey(key)) : key);
   }
 
   // Add item to end of list (if new) -- or replace existing one if key
   push(...items: T[]): void {
-    _.each(items, (item) => {
+    items.forEach((item) => {
       let key = this._keyFn(item);
       if (! this.hasKey(key)) {
         this.list.push(key);
@@ -307,7 +307,7 @@ export class OrderedSet<T> {
 
   // Removes item (if any)
   pull(...items: T[]): void {
-    _.each(items, (item) => {
+    items.forEach((item) => {
       let key = this._keyFn(item);
       if (this.hasKey(key)) {
         delete this.hash[key];
@@ -331,9 +331,12 @@ export class OrderedSet<T> {
 
   // Creates a copy of this OrderedSet
   clone(): this {
-    let ret = _.clone(this);
-    ret.hash = _.clone(this.hash);
-    ret.list = _.clone(this.list);
+    let ret = Object.create(this.constructor.prototype);
+    for (let key in this) {
+      ret[key] = this[key];
+    }
+    ret.hash = Object.assign({}, this.hash);
+    ret.list = this.list.slice(0);
     return ret;
   }
 }

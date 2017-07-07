@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import * as React from "react";
 import Icon from "./Icon";
 import { hasTag } from "../lib/util";
@@ -13,9 +12,9 @@ interface Props {
 
 export class Alerts extends React.Component<Props, {}> {
   render() {
-    if (_.isEmpty(this.props.alerts)) return null;
+    if (!this.props.alerts || !this.props.alerts.length) return null;
     return <div className="alerts">
-      { _.map(this.props.alerts || [], (alert, i) =>
+      { (this.props.alerts || []).map((alert, i) =>
         <div key={i} className="alert info">
           <button onClick={() => this.props.onDismiss(alert)}>
             <Icon type="dismiss" />

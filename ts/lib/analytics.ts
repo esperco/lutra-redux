@@ -1,7 +1,6 @@
 /*
   An analytics service that integrates with Segment
 */
-import * as _ from 'lodash';
 import * as moment from 'moment';
 import { LoginResponse } from './apiT';
 
@@ -21,9 +20,9 @@ export namespace Analytics {
     if (disabled) return;
     let name: string;
     let props: any = {};
-    if (_.isArray(event)) {
+    if (event instanceof Array) {
       name = event[0];
-      props = _.extend(props, event[1]);
+      props = Object.assign(props, event[1]);
     } else {
       name = event;
     }

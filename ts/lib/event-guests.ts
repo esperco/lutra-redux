@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import { validateEmailAddress, OrderedSet } from "../lib/util";
 import { GroupMembers } from "../states/groups";
 
@@ -36,7 +35,7 @@ export class GuestSet extends OrderedSet<Guest> {
 
   push(...guests: Guest[]): void {
     super.push(...guests);
-    _.each(guests, (g) => {
+    guests.forEach((g) => {
       if (g.displayName) {
         this._nameMap[normalize(g.displayName)] = this._keyFn(g);
       }
@@ -45,7 +44,7 @@ export class GuestSet extends OrderedSet<Guest> {
 
   pull(...guests: Guest[]): void {
     super.pull(...guests);
-    _.each(guests, (g) => {
+    guests.forEach((g) => {
       if (g.displayName) {
         delete this._nameMap[normalize(g.displayName)];
       }
@@ -54,7 +53,7 @@ export class GuestSet extends OrderedSet<Guest> {
 
   clone() {
     let ret = super.clone();
-    ret._nameMap = _.clone(this._nameMap);
+    ret._nameMap = Object.assign({}, this._nameMap);
     return ret;
   }
 }
@@ -90,12 +89,12 @@ export function guestSetFromGroupMembers(
   let ret = new GuestSet([]);
 
   if (incIndividuals) {
-    _.each(members.group_individuals, (gim) => gim.email ? ret.push({
+    members.group_individuals.forEach((gim) => gim.email ? ret.push({
       email: gim.email
     }) : null);
   }
 
-  _.each(members.group_teams, (team) => team.email ? ret.push({
+  members.group_teams.forEach((team) => team.email ? ret.push({
     email: team.email,
     displayName: team.name
   }) : null);
@@ -114,8 +113,8 @@ export function filter(
 ): [Guest|undefined, Guest[]] {
   str = normalize(str);
   let filtered = guestSet.filter((g) => !!(
-    (g.email && _.includes(normalize(g.email), str)) ||
-    (g.displayName && _.includes(normalize(g.displayName), str))
+    (g.email && normalize(g.email).includes(str)) ||
+    (g.displayName && normalize(g.displayName).includes(str))
   ), limit);
   let match = guestSet.getByKey(str);
   if (match && filtered.has(match)) {

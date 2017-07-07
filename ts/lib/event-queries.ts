@@ -1,7 +1,7 @@
 /*
   Representation of filter options when querying events
 */
-import * as _ from "lodash";
+import { isEqual, flatMap } from "lodash";
 import * as jsonStringify from "json-stable-stringify";
 import * as ApiT from "./apiT";
 import { AllSomeNone } from "./asn";
@@ -21,9 +21,10 @@ export type QueryFilter = Partial<QueryFilterExpanded>;
 // Normalizes QueryFilter to remove default options
 export function reduce(q: QueryFilter): QueryFilter {
   return compactObject({
-    labels: _.isEqual(q.labels, DEFAULT_LABELS) ? undefined : q.labels,
+    labels: isEqual(q.labels, DEFAULT_LABELS) ? undefined : q.labels,
     contains: (q.contains && q.contains.trim()) || undefined,
-    participant: _.isEmpty(q.participant) ? undefined : q.participant,
+    participant: q.participant && q.participant.length ?
+      q.participant : undefined,
     minCost: (q.minCost || 1) > 1 ? q.minCost : undefined
   });
 }
@@ -70,7 +71,7 @@ export function toAPI(start: Date, end: Date, q?: QueryFilter)
 
     // Implies some combination of some and
     else {
-      let labels: (["Label", string]|"No_label")[] = _.flatMap(
+      let labels: (["Label", string]|"No_label")[] = flatMap(
         labelASN.some || {},
           (v, k) => v ? [["Label", k] as ["Label", string]] : []
         );

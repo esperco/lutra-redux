@@ -2,7 +2,7 @@
   A simple HTML-only horizontal bar chart -- goes from high to low
 */
 require("less/components/_bar-chart.less");
-import * as _ from 'lodash';
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import Tooltip from "./Tooltip";
 import { randomString, roundStr } from "../lib/util";
@@ -27,11 +27,11 @@ export interface Props {
 export class BarChart extends React.Component<Props, {}> {
   render() {
     let { values } = this.props;
-    values = this.props.sorted ? values : _.sortBy(values, (v) => -v.value);
+    values = this.props.sorted ? values : sortBy(values, (v) => -v.value);
 
     let maxValue = this.props.sortMax || (values[0] && values[0].value);
     return <div className="bar-chart">
-      { _.map(values, (v) => this.renderRow(v, maxValue) )}
+      { values.map((v) => this.renderRow(v, maxValue)) }
     </div>;
   }
 

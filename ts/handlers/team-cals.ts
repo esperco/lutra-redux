@@ -1,5 +1,5 @@
-import * as _ from "lodash";
 // import * as PrefHandlers from "../handlers/team-prefs";
+import { uniqBy } from "lodash";
 import { ApiSvc } from "../lib/api";
 import { GenericCalendar } from "../lib/apiT";
 import { QueueMap } from "../lib/queue";
@@ -85,7 +85,7 @@ interface UpdateTeamCals {
 
 // Use last set of calendars in queue for each group
 export const TeamCalQueue = new QueueMap<UpdateTeamCals>((teamId, q) => {
-  let last = _.last(q);
+  let last = q[q.length - 1];
   if (! last) return Promise.resolve([]);
   let { Svcs, calIds } = last;
   return Svcs.Api.putTeamTimestatsCalendars(teamId, calIds).then(() => []);
@@ -104,15 +104,15 @@ export function toggleCalendar(props: {
   let cals = state.teamCalendars[props.teamId];
   if (cals && ready(cals.selected)) {
     let selected = props.value ?
-      _(cals.selected).concat([props.cal]).uniqBy((c) => c.id).value() :
-      _.filter(cals.selected, (c) => c.id !== props.cal.id);
+      uniqBy(cals.selected.concat([props.cal]), (c) => c.id) :
+      cals.selected.filter((c) => c.id !== props.cal.id);
     dispatch({
       type: "TEAM_CALENDAR_UPDATE",
       teamId: props.teamId,
       selected
     });
 
-    let update = _.map(selected, (c) => c.id);
+    let update = selected.map((c) => c.id);
     return TeamCalQueue.get(props.teamId).enqueue({
       teamId: props.teamId,
       calIds: update,

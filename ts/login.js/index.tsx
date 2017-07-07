@@ -16,7 +16,6 @@ require("html/login.html");
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../config/config.d.ts" />
 import * as Conf from "config";
-import * as _ from "lodash";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as Log from "../lib/log";
@@ -33,7 +32,7 @@ import LoginContainer from "./LoginContainer";
 */
 const Svcs = { Analytics, Api, Nav, LocalStore };
 
-Log.init(_.extend({
+Log.init(Object.assign({
   logTrace: Conf.production
 }, Conf));
 

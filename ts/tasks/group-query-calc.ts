@@ -1,7 +1,6 @@
 /*
   A worker task that calculates stuff
 */
-import * as _ from "lodash";
 import * as moment from "moment";
 import * as ApiT from "../lib/apiT";
 import { GenericPeriod, bounds } from "../lib/period";
@@ -65,7 +64,7 @@ export function handleGroupQueryCalc(
     incr(results);
 
     // Segment results by label
-    _.each(event.labels || [], (l) => {
+    (event.labels || []).forEach((l) => {
       let labelResults = results.labelResults[l.normalized] =
         results.labelResults[l.normalized] || {
           eventCount: 0,
@@ -76,7 +75,7 @@ export function handleGroupQueryCalc(
       incr(labelResults);
     });
 
-    if (_.isEmpty(event.labels)) {
+    if (event.labels && event.labels.length) {
       incr(results.unlabeledResult);
     }
   });
@@ -91,7 +90,7 @@ export function handleGroupQueryCalc(
 
 // Exclude declined guests
 export function filterGuests(event: ApiT.GenericCalendarEvent) {
-  return _.filter(event.guests,
+  return event.guests.filter(
     (g) => g.response !== "Declined"
   );
 }
@@ -101,7 +100,7 @@ export function filterGroupGuests(
   guests: ApiT.Attendee[],
   groupMembers: GuestSet
 ) {
-  return _.filter(guests, (g) => groupMembers.has(g));
+  return guests.filter((g) => groupMembers.has(g));
 }
 
 export function getSeconds(event: ApiT.GenericCalendarEvent, opts: {

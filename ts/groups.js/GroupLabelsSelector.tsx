@@ -2,7 +2,7 @@
   A widget for selecting a set of labels
 */
 
-import * as _ from "lodash";
+import { forEach } from "lodash";
 import * as React from "react";
 import Icon from "../components/Icon";
 import { Choice } from '../components/Menu';
@@ -27,7 +27,7 @@ export class GroupLabelsSelector extends React.Component<{
     let choices = this.props.labels.clone();
     let selected = new LabelSet([]);
     let selectedSome = (this.props.selected || {}).some || {};
-    _.each(selectedSome, (v, k) => {
+    forEach(selectedSome, (v, k) => {
       if (v && k) {
         let choice = newLabel(k);
         if (choices.has(choice)) {
@@ -51,7 +51,7 @@ export class GroupLabelsSelector extends React.Component<{
       let newSelected = val ? selected.with(label) : selected.without(label);
       let some = makeRecord(newSelected.map((c) => c.original));
 
-      if (_.isEmpty(some)) {
+      if (!!Object.keys(some).length) {
         this.props.onChange({ all: true, none: true });
       } else {
         this.props.onChange({ some });

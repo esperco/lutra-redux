@@ -10,7 +10,6 @@
 */
 
 require("less/components/_tooltips.less");
-import * as _ from "lodash";
 import * as $ from "jquery";
 import * as React from "react";
 import * as Log from "../lib/log";
@@ -158,11 +157,11 @@ class TooltipFloat extends React.Component<{
     if (top < 0) {
       newCSS.bottom = "auto"
       let anchor = $(this.props.anchor);
-      newCSS.top = _.isEmpty(anchor) ? 0 :
+      newCSS.top = !!anchor.length ? 0 :
         (anchor.offset().top - $(window).scrollTop()) + anchor.outerHeight();
     }
 
-    if (_.keys(newCSS).length > 0) {
+    if (Object.keys(newCSS).length > 0) {
       elm.css(newCSS);
     }
   }

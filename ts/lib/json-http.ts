@@ -2,7 +2,6 @@
 
 import * as ApiT from "./apiT";
 import * as SHA1 from "crypto-js/sha1";
-import * as _ from "lodash";
 import * as Log from "./log";
 import * as Util from "./util";
 import * as Errors from "./errors";
@@ -66,9 +65,9 @@ type ErrCb<T> = (err: AjaxError) => T;
 // Typeguard to check nature of error details
 function isClientError(e: any): e is ApiT.ClientError {
   let typedError = e as ApiT.ClientError;
-  return !_.isUndefined(typedError) &&
-    !!_.isNumber(typedError.http_status_code) &&
-    !!_.isString(typedError.error_message);
+  return typeof typedError !== "undefined" &&
+    typeof typedError.http_status_code === "number" &&
+    typeof typedError.error_message === "string";
 }
 
 namespace JsonHttp {
@@ -105,16 +104,16 @@ namespace JsonHttp {
   }
 
   export function init(props: Config = {}) {
-    if (_.isString(props.esperVersion)) {
+    if (typeof props.esperVersion === "string") {
       esperVersion = props.esperVersion;
     }
-    if (_.isFunction(props.startHandler)) {
+    if (typeof props.startHandler === "function") {
       startHandler = props.startHandler;
     }
-    if (_.isFunction(props.successHandler)) {
+    if (typeof props.successHandler === "function") {
       successHandler = props.successHandler;
     }
-    if (_.isFunction(props.errorHandler)) {
+    if (typeof props.errorHandler === "function") {
       errorHandler = props.errorHandler;
     }
   }
@@ -143,7 +142,7 @@ namespace JsonHttp {
   function getHeaders(path: string, contentType?: string) {
     let headers = new Headers();
     if (apiSecret) {
-      let typedOffset = _.isNumber(offset) ? offset : 0;
+      let typedOffset = typeof offset === "number" ? offset : 0;
       let unixTime = Math.round(Date.now()/1000 + typedOffset).toString();
       let signature = sign(unixTime, path, apiSecret);
       headers.append("Esper-Timestamp", unixTime);
@@ -161,7 +160,7 @@ namespace JsonHttp {
 
   function truncateText(s: any,
                         maxLength: number): any {
-    if (_.isString(s) && s.length > maxLength)
+    if (typeof s === "string" && s.length > maxLength)
       return s.slice(0, maxLength) + " ...";
     else
       return s;
@@ -218,8 +217,7 @@ namespace JsonHttp {
    *  content type.
    *
    *  contentType can be "" if the request should not have a
-   *  Content-Type header at all. (This is translated to jQuery as
-   *  `false', which it supports since 1.5.)
+   *  Content-Type header at all.
    */
   function httpRequest({id, method, path, body, contentType} : {
     id: string;
@@ -349,9 +347,9 @@ namespace JsonHttp {
     try {
       if (topLevel) {
         batchPromise = null;
-        let modData = !!_.find(batchQueue, (b) => b.modData);
+        let modData = !!batchQueue.find((b) => b.modData);
         jsonHttp("POST", batchPath, modData, {
-          requests: _.map(batchQueue, (b) => b.request)
+          requests: batchQueue.map((b) => b.request)
         }).then(resolveFn, rejectFn);
       }
     } catch(e) {

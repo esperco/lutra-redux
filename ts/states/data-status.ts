@@ -1,8 +1,6 @@
 /*
   State for global saving / fetching spinner
 */
-import * as _ from "lodash";
-
 export interface DataState {
   apiCalls: {
     /*
@@ -31,8 +29,8 @@ export type DataAction = DataStartAction|DataEndAction;
 export function dataReducer<S extends DataState>(
   state: S, action: DataAction
 ): S {
-  state = _.clone(state);
-  let apiCalls = state.apiCalls = _.clone(state.apiCalls);
+  state = Object.assign({}, state);
+  let apiCalls = state.apiCalls = Object.assign({}, state.apiCalls);
   if (action.type === "DATA_START") {
     apiCalls[action.id] = action.modData || false;
   } else {
@@ -86,7 +84,7 @@ export type StoreMap<T> = {
   fetch this data?
 */
 export function ok<T>(data: StoreData<T>|undefined): data is T|"FETCHING" {
-  return !_.isUndefined(data) && data !== "FETCH_ERROR";
+  return typeof data !== "undefined" && data !== "FETCH_ERROR";
 }
 
 /*

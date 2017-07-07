@@ -3,7 +3,6 @@
 */
 
 import * as React from 'react';
-import * as _ from 'lodash';
 import { LoggedInState, DispatchFn } from './types';
 import ColorPicker from "../components/ColorPicker";
 import Dropdown from "../components/Dropdown";
@@ -35,7 +34,7 @@ class LabelSettings extends React.Component<Props, {}> {
 
         { ready(labels) ?
           <div className="panel">
-            { _.map(labels.group_labels, (l) => <GroupLabel
+            { labels.group_labels.map((l) => <GroupLabel
               {...this.props}
               key={l.normalized}
               label={l}

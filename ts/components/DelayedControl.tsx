@@ -3,7 +3,6 @@
   updates immediately when changed, but delays slightly before firing
   attached callback handler.
 */
-import * as _ from 'lodash';
 import * as React from 'react';
 
 const DEFAULT_DELAY = 1200;
@@ -38,7 +37,7 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
     we might clobber user input that hasn't posted yet.
   */
   componentWillReceiveProps(newProps: Props<T>) {
-    if (_.isUndefined(this._timeout)) {
+    if (typeof this._timeout === "undefined") {
       this.setState({ value: newProps.value });
     }
   }
@@ -88,7 +87,7 @@ export class DelayedControl<T> extends React.Component<Props<T>, State<T>> {
     this._timeout = setTimeout(() => {
       this.clearTimeout();
       this.props.onChange(this.state.value);
-    }, _.isNumber(this.props.delay) ? this.props.delay : DEFAULT_DELAY);
+    }, typeof this.props.delay === "number" ? this.props.delay : DEFAULT_DELAY);
   }
 
   /*

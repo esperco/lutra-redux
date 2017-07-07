@@ -2,7 +2,6 @@
   Menu for selecting timezones
 */
 
-import * as _ from "lodash";
 import * as React from "react";
 import { Choice } from "./Menu";
 import FilterMenu from "./FilterMenu";
@@ -19,7 +18,7 @@ function toChoice(z: ZoneName): Choice {
 }
 
 export function toZoneName(c: Choice): ZoneName {
-  return _.find(Zones, (z) => z.searchFmt === c.normalized) || Zones[2];
+  return Zones.find((z) => z.searchFmt === c.normalized) || Zones[2];
 }
 
 interface Props {
@@ -41,17 +40,17 @@ class TimezoneSelector extends React.Component<Props, {}> {
     let filterFn =((filterStr: string): [Choice|undefined, Choice[]] => {
       let normFilter = filterStr.trim().toLowerCase();
       let filtered = this.timezoneSet.filter((z) => {
-        return !!z.searchFmt && _.includes(z.searchFmt, normFilter);
+        return !!z.searchFmt && z.searchFmt.includes(normFilter);
       });
       let match = this.timezoneSet.getByKey(normFilter);
 
       return [
         match ? toChoice(match) : undefined,
-        _.map(filtered.toList(), toChoice)
+        filtered.toList().map(toChoice)
       ];
     });
 
-    let selectedZone = _.find(this.timezoneSet.toList(),
+    let selectedZone = this.timezoneSet.toList().find(
       (z) => z.id === this.props.selected);
     let selected = selectedZone ? toChoice(selectedZone) : undefined;
     return <FilterMenu

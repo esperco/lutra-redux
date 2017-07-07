@@ -9,7 +9,7 @@
 */
 
 import * as Log from "./log";
-import * as _ from "lodash";
+import { trimStart } from "lodash";
 
 namespace LocalStore {
   export function set(k: string, v: any) {
@@ -93,7 +93,7 @@ namespace LocalStore {
     var ca = document.cookie.split(';');
     for (var i = 0, max = ca.length; i < max; i++) {
       var c = ca[i];
-      c = _.trimStart(c);
+      c = trimStart(c);
       if (c.indexOf(nameEQ) === 0) {
         return c.substring(nameEQ.length, c.length);
       }

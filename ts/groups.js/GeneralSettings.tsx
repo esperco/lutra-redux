@@ -4,7 +4,7 @@
 
 require("less/components/_group-settings.less");
 import * as React from 'react';
-import * as _ from 'lodash';
+import { cloneDeep, forEach } from "lodash";
 import { generalSettings, eventList } from "./paths";
 import { LoggedInState, DispatchFn } from './types';
 import SettingsNav from "./SettingsNav";
@@ -64,7 +64,7 @@ class GeneralSettings extends React.Component<Props, {}> {
     }
 
      // Pull out permission-related vars for sub-components
-    let selfGIM = _.find(members.group_individuals,
+    let selfGIM = members.group_individuals.find(
       (gim) => gim.email === state.login.email || gim.uid === state.login.uid
     );
     let isSuper = state.loggedInAsAdmin ||
@@ -144,7 +144,7 @@ class NoTeamMessage extends React.Component<Subprops, {}> {
   render() {
     let myEmail = this.props.state.login.email;
     let myTeam =
-      _.find(this.props.members.group_teams, (t) => t.email === myEmail);
+      this.props.members.group_teams.find((t) => t.email === myEmail);
     if (myTeam) {
       return null;
     }
@@ -159,11 +159,11 @@ class NoTeamMessage extends React.Component<Subprops, {}> {
 class GroupMembersInfo extends React.Component<Subprops, {}> {
   render() {
     let { members } = this.props;
-    let numAdmins = _.filter(members.group_individuals,
+    let numAdmins = members.group_individuals.filter(
       (i) => i.role === "Owner").length;
 
     return <div className="panel">
-      { _.map(members.group_individuals,
+      { members.group_individuals.map(
         // Render member only if UID exists
         (gim) => <SingleMemberInfo
           key={gim.email || gim.uid}
@@ -204,8 +204,8 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
       let uid = gim.uid;
       Svcs.Api.putGroupIndividual(groupId, uid, {role})
         .then(() => {
-          let group_individuals = _.cloneDeep(members.group_individuals);
-          let ind = _.find(group_individuals, (i) => i.uid === uid);
+          let group_individuals = cloneDeep(members.group_individuals);
+          let ind = group_individuals.find((i) => i.uid === uid);
           ind ? ind.role = role as GroupRole : null;
           dispatch({
             type: "GROUP_UPDATE",
@@ -219,7 +219,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
   render() {
     let { gim, members, groupId, selfGIM } = this.props;
     let associatedTeam =
-      _.find(members.group_teams, (m) => m.email === gim.email);
+      members.group_teams.find((m) => m.email === gim.email);
     let displayName = associatedTeam ?
       (associatedTeam.name || associatedTeam.email) :
       gim.email;
@@ -314,7 +314,7 @@ class AddMemberButton extends React.Component<Subprops, {}> {
     let emails = this.getEmails();
     let filterFn = (str: string) => {
       str = str.trim().toLowerCase();
-      let filtered = emails.filter((c) => _.includes(c.normalized, str));
+      let filtered = emails.filter((c) => c.normalized.includes(str));
       let match = filtered.getByKey(str);
       if (match && filtered.has(match)) {
         filtered = filtered.without(match);
@@ -359,7 +359,7 @@ class AddMemberButton extends React.Component<Subprops, {}> {
     let inviteEmails = this.props.state.inviteEmails;
 
     if (ready(inviteEmails)) {
-      _.each(inviteEmails, (v, k) => {
+      forEach(inviteEmails, (v, k) => {
         if (v && k && !gims.hasKey(k)) { // Exclude already included emails
           emails.push({
             original: k,

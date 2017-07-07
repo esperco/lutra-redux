@@ -2,7 +2,6 @@
   Team-specific state / API code
 */
 
-import * as _ from "lodash";
 import * as moment from "moment-timezone";
 import * as ApiT from "../lib/apiT";
 import { ApiSvc } from "../lib/api";
@@ -15,7 +14,7 @@ export function getSelfExecTeam(deps: {
   let { state } = deps;
   if (! state.login) throw new Error("Must be logged in");
   let login = state.login;
-  return _.find(login.teams, (t) => t.team_executive === login.uid);
+  return login.teams.find((t) => t.team_executive === login.uid);
 }
 
 /*
@@ -37,7 +36,7 @@ export function ensureSelfExecTeam(deps: {
   let login = state.login;
 
   // If existing team, use that one.
-  let team = _.find(login.teams, (t) => t.team_executive === login.uid);
+  let team = login.teams.find((t) => t.team_executive === login.uid);
   if (team) {
     return Promise.resolve(team);
   }
@@ -76,7 +75,7 @@ export const RenameQueue = new QueueMap<{
   name: string;
   Svcs: ApiSvc;
 }>((teamId, q) => {
-  let last = _.last(q);
+  let last = q[q.length - 1];
   if (! last) return Promise.resolve([]);
   let { name, Svcs } = last;
   return Svcs.Api.setTeamName(teamId, name).then(() => []);
@@ -90,10 +89,10 @@ export function renameTeam(teamId: string, name: string, deps: {
   let { state, Svcs, dispatch } = deps;
   if (! state.login) throw new Error("Must be logged in");
   let login = state.login;
-  let teamIndex = _.findIndex(login.teams, (t) => t.teamid === teamId);
+  let teamIndex = login.teams.findIndex((t) => t.teamid === teamId);
   if (teamIndex >= 0) {
     let team = login.teams[teamIndex];
-    let teams = _.clone(login.teams);
+    let teams = { ...login.teams };
     teams[teamIndex] = { ...team, team_name: name };
     dispatch({
       type: "LOGIN",

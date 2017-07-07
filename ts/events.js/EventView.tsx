@@ -3,7 +3,6 @@
 */
 
 import * as React from 'react';
-import * as _ from 'lodash';
 import { LoggedInState, DispatchFn } from './types';
 import Icon from "../components/Icon";
 import { ApiSvc } from "../lib/api";
@@ -27,13 +26,13 @@ export class EventView extends React.Component<Props, {}> {
   render() {
     let { state, eventId } = this.props;
     let groupIds = state.login.groups;
-    let teams = _.filter(state.login.teams, (t) => !t.groups_only);
+    let teams = state.login.teams.filter((t) => !t.groups_only);
     return <div id="event" className="container"><div className="panel">
       <header><h2>{ Text.SelectTeamHeading }</h2></header>
 
       { groupIds.length ? <section className="panel">
         <h3><Icon type="people">{ CommonText.GroupsLink }</Icon></h3>
-        <nav> { _.map(groupIds, (id) => {
+        <nav> { groupIds.map((id) => {
           let summary = state.groupSummaries[id];
           return ready(summary) ?
             <Group key={id} group={summary} groupId={id} eventId={eventId} /> :
@@ -43,7 +42,7 @@ export class EventView extends React.Component<Props, {}> {
 
       { teams.length ? <section className="panel">
         <h3><Icon type="person">{ CommonText.ExecLink }</Icon></h3>
-        <nav>{ _.map(teams,
+        <nav>{ teams.map(
           (team) => <Team key={team.teamid} team={team} eventId={eventId} />
         ) }</nav>
       </section>: null }

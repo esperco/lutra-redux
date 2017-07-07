@@ -1,5 +1,4 @@
 // Redux store
-import * as _ from "lodash";
 import { createStore, compose } from "redux";
 import * as Log from "../lib/log";
 
@@ -52,7 +51,7 @@ export const store = createStore(
       default:
         // Ignore actions that start with @@ (these are built-in Redux
         // actions) but log any other weird ones
-        if (action && !(action.type && _.startsWith(action.type, "@@"))) {
+        if (action && !(action.type && action.type.startsWith("@@"))) {
           Log.e("Unknown action type", action);
         }
     }

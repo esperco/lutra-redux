@@ -12,7 +12,7 @@
 */
 
 import * as ApiT from "../lib/apiT";
-import * as _ from "lodash";
+import { forEach, sortBy } from "lodash";
 import { setGroupLabels } from "./groups";
 import { startGroupCalc } from "./group-calcs";
 import { ApiSvc } from "../lib/api";
@@ -113,7 +113,7 @@ export function processQueueRequest(
 ): Promise<QueueRequest[]> {
   let pushRequests: PushRequest[] = [];
   let fetchRequests: FetchRequest[] = [];
-  _.each(queue, (r) => {
+  queue.forEach((r) => {
     isPushRequest(r) ? pushRequests.push(r) : fetchRequests.push(r)
   });
 
@@ -126,7 +126,7 @@ export function processQueueRequest(
 }
 
 export function isPushRequest(r: QueueRequest): r is PushRequest {
-  return _.includes(["LABEL", "SET_TIMEBOMB"], r.type);
+  return ["LABEL", "SET_TIMEBOMB"].includes(r.type);
 }
 
 /*
@@ -139,7 +139,7 @@ export function processPushRequests(
 ): Promise<PushRequest[]> {
   let labelReqs: LabelRequest[] = [];
   let timebombReqs: SetTimebombRequest[] = [];
-  _.each(queue, (req) => {
+  queue.forEach((req) => {
     switch (req.type) {
       case "LABEL":
         labelReqs.push(req); break;
@@ -162,16 +162,16 @@ export function processLabelRequests(
   calgroupId: string,
   queue: LabelRequest[],
 ): Promise<any> {
-  let last = _.last(queue);
+  let last = queue[queue.length - 1];
   if (! last) return Promise.resolve();
   let { Api } = last.deps.Svcs;
 
   let setLabels: { [id: string]: ApiT.EventLabels } = {};
-  let predictLabels = new OrderedSet<string>([], _.identity);
+  let predictLabels = new OrderedSet<string>([], (x) => x);
 
   // Left to right, override previous results with new ones
-  _.each(queue, (q) => {
-    _.each(q.setLabels, (s) => {
+  queue.forEach((q) => {
+    q.setLabels.forEach((s) => {
 
       /*
         Hidden status + labels are mutually exclusive. Hidden takes precedence.
@@ -180,15 +180,15 @@ export function processLabelRequests(
       setLabels[s.id] = compactObject({
         id: s.id,
         labels: s.hidden ? undefined : s.labels,
-        hidden: _.isUndefined(s.hidden) && s.labels ? false : s.hidden
+        hidden: typeof s.hidden === "undefined" && s.labels ? false : s.hidden
       });
 
     });
-    _.each(q.predictLabels, (id) => predictLabels.push(id));
+    q.predictLabels.forEach((id) => predictLabels.push(id));
   });
 
   return Api.setPredictGroupLabels(calgroupId, {
-    set_labels: _.values(setLabels),
+    set_labels: Object.values(setLabels),
     predict_labels: predictLabels.toList()
   });
 }
@@ -200,7 +200,7 @@ export function processTimebombRequests(
   calgroupId: string,
   reqs: SetTimebombRequest[]
 ): Promise<any> {
-  let last = _.last(reqs);
+  let last = reqs[reqs.length - 1];
   if (! last) return Promise.resolve();
   let { calgroupType } = last;
   let { Svcs } = last.deps;
@@ -208,11 +208,11 @@ export function processTimebombRequests(
 
   // Left to right, more recent timebomb request for eventId overrides older.
   let tbStates: Record<string, [boolean, "Stage0"|"Stage1"|"Stage2"]> = {};
-  _.each(reqs, (r) => tbStates[r.eventId] = [r.value, r.stage]);
+  reqs.forEach((r) => tbStates[r.eventId] = [r.value, r.stage]);
 
   return Svcs.Api.batch(() => {
     let promises: Promise<any>[] = [];
-    _.each(tbStates, (setTb, eventId) => {
+    forEach(tbStates, (setTb, eventId) => {
       if (eventId && setTb[1] === "Stage0") {
         let apiFn = calgroupType === "group" ?
           Svcs.Api.setGroupTimebomb : Svcs.Api.setTeamTimebomb;
@@ -244,7 +244,7 @@ export function processFetchRequests(
   calgroupId: string,
   queue: FetchRequest[]
 ): Promise<FetchRequest[]> {
-  queue = _.sortBy(queue, (q) => -q.priority);
+  queue = sortBy(queue, (q) => -q.priority);
   let first = queue[0];
   if (! first) return Promise.resolve([]);
 
@@ -391,12 +391,12 @@ export function fetchEvents(props: {
     If nothing to queue, return promise dependent on other tasks in queue
     since tasks in queue may contain calls to fetch data for this period.
   */
-  if (_.isEmpty(periods)) {
+  if (! periods.length) {
     return EventQueues.get(props.calgroupId).promise();
   }
 
   let priority = (new Date()).getTime();
-  return Promise.all(_.map(periods, (period) =>
+  return Promise.all(periods.map((period) =>
     EventQueues.get(props.calgroupId).enqueue({
       type: "FETCH_QUERY",
       calgroupType: props.calgroupType,
@@ -505,7 +505,7 @@ function invalidDay(
       return true;
     }
 
-    if (Conf && _.isNumber(Conf.cacheDuration) &&
+    if (Conf && typeof Conf.cacheDuration === "number" &&
         queryData.updatedOn.getTime() + Conf.cacheDuration <
           (new Date()).getTime()
     ) {
@@ -599,8 +599,8 @@ export function setGroupEventLabels(props: {
 }, opts: {
   forceInstance?: boolean;
 } = {}) {
-  let soloIds = new OrderedSet<string>([], _.identity);
-  let recurringIds = new OrderedSet<string>([], _.identity);
+  let soloIds = new OrderedSet<string>([], (x) => x);
+  let recurringIds = new OrderedSet<string>([], (x) => x);
 
   // For label API call
   let request: LabelRequest = {
@@ -612,7 +612,7 @@ export function setGroupEventLabels(props: {
   };
 
   // Apply label change to each event in list
-  _.each(props.eventIds, (id) => {
+  props.eventIds.forEach((id) => {
     let event = (deps.state.events[props.groupId] || {})[id];
     if (ready(event)) {
       let apiId: string; // ID to use for API call
@@ -629,7 +629,7 @@ export function setGroupEventLabels(props: {
       // Only confirm if event needs confirming (also ignore instance mode)
       if (
         props.label ||
-        ! _.isUndefined(props.hidden) ||
+        typeof props.hidden !== "undefined" ||
         ! event.labels_confirmed ||
         opts.forceInstance
       ) {
@@ -640,14 +640,14 @@ export function setGroupEventLabels(props: {
           rm: props.active ? [] : [props.label]
         } : {});
 
-        let hidden = _.isUndefined(props.hidden) ?
+        let hidden = typeof props.hidden === "undefined" ?
           (props.label ? false : event.hidden) : props.hidden;
 
         // Set complete set of labels in request (this may clobber other
         // requests but that's the nature of the API for now)
         request.setLabels.push({
           id: apiId,
-          labels: _.map(labels, (l) => l.original),
+          labels: labels.map((l) => l.original),
           hidden
         });
       }
@@ -662,7 +662,8 @@ export function setGroupEventLabels(props: {
     recurringEventIds: recurringIds.toList(),
     addLabels: props.label && props.active ? [props.label] : [],
     rmLabels: !props.label || props.active ? [] : [props.label],
-    hidden: props.label && _.isUndefined(props.hidden) ? false : props.hidden,
+    hidden: props.label && typeof props.hidden === "undefined" ?
+      false : props.hidden,
     passive: props.passive
   }));
 

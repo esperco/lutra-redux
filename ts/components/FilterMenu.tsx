@@ -3,7 +3,6 @@
   filter options
 */
 
-import * as _ from "lodash";
 import * as React from 'react';
 import * as classNames from "classnames";
 import FilterInput, { Props as FilterProps } from "./FilterInput";
@@ -119,16 +118,16 @@ export abstract class FilterMenuBase<P extends BaseProps>
 
       { this.state.visibleSpecialChoices && props.specialChoices ?
         <div className="menu">
-          { _.map(props.specialChoices, (c, i) =>
+          { props.specialChoices.map((c, i) =>
             this.renderSpecialChoice(c, i,
               this.state.activeIndex === specialIndexIncr + i
             )
           ) }
         </div> : null }
 
-      { _.isEmpty(this.state.visibleChoices) ? null :
+      { !this.state.visibleChoices.length ? null :
         <div className="menu">
-          { _.map(this.state.visibleChoices, (c, i) =>
+          { this.state.visibleChoices.map((c, i) =>
             this.renderChoice(c, i,
               this.state.activeIndex === indexIncr + i
             )

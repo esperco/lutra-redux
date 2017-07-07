@@ -1,7 +1,7 @@
 /*
   Support for simple, type-checked hashbang routing
 */
-import * as _ from 'lodash';
+import { map, zip } from "lodash";
 import * as Log from './log';
 import { AnalyticsSvc } from "./analytics";
 import { compactObject, randomString } from "./util";
@@ -63,7 +63,7 @@ function makeArrayParam<T>(base: ParamType<T>): ParamType<T[]> {
     },
 
     toStr(val: T[]) {
-      return _.map(val, (v) => base.toStr(v)).join(DefaultArraySeparator);
+      return val.map((v) => base.toStr(v)).join(DefaultArraySeparator);
     }
   }
 }
@@ -135,9 +135,9 @@ export class Path<P extends ParamMap, O extends ParamMap> {
 
     // So we can delete stuff
     p = compactObject(p);
-    p = _.clone(p);
+    p = Object.assign({}, p);
 
-    let subPath = "/" + _.map(this.hash, (h) => {
+    let subPath = "/" + this.hash.map((h) => {
       if (h[0] === ":") {
         h = h.slice(1);
         let val = p[h];
@@ -158,9 +158,10 @@ export class Path<P extends ParamMap, O extends ParamMap> {
 
   // Format query string parameters
   querystring(p: P & Partial<O>) {
-    if (_.isEmpty(p)) return "";
-    return "?" + _(p)
-      .map((v: string, k: string) => {
+    if (! Object.keys(p).length) return "";
+
+
+    return "?" + map(p, (v: string, k: string) => {
         let paramType = this.params[k] || this.optParams[k];
         if (! paramType) {
           return ""; // Junk param, ignore
@@ -195,11 +196,11 @@ export class Path<P extends ParamMap, O extends ParamMap> {
     let ret: Partial<P> & Partial<O> = {} as any;
 
     // Clone params so we can use as default (and replace as appropriate)
-    let required = _.clone(this.params);
-    let optional = _.clone(this.optParams);
+    let required = Object.assign({}, this.params);
+    let optional = Object.assign({}, this.optParams);
 
     // Process hash parts first
-    let zipped = _.zip(hashParts, this.hash);
+    let zipped = zip(hashParts, this.hash);
     for (let i in zipped) {
       let [actual, expected] = zipped[i];
       if (expected[0] === ":") { // Expect param argument
@@ -212,7 +213,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
         let cleaned = required[key].clean(actual);
 
         // NB: Empty values OK. Null and undefined => cleaning failed.
-        if (_.isUndefined(cleaned) || _.isNull(cleaned)) {
+        if (typeof cleaned === "undefined" || cleaned === null) {
           return null;
         }
 
@@ -228,13 +229,13 @@ export class Path<P extends ParamMap, O extends ParamMap> {
     // Fill remain params with querystring
     if (queryStr[0] === "?") { queryStr = queryStr.slice(1); }
     let queryParts = queryStr.split("&");
-    _.each(queryParts, (part) => {
+    queryParts.forEach((part) => {
       let [key, element] = part.split("=");
       key = decodeURIComponent(key);
       element = decodeURIComponent(element || "");
       if (required.hasOwnProperty(key)) {
         let cleaned = required[key].clean(element);
-        if (!_.isUndefined(cleaned) && !_.isNull(cleaned)) {
+        if (typeof cleaned !== "undefined" && cleaned !== null) {
           ret[key] = cleaned;
           delete required[key];
         }
@@ -245,7 +246,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
     });
 
     // Missing required element -> no match
-    if (! _.isEmpty(required)) {
+    if (Object.keys(required).length) {
       return null;
     }
 
@@ -254,7 +255,7 @@ export class Path<P extends ParamMap, O extends ParamMap> {
 
   // Returns a Route. Exists primary for ease of type-checking.
   route<D>(cb: (p: P & Partial<O>, deps: D) => void): Route<P, O, D> {
-    return _.extend((l: LocationLite, deps: D) => {
+    return Object.assign((l: LocationLite, deps: D) => {
       let params = this.test(l);
       if (params) {
         cb(params, deps);
@@ -294,7 +295,7 @@ export namespace Nav {
   }
 
   export function go(path: string) {
-    if (_.includes(path, "#")) {
+    if (path.includes("#")) {
       let [base, hash] = path.split("#");
       if (base === location.pathname) { // Same path, use router for fragment
 
@@ -354,7 +355,7 @@ export interface NotFoundRoute {
 export function routeReducer<R, S extends RouteState<R>>(
   state: S, action: RouteAction<R>
 ) {
-  state = _.clone(state);
+  state = Object.assign({}, state);
   state.route = action.route;
   return state;
 }
@@ -391,7 +392,7 @@ export function init<D extends RouteDeps>(
       });
 
     let params: any;
-    let match = _.find(routes, (r) => {
+    let match = routes.find((r) => {
       params = r({ hash, pathname }, deps);
       return !!params;
     });

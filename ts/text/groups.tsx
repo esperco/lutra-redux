@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { capitalize, sample } from 'lodash';
 import * as React from 'react';
 
 /*
@@ -92,9 +92,9 @@ export const Nouns = [
   "Wolfpack"
 ];
 export function defaultGroupName(name?: string) {
-  let article = name ? `${_.capitalize(name)}'s` : "The";
-  let adj = _.sample(Adjectives);
-  let noun = _.sample(Nouns);
+  let article = name ? `${capitalize(name)}'s` : "The";
+  let adj = sample(Adjectives);
+  let noun = sample(Nouns);
   return `${article} ${adj} ${noun}`;
 }
 

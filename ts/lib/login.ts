@@ -10,7 +10,6 @@ import * as ApiT from "./apiT";
 import { isAjaxError } from "./json-http";
 import { NavSvc } from "./routing";
 import { hexEncode } from "./util";
-import * as _ from "lodash";
 
 // LocalStorage Keys
 export const storedLoginKey = "login";
@@ -40,7 +39,7 @@ export interface LoginAction {
 export function loginReducer<S extends LoginState>(
   state: S, action: LoginAction
 ) {
-  state = _.clone(state);
+  state = Object.assign({}, state);
   state.login = action.info;
   state.loggedInAsAdmin = action.asAdmin;
   return state;
@@ -54,7 +53,7 @@ export interface FeatureFlagAction {
 export function featureFlagsReducer<S extends LoginState>(
   state: S, action: FeatureFlagAction
 ) {
-  state = _.clone(state);
+  state = Object.assign({}, state);
   if (state.login) {
     state.login = {
       ...state.login,
@@ -71,8 +70,8 @@ export function featureFlagsReducer<S extends LoginState>(
 export function getCredentials(svcs: LocalStoreSvc): StoredCredentials|null {
   let credentials = svcs.LocalStore.get(storedLoginKey);
   if (credentials &&
-      _.isString(credentials.uid) &&
-      _.isString(credentials.email)) {
+      typeof credentials.uid === "string" &&
+      typeof credentials.email === "string") {
     let typedCredentials: StoredCredentials = credentials;
     typedCredentials.as_admin = !!typedCredentials.as_admin;
     return typedCredentials;

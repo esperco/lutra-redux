@@ -1,5 +1,4 @@
 require("less/components/_team-settings.less");
-import * as _ from 'lodash';
 import * as React from 'react';
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
@@ -100,7 +99,7 @@ export default class Settings extends React.Component<Props, {}> {
 
 const GeneralSettings = (props: Props) => {
   let prefs = props.state.teamPreferences[props.teamId];
-  let team = _.find(props.state.login.teams, (t) => t.teamid === props.teamId);
+  let team = props.state.login.teams.find((t) => t.teamid === props.teamId);
 
   if (! ready(prefs)) {
     return <div>
@@ -207,9 +206,9 @@ const Notifications = (props: Props) => {
     </div>;
   }
 
-  let dailyAgendaActive = _.includes(
-    prefs.email_types.daily_agenda.recipients,
-    props.state.login.email);
+  let dailyAgendaActive = prefs.email_types.daily_agenda.recipients.includes(
+    props.state.login.email
+  );
 
   return <div>
     <div className="menu panel">

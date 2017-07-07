@@ -1,7 +1,6 @@
 /*
   Single event sidebar from GroupEvents
 */
-import * as _ from "lodash";
 import * as React from "react";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
 import { EventConfirmSpan } from "../components/EventConfirmBox";
@@ -38,7 +37,7 @@ interface Props {
 
 export class GroupEventEditor extends React.Component<Props, {}> {
   render() {
-    let eventId = _.keys(this.props.state.selectedEvents)[0];
+    let eventId = Object.keys(this.props.state.selectedEvents)[0];
     let eventMap = this.props.state.events[this.props.groupId] || {};
     let event = eventMap[eventId];
     let { labels, searchLabels } = this.props;

@@ -6,7 +6,6 @@
     * some -> select items where any label matches a label is this set
     * none -> select items where there is no label
 */
-import * as _ from "lodash";
 import { compactObject, makeRecord, recordToList } from "./util";
 import { ParamType, BooleanParam, StringArrayParam } from "./routing";
 
@@ -26,7 +25,7 @@ export function apply(labels: string[], q: AllSomeNone): string[]|null {
   if (q.all && labels.length) {
     return labels;
   }
-  if (q.none && _.isEmpty(labels)) {
+  if (q.none && !labels.length) {
     return [];
   }
   if (q.some) {
@@ -37,7 +36,8 @@ export function apply(labels: string[], q: AllSomeNone): string[]|null {
         ret[label] =true;
       }
     }
-    return _.isEmpty(ret) ? null : _.keys(ret);
+    let keys = Object.keys(ret);
+    return keys.length ? keys : null;
   }
   return null;
 }
@@ -56,38 +56,37 @@ export function update(
   update: Readonly<AllSomeNone>,
   choices: string[]
 ): AllSomeNone {
-  let all = _.isBoolean(update.all) ? update.all : existing.all;
-  let none = _.isBoolean(update.none) ? update.none : existing.none;
+  let all = typeof update.all === "boolean" ? update.all : existing.all;
+  let none = typeof update.none === "boolean" ? update.none : existing.none;
 
-  let some =
+  let some: Record<string, boolean> =
     // If all is being set to false, clear some
     update.all === false ? {} : (
 
     // Else, use existing some as a starting point before we update it below
     (existing.all && !existing.some) ?
       makeRecord(choices) :
-      _.clone(existing.some || {})
+      Object.assign({}, existing.some || {})
     );
 
   // Merge existing.some with update.some
   if (update.some && !update.all) {
-    _.each(update.some, (v, k) => {
-      if (k) {
-        if (v) {
-          some[k] = true;
-        } else {
-          delete some[k];
-        }
+    for (let k in update.some) {
+      let v = update.some[k];
+      if (v) {
+        some[k] = true;
+      } else {
+        delete some[k];
       }
-    });
+    };
 
     // If every choice is in some, then set all to true
-    all = (!!choices.length && _.every(choices, (c) => some[c]));
+    all = (!!choices.length && choices.every((c) => some[c]));
   }
 
   return compactObject({
     all: all || undefined,
-    some: (all || _.isEmpty(some)) ? undefined : some,
+    some: (all || !Object.keys(some).length) ? undefined : some,
     none: none || undefined
   });
 }
@@ -101,7 +100,7 @@ export var AllSomeNoneParam: ParamType<AllSomeNone> = {
     return compactObject({
       all: BooleanParam.clean(parts[0]) || undefined,
       none: BooleanParam.clean(parts[1]) || undefined,
-      some: _.isEmpty(some) ? undefined : makeRecord(some)
+      some: Object.keys(some).length ? makeRecord(some) : undefined
     });
   },
 

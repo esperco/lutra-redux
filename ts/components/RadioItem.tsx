@@ -7,7 +7,6 @@
   </RadioItem>
 */
 require("less/components/_radio-buttons.less");
-import * as _ from "lodash";
 import * as React from "react";
 import * as classNames from "classnames";
 import { randomString } from "../lib/util";
@@ -26,7 +25,7 @@ interface Props {
 
 export class RadioItem extends React.Component<Props, {}> {
   render() {
-    let inputProps = _.clone(this.props.inputProps || {});
+    let inputProps = { ...this.props.inputProps };
     inputProps.id = inputProps.id || randomString();
     inputProps.name = this.props.name;
     inputProps.onChange = this.handleChange;

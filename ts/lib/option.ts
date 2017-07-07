@@ -1,5 +1,3 @@
-import * as _ from "lodash";
-
 /*
   Unwraps a T or null function
 */
@@ -17,7 +15,7 @@ export function match<T, A>(opt: T|null, matcher: {
   Returns true if opt is null or undefined
 */
 export function isNone<T>(opt: T|null): opt is null {
-  return _.isUndefined(opt) || _.isNull(opt);
+  return typeof opt === "undefined" || opt === null;
 }
 
 /*
@@ -49,7 +47,7 @@ export function flatMap<T>(opt: T|null, fn: (x: T) => T|null) : T|null {
   already taken above ...)
 */
 export function flatten<T>(opts: Array<T|null>): T[] {
-  return <T[]> _.filter(opts);
+  return <T[]> opts.filter((x) => x !== null);
 }
 
 /*

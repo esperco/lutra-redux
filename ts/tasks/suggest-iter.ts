@@ -1,7 +1,6 @@
 /*
   Iterate over events in query and add to suggestions
 */
-import * as _ from "lodash";
 import { GenericPeriod } from "../lib/period";
 import { normalizeGuest } from "../lib/event-guests";
 import { QueryFilter } from "../lib/event-queries";
@@ -29,12 +28,12 @@ export function handleQuerySuggest(
 
   iter(task, state, (event) => {
     // Get labels from each event
-    _.each(event.labels || [], (l) => {
+    (event.labels || []).forEach((l) => {
       labels[l.normalized] = labels[l.normalized] || l;
     });
 
     // Get guests
-    _.each(event.guests || [], (g) => {
+    (event.guests || []).forEach((g) => {
       let norm = normalizeGuest(g);
       let current = guests[norm] || {};
       guests[norm] = compactObject({

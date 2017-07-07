@@ -2,7 +2,6 @@
   Modal requiring user approves suspicious teams
 */
 
-import * as _ from "lodash";
 import * as React from "react";
 import * as classNames from "classnames";
 import { ApiSvc } from "../lib/api";
@@ -57,8 +56,8 @@ interface State {
 }
 
 function showStagingLogin() {
-  return _.includes(location.hostname, "staging") ||
-         _.includes(location.hostname, "localhost");
+  return location.hostname.includes("staging") ||
+         location.hostname.includes("localhost");
 }
 
 function handleStagingLogin(

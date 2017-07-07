@@ -3,7 +3,6 @@
 */
 
 /// <reference path="../../config/config.d.ts" />
-import * as _ from 'lodash';
 import * as Conf from "config";
 import * as Log from "../lib/log";
 import { dispatch, getState } from "./store";
@@ -14,7 +13,7 @@ import { handleQuerySuggest } from "../tasks/suggest-iter";
 /*
   Helper initialization
 */
-Log.init(_.extend({
+Log.init(Object.assign({
   logTrace: Conf.production
 }, Conf));
 

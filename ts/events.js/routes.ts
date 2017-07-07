@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import * as Paths from "./paths";
 import * as Now from "../now.js/paths";
 import * as Groups from "../groups.js/paths";
@@ -23,7 +22,7 @@ export const event = Paths.event.route<Deps>(function(p, deps) {
   if (p.eventId && deps.state.login) {
     let { teams, groups } = deps.state.login;
     let eventId = p.eventId;
-    teams = _.filter(teams, (t) => !t.groups_only);
+    teams = teams.filter((t) => !t.groups_only);
 
     // If only one team and no groups ...
     if (teams.length === 1 && groups.length === 0) {

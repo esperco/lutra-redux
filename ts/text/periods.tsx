@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import { range } from "lodash";
 import * as moment from "moment";
 import { Interval, GenericPeriod, bounds } from "../lib/period";
 
@@ -59,8 +59,8 @@ function fmtPeriodDate(interval: Interval, d: Date, short=false) {
 // Format a period as a list of strings
 export function fmtPeriodList(period: GenericPeriod, short=false) {
   let { interval, start, end } = period;
-  let indices = _.range(start, end + 1);
-  return _.map(indices,
+  let indices = range(start, end + 1);
+  return indices.map(
     (i) => fmtPeriod({ interval, start: i, end: i }, short)
   );
 }

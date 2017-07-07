@@ -2,7 +2,6 @@
   Store labels + guests we've run across while querying event data.
   Use to populate selectors and autocompletes.
 */
-import * as _ from "lodash";
 import * as ApiT from "../lib/apiT";
 import { Guest } from "../lib/event-guests";
 
@@ -61,7 +60,7 @@ export function suggestReducer<S extends SuggestionsState>(
     };
   }
 
-  return _.extend({}, state, update);
+  return Object.assign({}, state, update);
 }
 
 export function initState(): SuggestionsState {

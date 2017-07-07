@@ -2,7 +2,6 @@
   A widget for selecting a set of labels
 */
 
-import * as _ from "lodash";
 import * as React from "react";
 import Icon from "../components/Icon";
 import { Choice } from '../components/Menu';
@@ -45,7 +44,7 @@ export class GroupGuestsSelector extends React.Component<{
     let choices = new ChoiceSet(allGuests.map(toChoice));
 
     let selected = new ChoiceSet<Choice>([]);
-    _.each(this.props.selected || [], (v) => {
+    (this.props.selected || []).forEach((v) => {
       let g = toGuest(v, allGuests);
       let c = toChoice(g);
       allGuests.push(g);
@@ -80,7 +79,7 @@ export class GroupGuestsSelector extends React.Component<{
     // Select all guests SpecialChoice
     let selectAll = {
       displayAs: CommonText.SelectAll,
-      selected: _.isEmpty(this.props.selected),
+      selected: !Object.keys(this.props.selected).length,
       onSelect: () => {
         this.props.onChange([]);
         this._tagList && this._tagList.close();
@@ -100,7 +99,7 @@ export class GroupGuestsSelector extends React.Component<{
       let [match, filtered] = filter(allGuests, filterStr);
       return [
         match ? toChoice(match) : undefined,
-        _.map(filtered, toChoice)
+        filtered.map(toChoice)
       ];
     });
 

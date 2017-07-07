@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import * as React from 'react';
 import { expect } from "chai";
 import { shallow } from 'enzyme';
@@ -96,7 +95,7 @@ describe("delay", () => {
     let input = wrapper.find(TextInput);
     input.prop('onChange')("New text");
     wrapper.unmount();
-    expect(_.every(timeouts, (t) => t.cleared)).to.be.true;
+    expect(timeouts.every((t) => !!t.cleared)).to.be.true;
   });
 
   it("fires callback when timer runs out", () => {

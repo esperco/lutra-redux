@@ -2,7 +2,6 @@
   Groups-specific wrapper around event list component
 */
 require("less/components/_group-events-list.less");
-import * as _ from "lodash";
 import * as React from "react";
 import { generalSettings } from "./paths";
 import { State as StoreState, DispatchFn, PostTaskFn } from './types';
@@ -108,7 +107,7 @@ export class EventsList extends React.Component<Props, State> {
 
   renderSelectAll() {
     // Some selected -> de-select
-    if (_.size(this.props.state.selectedEvents) > 0) {
+    if (Object.keys(this.props.state.selectedEvents).length > 0) {
       if (this.props.clearAllHrefFn) {
         let url = this.props.clearAllHrefFn();
         return <button className="secondary"

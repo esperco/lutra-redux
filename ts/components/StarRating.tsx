@@ -2,7 +2,7 @@
   Input for selecting 1-5 stars
 */
 require("less/components/_star-rating.less");
-import * as _ from "lodash";
+import { times } from "lodash";
 import * as React from "react";
 
 const DEFAULT_MAX_STARS = 5;
@@ -27,7 +27,7 @@ export class StarRating extends React.Component<Props, State> {
     let value = this.state.value || this.props.value || 0;
     return <div className="star-rating">
       <div className="stars">
-        { _.times(this.props.maxStars || DEFAULT_MAX_STARS,
+        { times(this.props.maxStars || DEFAULT_MAX_STARS,
           (n) => <button key={n}
             onClick={() => this.props.onChange(n + 1)}
             onMouseEnter={() => this.setState({ value: n + 1 })}

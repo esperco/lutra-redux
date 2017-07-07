@@ -2,7 +2,7 @@
   Set feature flags
 */
 
-import * as _ from "lodash";
+import { isEqual } from "lodash";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { LoginState, FeatureFlagAction } from "../lib/login";
@@ -14,7 +14,7 @@ export async function ensureFlags(flags: Partial<ApiT.FeatureFlags>, deps: {
 }, force = false) {
   // Check if update necessary
   let { state } = deps;
-  let shouldUpdate = force || (state.login && !_.isEqual(
+  let shouldUpdate = force || (state.login && !isEqual(
     { ...state.login.feature_flags, ...flags },
     state.login.feature_flags
   ));

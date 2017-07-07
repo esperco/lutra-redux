@@ -3,7 +3,7 @@
   handle the actual calculations, just storage.
 */
 
-import * as _ from "lodash";
+
 import { GenericPeriod, PeriodParam } from "../lib/period";
 import { QueryFilter, stringify } from "../lib/event-queries";
 import { ok, StoreMap } from "./data-status";
@@ -82,7 +82,7 @@ export function calcReducer<S extends GroupCalcState>(
       }
     }
   };
-  return _.extend({}, state, newCalcs);
+  return Object.assign({}, state, newCalcs);
 }
 
 export function initState(): GroupCalcState {
