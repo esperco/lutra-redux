@@ -4,7 +4,7 @@
   support for its ES6 Promise implementation, we replace the browser's
   version with out own, less-stupid version that does dispatch this event.
 
-  The required modules check global scope and mtuate it, so we need to
+  The required modules check global scope and mutuate it, so we need to
   assign to undefined first.
 */
 if (typeof PromiseRejectionEvent === "undefined") {
