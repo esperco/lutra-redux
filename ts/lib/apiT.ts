@@ -351,6 +351,9 @@ export interface GenericCalendarEvent {
   comments: GroupEventComment[];
   // hashtags: HashtagState[];         // Exists, but deprecate
   feedback?: GuestEventFeedback;
+  feedback_pref?: boolean;
+  recurring_feedback_pref?: boolean;
+  global_feedback_pref?: boolean;
   location?: string;
   all_day: boolean;
   guests: Attendee[];

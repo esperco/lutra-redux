@@ -553,6 +553,25 @@ namespace Api {
   }
 
 
+  /* Feedback */
+
+  export function setGroupFeedbackPref(
+    groupId: string, eventId: string, value: boolean
+  ) : Promise<void> {
+    let url = prefix + `/api/group/set-fb-pref/${myUid()}` +
+      `/${string(groupId)}/${string(eventId)}`;
+    return JsonHttp.put(url, { value } as ApiT.BoolRequest);
+  }
+
+  export function setTeamFeedbackPref(
+    teamId: string, eventId: string, value: boolean
+  ) : Promise<void> {
+    let url = prefix + `/api/team/set-fb-pref/${myUid()}` +
+      `/${string(teamId)}/${string(eventId)}`;
+    return JsonHttp.put(url, { value } as ApiT.BoolRequest);
+  }
+
+
   /* Tokens */
 
   type TokenErr = "Invalid_token"|"Expired_token";

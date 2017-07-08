@@ -113,6 +113,7 @@ export interface EventsUpdateAction {
   rmLabels?: ApiT.LabelInfo[];
   hidden?: boolean;
   timebomb?: ApiT.TimebombState;
+  feedbackPref?: boolean;
   passive?: boolean; // Update is triggered by passive scroling
 }
 
@@ -299,39 +300,57 @@ function reduceEventUpdate(
   action: EventsUpdateAction,
   recurring?: boolean
 ): ApiT.GenericCalendarEvent {
-  // Don't update recurring labels if event doesn't have them
-  if (recurring && !useRecurringLabels(event)) {
-    return event;
+  /*
+    Special behaviors for labeling:
+    - Recurring label updates don't affect events that don't use
+      recurring labels (or hiding).
+    - Hiding an event kills labels.
+    - Labels are always confirmed if hiding, or adding or removing labels
+  */
+  let labelProps: Partial<ApiT.GenericCalendarEvent> = {};
+  let ignoreRecurring = recurring && !useRecurringLabels(event);
+  let hasLabelAction = !_.isUndefined(action.hidden) ||
+    action.addLabels || action.rmLabels;
+  if (!ignoreRecurring && hasLabelAction) {
+    let hidden = _.isUndefined(action.hidden) ? event.hidden : action.hidden;
+    labelProps = {
+      hidden,
+      labels: hidden ? [] : updateLabelList(event.labels || [], {
+        add: action.addLabels,
+        rm: action.rmLabels
+      }),
+      has_recurring_labels: !!recurring,
+
+      ...(action.passive ? {} : {
+        labels_predicted: false,
+        labels_confirmed: true
+      } as Partial<ApiT.GenericCalendarEvent>)
+    };
   }
 
-  // Special behavior for labeling
-  let labels = event.labels;
-  let hidden = _.isUndefined(action.hidden) ? event.hidden : action.hidden;
-  if (hidden) {
-    labels = [];
-  } else if (action.addLabels || action.rmLabels) {
-    labels = updateLabelList(event.labels || [], {
-      add: action.addLabels,
-      rm: action.rmLabels
-    });
-  }
+  // Feedback prefs
+  let feedbackProps: Partial<ApiT.GenericCalendarEvent> =
+    typeof action.feedbackPref === "undefined" ? {} : (recurring ?
+      { recurring_feedback_pref : action.feedbackPref } :
+      { feedback_pref : action.feedbackPref });
 
-  return compactObject({
-    ...event,
+  // Timebomb prefs
+  let timebombProps: Partial<ApiT.GenericCalendarEvent> =
+    typeof action.timebomb === "undefined" ? {} : {
+      timebomb: action.timebomb
+    };
 
-    // Update labels
-    labels,
-    labels_predicted: action.passive ? event.labels_predicted : false,
-    labels_confirmed: action.passive ? event.labels_confirmed : true,
-    has_recurring_labels: (labels !== event.labels) ?
-      !!recurring : event.has_recurring_labels,
-
-    // Update hide
-    hidden,
-
-    // Update timebomb
-    timebomb: _.isUndefined(action.timebomb) ? event.timebomb : action.timebomb
+  // Return original event if no changes so reactive components can do
+  // an equality check more easily
+  let changes = compactObject({
+    ...labelProps,
+    ...feedbackProps,
+    ...timebombProps
   });
+  if (Object.keys(changes).length) {
+    return { ...event, ...changes };
+  }
+  return event;
 }
 
 // Merges group event query day arrays, returns a new state

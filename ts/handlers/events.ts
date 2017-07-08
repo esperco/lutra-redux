@@ -62,7 +62,17 @@ interface SetTimebombRequest {
   }
 }
 
-type PushRequest = LabelRequest|SetTimebombRequest;
+interface SetFeedbackPrefRequest {
+  type: "SET_FEEDBACK_PREF";
+  calgroupType: "group"|"team";
+  eventId: string;
+  value: boolean;
+  deps: {
+    Svcs: ApiSvc;
+  }
+}
+
+type PushRequest = LabelRequest|SetTimebombRequest|SetFeedbackPrefRequest;
 
 interface QueryRequest {
   type: "FETCH_QUERY";
@@ -126,7 +136,7 @@ export function processQueueRequest(
 }
 
 export function isPushRequest(r: QueueRequest): r is PushRequest {
-  return _.includes(["LABEL", "SET_TIMEBOMB"], r.type);
+  return ["LABEL", "SET_TIMEBOMB", "SET_FEEDBACK_PREF"].includes(r.type);
 }
 
 /*
@@ -139,18 +149,22 @@ export function processPushRequests(
 ): Promise<PushRequest[]> {
   let labelReqs: LabelRequest[] = [];
   let timebombReqs: SetTimebombRequest[] = [];
+  let feedbackReqs: SetFeedbackPrefRequest[] = [];
   _.each(queue, (req) => {
     switch (req.type) {
       case "LABEL":
         labelReqs.push(req); break;
       case "SET_TIMEBOMB":
         timebombReqs.push(req); break;
+      case "SET_FEEDBACK_PREF":
+        feedbackReqs.push(req); break;
     }
   });
 
   return Promise.all([
     processLabelRequests(calgroupId, labelReqs),
-    processTimebombRequests(calgroupId, timebombReqs)
+    processTimebombRequests(calgroupId, timebombReqs),
+    processFeedbackPrefRequests(calgroupId, feedbackReqs)
   ]).then(() => []);
 }
 
@@ -230,6 +244,33 @@ export function processTimebombRequests(
           Svcs.Api.unconfirmTeamEvent;
         promises.push(apiFn(calgroupId, eventId));
       }
+    });
+    return Promise.all(promises);
+  });
+}
+
+/*
+  Batch all feedback settings in single API call and dispatch when done.
+*/
+export function processFeedbackPrefRequests(
+  calgroupId: string,
+  reqs: SetFeedbackPrefRequest[]
+): Promise<any> {
+  let last = _.last(reqs);
+  if (! last) return Promise.resolve();
+  let { calgroupType } = last;
+  let { Svcs } = last.deps;
+
+  // Left to right, more recent feedback request for eventId overrides older.
+  let fbPrefs: Record<string, boolean> = {};
+  reqs.forEach((r) => fbPrefs[r.eventId] = r.value);
+
+  return Svcs.Api.batch(() => {
+    let promises: Promise<any>[] = [];
+    _.each(fbPrefs, (value, eventId) => {
+      let apiFn = calgroupType === "group" ?
+        Svcs.Api.setGroupFeedbackPref : Svcs.Api.setTeamFeedbackPref;
+      promises.push(apiFn(calgroupId, eventId, value));
     });
     return Promise.all(promises);
   });
@@ -766,9 +807,32 @@ export function toggleFeedback(props: {
   dispatch: (a: EventsUpdateAction) => any;
   state: EventsState & LoginState;
   Svcs: ApiSvc;
-}) {
-  // let event = (deps.state.events[props.calgroupId] || {})[props.eventId];
-  // TODO: Actual feedback toggling
+}, opts: {
+  forceInstance?: boolean;
+} = {}) {
+  let event = (deps.state.events[props.calgroupId] || {})[props.eventId];
+  if (ready(event)) {
+    let eventId = opts.forceInstance ? event.id :
+      (event.recurring_event_id || event.id);
+    let recurring = eventId === event.recurring_event_id;
+    deps.dispatch({
+      type: "EVENTS_UPDATE",
+      calgroupId: props.calgroupId,
+      eventIds: recurring ? [] : [eventId],
+      recurringEventIds: recurring ? [eventId] : [],
+      feedbackPref: props.value
+    });
+
+    let queue = EventQueues.get(props.calgroupId);
+    return queue.enqueue({
+      type: "SET_FEEDBACK_PREF",
+      calgroupType: props.calgroupType,
+      eventId,
+      value: props.value,
+      deps
+    });
+  }
+
   return Promise.resolve();
 }
 
