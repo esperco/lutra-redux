@@ -106,3 +106,18 @@ export function toPick<K extends keyof ApiT.EventFeedback>(
 export function canTogglePref(event: ApiT.Event, now?: Date) {
   return moment(event.end).isAfter(now || new Date());
 }
+
+// Should feedback pref changes apply to recurrence or instance?
+export function useRecurringPref(event: ApiT.Event) {
+  return !!event.recurring_event_id &&
+    typeof event.feedback_pref !== "boolean";
+}
+
+// Return feedback preference for event
+export function feedbackPref(event: ApiT.Event) {
+  return !![
+    event.feedback_pref,
+    event.recurring_feedback_pref,
+    event.global_feedback_pref
+  ].find((v) => typeof v === "boolean")
+}

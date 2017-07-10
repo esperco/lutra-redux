@@ -116,13 +116,16 @@ export default class FBEvents extends React.Component<Props, {}> {
     return null;
   }
 
-  feedbackToggle = (eventId: string, value: boolean) => {
+  feedbackToggle = (eventId: string,
+    value: boolean,
+    forceInstance?: boolean
+  ) => {
     Events.toggleFeedback({
       calgroupId: this.props.teamId,
       calgroupType: "team",
       eventId,
       value
-    }, this.props);
+    }, this.props, { forceInstance });
   }
 
   periodChange = (period: GenericPeriod) => {

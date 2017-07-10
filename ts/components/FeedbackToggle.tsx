@@ -6,7 +6,7 @@ require("less/components/_feedback-toggle.less");
 import * as React from "react";
 import CheckboxItem from "./CheckboxItem";
 import * as ApiT from "../lib/apiT";
-import { canTogglePref } from "../lib/feedback";
+import { feedbackPref, canTogglePref } from "../lib/feedback";
 import * as Text from "../text/feedback";
 
 export interface Props {
@@ -15,17 +15,13 @@ export interface Props {
 }
 
 export const FeedbackToggle = ({ event, onToggle }: Props) => {
-  let active = [
-    event.feedback_pref,
-    event.recurring_feedback_pref,
-    event.global_feedback_pref
-  ].find((v) => typeof v !== "undefined")
+  let active = feedbackPref(event);
   let disabled = !canTogglePref(event);
 
   return <div className="feedback-toggle">
     <CheckboxItem
       inputProps={{ disabled }}
-      checked={!!active}
+      checked={active}
       onChange={onToggle}
     >
       { Text.FeedbackOn }
