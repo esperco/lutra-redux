@@ -8,7 +8,7 @@ import FeedbackToggle from "../components/FeedbackToggle";
 import RecurringFeedbackModifier from "../components/RecurringFeedbackModifier";
 import GuestList from "../components/GuestList";
 import * as ApiT from "../lib/apiT";
-import { feedbackPref } from "../lib/feedback";
+import { feedbackPref, useRecurringPref } from "../lib/feedback";
 import { ready } from "../states/data-status";
 
 interface Props {
@@ -26,7 +26,11 @@ export class FBEventEditor extends React.Component<Props, {}> {
   render() {
     let eventMap = this.props.state.events[this.props.teamId] || {};
     let event = this.props.eventId ? eventMap[this.props.eventId] : undefined;
-    return <EventEditor event={event} showGuests={false}>
+    return <EventEditor
+      event={event}
+      recur={useRecurringPref}
+      showGuests={false}
+    >
       { ready(event) ? this.renderForEvent(event) : null }
     </EventEditor>
   }

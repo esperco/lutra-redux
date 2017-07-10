@@ -13,7 +13,7 @@ import * as ApiT from "../lib/apiT";
 import { settings } from "../lib/paths";
 import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
-import { canTogglePref } from "../lib/timebomb";
+import { canTogglePref, useRecurringPref } from "../lib/timebomb";
 import { MoreEvents } from "../text/events";
 import { noContentMessage } from "../text/team";
 import { LoggedInState as StoreState } from './types';
@@ -68,7 +68,7 @@ export default class TBEventList extends React.Component<Props, {}> {
           event={event}
           href={this.props.eventHrefFn && this.props.eventHrefFn(event)}
         /></h4>
-        <InlineInfo event={event} />
+        <InlineInfo event={event} recur={useRecurringPref(event)} />
       </div>
       <TimebombToggle
         loggedInUid={loggedInUid}

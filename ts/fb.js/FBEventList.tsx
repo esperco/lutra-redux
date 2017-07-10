@@ -10,7 +10,7 @@ import QueryDayList from "../components/QueryDayList";
 import FeedbackToggle from "../components/FeedbackToggle";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
-import { canTogglePref } from "../lib/feedback";
+import { canTogglePref, useRecurringPref } from "../lib/feedback";
 import { settings } from "../lib/paths";
 import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
@@ -66,7 +66,7 @@ export default class FBEventList extends React.Component<Props, {}> {
           event={event}
           href={this.props.eventHrefFn && this.props.eventHrefFn(event)}
         /></h4>
-        <InlineInfo event={event} />
+        <InlineInfo event={event} recur={useRecurringPref(event)} />
       </div>
       <FeedbackToggle
         event={event}
