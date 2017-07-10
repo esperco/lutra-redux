@@ -1,6 +1,7 @@
 /*
   Ratings and helpers feedback
 */
+import * as moment from "moment";
 import * as ApiT from "./apiT";
 import * as Log from "./log";
 
@@ -94,4 +95,14 @@ export function toPick<K extends keyof ApiT.EventFeedback>(
     }
   }
   return patch as any;
+}
+
+/*
+  Can feedback be activated for this event?
+
+  TODO: Adjust so we get this from server (end time is not always exactly
+  before current end of event).
+*/
+export function canTogglePref(event: ApiT.Event, now?: Date) {
+  return moment(event.end).isAfter(now || new Date());
 }

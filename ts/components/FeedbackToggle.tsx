@@ -4,9 +4,9 @@
 
 require("less/components/_feedback-toggle.less");
 import * as React from "react";
-import * as moment from "moment";
 import CheckboxItem from "./CheckboxItem";
 import * as ApiT from "../lib/apiT";
+import { canTogglePref } from "../lib/feedback";
 import * as Text from "../text/feedback";
 
 export interface Props {
@@ -20,10 +20,7 @@ export const FeedbackToggle = ({ event, onToggle }: Props) => {
     event.recurring_feedback_pref,
     event.global_feedback_pref
   ].find((v) => typeof v !== "undefined")
-
-  // TODO -- adjust so we get this from server (end time is not always exactly
-  // before current end of event)
-  let disabled = moment(event.end).isBefore(new Date());
+  let disabled = !canTogglePref(event);
 
   return <div className="feedback-toggle">
     <CheckboxItem
