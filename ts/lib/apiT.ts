@@ -306,7 +306,7 @@ export interface Contributor {
 
 export type TimebombState =
   ["Stage0", {
-    set_timebomb: boolean;
+    // set_timebomb: boolean; // Deprecated, use timebomb_pref
     set_by: string;  // Timestamp
   }]|
   ["Stage1", {
@@ -363,6 +363,9 @@ export interface GenericCalendarEvent {
   recurrence?: Recurrence;
   recurring_event_id?: string;
   timebomb?: TimebombState;
+  timebomb_pref?: boolean;
+  recurring_timebomb_pref?: boolean;
+  global_timebomb_pref?: boolean;
   merged?: MergedEventExtra;
 }
 
