@@ -884,6 +884,48 @@ describe("eventsUpdateReducer", () => {
       });
     });
 
+    it("updates timebomb pref but does not break label recurrence if " +
+       "setting individual ID with timebomb pref",
+    () => {
+      let s2 = eventsUpdateReducer(deepFreeze(s1), {
+        type: "EVENTS_UPDATE",
+        calgroupId,
+        eventIds: ["e1"],
+        timebombPref: true
+      });
+      expect(s2.events[calgroupId].e1).to.deep.equal({
+        ...e1,
+        timebomb_pref: true
+      });
+    });
+
+    it("updates recurring timebomb pref but ignores label recurrence " +
+       "if setting recurring ID with timebomb pref",
+    () => {
+      let s2 = eventsUpdateReducer(deepFreeze(s1), {
+        type: "EVENTS_UPDATE",
+        calgroupId,
+        eventIds: [],
+        recurringEventIds: ["recurring_id"],
+        timebombPref: true
+      });
+      expect(s2.events[calgroupId].e1).to.deep.equal({
+        ...e1,
+        recurring_timebomb_pref: true
+      });
+
+      expect(s2.events[calgroupId].e2).to.deep.equal({
+        ...e2,
+        recurring_timebomb_pref: true
+      });
+
+      // Ignores label recurrence here
+      expect(s2.events[calgroupId].e3).to.deep.equal({
+        ...e3,
+        recurring_timebomb_pref: true
+      });
+    });
+
     it("updates feedback pref but does not break label recurrence if " +
        "setting individual ID with feedback pref",
     () => {

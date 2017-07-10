@@ -22,6 +22,8 @@ import { GenericPeriod, Period, bounds, toDays } from "../lib/period";
 import { QueueMap } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
 import { LoginState } from "../lib/login";
+import { useRecurringPref as useRecurringFeedback } from "../lib/feedback";
+import { useRecurringPref as useRecurringTimebombs } from "../lib/timebomb";
 import { OrderedSet, compactObject, hasTag } from "../lib/util";
 import { ready, ok } from "../states/data-status";
 import { GroupState, GroupUpdateAction } from "../states/groups";
@@ -51,9 +53,20 @@ interface LabelRequest {
   };
 }
 
+// Stage1 timebombs
 interface SetTimebombRequest {
   type: "SET_TIMEBOMB";
-  stage: "Stage0"|"Stage1"|"Stage2";
+  calgroupType: "group"|"team";
+  eventId: string;
+  value: boolean;
+  deps: {
+    Svcs: ApiSvc;
+  }
+}
+
+// Stage0 timebombs
+interface SetTimebombPrefRequest {
+  type: "SET_TIMEBOMB_PREF";
   calgroupType: "group"|"team";
   eventId: string;
   value: boolean;
@@ -72,7 +85,11 @@ interface SetFeedbackPrefRequest {
   }
 }
 
-type PushRequest = LabelRequest|SetTimebombRequest|SetFeedbackPrefRequest;
+type PushRequest =
+  LabelRequest|
+  SetTimebombRequest|
+  SetTimebombPrefRequest|
+  SetFeedbackPrefRequest;
 
 interface QueryRequest {
   type: "FETCH_QUERY";
@@ -136,7 +153,12 @@ export function processQueueRequest(
 }
 
 export function isPushRequest(r: QueueRequest): r is PushRequest {
-  return ["LABEL", "SET_TIMEBOMB", "SET_FEEDBACK_PREF"].includes(r.type);
+  return [
+    "LABEL",
+    "SET_TIMEBOMB",
+    "SET_TIMEBOMB_PREF",
+    "SET_FEEDBACK_PREF"
+  ].includes(r.type);
 }
 
 /*
@@ -149,22 +171,26 @@ export function processPushRequests(
 ): Promise<PushRequest[]> {
   let labelReqs: LabelRequest[] = [];
   let timebombReqs: SetTimebombRequest[] = [];
-  let feedbackReqs: SetFeedbackPrefRequest[] = [];
+  let timebombPrefReqs: SetTimebombPrefRequest[] = [];
+  let feedbackPrefReqs: SetFeedbackPrefRequest[] = [];
   _.each(queue, (req) => {
     switch (req.type) {
       case "LABEL":
         labelReqs.push(req); break;
       case "SET_TIMEBOMB":
         timebombReqs.push(req); break;
+      case "SET_TIMEBOMB_PREF":
+        timebombPrefReqs.push(req); break;
       case "SET_FEEDBACK_PREF":
-        feedbackReqs.push(req); break;
+        feedbackPrefReqs.push(req); break;
     }
   });
 
   return Promise.all([
     processLabelRequests(calgroupId, labelReqs),
     processTimebombRequests(calgroupId, timebombReqs),
-    processFeedbackPrefRequests(calgroupId, feedbackReqs)
+    processTimebombPrefRequests(calgroupId, timebombPrefReqs),
+    processFeedbackPrefRequests(calgroupId, feedbackPrefReqs)
   ]).then(() => []);
 }
 
@@ -208,7 +234,7 @@ export function processLabelRequests(
 }
 
 /*
-  Batch all timebomb settings in single API call and dispatch when done.
+  Batch all timebomb Stage1 actions  in single API call and dispatch when done.
 */
 export function processTimebombRequests(
   calgroupId: string,
@@ -219,31 +245,52 @@ export function processTimebombRequests(
   let { calgroupType } = last;
   let { Svcs } = last.deps;
 
-
   // Left to right, more recent timebomb request for eventId overrides older.
-  let tbStates: Record<string, [boolean, "Stage0"|"Stage1"|"Stage2"]> = {};
-  _.each(reqs, (r) => tbStates[r.eventId] = [r.value, r.stage]);
+  let tbStates: Record<string, boolean> = {};
+  reqs.forEach((r) => tbStates[r.eventId] = r.value);
 
   return Svcs.Api.batch(() => {
     let promises: Promise<any>[] = [];
-    _.each(tbStates, (setTb, eventId) => {
-      if (eventId && setTb[1] === "Stage0") {
-        let apiFn = calgroupType === "group" ?
-          Svcs.Api.setGroupTimebomb : Svcs.Api.setTeamTimebomb;
-        promises.push(apiFn(calgroupId, eventId, setTb[0]));
-      }
-      else if (eventId && setTb[1] === "Stage1" && setTb[0]) {
+    _.each(tbStates, (confirm, eventId) => {
+      if (eventId && confirm) {
         let apiFn = calgroupType === "group" ?
           Svcs.Api.confirmGroupEvent :
           Svcs.Api.confirmTeamEvent;
         promises.push(apiFn(calgroupId, eventId));
       }
-      else if (eventId && setTb[1] === "Stage1" && !setTb[0]) {
+      else if (eventId && !confirm) {
         let apiFn = calgroupType === "group" ?
           Svcs.Api.unconfirmGroupEvent :
           Svcs.Api.unconfirmTeamEvent;
         promises.push(apiFn(calgroupId, eventId));
       }
+    });
+    return Promise.all(promises);
+  });
+}
+
+/*
+  Batch all timebomb prefs in single API call and dispatch when done.
+*/
+export function processTimebombPrefRequests(
+  calgroupId: string,
+  reqs: SetTimebombPrefRequest[]
+): Promise<any> {
+  let last = _.last(reqs);
+  if (! last) return Promise.resolve();
+  let { calgroupType } = last;
+  let { Svcs } = last.deps;
+
+  // Left to right, more recent feedback request for eventId overrides older.
+  let tbPrefs: Record<string, boolean> = {};
+  reqs.forEach((r) => tbPrefs[r.eventId] = r.value);
+
+  return Svcs.Api.batch(() => {
+    let promises: Promise<any>[] = [];
+    _.each(tbPrefs, (value, eventId) => {
+      let apiFn = calgroupType === "group" ?
+        Svcs.Api.setGroupTimebomb : Svcs.Api.setTeamTimebomb;
+      promises.push(apiFn(calgroupId, eventId, value));
     });
     return Promise.all(promises);
   });
@@ -748,21 +795,33 @@ export function toggleTimebomb(props: {
   dispatch: (a: EventsUpdateAction) => any;
   state: EventsState & LoginState;
   Svcs: ApiSvc;
-}) {
+}, opts: {
+  forceInstance?: boolean;
+} = {}) {
   let event = (deps.state.events[props.calgroupId] || {})[props.eventId];
   if (ready(event) && event.timebomb) {
     let { dispatch, state } = deps;
+    let queue = EventQueues.get(props.calgroupId);
     if (hasTag("Stage0", event.timebomb)) {
+      let eventId = opts.forceInstance || !useRecurringTimebombs(event) ?
+        event.id : (event.recurring_event_id || event.id);
+      let recurring = eventId === event.recurring_event_id;
       deps.dispatch({
         type: "EVENTS_UPDATE",
         calgroupId: props.calgroupId,
-        eventIds: [props.eventId],
-        timebomb: ["Stage0", {
-          ...event.timebomb[1],
-          set_timebomb: props.value
-        }]
+        eventIds: recurring ? [] : [eventId],
+        recurringEventIds: recurring ? [eventId] : [],
+        timebombPref: props.value
+      });
+      return queue.enqueue({
+        type: "SET_TIMEBOMB_PREF",
+        calgroupType: props.calgroupType,
+        eventId,
+        value: props.value,
+        deps
       });
     }
+
     else if (hasTag("Stage1", event.timebomb) && state.login) {
       let uid = state.login.uid;
       let contributors = event.timebomb[1].contributors
@@ -774,6 +833,9 @@ export function toggleTimebomb(props: {
           last_edit: (new Date()).toISOString()
         });
       }
+
+      // NB: Unlike Stage0 prefs, Stage1 update is always for instance,
+      // not recurrence
       dispatch({
         type: "EVENTS_UPDATE",
         calgroupId: props.calgroupId,
@@ -783,18 +845,15 @@ export function toggleTimebomb(props: {
           contributors
         }]
       });
+      return queue.enqueue({
+        type: "SET_TIMEBOMB",
+        calgroupType: props.calgroupType,
+        eventId: props.eventId,
+        value: props.value,
+        deps
+      });
     }
-    let queue = EventQueues.get(props.calgroupId);
-    return queue.enqueue({
-      type: "SET_TIMEBOMB",
-      stage: event.timebomb[0],
-      calgroupType: props.calgroupType,
-      eventId: props.eventId,
-      value: props.value,
-      deps
-    });
   }
-
   return Promise.resolve();
 }
 
@@ -805,15 +864,15 @@ export function toggleFeedback(props: {
   value: boolean;
 }, deps: {
   dispatch: (a: EventsUpdateAction) => any;
-  state: EventsState & LoginState;
+  state: EventsState;
   Svcs: ApiSvc;
 }, opts: {
   forceInstance?: boolean;
 } = {}) {
   let event = (deps.state.events[props.calgroupId] || {})[props.eventId];
   if (ready(event)) {
-    let eventId = opts.forceInstance ? event.id :
-      (event.recurring_event_id || event.id);
+    let eventId = opts.forceInstance || !useRecurringFeedback(event) ?
+      event.id : (event.recurring_event_id || event.id);
     let recurring = eventId === event.recurring_event_id;
     deps.dispatch({
       type: "EVENTS_UPDATE",

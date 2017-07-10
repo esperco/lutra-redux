@@ -112,8 +112,9 @@ export interface EventsUpdateAction {
   addLabels?: ApiT.LabelInfo[];
   rmLabels?: ApiT.LabelInfo[];
   hidden?: boolean;
-  timebomb?: ApiT.TimebombState;
   feedbackPref?: boolean;
+  timebombPref?: boolean;
+  timebomb?: ApiT.TimebombState; // This is not pref but Stage1 value
   passive?: boolean; // Update is triggered by passive scroling
 }
 
@@ -335,10 +336,18 @@ function reduceEventUpdate(
       { feedback_pref : action.feedbackPref });
 
   // Timebomb prefs
-  let timebombProps: Partial<ApiT.GenericCalendarEvent> =
-    typeof action.timebomb === "undefined" ? {} : {
+  let timebombProps: Partial<ApiT.GenericCalendarEvent> = {
+    // Stage0
+    ...(typeof action.timebombPref === "undefined" ? {} : (recurring ?
+      { recurring_timebomb_pref : action.timebombPref } :
+      { timebomb_pref : action.timebombPref }
+    )),
+
+    // Stage1
+    ...(typeof action.timebomb === "undefined" ? {} : {
       timebomb: action.timebomb
-    };
+    })
+  }
 
   // Return original event if no changes so reactive components can do
   // an equality check more easily
