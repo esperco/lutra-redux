@@ -99,8 +99,8 @@ export const TextFeedbackLabel =
 export const BlurbPlaceholder = "Optional feedback";
 
 const onOff = (v: boolean) => v ? "on" : "off";
-export const RecurringFeedbackDescription = (v: boolean) =>
-  `Ratings is ${onOff(v)} for all recurrences of this event.`;
-export const InstanceFeedbackDescription = (v: boolean) =>
-  `Ratings is ${onOff(v)} for only this event, not its recurrences.`;
-export const SwitchToInstanceFeedback = "Toggle ratings for this event only?";
+export const RecurringDescription = (v: boolean) =>
+  `Ratings are ${onOff(v)} for all recurrences of this event.`;
+export const InstanceDescription = (v: boolean) =>
+  `Ratings are ${onOff(v)} for only this event, not its recurrences.`;
+export const SwitchToInstance = "Toggle ratings for this event only?";

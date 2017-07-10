@@ -59,7 +59,7 @@ export class TimebombToggle extends React.Component<Props, {}> {
 
     else {
       let active = timebombPref(event);
-      let disabled = canTogglePref(event);
+      let disabled = !canTogglePref(event);
       return <TimebombContainer
               disabledMsg={disabled ? Text.TimebombLate : undefined}>
         <div className="options">

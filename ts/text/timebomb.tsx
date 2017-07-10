@@ -112,3 +112,11 @@ export const DefaultDescriptionSetup =
 </p>;
 
 export const BlurbPlaceholder = "What do you want to discuss?";
+
+const onOff = (v: boolean) => v ? "on" : "off";
+export const RecurringDescription = (v: boolean) =>
+  `Agenda Check is ${onOff(v)} for all recurrences of this event.`;
+export const InstanceDescription = (v: boolean) =>
+  `Agenda Check is ${onOff(v)} for only this event, not its recurrences.`;
+export const SwitchToInstance =
+  "Toggle Agenda Check for this event only?";

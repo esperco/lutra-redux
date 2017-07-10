@@ -121,13 +121,15 @@ export default class TBEvents extends React.Component<Props, {}> {
     return null;
   }
 
-  timebombToggle = (eventId: string, value: boolean) => {
+  timebombToggle = (eventId: string,
+    value: boolean, forceInstance?: boolean
+  ) => {
     Events.toggleTimebomb({
       calgroupId: this.props.teamId,
       calgroupType: "team",
       eventId,
       value
-    }, this.props);
+    }, this.props, { forceInstance });
   }
 
   periodChange = (period: GenericPeriod) => {

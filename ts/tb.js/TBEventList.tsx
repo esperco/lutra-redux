@@ -13,7 +13,7 @@ import * as ApiT from "../lib/apiT";
 import { settings } from "../lib/paths";
 import { GenericPeriod, add } from "../lib/period";
 import { NavSvc } from "../lib/routing";
-import { hasTag } from "../lib/util";
+import { canTogglePref } from "../lib/timebomb";
 import { MoreEvents } from "../text/events";
 import { noContentMessage } from "../text/team";
 import { LoggedInState as StoreState } from './types';
@@ -40,10 +40,7 @@ export default class TBEventList extends React.Component<Props, {}> {
         state={state}
         query={{}}
         cb={this.renderEventList}
-        filter={(e) => {
-          // Filter out events that we can set new timebombs for only
-          return !!e.timebomb && hasTag("Stage0", e.timebomb)}
-        }
+        filter={canTogglePref}
         onLoadPrefix={(total) => total ? null :
           noContentMessage(settings.href({}))}
       />
