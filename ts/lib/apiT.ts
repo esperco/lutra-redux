@@ -366,6 +366,12 @@ export interface GenericCalendarEvent {
   merged?: MergedEventExtra;
 }
 
+/*
+  Type alias, shorter (reflects new api.atd designation). Should import and
+  use as ApiT.Event since there is a native JS Event type too.
+*/
+export type Event = GenericCalendarEvent;
+
 export interface GenericCalendarEvents {
   events?: GenericCalendarEvent[];
 }
