@@ -29,6 +29,7 @@ export const RecurringOnly =
 export const SameDomainOnly =
   "Internal meetings only (all attendees share the same email domain)"
 
+export const FeedbackLate = "Time to change preference has expired";
 export const FeedbackOn = "Request ratings?";
 
 export const FBExpiredShort = "Some events not shown";

@@ -5,6 +5,7 @@
 require("less/components/_feedback-toggle.less");
 import * as React from "react";
 import CheckboxItem from "./CheckboxItem";
+import Tooltip from "./Tooltip";
 import * as ApiT from "../lib/apiT";
 import { feedbackPref, canTogglePref } from "../lib/feedback";
 import * as Text from "../text/feedback";
@@ -17,15 +18,19 @@ export interface Props {
 export const FeedbackToggle = ({ event, onToggle }: Props) => {
   let active = feedbackPref(event);
   let disabled = !canTogglePref(event);
+  let checkbox = <CheckboxItem
+    inputProps={{ disabled }}
+    checked={active}
+    onChange={onToggle}
+  >
+    { Text.FeedbackOn }
+  </CheckboxItem>;
 
   return <div className="feedback-toggle">
-    <CheckboxItem
-      inputProps={{ disabled }}
-      checked={active}
-      onChange={onToggle}
-    >
-      { Text.FeedbackOn }
-    </CheckboxItem>
+    { disabled ? <Tooltip
+      target={<div>{ checkbox }</div>}
+      title={Text.FeedbackLate}
+    /> : checkbox }
   </div>;
 }
 
