@@ -14,7 +14,7 @@ export interface Props {
 
 export const RecurringLabelModifier =
   ({ event, onForceInstance }: Props) => event.recurring_event_id ?
-    <div className="recurring-labels alert info">
+    <div className="recurrence-info alert info">
       { useRecurringLabels(event) ?
         <span>
           <span className="description">

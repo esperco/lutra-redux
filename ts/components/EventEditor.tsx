@@ -18,10 +18,11 @@ import Icon from "./Icon";
 export const EditorCls = "event-editor";
 
 export interface Props {
-  event: StoreData<ApiT.GenericCalendarEvent>|undefined;
+  event: StoreData<ApiT.Event>|undefined;
   showDescription?: boolean;
   showGuests?: boolean;
-  menu?: (event: ApiT.GenericCalendarEvent) => JSX.Element;
+  menu?: (event: ApiT.Event) => JSX.Element;
+  recur?: (event: ApiT.Event) => boolean;
   children?: React.ReactNode|React.ReactNode[];
 }
 
@@ -55,7 +56,7 @@ export const EventEditor = ({ event, menu, children, ...props }: Props) => {
 
     <h3><Title event={event} /></h3>
     <div className="block-info">
-      <Time event={event} />
+      <Time event={event} recur={props.recur && props.recur(event)} />
       <Location event={event} />
       { showGuests ? <GuestsSummary event={event} /> : null }
     </div>

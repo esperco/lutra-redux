@@ -306,7 +306,7 @@ export interface Contributor {
 
 export type TimebombState =
   ["Stage0", {
-    set_timebomb: boolean;
+    // set_timebomb: boolean; // Deprecated, use timebomb_pref
     set_by: string;  // Timestamp
   }]|
   ["Stage1", {
@@ -351,6 +351,9 @@ export interface GenericCalendarEvent {
   comments: GroupEventComment[];
   // hashtags: HashtagState[];         // Exists, but deprecate
   feedback?: GuestEventFeedback;
+  feedback_pref?: boolean;
+  recurring_feedback_pref?: boolean;
+  global_feedback_pref?: boolean;
   location?: string;
   all_day: boolean;
   guests: Attendee[];
@@ -360,8 +363,17 @@ export interface GenericCalendarEvent {
   recurrence?: Recurrence;
   recurring_event_id?: string;
   timebomb?: TimebombState;
+  timebomb_pref?: boolean;
+  recurring_timebomb_pref?: boolean;
+  global_timebomb_pref?: boolean;
   merged?: MergedEventExtra;
 }
+
+/*
+  Type alias, shorter (reflects new api.atd designation). Should import and
+  use as ApiT.Event since there is a native JS Event type too.
+*/
+export type Event = GenericCalendarEvent;
 
 export interface GenericCalendarEvents {
   events?: GenericCalendarEvent[];

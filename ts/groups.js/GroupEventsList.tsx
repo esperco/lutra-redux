@@ -152,7 +152,7 @@ export class EventsList extends React.Component<Props, State> {
           { event.hidden ? CommonText.Show : CommonText.Hide }
         </button>
 
-        <InlineInfo event={event} />
+        <InlineInfo event={event} recur={useRecurringLabels(event)} />
       </div>
 
       { event.hidden ? null : <LabelList

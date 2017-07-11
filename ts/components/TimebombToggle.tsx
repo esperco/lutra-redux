@@ -9,6 +9,7 @@ import CheckboxItem from "./CheckboxItem";
 import RadioItem from "./RadioItem";
 import Tooltip from "./Tooltip";
 import * as ApiT from "../lib/apiT";
+import { timebombPref, canTogglePref } from "../lib/timebomb";
 import { hasTag, randomString } from "../lib/util";
 import * as Text from "../text/timebomb";
 
@@ -57,9 +58,8 @@ export class TimebombToggle extends React.Component<Props, {}> {
     }
 
     else {
-      let active = event.timebomb[1].set_timebomb;
-      let disabled =
-        moment(event.timebomb[1].set_by).isSameOrBefore(new Date());
+      let active = timebombPref(event);
+      let disabled = !canTogglePref(event);
       return <TimebombContainer
               disabledMsg={disabled ? Text.TimebombLate : undefined}>
         <div className="options">

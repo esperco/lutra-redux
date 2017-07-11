@@ -12,7 +12,7 @@ import GuestList from "../components/GuestList";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
-import { LabelSet } from "../lib/event-labels";
+import { LabelSet, useRecurringLabels } from "../lib/event-labels";
 import { QueryFilter } from "../lib/event-queries";
 import { GenericPeriod } from "../lib/period";
 import { ready } from "../states/data-status";
@@ -49,6 +49,7 @@ export class GroupEventEditor extends React.Component<Props, {}> {
 
     return <EventEditor
       event={event}
+      recur={useRecurringLabels}
       showGuests={false}
       menu={(event) => <div className="dropdown-menu">
         <div className="menu">

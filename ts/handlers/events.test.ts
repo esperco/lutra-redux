@@ -1,10 +1,12 @@
 import {
   fetchEvents, fetchById, setGroupEventLabels, EventQueues,
-  processLabelRequests, processQueueRequest
+  processLabelRequests, processQueueRequest, toggleTimebomb,
+  toggleFeedback
 } from "./events";
 import { LabelQueues as GroupLabelQueues } from "./groups";
 import { expect } from "chai";
 import { ApiSvc } from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stringify, toAPI } from "../lib/event-queries";
 import { bounds, toDays } from "../lib/period";
@@ -18,7 +20,7 @@ import makeEvent from "../fakes/events-fake";
 import { testLabel } from "../fakes/labels-fake";
 import * as Sinon from "sinon";
 
-describe("Group Events handlers", function() {
+describe("Event handlers", function() {
   // Common vars
   const groupId = "my-group-id";
   const calgroupId = groupId;
@@ -977,6 +979,397 @@ describe("Group Events handlers", function() {
           predict_labels: ["e3", "e4", "e5"]
         });
       }).then(done, done);
+    });
+  });
+
+  describe("toggleTimebomb", () => {
+    const calgroupId = "my-team-id";
+    const calgroupType = "team";
+    const login = { uid: "uid" } as ApiT.LoginResponse;
+    const getDeps = (event: ApiT.Event) => ({
+      Svcs: apiSvcFactory(),
+      dispatch: sandbox.spy(),
+      state: {
+        ...initState(),
+        events: {
+          [calgroupId]: {
+            [event.id]: event
+          }
+        },
+        login
+      }
+    });
+
+    describe("with a Stage0 event", () => {
+      const event = makeEvent({
+        timebomb: ["Stage0", { set_by: "2099-01-01" }]
+      });
+
+      it("dispatches EVENTS_UPDATE with timebombPref", () => {
+        let deps = getDeps(event);
+        toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(deps.dispatch, {
+          type: "EVENTS_UPDATE",
+          calgroupId,
+          eventIds: [event.id],
+          recurringEventIds: [],
+          timebombPref: true
+        });
+      });
+
+      it("makes API call to set timebomb", async () => {
+        let deps = getDeps(event);
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamTimebomb");
+        dfd.resolve({});
+
+        await toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: false
+        }, deps);
+
+        expectCalledWith(stub, calgroupId, event.id, false);
+      });
+    });
+
+    describe("with a recurring Stage0 event", () => {
+      const event = makeEvent({
+        recurring_event_id: "recur-id",
+        timebomb: ["Stage0", { set_by: "2099-01-01" }]
+      });
+
+      it("dispatches EVENTS_UPDATE with timebombPref and recurring ID", () => {
+        let deps = getDeps(event);
+        toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: false
+        }, deps);
+
+        expectCalledWith(deps.dispatch, {
+          type: "EVENTS_UPDATE",
+          calgroupId,
+          eventIds: [],
+          recurringEventIds: [event.recurring_event_id],
+          timebombPref: false
+        });
+      });
+
+      it("makes API call to set timebomb with recurring ID", async () => {
+        let deps = getDeps(event);
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamTimebomb");
+        dfd.resolve({});
+
+        await toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(stub, calgroupId, event.recurring_event_id, true);
+      });
+
+      it("makes an API call to set with event ID if force instance",
+      async () => {
+        let deps = getDeps(event);
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamTimebomb");
+        dfd.resolve({});
+
+        await toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps, { forceInstance: true });
+
+        expectCalledWith(stub, calgroupId, event.id, true);
+      });
+
+      it("makes an API call to set with event ID if event already using " +
+      "instance pref", async () => {
+        let deps = getDeps({ ...event, timebomb_pref: false });
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamTimebomb");
+        dfd.resolve({});
+
+        await toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(stub, calgroupId, event.id, true);
+      });
+    });
+
+    describe("when setting Stage1 event to true", () => {
+      const event = makeEvent({
+        timebomb: ["Stage1", {
+          contributors: [],
+          confirm_by: "2099-01-01"
+        }]
+      });
+
+      beforeEach(() => {
+        sandbox.useFakeTimers(1499724037730);
+      })
+
+      it("dispatches EVENTS_UPDATE with timebomb val", () => {
+        let deps = getDeps(event);
+        toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(deps.dispatch, {
+          type: "EVENTS_UPDATE",
+          calgroupId,
+          eventIds: [event.id],
+          timebomb: ["Stage1", {
+            contributors: [{
+              uid: "uid",
+              contributes: true,
+              last_edit: (new Date()).toISOString()
+            }],
+            confirm_by: "2099-01-01"
+          }]
+        });
+      });
+
+      it("makes API call to confirm timebomb with event ID", async () => {
+        let deps = getDeps(event);
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "confirmTeamEvent");
+        dfd.resolve({});
+
+        await toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(stub, calgroupId, event.id);
+      });
+
+      it("ignores recurring events", async () => {
+        let deps = getDeps({
+          ...event,
+          recurring_event_id: "recur",
+          recurring_timebomb_pref: true
+        });
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "confirmTeamEvent");
+        dfd.resolve({});
+
+        await toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(stub, calgroupId, event.id);
+      });
+    });
+
+    describe("when setting Stage1 event to false", () => {
+      const event = makeEvent({
+        timebomb: ["Stage1", {
+          contributors: [{
+            uid: "uid",
+            contributes: true,
+            last_edit: "2016-10-01"
+          }, {
+            uid: "other-uid",
+            contributes: true,
+            last_edit: "2016-10-01"
+          }],
+          confirm_by: "2099-01-01"
+        }]
+      });
+
+      it("dispatches EVENTS_UPDATE with contributor removed", () => {
+        let deps = getDeps(event);
+        toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: false
+        }, deps);
+
+        expectCalledWith(deps.dispatch, {
+          type: "EVENTS_UPDATE",
+          calgroupId,
+          eventIds: [event.id],
+          timebomb: ["Stage1", {
+            contributors: [{
+              uid: "other-uid",
+              contributes: true,
+              last_edit: "2016-10-01"
+            }],
+            confirm_by: "2099-01-01"
+          }]
+        });
+      });
+
+      it("makes API call to unconfirm timebomb with event ID", async () => {
+        let deps = getDeps(event);
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "unconfirmTeamEvent");
+        dfd.resolve({});
+
+        await toggleTimebomb({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: false
+        }, deps);
+
+        expectCalledWith(stub, calgroupId, event.id);
+      });
+    });
+  });
+
+  describe("toggleFeedback", () => {
+    const calgroupId = "my-team-id";
+    const calgroupType = "team";
+    const event = makeEvent();
+    const getDeps = (event: ApiT.Event) => ({
+      Svcs: apiSvcFactory(),
+      dispatch: sandbox.spy(),
+      state: {
+        ...initState(),
+        events: {
+          [calgroupId]: {
+            [event.id]: event
+          }
+        }
+      }
+    });
+
+    it("dispatches EVENTS_UPDATE with feedbackPref", () => {
+      let deps = getDeps(event);
+      toggleFeedback({
+        calgroupId,
+        calgroupType,
+        eventId: event.id,
+        value: true
+      }, deps);
+
+      expectCalledWith(deps.dispatch, {
+        type: "EVENTS_UPDATE",
+        calgroupId,
+        eventIds: [event.id],
+        recurringEventIds: [],
+        feedbackPref: true
+      });
+    });
+
+    it("makes API call to set feedback prefs", async () => {
+      let deps = getDeps(event);
+      let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamFeedbackPref");
+      dfd.resolve({});
+
+      await toggleFeedback({
+        calgroupId,
+        calgroupType,
+        eventId: event.id,
+        value: false
+      }, deps);
+
+      expectCalledWith(stub, calgroupId, event.id, false);
+    });
+
+    describe("with recurring events", () => {
+      const event = makeEvent({
+        recurring_event_id: "recur-id"
+      });
+
+      it("dispatches EVENTS_UPDATE with recurring event ID", () => {
+        let deps = getDeps(event);
+        toggleFeedback({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: false
+        }, deps);
+
+        expectCalledWith(deps.dispatch, {
+          type: "EVENTS_UPDATE",
+          calgroupId,
+          eventIds: [],
+          recurringEventIds: [event.recurring_event_id],
+          feedbackPref: false
+        });
+      });
+
+      it("makes API call with recurring ID to set feedback prefs", async () => {
+        let deps = getDeps(event);
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamFeedbackPref");
+        dfd.resolve({});
+
+        await toggleFeedback({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(stub, calgroupId, event.recurring_event_id, true);
+      });
+
+      it("uses event instance ID if forceInstance set", async () => {
+        let deps = getDeps(event);
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamFeedbackPref");
+        dfd.resolve({});
+
+        await toggleFeedback({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps, { forceInstance: true });
+
+        expectCalledWith(deps.dispatch, {
+          type: "EVENTS_UPDATE",
+          calgroupId,
+          eventIds: [event.id],
+          recurringEventIds: [],
+          feedbackPref: true
+        });
+        expectCalledWith(stub, calgroupId, event.id, true);
+      });
+
+      it("uses event instance ID if already instance pref", async () => {
+        let deps = getDeps({ ...event, feedback_pref: false });
+        let { dfd, stub } = stubApiPlus(deps.Svcs, "setTeamFeedbackPref");
+        dfd.resolve({});
+
+        await toggleFeedback({
+          calgroupId,
+          calgroupType,
+          eventId: event.id,
+          value: true
+        }, deps);
+
+        expectCalledWith(deps.dispatch, {
+          type: "EVENTS_UPDATE",
+          calgroupId,
+          eventIds: [event.id],
+          recurringEventIds: [],
+          feedbackPref: true
+        });
+        expectCalledWith(stub, calgroupId, event.id, true);
+      });
     });
   });
 });

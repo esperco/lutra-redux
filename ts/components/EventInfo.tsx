@@ -16,15 +16,20 @@ export interface BaseEventProps {
   event: ApiT.GenericCalendarEvent;
 }
 
+// Override default recurrence check
+export interface TimeProps {
+  recur?: boolean;
+}
+
 export interface InlineOptProps extends BaseEventProps {
   event: ApiT.GenericCalendarEvent;
   inline?: boolean;
 }
 
 // Inline info about an event
-export const InlineInfo = ({ event }: BaseEventProps) => {
+export const InlineInfo = ({ event, recur }: BaseEventProps & TimeProps) => {
   return <div className="event-info"><div className="inline-info">
-    <Time event={event} inline={true} />
+    <Time event={event} recur={recur} inline={true} />
     <Location event={event} inline={true} />
     <GuestsSummary event={event} inline={false} />
 
@@ -76,14 +81,16 @@ export const Title = (p: TitleProps) => {
   </span>;
 };
 
-export const Time = ({ event, inline }: InlineOptProps) => {
+export const Time = ({ event, inline, recur }: InlineOptProps & TimeProps) => {
   let timeSpan = <span><span className="start">
       { moment(event.start).format(inline ? "h:mm a" : "MMM D, h:mm a") }
     </span>{" to "}<span className="end">
       { moment(event.end).format("h:mm a") }
     </span></span>;
 
-  let recurring = event.recurring_event_id ?
+  let recurring = typeof recur === "boolean" ?
+    recur : !!event.recurring_event_id;
+  let recurringIcon = recurring ?
     <Tooltip
       target={<span className="recurring">
         <Icon type="repeat" />
@@ -93,12 +100,12 @@ export const Time = ({ event, inline }: InlineOptProps) => {
 
   if (inline) {
     return <span className="time">
-      { timeSpan } { recurring }
+      { timeSpan } { recurringIcon }
     </span>
   }
 
   return <div className="time">
-    <Icon type="time">{ timeSpan }</Icon> { recurring }
+    <Icon type="time">{ timeSpan }</Icon> { recurringIcon }
   </div>;
 };
 

@@ -29,12 +29,14 @@ export const RecurringOnly =
 export const SameDomainOnly =
   "Internal meetings only (all attendees share the same email domain)"
 
+export const FeedbackLate = "Time to change preference has expired";
 export const FeedbackOn = "Request ratings?";
 
 export const FBExpiredShort = "Some events not shown";
 
 export const FBExpiredLong = "Esper sends feedback requests at the end of " +
-  "a meeting. Events that have already ended may not be shown.";
+  "a meeting. Events that have already ended or are close to ending " +
+  "may not be shown.";
 
 export const FBSettingsMsg = (p: { settingsHref: string }) => <span>
   Tip: Want to request ratings by default for certain types of events?
@@ -96,3 +98,10 @@ export const DidntAttend = "I didn't attend.";
 export const TextFeedbackLabel =
   "Anything other feedback for the meeting organizer?";
 export const BlurbPlaceholder = "Optional feedback";
+
+const onOff = (v: boolean) => v ? "on" : "off";
+export const RecurringDescription = (v: boolean) =>
+  `Ratings are ${onOff(v)} for all recurrences of this event.`;
+export const InstanceDescription = (v: boolean) =>
+  `Ratings are ${onOff(v)} for only this event, not its recurrences.`;
+export const SwitchToInstance = "Toggle ratings for this event only?";

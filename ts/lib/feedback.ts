@@ -1,6 +1,7 @@
 /*
   Ratings and helpers feedback
 */
+import * as moment from "moment";
 import * as ApiT from "./apiT";
 import * as Log from "./log";
 
@@ -94,4 +95,29 @@ export function toPick<K extends keyof ApiT.EventFeedback>(
     }
   }
   return patch as any;
+}
+
+/*
+  Can feedback be activated for this event?
+
+  TODO: Adjust so we get this from server (end time is not always exactly
+  before current end of event).
+*/
+export function canTogglePref(event: ApiT.Event, now?: Date) {
+  return moment(event.end).isAfter(now || new Date());
+}
+
+// Should feedback pref changes apply to recurrence or instance?
+export function useRecurringPref(event: ApiT.Event) {
+  return !!event.recurring_event_id &&
+    typeof event.feedback_pref !== "boolean";
+}
+
+// Return feedback preference for event
+export function feedbackPref(event: ApiT.Event) {
+  return !![
+    event.feedback_pref,
+    event.recurring_feedback_pref,
+    event.global_feedback_pref
+  ].find((v) => typeof v === "boolean")
 }
