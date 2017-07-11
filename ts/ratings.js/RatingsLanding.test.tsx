@@ -9,7 +9,6 @@ import { apiSvcFactory } from "../fakes/api-fake";
 import makeEvent from "../fakes/events-fake";
 import { stubLogs } from "../fakes/stubs";
 import * as ApiT from "../lib/apiT";
-import { expand } from "../lib/feedback";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stub as stubGlobal, whenCalled } from "../lib/sandbox";
 
@@ -58,21 +57,21 @@ describe("<RatingsLanding />", () => {
     let props = getProps();
     let spy = Sinon.spy(props.Svcs.Api, "postRatingsToken");
     mount(<RatingsLanding {...props} actionOnMount={{ stars: 3 }} />);
-    expectCalledWith(spy, token, expand({ stars: 3 }));
+    expectCalledWith(spy, token, { stars: 3 });
   });
 
   it("posts token with didnt_attend on mount if specified", () => {
     let props = getProps();
     let spy = Sinon.spy(props.Svcs.Api, "postRatingsToken");
     mount(<RatingsLanding {...props} actionOnMount={{ didnt_attend: true }} />);
-    expectCalledWith(spy, token, expand({ didnt_attend: true }));
+    expectCalledWith(spy, token, { didnt_attend: true });
   });
 
   it("posts token with is_organizer on mount if specified", () => {
     let props = getProps();
     let spy = Sinon.spy(props.Svcs.Api, "postRatingsToken");
     mount(<RatingsLanding {...props} actionOnMount={{ is_organizer: true }} />);
-    expectCalledWith(spy, token, expand({ is_organizer: true }));
+    expectCalledWith(spy, token, { is_organizer: true });
   });
 
   it("calls Analytics page on mount", () => {
@@ -202,6 +201,6 @@ describe("<RatingsLanding />", () => {
 
     // Toggle radio
     stars.at(0).simulate("click");
-    expectCalledWith(spy, token, expand({ stars: 1 }));
+    expectCalledWith(spy, token, { stars: 1 });
   });
 });

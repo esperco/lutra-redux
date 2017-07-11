@@ -11,7 +11,7 @@ import SuccessMark from "../components/SuccessMark";
 import { ApiSvc } from "../lib/api";
 import { AnalyticsSvc } from "../lib/analytics";
 import * as ApiT from "../lib/apiT";
-import { expand, toPick } from "../lib/feedback";
+import { merge, toPick } from "../lib/feedback";
 import * as Log from "../lib/log";
 import { wrapMerge } from "../lib/queue";
 import { NavSvc } from "../lib/routing";
@@ -87,17 +87,13 @@ export class RatingsLanding extends React.Component<Props, State> {
   ): Promise<ApiT.EventForGuest|void> {
     // Clean up action
     let { model } = this.state;
-    action = expand(action, model && model.feedback);
 
     // Busy indicator - optimistic UI updates
     this.setState({
       busy: true, error: undefined,
       model: model ? {
         ...model,
-        feedback: {
-          ...model.feedback,
-          ...action
-        }
+        feedback: merge(model.feedback, action)
       } : undefined
     });
 
