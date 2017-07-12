@@ -1,118 +1,121 @@
 import { expect } from "chai";
 import makeEvent from "../fakes/events-fake";
 import { stubLogs } from "../fakes/stubs";
+import * as ApiT from "../lib/apiT";
 import { sandbox } from "../lib/sandbox";
 import {
-  expand, toPick,
+  merge, toPick,
   useRecurringPref,
   canTogglePref,
   feedbackPref
 } from "./feedback";
 
 describe("Feedback helpers", () => {
-  describe("expand", () => {
+  // Helpers for populating state object
+  const expand = (x: Partial<ApiT.GuestEventFeedback>) => ({
+    uid: "uid",
+    ...x
+  });
+
+  const negativeTags: ApiT.NegativeFeedbackTags = {
+    no_agenda: false,
+    started_late: false,
+    poor_time_mgmt: false,
+    guest_not_needed: false,
+    no_action_items: false
+  };
+
+  const positiveTags: ApiT.PositiveFeedbackTags = {
+    agenda: false,
+    on_time: false,
+    good_time_mgmt: false,
+    contributed: false,
+    action_items: false
+  };
+
+  describe("merge", () => {
     it("should not mutate existing patch or original state", () => {
       let patch = { stars: 4 };
-      let original = { stars: 5 };
-      expand(patch, original);
+      let original = expand({ stars: 5 });
+      merge(original, patch);
       expect(patch).to.deep.equal({ stars: 4 });
-      expect(original).to.deep.equal({ stars: 5 });
+      expect(original).to.deep.equal(expand({ stars: 5 }));
     });
 
     it("should unset stars and tags if is_organizer", () => {
-      let ret = expand({ is_organizer: true }, { stars: 5 });
-      expect(ret).to.deep.equal({
+      let ret = merge(expand({ stars: 5 }), { is_organizer: true });
+      expect(ret).to.deep.equal(expand({
         is_organizer: true,
-        stars: null,
-        agenda: null,
-        on_time: null,
-        good_time_mgmt: null,
-        contributed: null,
-        presence_useful: null,
-        action_items: null,
-        notes: null
-      });
+        ...negativeTags,
+        ...positiveTags
+      }));
     });
 
     it("should unset stars and tags if didnt_attend", () => {
-      let ret = expand({ didnt_attend: true }, { stars: 5 });
-      expect(ret).to.deep.equal({
+      let original = expand({ stars: 5 });
+      let ret = merge(original, { didnt_attend: true });
+      expect(ret).to.deep.equal(expand({
         didnt_attend: true,
-        stars: null,
-        agenda: null,
-        on_time: null,
-        good_time_mgmt: null,
-        contributed: null,
-        presence_useful: null,
-        action_items: null,
-        notes: null
-      });
+        ...negativeTags,
+        ...positiveTags
+      }));
     });
 
     it("should unset is_organizer and didnt_attend if stars specified", () => {
-      let ret = expand({ stars: 5 }, {
+      let ret = merge(expand({
         didnt_attend: true, is_organizer: true
-      });
-      expect(ret).to.deep.equal({
+      }), { stars: 5 });
+      expect(ret).to.deep.equal(expand({
         stars: 5,
         is_organizer: false,
-        didnt_attend: false
-      });
+        didnt_attend: false,
+        ...negativeTags
+      }));
     });
 
-    it("should nullify negative tags if changing to positive rating", () => {
-      let ret = expand({ stars: 5, agenda: true }, { stars: 4 });
-      expect(ret).to.deep.equal({
-        stars: 5,
-        agenda: true,
-        on_time: null,
-        good_time_mgmt: null,
-        contributed: null,
-        presence_useful: null,
-        action_items: null
-      });
-    });
-
-    it("should nullify positive tags if changing to negative rating", () => {
-      let ret = expand({ stars: 4, action_items: false }, { stars: 5 });
-      expect(ret).to.deep.equal({
+    it("should unset negative tags if positive rating", () => {
+      let ret = merge(expand({
         stars: 4,
-        agenda: null,
-        on_time: null,
-        good_time_mgmt: null,
-        contributed: null,
-        presence_useful: null,
-        action_items: false
+        started_late: true
+      }), {
+        stars: 5,
+        agenda: true
       });
+      expect(ret).to.deep.equal(expand({
+        stars: 5,
+        is_organizer: false,
+        didnt_attend: false,
+        agenda: true,
+        ...negativeTags
+      }));
     });
 
-    it("should not nullify tags if original undefined", () => {
-      let ret = expand({ stars: 3 });
-      expect(ret).to.deep.equal({
-        stars: 3,
-        is_organizer: false,
-        didnt_attend: false
+    it("should unset positive tags if changing to negative rating", () => {
+      let ret = merge(expand({
+        stars: 5,
+        agenda: true
+      }), {
+        stars: 4,
+        no_action_items: false
       });
+      expect(ret).to.deep.equal(expand({
+        stars: 4,
+        is_organizer: false,
+        didnt_attend: false,
+        no_action_items: false,
+        ...positiveTags
+      }));
     });
 
     it("should allow posting notes", () => {
-      let ret = expand({ notes: "Hello" }, { stars: 3 });
-      expect(ret).to.deep.equal({ notes: "Hello" });
-    });
-
-    it("should not update tags if negative rating stays negative", () => {
-      let ret = expand({ stars: 3, good_time_mgmt: false }, { stars: 4 });
-      expect(ret).to.deep.equal({
+      let ret = merge(expand({ stars: 3 }), { notes: "Hello" });
+      expect(ret).to.deep.equal(expand({
         stars: 3,
-        good_time_mgmt: false
-      });
-    });
-
-    it("should not update tags if positive rating stays positive", () => {
-      let ret = expand({ good_time_mgmt: true }, { stars: 5 });
-      expect(ret).to.deep.equal({
-        good_time_mgmt: true
-      });
+        is_organizer: false,
+        didnt_attend: false,
+        notes: "Hello",
+        ...positiveTags
+      }));
     });
   });
 

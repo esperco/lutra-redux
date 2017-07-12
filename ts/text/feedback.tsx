@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ApiT from "../lib/apiT";
 import Icon from "../components/Icon";
 
 export const ActivateHeading = "Ratings";
@@ -71,23 +72,25 @@ export const StarRatingsDescription = <p>
 </p>;
 
 export const PositiveButtonLabel = "Great! What went well?";
-export const PostiveTags = {
+export const PostiveTags: {
+  [K in keyof ApiT.PositiveFeedbackTags]: string;
+} = {
   agenda: "Had Agenda",
   on_time: "On Time",
   good_time_mgmt: "Good Time Management",
   contributed: "I Contributed",
-  presence_useful: "My Presence Was Useful",
   action_items: "Had Action Items"
 };
 
 export const NegativeButtonLabel = "What needs improvement?";
-export const NegativeTags = {
-  agenda: "No Agenda",
-  on_time: "Started Late",
-  good_time_mgmt: "Poor Time Management",
-  contributed: "I Didn't Contribute",
-  presence_useful: "I Wasn't Needed",
-  action_items: "No Action Items"
+export const NegativeTags: {
+  [K in keyof ApiT.NegativeFeedbackTags]: string;
+} = {
+  no_agenda: "No Agenda",
+  started_late: "Started Late",
+  poor_time_mgmt: "Poor Time Management",
+  guest_not_needed: "I Wasn't Needed",
+  no_action_items: "No Action Items"
 };
 
 export const IsOrganizer = "I am the meeting organizer.";

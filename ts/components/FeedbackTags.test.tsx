@@ -48,7 +48,7 @@ describe("<FeedbackTags />", () => {
     expect(otherBtn.hasClass('active')).to.be.false;
 
     agendaBtn.simulate('click');
-    expectCalledWith(spy, { agenda: null });
+    expectCalledWith(spy, { agenda: false });
   });
 
   it("renders negative buttons if 4 stars", () => {
@@ -65,18 +65,18 @@ describe("<FeedbackTags />", () => {
     buttons.at(3).simulate('click');
     buttons.at(4).simulate('click');
 
-    expectCalledWith(spy, { agenda: false });
-    expectCalledWith(spy, { on_time: false });
-    expectCalledWith(spy, { good_time_mgmt: false });
-    expectCalledWith(spy, { presence_useful: false });
-    expectCalledWith(spy, { action_items: false });
+    expectCalledWith(spy, { no_agenda: true });
+    expectCalledWith(spy, { started_late: true });
+    expectCalledWith(spy, { poor_time_mgmt: true });
+    expectCalledWith(spy, { guest_not_needed: true });
+    expectCalledWith(spy, { no_action_items: true });
   });
 
   it("renders existing negative feedback and allows unsetting", () => {
     let spy = Sinon.spy();
     let wrapper = mount(<FeedbackTags
       onChange={spy}
-      value={{ stars: 4, agenda: false }}
+      value={{ stars: 4, no_agenda: true }}
     />);
     let buttons = wrapper.find('button');
     let agendaBtn = buttons.at(0);
@@ -85,6 +85,6 @@ describe("<FeedbackTags />", () => {
     expect(otherBtn.hasClass('active')).to.be.false;
 
     agendaBtn.simulate('click');
-    expectCalledWith(spy, { agenda: null });
+    expectCalledWith(spy, { no_agenda: false });
   });
 });

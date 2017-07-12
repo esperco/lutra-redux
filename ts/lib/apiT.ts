@@ -259,32 +259,51 @@ export interface HashtagState {
   approved?: boolean;
 }
 
-export interface EventFeedback {
-  stars: number|null; // 1-5
-  is_organizer: boolean;
-  didnt_attend: boolean;
-
-  // Tags - True = positive, false = negative, undefined/null = clear
-  agenda: boolean|null;
-  on_time: boolean|null;
-  good_time_mgmt: boolean|null;
-  contributed: boolean|null;
-  presence_useful: boolean|null;
-  action_items: boolean|null;
-
-  notes: string|null;
+export interface PositiveFeedbackTags {
+  agenda: boolean;
+  on_time: boolean;
+  good_time_mgmt: boolean;
+  contributed: boolean;
+  action_items: boolean;
 }
 
+export interface NegativeFeedbackTags {
+  no_agenda: boolean;
+  started_late: boolean;
+  poor_time_mgmt: boolean;
+  guest_not_needed: boolean;
+  no_action_items: boolean;
+}
+
+export interface NAFeedbackTags {
+  is_organizer: boolean;
+  didnt_attend: boolean;
+}
+
+export type FeedbackTags =
+  PositiveFeedbackTags &
+  NegativeFeedbackTags &
+  NAFeedbackTags;
+
+export interface ClearableFeedback {
+  stars: number; // 1-5
+  notes: string;
+}
+
+// Type for representing changed state -- clearables are nullable
+export type EventFeedback = FeedbackTags  & {
+  [K in keyof ClearableFeedback]: ClearableFeedback[K]|null;
+};
+
 /*
-  Type for what we get back from server -- this is technically inaccurate
-  because the server should always return a default boolean for
-  is_organizer and didnt_attend (and undefined instead of null for tags) but
-  this set up makes it easier to type optimistic updates and the possibility
-  of both null/undefined here just makes the front-end more robust.
+  Type for what we get back from server - clearables may be undefined.
+  Not accurate typing that feedback tags should have default boolean values,
+  but okay here insofar that treating an undefined tag as false just makes
+  the front end more robust.
 */
 export type GuestEventFeedback = {
   uid: string;
-} & Partial<EventFeedback>;
+} & Partial<FeedbackTags> & Partial<ClearableFeedback>;
 
 /*
   Type for what we post to the server. Use Pick rather than Partial because

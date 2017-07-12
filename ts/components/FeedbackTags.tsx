@@ -37,36 +37,38 @@ export const FeedbackTags = (props: Props) => {
   return <div className="feedback-tags">
     <label>{ Text.NegativeButtonLabel }</label>
     <div>
-      <NegFeedbackButton name="agenda" {...props} />
-      <NegFeedbackButton name="on_time" {...props} />
-      <NegFeedbackButton name="good_time_mgmt" {...props} />
-      <NegFeedbackButton name="presence_useful" {...props} />
-      <NegFeedbackButton name="action_items" {...props} />
+      <NegFeedbackButton name="no_agenda" {...props} />
+      <NegFeedbackButton name="started_late" {...props} />
+      <NegFeedbackButton name="poor_time_mgmt" {...props} />
+      <NegFeedbackButton name="guest_not_needed" {...props} />
+      <NegFeedbackButton name="no_action_items" {...props} />
     </div>
   </div>;
 };
 
 
-type TagName = keyof (typeof Text.PostiveTags);
-
-interface ButtonProps extends Props {
-  name: TagName;
+interface PosButtonProps extends Props {
+  name: keyof ApiT.PositiveFeedbackTags;
 }
 
-const PosFeedbackButton = ({ name, value, onChange }: ButtonProps) => {
+const PosFeedbackButton = ({ name, value, onChange }: PosButtonProps) => {
   let active = value[name] === true;
   return <button
-    onClick={() => onChange({ [name]: active ? null : true })}
+    onClick={() => onChange({ [name]: !active })}
     className={classNames("secondary", { active })}
   >
     { Text.PostiveTags[name] }
   </button>;
 }
 
-const NegFeedbackButton = ({ name, value, onChange }: ButtonProps) => {
-  let active = value[name] === false;
+interface NegButtonProps extends Props {
+  name: keyof ApiT.NegativeFeedbackTags;
+}
+
+const NegFeedbackButton = ({ name, value, onChange }: NegButtonProps) => {
+  let active = value[name] === true;
   return <button
-    onClick={() => onChange({ [name]: active ? null : false })}
+    onClick={() => onChange({ [name]: !active })}
     className={classNames("secondary", { active })}
   >
     { Text.NegativeTags[name] }
