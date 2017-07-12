@@ -4,7 +4,8 @@
 
 import * as _ from "lodash";
 import { base as groupsRedirect } from "../groups.js/paths";
-// import { base as agendaRedirect } from "../tb.js/paths";
+import { base as feedbackRedirect } from "../fb.js/paths";
+import { base as agendaRedirect } from "../tb.js/paths";
 import { base as timeRedirect } from "../time.js/paths";
 import { AnalyticsSvc } from "../lib/analytics";
 import { ApiSvc } from "../lib/api";
@@ -181,22 +182,22 @@ function getLandingUrl(l: LocationLite) {
 
 // If we're logged in with no redirect, where to next?
 function getDefaultLandingUrl(info: ApiT.LoginResponse) {
-  if (info.groups && info.groups.length) {
+  let { feature_flags } = info;
+  feature_flags = feature_flags || {};
+
+  if (feature_flags.team_charts) {
+    return timeRedirect;
+  }
+  else if (feature_flags.fb) {
+    return feedbackRedirect;
+  }
+  else if (feature_flags.tb) {
+    return agendaRedirect;
+  }
+  else if (info.groups && info.groups.length) {
     return groupsRedirect;
   }
   return timeRedirect;
-
-  /*
-    Don't redirect to agenda unless explicit. At least not yet.
-  */
-
-  // if (info.teams && !!_.find(info.teams,
-  //   (t) => t.team_executive !== info.uid ||t.team_api.team_labels.length)
-  // ) {
-  //   return timeRedirect;
-  // }
-
-  // return agendaRedirect;
 }
 
 /*

@@ -33,20 +33,6 @@ header.landing-header {
 
   .toggle-nav { display: none; }
 
-  @media screen and (max-width: @screen-xs-max) {
-    .toggle-nav {
-      display: block;
-      text-align: right;
-      height: 1rem;
-      line-height: 1rem;
-      svg {
-        height: 1rem;
-        width: auto;
-        fill: @shade-rel-dark;
-      }
-    }
-  }
-
   nav {
     display: flex;
     justify-content: flex-end;
@@ -149,19 +135,24 @@ header.landing-header {
 }
 
 @media screen and (max-width: @screen-xs-max) {
+  .toggle-nav {
+    display: block;
+    text-align: right;
+    height: 1rem;
+    line-height: 1rem;
+    svg {
+      height: 1rem;
+      width: auto;
+      fill: @shade-rel-dark;
+    }
+  }
+
   header.landing-header, header.landing-header.pinned,
   header.landing-header.pinned.dark, header.landing-header.dark {
     /*
       Responsive nav menu
     */
     nav, &.pinned nav, &.pinned.dark nav {
-      .close-nav {
-        display: block;
-        font-size: @font-size-large;
-        font-weight: bold;
-        float: left;
-      }
-
       display: none;
       background: rgba(0, 0, 0, 0.85);
       position: fixed;
@@ -173,10 +164,33 @@ header.landing-header {
       padding: @padding-base;
 
       a, a.cta.secondary {
-        width: auto;
-        min-width: 0;
         color: @inverse-rel-light;
+        min-width: 0;
         &:hover { color: @inverse-rel; }
+      }
+
+      > a {
+        display: block;
+        text-align: right;
+        max-width: 80%;
+        margin-left: auto;
+      }
+
+      > a.cta.secondary {
+        margin: @padding-xl auto 0;
+        text-align: center;
+        height: @input-height-large;
+        line-height: @input-height-large;
+      }
+
+      > .close-nav {
+        display: block;
+        font-size: @font-size-large;
+        font-weight: bold;
+        float: left;
+        width: auto;
+        margin: @padding-small;
+        padding: 0 @padding-base;
       }
 
       * + a { margin-top: @padding-base; }

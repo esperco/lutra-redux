@@ -62,7 +62,7 @@ These are determined via our Webpack entry points (current just `groups.js`).
 
 Design Considerations
 ---------------------
-This repo uses [Redux](http://redux.js.org/docs/introduction/ for state
+This repo uses [Redux](http://redux.js.org/docs/introduction/) for state
 management. Please keep in mind the
 [three principles found here](http://redux.js.org/docs/introduction/ThreePrinciples.html).
 

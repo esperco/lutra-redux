@@ -60,11 +60,9 @@ export class AppHeader extends React.Component<Props, {}> {
           <Icon type="charts">{ CommonText.ChartLink }</Icon>
         </Link>
 
-        {/* Agenda not ready for prod yet */}
-        { Conf.production ? null :
-          <Link href={ratingsPath} active={active === "ratings"}>
-            <Icon type="ratings">{ CommonText.RatingsLink }</Icon>
-          </Link> }
+        <Link href={ratingsPath} active={active === "ratings"}>
+          <Icon type="ratings">{ CommonText.RatingsLink }</Icon>
+        </Link>
 
         <Link href={agendaPath} active={active === "agenda-check"}>
           <Icon type="agenda-check">{ CommonText.AgendaLink }</Icon>
