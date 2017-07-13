@@ -12,10 +12,11 @@ import TeamCalendars from "../containers/TeamCalendars";
 import * as Teams from "../handlers/teams";
 import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
+import * as ApiT from "../lib/apiT";
 import { settings as groupSettings } from "../groups.js/paths";
 import { manage } from "../lib/paths";
 import { NavSvc } from "../lib/routing";
-import { ready } from '../states/data-status';
+import { ready, StoreData } from '../states/data-status';
 import * as Text from "../text/team";
 import { LoggedInState, DispatchFn } from './types';
 
@@ -27,6 +28,8 @@ export interface Props {
   Conf?: { maxDaysFetch?: number; };
 }
 
+type PrefsType = StoreData<ApiT.Preferences>;
+
 // Hash IDs
 const calId = "cals";
 const agendaId = "agenda";
@@ -35,22 +38,28 @@ const notificationsId = "notifications";
 
 export default class Settings extends React.Component<Props, {}> {
   render() {
+    let prefs = this.props.state.teamPreferences[this.props.teamId];
     return <div id="team-settings" className="container">
       <h2>
         { Text.SettingsHeading }
       </h2>
-      { this.renderMenu() }
-      { this.renderContent() }
+      { this.renderMenu(prefs) }
+      { this.renderContent(prefs) }
     </div>;
   }
 
-  renderMenu() {
+  renderMenu(prefs: PrefsType) {
     let { feature_flags, groups } = this.props.state.login;
 
     return <nav className="menu">
       <a href={"#" + calId}>{ Text.CalHeading }</a>
-      <a href={"#" + agendaId}>{ Text.AgendaHeading }</a>
-      <a href={"#" + feedbackId}>{ Text.FeedbackHeading }</a>
+
+      { feature_flags.tb || (ready(prefs) && prefs.tb) ?
+        <a href={"#" + agendaId}>{ Text.AgendaHeading }</a> : null }
+
+      { feature_flags.fb || (ready(prefs) && prefs.fb) ?
+        <a href={"#" + feedbackId}>{ Text.FeedbackHeading }</a> : null }
+
       <a href={"#" + notificationsId}>{ Text.NotificationsHeading }</a>
 
       { feature_flags.team_charts ?
@@ -64,11 +73,12 @@ export default class Settings extends React.Component<Props, {}> {
     </nav>;
   }
 
-  renderContent() {
+  renderContent(prefs: PrefsType) {
     let { children, ...props } = this.props;
+    let feature_flags = props.state.login.feature_flags || {};
     return <div className="content">
       <div className="panel">
-        <GeneralSettings {...props} />
+        <GeneralSettings {...props} prefs={prefs} />
       </div>
 
       <h3 id={calId}>{ Text.CalHeading }</h3>
@@ -79,27 +89,31 @@ export default class Settings extends React.Component<Props, {}> {
         <TeamCalendars {...props} />
       </div>
 
-      <h3 id={agendaId}>{ Text.AgendaHeading }</h3>
-      <div className="panel">
-        <TimebombDefaults {...props} />
-      </div>
+      { feature_flags.tb || (ready(prefs) && prefs.tb) ? <div>
+        <h3 id={agendaId}>{ Text.AgendaHeading }</h3>
+        <div className="panel">
+          <TimebombDefaults {...props} prefs={prefs} />
+        </div>
+      </div> : null }
 
-      <h3 id={feedbackId}>{ Text.FeedbackHeading }</h3>
-      <div className="panel">
-        <FeedbackDefaults {...props} />
-      </div>
+      { feature_flags.fb || (ready(prefs) && prefs.fb) ? <div>
+        <h3 id={feedbackId}>{ Text.FeedbackHeading }</h3>
+        <div className="panel">
+          <FeedbackDefaults {...props} prefs={prefs} />
+        </div>
+      </div> : null }
 
       <h3 id={notificationsId}>{ Text.NotificationsHeading }</h3>
       <div className="panel">
-        <Notifications {...props} />
+        <Notifications {...props} prefs={prefs} />
       </div>
     </div>;
   }
 }
 
 
-const GeneralSettings = (props: Props) => {
-  let prefs = props.state.teamPreferences[props.teamId];
+const GeneralSettings = (props: Props & { prefs: PrefsType }) => {
+  let prefs = props.prefs;
   let team = _.find(props.state.login.teams, (t) => t.teamid === props.teamId);
 
   if (! ready(prefs)) {
@@ -141,8 +155,8 @@ const GeneralSettings = (props: Props) => {
 }
 
 
-const TimebombDefaults = (props: Props) => {
-  let prefs = props.state.teamPreferences[props.teamId];
+const TimebombDefaults = (props: Props & { prefs: PrefsType }) => {
+  let prefs = props.prefs;
   if (! ready(prefs)) {
     return <div>
       <div className="placeholder" />
@@ -170,8 +184,8 @@ const TimebombDefaults = (props: Props) => {
 }
 
 
-const FeedbackDefaults = (props: Props) => {
-  let prefs = props.state.teamPreferences[props.teamId];
+const FeedbackDefaults = (props: Props & { prefs: PrefsType }) => {
+  let prefs = props.prefs;
   if (! ready(prefs)) {
     return <div>
       <div className="placeholder" />
@@ -199,8 +213,8 @@ const FeedbackDefaults = (props: Props) => {
 }
 
 
-const Notifications = (props: Props) => {
-  let prefs = props.state.teamPreferences[props.teamId];
+const Notifications = (props: Props & { prefs: PrefsType }) => {
+  let prefs = props.prefs;
   if (! ready(prefs)) {
     return <div>
       <div className="placeholder" />

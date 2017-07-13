@@ -60,11 +60,19 @@ export async function update(
   teamId: string,
   update: Partial<ApiT.Preferences>,
   deps: {
-    dispatch: (action: PrefsState.UpdateAction) => void;
-    state: PrefsState.TeamPreferencesState;
+    dispatch: (action: PrefsState.UpdateAction|FeatureFlagAction) => void;
+    state: PrefsState.TeamPreferencesState & LoginState;
     Svcs: ApiSvc
   }
 ) {
+  if (update.fb) {
+    ensureFlags({ fb: true }, deps);
+  }
+
+  if (update.tb) {
+    ensureFlags({ tb: true }, deps);
+  }
+
   deps.dispatch({
     type: "TEAM_PREFERENCES_UPDATE",
     teamId, preferences: update

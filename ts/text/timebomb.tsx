@@ -19,7 +19,7 @@ export const ActivateCTA = "Enable Agenda Check";
 
 export const TimebombDefault = <span>
   Ask for agenda items by default for meetings that meet <em>all</em> of
-  the following conditioagenns:
+  the following conditions:
 </span>;
 export const TimebombMinGuests =
   "Minimum number of guests";
