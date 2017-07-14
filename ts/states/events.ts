@@ -182,7 +182,7 @@ export function eventsUpdateReducer<S extends EventsState>(
 
   // Reduce recurring ids to individual ids and process
   _.each(recurringEventIds || [], (recurId) => {
-    _.each(state.recurringEvents[calgroupId][recurId], (v, k) => {
+    _.each((state.recurringEvents[calgroupId] || {})[recurId], (v, k) => {
       if (v && k) {
         setEventsToUpdate(eventsMap[k], true);
       }
