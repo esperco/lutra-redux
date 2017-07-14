@@ -16,7 +16,7 @@
     <div class="container">
       <h1>Room For Improvement</h1>
       <p class="subheading">
-        Rate and comment on your meetings with&nbsp;Esper
+        Get ratings and feedback on your meetings with&nbsp;Esper
       </p>
       <div>
         <a class="cta primary" href="/fb">
@@ -31,18 +31,18 @@
       <h2>It's Full of Stars</h2>
       {% include 'img/star-o.svg' %}
       <p>
-        Quantify meeting success. Compare against
-        <a href="/charts">meeting tags and guests</a>
-        for&nbsp;insights.
+        After each meeting, Esper asks your meeting guests to rate the
+        meeting on a 1 - 5 star basis.
       </p>
     </div>
 
     <div class="feature">
-      <h2>Note to Self</h2>
+      <h2>Actionable Feedback</h2>
       {% include 'img/speaker-notes.svg' %}
       <p>
-        Take private meeting notes and record action items.
-        Esper will follow up&nbsp;by&nbsp;email.
+        Esper lets meeting guests suggest ways to improve meetings,
+        such as having an <a href="/agenda">agenda</a> or post-meeting
+        action items.
       </p>
     </div>
 
@@ -50,10 +50,14 @@
       <h2>Works with Slack</h2>
       {% include 'img/slack.svg' %}
       <p>
-        Rate meetings and more with Esper's Slack&nbsp;bot.
+        Don't like email? You can rate meetings
+        using Esper's Slack&nbsp;bot as well.
       </p>
     </div>
   </section>
+
+  <!-- Replaced by React -->
+  <span id="main"></span>
 
   <div class="cta-container alt-bg">
     <h2>Get Started Today</h2>
@@ -63,9 +67,6 @@
       </a>
     </div>
   </div>
-
-  <!-- Replaced by React -->
-  <div id="main"></div>
 {% endblock %}
 
 {% block scripts %}
