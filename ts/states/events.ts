@@ -152,7 +152,7 @@ export function eventsDataReducer<S extends EventsState> (
       reduceFetchIdsRequest(eventMap(), action);
       break;
     case "FETCH_IDS_END":
-      reduceFetchIdsResponse(eventMap(), action);
+      reduceFetchIdsResponse(eventMap(), recurringMap(), action);
       break;
   }
 
@@ -448,21 +448,7 @@ function reduceFetchQueryResponse(
       }
     });
 
-    // Update recurrences if applicable
-    if (event.recurring_event_id) {
-      recurringMap[event.recurring_event_id] = {
-        ...recurringMap[event.recurring_event_id],
-        [event.id]: true
-      };
-    }
-
-    // Add actual event data too -- indexed by eventId
-    eventMap[event.id] = event;
-
-    // Handle duplicate IDs
-    (event.duplicates || []).forEach((d) => {
-      eventMap[d.id] = event;
-    });
+    updateForEvent(event, eventMap, recurringMap);
   });
 }
 
@@ -493,6 +479,7 @@ function reduceFetchIdsRequest(
 
 function reduceFetchIdsResponse(
   eventMap: StoreMap<ApiT.GenericCalendarEvent>,
+  recurringMap: RecurringEventMap,
   action: EventsFetchIdsResponseAction
 ) {
   // Anything id in the list gets marked as error unless replaced by
@@ -504,11 +491,31 @@ function reduceFetchIdsResponse(
   });
 
   _.each(action.events, (e) => {
-    eventMap[e.id] = e;
-    (e.duplicates || []).forEach((d) => {
-      eventMap[d.id] = e;
-    });
+    updateForEvent(e, eventMap, recurringMap);
   });
+}
+
+// Mutate maps to include given event
+function updateForEvent(
+  event: ApiT.Event,
+  eventMap: StoreMap<ApiT.GenericCalendarEvent>,
+  recurringMap: RecurringEventMap
+) {
+  // Add actual event data -- indexed by eventId
+  eventMap[event.id] = event;
+
+  // Handle duplicate IDs
+  (event.duplicates || []).forEach((d) => {
+    eventMap[d.id] = event;
+  });
+
+  // Update recurrences if applicable
+  if (event.recurring_event_id) {
+    recurringMap[event.recurring_event_id] = {
+      ...recurringMap[event.recurring_event_id],
+      [event.id]: true
+    };
+  }
 }
 
 /*
