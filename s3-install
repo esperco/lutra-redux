@@ -14,6 +14,7 @@ s3_bucket="$2"
       --mime-type=text/css \
       --exclude="*" \
       --include="*.css" \
+      --add-header="Cache-Control:max-age=2592000" \
       --recursive * s3://$s3_bucket )
 
 # # Do SVG files next with forced mime (mime-magic guesses this incorrectly)
@@ -22,26 +23,31 @@ s3_bucket="$2"
       --mime-type=image/svg+xml \
       --exclude="*" \
       --include="*.svg" \
+      --add-header="Cache-Control:max-age=2592000" \
       --recursive * s3://$s3_bucket )
 
-# Next do any other file with an extension and use guessed mime. These files
-# shouldn't change much (or have a hash), so no need for header. Exclude
-# blanks because these need to update right away to point to the correct
-# versions of different files.
+# Do any remaining files with extensions with guessed mime.
+# Ignore stats.json (revision control only).
+# Ignore HTML (see below).
 (cd $target && \
     s3cmd put \
       --guess-mime-type \
       --exclude="*.css" \
       --exclude="*.svg" \
+      --exclude="stats.json" \
       --exclude="*.html" \
-      --rexclude="^[^\\.]+$" \
+      --rexclude="^[^\.]+$" \
+      --add-header="Cache-Control:max-age=2592000" \
       --recursive * s3://$s3_bucket )
 
-# Do remainder with guessed mime, defaulting to HTML (because of blanks)
+# Do top-level files, defaulting to HTML (because of blanks). Use shorter cache
+# control with HTML files so updated HTML loads new JS / CSS.
 (cd $target && \
     s3cmd put \
-      --exclude="*.*" \
+      --guess-mime-type \
+      --exclude="*" \
+      --rinclude="^[^\.]+$" \
       --include="*.html" \
-      --mime-type=text/html \
+      --default-mime-type=text/html \
       --add-header="Cache-Control:max-age=60" \
       --recursive * s3://$s3_bucket )
