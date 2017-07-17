@@ -24,7 +24,7 @@ interface Props {
 }
 
 export class CheckboxItem extends React.Component<Props, {}> {
-  _ref: HTMLInputElement;
+  _ref: HTMLInputElement|null;
 
   render() {
     let inputProps = _.clone(this.props.inputProps || {});

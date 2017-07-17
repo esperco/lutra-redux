@@ -23,7 +23,7 @@ interface Props {
 }
 
 export class PeriodSelector extends React.Component<Props, {}> {
-  _dropdown: Dropdown;
+  _dropdown: Dropdown|null;
 
   render() {
     let [start, end] = bounds(this.props.value);

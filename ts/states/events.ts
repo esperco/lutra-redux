@@ -535,17 +535,17 @@ export function resetForCalgroupId(
     return {
       ...state,
       eventQueries: {
-        ...state.eventQueries,
+        ...(state.eventQueries || {}),
         [calgroupId]: []
       },
 
       events: {
-        ...state.events,
+        ...(state.events || {}),
         [calgroupId]: {}
       },
 
       recurringEvents: {
-        ...state.recurringEvents,
+        ...(state.recurringEvents || {}),
         [calgroupId]: {}
       }
     };

@@ -45,7 +45,7 @@ interface Props extends React.HTMLProps<HTMLDivElement> {
 }
 
 export class ScrollContainer extends React.Component<Props, {}> {
-  _div?: HTMLDivElement;
+  _div?: HTMLDivElement|null;
   _lastDirection?: "up"|"down";
   _lastScrollTop: number;
 

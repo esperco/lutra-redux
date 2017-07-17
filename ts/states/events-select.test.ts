@@ -126,7 +126,7 @@ describe("reduceEventToggling", () => {
           [e6.id]: e6
         }
       },
-      groupRecurringEvents: {
+      recurringEvents: {
         [calgroupId]: {
           [recurring_event_id]: {
             [e4.id]: true,

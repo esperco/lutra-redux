@@ -99,8 +99,8 @@ describe("<FilterMenu />", () => {
     it("displays special choices", () => {
       let radios = getMenu().find(RadioItem);
       expect(radios).to.have.length(5);
-      expect(radios.at(0).dive(1).text()).to.equal("Special Choice 1");
-      expect(radios.at(1).dive(1).text()).to.equal("Special Choice 2");
+      expect(radios.at(0).dive().text()).to.equal("Special Choice 1");
+      expect(radios.at(1).dive().text()).to.equal("Special Choice 2");
     });
 
     it("passes on selected status to checkbox for special choice", () => {

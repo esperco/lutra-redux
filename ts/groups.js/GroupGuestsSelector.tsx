@@ -38,7 +38,7 @@ export class GroupGuestsSelector extends React.Component<{
   onChange: (selected: string[]) => void;
   onSubmit?: () => void;
 }, {}> {
-  _tagList: TagList;
+  _tagList: TagList|null;
 
   render() {
     let allGuests = this.props.guests.clone();

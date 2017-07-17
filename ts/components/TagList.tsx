@@ -21,7 +21,7 @@ interface Props extends MenuProps {
 }
 
 export class TagList extends React.Component<Props, {}> {
-  _dropdown: Dropdown;
+  _dropdown: Dropdown|null;
 
   render() {
     return <div className="tag-list">

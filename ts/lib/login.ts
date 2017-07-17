@@ -100,7 +100,7 @@ export function setCredentials(
 const sandboxError = new Error("Sandbox");
 
 // Never resolves -- waiting for redirect
-const redirectPromise = new Promise(function() {});
+const redirectPromise = new Promise<any>(function() {});
 
 // Get redirect from conf based on location
 function getRedirect(Conf: {

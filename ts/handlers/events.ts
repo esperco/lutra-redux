@@ -778,7 +778,8 @@ export function setGroupEventLabels(props: {
       groupId: props.groupId,
       ...props.context
     }, {
-      ...deps,
+      dispatch: deps.dispatch,
+      postTask: deps.postTask,
       promise: ret
     });
   }

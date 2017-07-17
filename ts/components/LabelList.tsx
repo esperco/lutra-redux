@@ -17,7 +17,7 @@ export interface Props {
 }
 
 export class LabelList extends React.Component<Props, {}> {
-  _tagList: TagList;
+  _tagList: TagList|null;
 
   render() {
     let {

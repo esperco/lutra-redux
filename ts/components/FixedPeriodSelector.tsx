@@ -24,7 +24,7 @@ interface Props {
 }
 
 export class FixedPeriodSelector extends React.Component<Props, {}> {
-  _dropdown: Dropdown;
+  _dropdown: Dropdown|null;
 
   render() {
     let start = bounds(this.props.value)[0];

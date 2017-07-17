@@ -47,8 +47,8 @@ export function handleGroupQueryCalc(
   let guestSet = ready(members) ?
     guestSetFromGroupMembers(members, false) : // False -> exclude GIMs
     new GuestSet([]);
-
-  let complete = iter({ ...task, calgroupId: task.groupId }, state, (event) => {
+  let { groupId: calgroupId, query, period } = task;
+  let complete = iter({ calgroupId, query, period }, state, (event) => {
     let seconds = getSeconds(event, {
       truncateStart: startTime,
       truncateEnd: endTime

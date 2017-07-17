@@ -308,7 +308,7 @@ class SingleMemberInfo extends React.Component<SingleMemberProps, {}> {
 
 
 class AddMemberButton extends React.Component<Subprops, {}> {
-  _dropdown: Dropdown;
+  _dropdown: Dropdown|null;
 
   render() {
     let emails = this.getEmails();
