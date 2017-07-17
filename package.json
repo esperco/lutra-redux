@@ -43,7 +43,7 @@
     "style-loader": "^0.13.2",
     "sync-exec": "^0.6.2",
     "ts-loader": "^2.0.1",
-    "ts-node": "^2.1.0",
+    "ts-node": "^3.2.0",
     "typescript": "^2.4.1",
     "util-inspect": "^0.1.8",
     "webpack": "^2.2.1",
