@@ -13,9 +13,9 @@ interface Props {
 interface State {}
 
 export class StagingLogin extends React.Component<Props, State> {
-  _email: HTMLInputElement;
-  _uid: HTMLInputElement;
-  _apiSecret: HTMLInputElement;
+  _email: HTMLInputElement|null;
+  _uid: HTMLInputElement|null;
+  _apiSecret: HTMLInputElement|null;
 
   render() {
     return <div className="panel" style={{textAlign: "left"}}>
@@ -50,10 +50,12 @@ export class StagingLogin extends React.Component<Props, State> {
   }
 
   handleLogin() {
-    let email = this._email.value;
-    let uid = this._uid.value;
-    let apiSecret = this._apiSecret.value;
-    this.props.onLogin({ email, uid, apiSecret });
+    if (this._email && this._uid && this._apiSecret) {
+      let email = this._email.value;
+      let uid = this._uid.value;
+      let apiSecret = this._apiSecret.value;
+      this.props.onLogin({ email, uid, apiSecret });
+    }
   }
 }
 

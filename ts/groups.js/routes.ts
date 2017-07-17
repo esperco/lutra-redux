@@ -92,8 +92,9 @@ export const eventList = Paths.eventList.route<Deps>(function(p, deps) {
       { withLabels: true, withMembers: true }, deps);
     let p2 = Events.fetchEvents(calgroupProps, deps);
     let promise = Promise.all([p1, p2]);
-    Calcs.startGroupCalc(props, { ...deps, promise });
-    Suggestions.loadSuggestions(calgroupProps, { ...deps, promise });
+    let { dispatch, postTask } = deps;
+    Calcs.startGroupCalc(props, { dispatch, postTask, promise });
+    Suggestions.loadSuggestions(calgroupProps, { postTask, promise });
 
     // Dispatch route changes
     deps.dispatch({

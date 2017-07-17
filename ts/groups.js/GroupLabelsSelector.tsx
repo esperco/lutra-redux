@@ -21,7 +21,7 @@ export class GroupLabelsSelector extends React.Component<{
   onChange: (selected: ASN.AllSomeNone) => void;
   onSubmit?: () => void;
 }, {}> {
-  _tagList: TagList;
+  _tagList: TagList|null;
 
   render() {
     let choices = this.props.labels.clone();

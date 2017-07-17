@@ -138,7 +138,7 @@ interface MenuState {
 
 // Desktop only -- mobile is simpler
 export class DropdownMenu extends React.Component<MenuProps, MenuState> {
-  _wrapper: HTMLDivElement;
+  _wrapper: HTMLDivElement|null;
 
   constructor(props: MenuProps) {
     super(props);

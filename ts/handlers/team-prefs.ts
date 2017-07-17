@@ -31,13 +31,14 @@ export function fetch(teamId: string, deps: {
         teamId, preferences
       });
       return preferences;
-    }, () => {
+    }, (err) => {
       // Dispatches error state
       deps.dispatch({
         type: "TEAM_PREFERENCES_DATA",
         dataType: "FETCH_END",
         teamId
       });
+      throw err;
     });
   }
   return Promise.resolve(current);

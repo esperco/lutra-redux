@@ -11,7 +11,7 @@ describe("<ColorPicker />", () => {
 
     let knownIds: Record<string, true> = {};
     wrapper.find('label').forEach((l) => {
-      let id = l.prop('htmlFor')!;
+      let id = l.prop('htmlFor') as string;
       if (knownIds[id]) {
         throw new Error(`${id} already exists!`);
       }

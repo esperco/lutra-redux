@@ -20,7 +20,7 @@ interface State {
 }
 
 export class LoginButtons extends React.Component<Props, State> {
-  _email: HTMLInputElement;
+  _email: HTMLInputElement|null;
 
   constructor(props: Props) {
     super(props);

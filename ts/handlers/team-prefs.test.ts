@@ -60,13 +60,17 @@ describe("Team preference handlers", () => {
     it("dispatches error if fetch fails", (done) => {
       let deps = getDeps();
       let dfd = stubApi(deps.Svcs, "getPreferences");
-      PrefHandlers.fetch(teamId, deps).then(() => {
-        expectCalledWith(deps.dispatch, {
-          type: "TEAM_PREFERENCES_DATA",
-          dataType: "FETCH_END", teamId
-        });
-      }).then(done, done);
-      dfd.reject(new Error("Whoops"));
+      let err = new Error("Whoops");
+      PrefHandlers.fetch(teamId, deps)
+        .catch((e) => { if (e !== err) throw e; })
+        .then(() => {
+          expectCalledWith(deps.dispatch, {
+            type: "TEAM_PREFERENCES_DATA",
+            dataType: "FETCH_END", teamId
+          });
+        })
+        .then(done, done);
+      dfd.reject(err);
     });
   });
 

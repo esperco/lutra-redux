@@ -131,8 +131,8 @@ describe("<MultiselectFilterMenu />", () => {
     it("filters based on substring", () => {
       let checkboxes = getMenuAfterTyping("ellow 3").find(CheckboxItem);
       expect(checkboxes).to.have.length(2); // New item
-      expect(checkboxes.at(0).dive(1).text()).to.equal("Yellow Green");
-      expect(checkboxes.at(1).dive(1).text()).to.equal("Mellow Yellow");
+      expect(checkboxes.at(0).dive().text()).to.equal("Yellow Green");
+      expect(checkboxes.at(1).dive().text()).to.equal("Mellow Yellow");
     });
 
     it("includes a button to add new item", () => {
@@ -236,8 +236,8 @@ describe("<MultiselectFilterMenu />", () => {
     it("displays special choices", () => {
       let checkboxes = getMenu().find(CheckboxItem);
       expect(checkboxes).to.have.length(5);
-      expect(checkboxes.at(0).dive(1).text()).to.equal("Special Choice 1");
-      expect(checkboxes.at(1).dive(1).text()).to.equal("Special Choice 2");
+      expect(checkboxes.at(0).dive().text()).to.equal("Special Choice 1");
+      expect(checkboxes.at(1).dive().text()).to.equal("Special Choice 2");
     });
 
     it("passes on selected status to checkbox for special choice", () => {

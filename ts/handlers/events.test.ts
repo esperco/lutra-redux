@@ -295,10 +295,7 @@ describe("Event handlers", function() {
     function getDeps() {
       return {
         dispatch: sandbox.spy(),
-        state: {
-          ...initState(),
-          ...initGroupState()
-        },
+        state: initState(),
         Svcs: apiSvcFactory()
       };
     }

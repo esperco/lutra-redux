@@ -88,7 +88,7 @@ class TooltipFloat extends React.Component<{
   // Inline Element
   anchor: HTMLElement;
 }, {}> {
-  _tip: HTMLElement;
+  _tip: HTMLElement|null;
 
   render() {
     if (! this.props.anchor) {
@@ -124,6 +124,7 @@ class TooltipFloat extends React.Component<{
 
   // Move tooltip if offscreen
   adjustPosition() {
+    if (! this._tip) return;
     let elm = $(this._tip);
     if (elm.length === 0) return;
 
@@ -163,7 +164,7 @@ class TooltipFloat extends React.Component<{
     }
 
     if (_.keys(newCSS).length > 0) {
-      elm.css(newCSS);
+      elm.css(newCSS as {});
     }
   }
 }

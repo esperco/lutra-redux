@@ -111,7 +111,7 @@ class GroupLabel extends React.Component<Subprops, {}> {
 }
 
 class AddLabel extends React.Component<Props, {}> {
-  _ref: SubmitInput;
+  _ref: SubmitInput|null;
 
   render() {
     return <footer>

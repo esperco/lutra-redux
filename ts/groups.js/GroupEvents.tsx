@@ -266,9 +266,10 @@ class GroupEvents extends React.Component<Props, {}> {
   // Path with new props
   updateHref(updates: Partial<RouteProps>) {
     let { groupId, showFilters, eventId, period } = this.props;
-    let query = reduce(updates.query || this.props.query);
+    let { query, ...updateProps } = updates;
+    query = reduce(updates.query || this.props.query);
     return eventList.href({
-      groupId, showFilters, eventId, period, ...query, ...updates
+      groupId, showFilters, eventId, period, ...query, ...updateProps
     });
   }
 
