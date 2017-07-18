@@ -5,13 +5,21 @@
 @import (reference) "../_variables";
 
 .event-info {
+  .icon-label {
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+
   .inline-info {
     font-size: @font-size-small;
     color: @text-muted;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
 
     > * {
-      display: inline-block;
-      margin-top: 0;
+      display: inline;
       &::before {
         content: "\2022";
         display: inline-block;
@@ -95,7 +103,7 @@
   }
 
   h2, h3, h4 {
-    display: inline-block;
+    display: inline;
     margin-right: @padding-small;
     label { display: inline; }
     * + * { margin-top: 0; }
