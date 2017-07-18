@@ -51,6 +51,7 @@ export class GroupEventEditor extends React.Component<Props, {}> {
       event={event}
       recur={useRecurringLabels}
       showGuests={false}
+      showConfirmationClasses={true}
       menu={(event) => <div className="dropdown-menu">
         <div className="menu">
           <button
