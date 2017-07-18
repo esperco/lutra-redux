@@ -3,18 +3,20 @@ import * as React from "react";
 import Icon from "../components/Icon";
 
 export const ActivateHeading = "Agenda Check";
-export const ActivateDescription = <div>
-  <p>
-    Agenda Check ensures that you and your guests are prepared for
-    upcoming meetings.
-  </p>
-  <p>
-    With Agenda Check on, Esper will email your meeting guests 24 hours
-    before a meeting to ask for agenda items. We'll send
-    a second email one hour before the meeting with the collected
-    agenda items to get everyone on the same page.
-  </p>
-</div>;
+export const ActivateSubheading = <span>
+  Know why you're meeting. Get stuff done.
+</span>;
+export const ExplainerText1 = <p>
+  24 hours before a meeting, Esper sends an email or Slack message to
+  meeting guests asking if they have any agenda&nbsp;items.
+</p>;
+export const ExplainerText2 = <p>
+  Each guest tells Esper what they want to discuss at the&nbsp;meeting.
+</p>;
+export const ExplainerText3 = <p>
+  Esper collects the agenda items and sends out a unified agenda
+  one hour before the meeting.
+</p>;
 export const ActivateCTA = "Enable Agenda Check";
 
 export const TimebombDefault = <span>
