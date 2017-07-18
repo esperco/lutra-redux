@@ -7,8 +7,9 @@ export const ActivateSubheading = <span>
   Know why you're meeting. Get stuff done.
 </span>;
 export const ExplainerText1 = <p>
-  24 hours before a meeting, Esper sends an email or Slack message to
-  meeting guests asking if they have any agenda&nbsp;items.
+  24 hours before each meeting you enable Agenda Check for, Esper sends an
+  email or Slack message to meeting guests asking if they have any
+  agenda&nbsp;items.
 </p>;
 export const ExplainerText2 = <p>
   Each guest tells Esper what they want to discuss at the&nbsp;meeting.
