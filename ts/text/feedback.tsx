@@ -2,7 +2,23 @@ import * as React from "react";
 import * as ApiT from "../lib/apiT";
 import Icon from "../components/Icon";
 
-export const ActivateHeading = "Ratings";
+export const ActivateHeading = "Meeting Ratings";
+export const ActivateSubheading = <span>
+  Give feedback. Make meetings better. Repeat.
+</span>;
+export const ExplainerText1 = <p>
+  At the end of meetings you enable Ratings for, Esper sends an email or
+  Slack message asking meeting attendee to rate the&nbsp;meeting.
+</p>;
+export const ExplainerText2 = <p>
+  Each attendee can anonymously leave star ratings or suggestions on how
+  the meeting could have been&nbsp;better.
+</p>;
+export const ExplainerText3 = <p>
+  24 hours later, Esper sends a feedback summary to the meeting
+  organizer, who can use the feedback to improve future&nbsp;meetings.
+</p>;
+
 export const ActivateDescription = <div>
   <p>
     Esper Ratings makes it easy for guests offer feedback to
