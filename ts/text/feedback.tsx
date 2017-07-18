@@ -54,7 +54,7 @@ interface DefaultDescriptionProps {
 }
 export const DefaultDescriptionSetup =
 (p: DefaultDescriptionProps) => <p className="description">
-  Ratings has been enabeld for
+  Ratings has been enabled for
   all {p.recurring ? "recurring" : ""} meetings
   with {p.minGuests} - {p.maxGuests} guests{p.sameDomain ?
     " if all attendees share the same email domain" : ""
