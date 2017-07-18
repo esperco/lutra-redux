@@ -1,0 +1,29 @@
+/*
+  1 / 2 / 3 welcome page
+*/
+
+.explainer {
+  max-width: calc((3 * @min-container-width) ~" + " (6 * @padding-base));
+  margin: (@padding-xxl - @padding-xl / 2) auto;
+  padding: 0 (@padding-base / 2);
+
+  > * {
+    text-align: center;
+    padding: (@padding-xl / 2) (@padding-base / 2);
+
+    * + * { margin-top: @padding-lg; }
+
+    .number {
+      font-size: @font-size-large;
+      border: 1px solid @brand-primary;
+      color: @brand-primary;
+      height: @input-height-large;
+      width: @input-height-large;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 500px; // Circle shape
+      margin: 0 auto;
+    }
+  }
+}
