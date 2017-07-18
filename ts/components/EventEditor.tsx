@@ -19,6 +19,7 @@ export const EditorCls = "event-editor";
 
 export interface Props {
   event: StoreData<ApiT.Event>|undefined;
+  showConfirmationClasses?: boolean;
   showDescription?: boolean;
   showGuests?: boolean;
   menu?: (event: ApiT.Event) => JSX.Element;
@@ -45,7 +46,7 @@ export const EventEditor = ({ event, menu, children, ...props }: Props) => {
   return <div className={classNames(
     EditorCls,
     "event-info",
-    confirmClasses(event)
+    props.showConfirmationClasses ? confirmClasses(event) : undefined
   )}>
     { menu ? <Dropdown
       toggle={<button className="dropdown-toggle">
