@@ -115,7 +115,7 @@ export const IsOrganizerTooltip =
 export const DidntAttend = "I didn't attend.";
 
 export const TextFeedbackLabel =
-  "Anything other feedback for the meeting organizer?";
+  "Any other feedback for the meeting organizer?";
 export const BlurbPlaceholder = "Optional feedback";
 
 const onOff = (v: boolean) => v ? "on" : "off";
