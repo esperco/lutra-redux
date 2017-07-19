@@ -26,40 +26,46 @@
     </div>
   </section>
 
-  <section id="ratings-features" class="features flex">
-    <div class="feature">
-      <h2>It's Full of Stars</h2>
-      {% include 'img/star-o.svg' %}
-      <p>
-        After each meeting, Esper asks your meeting guests to rate the
-        meeting on a 1 - 5 star basis.
+  <!-- Explainer -->
+  <section class="explainer flex" style="margin-top:1rem">
+    <div class="explainer-step">
+      <img src="/img/ratings1.svg" />
+      <span class="number">1</span>
+      <p class="description">
+        At the end of each meeting you enable Ratings for, Esper sends an email
+        or Slack message asking meeting attendees to rate the&nbsp;meeting.
       </p>
     </div>
-
-    <div class="feature">
-      <h2>Actionable Feedback</h2>
-      {% include 'img/speaker-notes.svg' %}
-      <p>
-        Esper lets meeting guests suggest ways to improve meetings,
-        such as having an <a href="/agenda">agenda</a> or post-meeting
-        action items.
+    <div class="explainer-step">
+      <img src="/img/ratings2.svg" />
+      <span class="number">2</span>
+      <p class="description">
+        Each attendee can anonymously leave star ratings or
+        other&nbsp;feedback.
       </p>
     </div>
-
-    <div class="feature">
-      <h2>Works with Slack</h2>
-      {% include 'img/slack.svg' %}
-      <p>
-        Don't like email? You can rate meetings
-        using Esper's Slack&nbsp;bot as well.
+    <div class="explainer-step">
+      <img src="/img/ratings3.svg" />
+      <span class="number">3</span>
+      <p class="description">
+        24 hours later, Esper sends a feedback summary email to the meeting
+        organizer, who can use the feedback to improve future&nbsp;meetings.
       </p>
+    </div>
+  </section>
+
+  <!-- Slack -->
+  <section id="ratings-slack-splash" class="splash">
+    <div class="container">
+      <h2>Works With Slack</h2>
+      {% include 'img/slack-esper-smile.svg' %}
     </div>
   </section>
 
   <!-- Replaced by React -->
   <span id="main"></span>
 
-  <div class="cta-container alt-bg">
+  <div class="cta-container">
     <h2>Get Started Today</h2>
     <div>
       <a class="cta primary" href="/fb">

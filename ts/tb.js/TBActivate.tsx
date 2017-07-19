@@ -2,6 +2,7 @@
   Page with button to activate agenda check
 */
 
+require("less/components/_explainer.less");
 require("less/components/_onboarding.less");
 import * as _ from "lodash";
 import * as React from "react";
@@ -23,10 +24,28 @@ interface Props extends React.HTMLProps<HTMLButtonElement> {
 
 export const TBActivate = (props: Props) => {
   let isSaving = !_.isEmpty(props.state.apiCalls);
-  return <div className="container onboarding">
+  return <div className="onboarding">
     <h2>{ Text.ActivateHeading }</h2>
-    <div className="description">
-      { Text.ActivateDescription }
+    <p className="subheading">
+      { Text.ActivateSubheading }
+    </p>
+
+    <div className="explainer flex">
+      <div className="explainer-step">
+        <img src="/img/agenda1.svg" />
+        <span className="number">1</span>
+        { Text.ExplainerText1 }
+      </div>
+      <div className="explainer-step">
+        <img src="/img/agenda2.svg" />
+        <span className="number">2</span>
+        { Text.ExplainerText2 }
+      </div>
+      <div className="explainer-step">
+        <img src="/img/agenda3.svg" />
+        <span className="number">3</span>
+        { Text.ExplainerText3 }
+      </div>
     </div>
 
     <div className="onboarding-footer">

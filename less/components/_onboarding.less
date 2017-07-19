@@ -4,12 +4,23 @@
   .onboarding {
     > h2:first-child {
       margin-top: @padding-lg;
-      display: inline-block
+      font-weight: 400;
     }
+  }
+}
 
-    > h2:first-child + .event-info {
-      display: inline-block;
-      padding-left: @padding-small;
+.onboarding {
+  text-align: center;
+  h2 { font-weight: 400; }
+
+  .subheading {
+    font-size: @font-size-large;
+    font-weight: 300;
+    margin-top: @padding-small;
+    line-height: 1.3;
+
+    + * {
+      margin-top: @padding-lg;
     }
   }
 }
@@ -17,9 +28,7 @@
 // Onboarding
 .onboarding-footer {
   max-width: 500px;
-  margin-top: @padding-xl;
-  margin-left: auto;
-  margin-right: auto;
+  margin: @padding-xl auto;
   text-align: center;
 
   p { color: @text-muted; }
@@ -33,4 +42,8 @@
     margin-top: @padding-base;
     width: 100%;
   }
+}
+
+.explainer + .onboarding-footer {
+  margin-top: @padding-base;
 }

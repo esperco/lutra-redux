@@ -33,11 +33,31 @@
     </div>
   </div>
 
-  <!-- Agenda timeline -->
-  <section style="padding-left:0;padding-right:0;">
-    <h2>Protect Your Time</h2>
-    <div class="container-small">
-      {% include 'img/agenda-timeline.svg' %}
+  <!-- Explainer -->
+  <section class="explainer flex">
+    <div class="explainer-step">
+      <img src="/img/agenda1.svg" />
+      <span class="number">1</span>
+      <p class="description">
+        24 hours before each meeting you enable Agenda Check for, Esper sends
+        an email or Slack message to meeting guests asking if they have any
+        agenda&nbsp;items.
+      </p>
+    </div>
+    <div class="explainer-step">
+      <img src="/img/agenda2.svg" />
+      <span class="number">2</span>
+      <p class="description">
+        Each guest tells Esper what they want to discuss at the&nbsp;meeting.
+      </p>
+    </div>
+    <div class="explainer-step">
+      <img src="/img/agenda3.svg" />
+      <span class="number">3</span>
+      <p class="description">
+        Esper collects the agenda items and sends out a unified agenda
+        one hour before the meeting.
+      </p>
     </div>
   </section>
 
@@ -49,6 +69,9 @@
     </div>
   </section>
 
+  <!-- Replaced by React -->
+  <span id="main"></span>
+
   <!-- CTA again -->
   <div class="cta-container" style="text-align: center">
     <h2>Get Started Today</h2>
@@ -58,9 +81,6 @@
       </a>
     </div>
   </div>
-
-  <!-- Replaced by React -->
-  <div id="main"></div>
 {% endblock %}
 
 {% block scripts %}
