@@ -28,9 +28,7 @@
 // Onboarding
 .onboarding-footer {
   max-width: 500px;
-  margin-top: @padding-xl;
-  margin-left: auto;
-  margin-right: auto;
+  margin: @padding-xl auto;
   text-align: center;
 
   p { color: @text-muted; }
@@ -44,4 +42,8 @@
     margin-top: @padding-base;
     width: 100%;
   }
+}
+
+.explainer + .onboarding-footer {
+  margin-top: @padding-base;
 }

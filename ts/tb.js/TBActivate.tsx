@@ -30,20 +30,23 @@ export const TBActivate = (props: Props) => {
       { Text.ActivateSubheading }
     </p>
 
-    <section className="explainer flex">
+    <div className="explainer flex">
       <div className="explainer-step">
+        <img src="/img/agenda1.svg" />
         <span className="number">1</span>
         { Text.ExplainerText1 }
       </div>
       <div className="explainer-step">
+        <img src="/img/agenda2.svg" />
         <span className="number">2</span>
         { Text.ExplainerText2 }
       </div>
       <div className="explainer-step">
+        <img src="/img/agenda3.svg" />
         <span className="number">3</span>
         { Text.ExplainerText3 }
       </div>
-    </section>
+    </div>
 
     <div className="onboarding-footer">
       <button
