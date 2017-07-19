@@ -223,9 +223,8 @@ h1, h2 { margin-top: -0.2em; }
   }
 }
 
-// agenda sub-splash
-#agenda-slack-splash {
-  background-image: ~"url(/img/slack-agenda.png)," @landing-gradient;
+// agenda + rating "works with Slack" sub-splashes
+#agenda-slack-splash, #ratings-slack-splash {
   background-size: auto 600px, cover;
   background-position: center bottom -300px, center;
   height: auto;
@@ -252,7 +251,15 @@ h1, h2 { margin-top: -0.2em; }
   }
 }
 
-// Ratings splash
+#agenda-slack-splash {
+  background-image: ~"url(/img/slack-agenda.png)," @landing-gradient;
+}
+
+#ratings-slack-splash {
+  background-image: ~"url(/img/slack-ratings.png)," @landing-gradient;
+}
+
+// Main ratings splash
 #ratings-splash {
   background-image:
    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))
