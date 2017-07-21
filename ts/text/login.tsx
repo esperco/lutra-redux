@@ -89,6 +89,12 @@ export function token(info: ApiT.TokenResponse) {
       return "You've been unsubscribed from these emails.";
 
     /*
+      Stop sending timebomb on my behalf
+    */
+    case "Unsend_timebomb":
+      return "We've disabled Agenda Check emails for your account.";
+
+    /*
       Other cases are either obsolete, not supported yet, or not intended.
       Log error, but fail gracefully.
     */
