@@ -94,12 +94,10 @@ export function toPick<K extends keyof ApiT.EventFeedback>(
 
 /*
   Can feedback be activated for this event?
-
-  TODO: Adjust so we get this from server (end time is not always exactly
-  before current end of event).
 */
 export function canTogglePref(event: ApiT.Event, now?: Date) {
-  return moment(event.end).isAfter(now || new Date());
+  let set_by = event.feedback_set_by || event.end;
+  return moment(set_by).isAfter(now || new Date());
 }
 
 // Should feedback pref changes apply to recurrence or instance?

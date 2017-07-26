@@ -999,7 +999,8 @@ describe("Event handlers", function() {
 
     describe("with a Stage0 event", () => {
       const event = makeEvent({
-        timebomb: ["Stage0", { set_by: "2099-01-01" }]
+        timebomb_set_by: "2099-01-01",
+        timebomb: ["Stage0", {}]
       });
 
       it("dispatches EVENTS_UPDATE with timebombPref", () => {
@@ -1039,7 +1040,8 @@ describe("Event handlers", function() {
     describe("with a recurring Stage0 event", () => {
       const event = makeEvent({
         recurring_event_id: "recur-id",
-        timebomb: ["Stage0", { set_by: "2099-01-01" }]
+        timebomb_set_by: "2099-01-01",
+        timebomb: ["Stage0", {}]
       });
 
       it("dispatches EVENTS_UPDATE with timebombPref and recurring ID", () => {

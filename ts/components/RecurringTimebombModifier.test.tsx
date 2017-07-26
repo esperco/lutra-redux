@@ -9,7 +9,7 @@ import { sandbox } from "../lib/sandbox";
 function getWrapper(props: Partial<Props> = {}) {
   return shallow(<RecurringTimebombModifier
     event={makeEvent({
-      timebomb: ["Stage0", { set_by: "2099-10-01T00:00:00.000Z" }]
+      timebomb_set_by: "2099-10-01T00:00:00.000Z"
     })}
     onForceInstance={() => null}
     {...props}
@@ -26,7 +26,7 @@ describe("<RecurringTimebombModifier />", () => {
     let wrapper = getWrapper({
       event: makeEvent({
         recurring_event_id: "something",
-        timebomb: ["Stage0", { set_by: "2099-10-01T00:00:00.000Z" }]
+        timebomb_set_by: "2099-10-01T00:00:00.000Z"
       }),
       onForceInstance: spy
     });
@@ -40,7 +40,7 @@ describe("<RecurringTimebombModifier />", () => {
       event: makeEvent({
         recurring_event_id: "something",
         timebomb_pref: false,
-        timebomb: ["Stage0", { set_by: "2099-10-01T00:00:00.000Z" }]
+        timebomb_set_by: "2099-10-01T00:00:00.000Z"
       })
     }).find('button')).to.have.length(0);
   });
@@ -52,7 +52,7 @@ describe("<RecurringTimebombModifier />", () => {
   it("renders events past deadline as null", () => {
     expect(getWrapper({
       event: makeEvent({
-        timebomb: ["Stage0", { set_by: "2016-09-01T00:00:00.000Z" }]
+        timebomb_set_by: "2099-10-01T00:00:00.000Z"
       })
     }).type()).to.be.null;
   });
