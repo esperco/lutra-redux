@@ -153,10 +153,21 @@ describe("Feedback helpers", () => {
       expect(canTogglePref(event)).to.be.false;
     });
 
-    it("returns true if event not yet over", () => {
+    it("returns false if feedback_set_by is past", () => {
       let event = makeEvent({
         start: "2016-10-04T07:00:00.000Z",
-        end: "2016-10-05T08:00:00.000Z"
+        end: "2016-10-05T08:00:00.000Z",
+        feedback_set_by: "2016-10-04T08:00:00.000Z"
+      });
+      expect(canTogglePref(event)).to.be.false;
+    });
+
+    it("returns true if event not yet over and feedback_set_by is not past",
+    () => {
+      let event = makeEvent({
+        start: "2016-10-04T07:00:00.000Z",
+        end: "2016-10-05T08:00:00.000Z",
+        feedback_set_by: "2016-10-05T08:00:00.000Z"
       });
       expect(canTogglePref(event)).to.be.true;
     });

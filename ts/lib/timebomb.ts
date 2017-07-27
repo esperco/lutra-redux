@@ -3,17 +3,13 @@
 */
 import * as moment from "moment";
 import * as ApiT from "./apiT";
-import { hasTag } from "./util";
 
 /*
   Can agenda be activated for this event?
 */
 export function canTogglePref(event: ApiT.Event, now?: Date) {
-  if (event.timebomb && hasTag("Stage0", event.timebomb)) {
-    let { set_by } = event.timebomb[1];
-    return moment(set_by).isSameOrAfter(now || new Date());
-  }
-  return false;
+  return !!event.timebomb_set_by &&
+    moment(event.timebomb_set_by).isSameOrAfter(now || new Date());
 }
 
 // Should timebomb pref changes apply to recurrence or instance?

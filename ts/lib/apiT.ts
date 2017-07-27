@@ -326,7 +326,7 @@ export interface Contributor {
 export type TimebombState =
   ["Stage0", {
     // set_timebomb: boolean; // Deprecated, use timebomb_pref
-    set_by: string;  // Timestamp
+    // set_by: string;        // Deprecated, use timebomb_set_by
   }]|
   ["Stage1", {
     contributors: Contributor[];
@@ -371,6 +371,7 @@ export interface GenericCalendarEvent {
   // hashtags: HashtagState[];         // Exists, but deprecate
   feedback?: GuestEventFeedback;
   feedback_pref?: boolean;
+  feedback_set_by?: timestamp;
   recurring_feedback_pref?: boolean;
   global_feedback_pref?: boolean;
   location?: string;
@@ -383,6 +384,7 @@ export interface GenericCalendarEvent {
   recurring_event_id?: string;
   timebomb?: TimebombState;
   timebomb_pref?: boolean;
+  timebomb_set_by?: timestamp;
   recurring_timebomb_pref?: boolean;
   global_timebomb_pref?: boolean;
   merged?: MergedEventExtra;

@@ -10,7 +10,7 @@ describe("Timebomb helpers", () => {
       sandbox.useFakeTimers(now);
     });
 
-    it("returns false if no timebomb field", () => {
+    it("returns false if no timebomb_set_by field", () => {
       let event = makeEvent();
       expect(canTogglePref(event)).to.be.false;
     });
@@ -33,14 +33,16 @@ describe("Timebomb helpers", () => {
 
     it("returns true if set_by hasn't occured yet", () => {
       let event = makeEvent({
-        timebomb: ["Stage0", { set_by: "2016-10-06T07:00:00.000Z" }]
+        timebomb_set_by: "2016-10-06T07:00:00.000Z",
+        timebomb: ["Stage0", {}]
       });
       expect(canTogglePref(event)).to.be.true;
     });
 
     it("returns false if set_by is past", () => {
       let event = makeEvent({
-        timebomb: ["Stage0", { set_by: "2016-10-04T07:00:00.000Z" }]
+        timebomb_set_by: "2016-10-04T07:00:00.000Z",
+        timebomb: ["Stage0", {}]
       });
       expect(canTogglePref(event)).to.be.false;
     });
