@@ -8,6 +8,7 @@ import Icon from "../components/Icon";
 import FixedPeriodSelector from "../components/FixedPeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
 import Tooltip from "../components/Tooltip";
+import SlackAuth from "../containers/SlackAuth";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
@@ -16,6 +17,7 @@ import { GenericPeriod, index } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
 import * as Text from "../text/feedback";
+import * as Slack from "../text/slack";
 import FBEventList from "./FBEventList";
 import FBEventEditor from "./FBEventEditor";
 import * as Paths from "./paths";
@@ -98,14 +100,26 @@ export default class FBEvents extends React.Component<Props, {}> {
     let prefs = this.props.state.teamPreferences[this.props.teamId];
     if (ready(prefs)) {
       let settingsHref = settings.href({});
-      return <div className="alert info">
-        { !!prefs.fb ? <Text.DefaultDescriptionSetup
-          settingsHref={settingsHref}
-          minGuests={prefs.fb_guests_min}
-          maxGuests={prefs.fb_guests_max}
-          recurring={prefs.fb_recurring}
-          sameDomain={prefs.fb_same_domain}
-        /> : <Text.FBSettingsMsg settingsHref={settingsHref} /> }
+      return <div>
+        <div className="alert info">
+          { !!prefs.fb ? <Text.DefaultDescriptionSetup
+            settingsHref={settingsHref}
+            minGuests={prefs.fb_guests_min}
+            maxGuests={prefs.fb_guests_max}
+            recurring={prefs.fb_recurring}
+            sameDomain={prefs.fb_same_domain}
+          /> : <Text.FBSettingsMsg settingsHref={settingsHref} /> }
+        </div>
+
+        { !(prefs.fb_allow_slack_notif && prefs.slack_address) ?
+          <div className="alert info">
+            <span>{ Slack.SlackShortDescription }</span>
+            <SlackAuth
+              teamId={this.props.teamId}
+              fb={true}
+              deps={this.props}
+            />
+          </div> : null }
       </div>;
     }
 

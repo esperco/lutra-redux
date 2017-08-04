@@ -35,7 +35,6 @@ export class SlackAuth extends React.Component<Props, State> {
     let { teamId, deps, children, tb, fb, ...btnProps } = this.props;
     let childCount = !!React.Children.count(children);
     return <button
-      className="cta primary"
       disabled={this.state.busy}
       onClick={this.onBtnClick}
       {...btnProps}

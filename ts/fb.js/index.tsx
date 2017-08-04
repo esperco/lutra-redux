@@ -121,6 +121,7 @@ function MainView(props: {
           {...props} {...slackSetupProps}
           className="slack-ratings-setup"
           next={Paths.events.href({})}
+          fb={true}
         />;
       case "Activate":
         let { page: p4, ...activateProps } = props.state.route;

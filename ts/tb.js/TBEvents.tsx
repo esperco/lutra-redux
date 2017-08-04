@@ -8,6 +8,7 @@ import Icon from "../components/Icon";
 import FixedPeriodSelector from "../components/FixedPeriodSelector";
 import ScrollContainer from "../components/ScrollContainer";
 import Tooltip from "../components/Tooltip";
+import SlackAuth from "../containers/SlackAuth";
 import * as Events from "../handlers/events";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
@@ -15,6 +16,7 @@ import { settings } from "../lib/paths";
 import { GenericPeriod, index } from "../lib/period";
 import { NavSvc } from "../lib/routing";
 import { ready } from "../states/data-status";
+import * as Slack from "../text/slack";
 import {
   TBSettingsMsg,
   DefaultDescriptionSetup,
@@ -103,14 +105,26 @@ export default class TBEvents extends React.Component<Props, {}> {
     let prefs = this.props.state.teamPreferences[this.props.teamId];
     if (ready(prefs)) {
       let settingsHref = settings.href({});
-      return <div className="alert info">
-        { !!prefs.tb ? <DefaultDescriptionSetup
-          settingsHref={settingsHref}
-          minGuests={prefs.tb_guests_min}
-          maxGuests={prefs.tb_guests_max}
-          recurring={prefs.tb_recurring}
-          sameDomain={prefs.tb_same_domain}
-        /> : <TBSettingsMsg settingsHref={settingsHref} /> }
+      return <div>
+        <div className="alert info">
+          { !!prefs.tb ? <DefaultDescriptionSetup
+            settingsHref={settingsHref}
+            minGuests={prefs.tb_guests_min}
+            maxGuests={prefs.tb_guests_max}
+            recurring={prefs.tb_recurring}
+            sameDomain={prefs.tb_same_domain}
+          /> : <TBSettingsMsg settingsHref={settingsHref} /> }
+        </div>
+
+        { !(prefs.tb_allow_slack_notif && prefs.slack_address) ?
+          <div className="alert info">
+            <span>{ Slack.SlackShortDescription }</span>
+            <SlackAuth
+              teamId={this.props.teamId}
+              fb={true}
+              deps={this.props}
+            />
+          </div> : null }
       </div>;
     }
 

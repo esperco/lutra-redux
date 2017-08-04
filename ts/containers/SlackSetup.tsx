@@ -7,9 +7,13 @@ interface Props extends Deps {
   className?: string;
   teamId: string;
   next: string;
+  tb?: boolean;
+  fb?: boolean;
 }
 
-export const TBSlackSetup = ({ teamId, next, className, ...deps } : Props) =>
+export const SlackSetup = ({
+  teamId, next, className, tb, fb, ...deps
+} : Props) =>
   <div id="slack-setup" className={className}>
     <div className="container">
       <h2>
@@ -19,7 +23,10 @@ export const TBSlackSetup = ({ teamId, next, className, ...deps } : Props) =>
 
       <div className="slack-setup-actions">
         <div>
-          <SlackAuth teamId={teamId} deps={deps} tb={true} />
+          <SlackAuth
+            className="cta primary"
+            teamId={teamId} deps={deps} tb={tb} fb={fb}
+          />
         </div>
         <div>
           <a href={next}>
@@ -30,4 +37,4 @@ export const TBSlackSetup = ({ teamId, next, className, ...deps } : Props) =>
     </div>
   </div>;
 
-export default TBSlackSetup;
+export default SlackSetup;
