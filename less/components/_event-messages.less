@@ -6,9 +6,25 @@
 .event-messages {
   @media screen and (min-width: @screen-sm-min) {
     margin-top: @padding-lg - @padding-base;
-    text-align: center;
+
+    .alert {
+      display: flex;
+      align-items: center;
+      text-align: left;
+
+      > :only-child {
+        text-align: center;
+      }
+
+      > p, > span {
+        flex-grow: 1;
+      }
+
+      > button:last-child { margin-right: -@padding-small; }
+    }
   }
 
+  text-align: center;
   + * { margin-top: @padding-lg; }
 }
 
