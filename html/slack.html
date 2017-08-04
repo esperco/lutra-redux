@@ -1,0 +1,34 @@
+{% extends '_landing.html' %}
+
+{% block title %}Slack | Esper{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <link href="[[css/ratings--*.css]]" rel="stylesheet" />
+{% endblock %}
+
+{% set login_path = "/fb" %}
+
+{% block main %}
+  <section id="ratings-slack-splash" class="splash">
+    <div class="container">
+      <h2>Rate Meetings on&nbsp;Slack</h2>
+      <p class="subheading" style="max-width:420px">
+        Let meeting organizers know how the meeting went.
+        Provide actionable feedback such as
+        "Started late" or "I wasn't needed".
+        Now&nbsp;on&nbsp;Slack.
+      </p>
+      <div>
+        <a class="cta primary" href="/fb">
+          Sign Up For Free
+        </a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript" src="[[js/ratings--*.js]]"></script>
+{% endblock %}
