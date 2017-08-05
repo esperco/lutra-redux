@@ -60,7 +60,7 @@ body > .cta-container {
 
 // Single container object - make larger to fill up content
 body > .main.container {
-  min-height: calc(~"90vh - " (@navbar-height * 2) ~" - " (@padding-xl * 2));
+  min-height: calc(~"100vh - " (@navbar-height * 2) ~" - " (@padding-xl * 2));
 }
 
 // Smaller container for narrower content
@@ -113,7 +113,7 @@ h1, h2 { margin-top: -0.2em; }
 
   // Desktop
   @media screen and (min-width: @screen-sm-min) {
-    height: 90vh;
+    height: 100vh;
     display: flex;
     align-items: center;
   }
@@ -121,7 +121,6 @@ h1, h2 { margin-top: -0.2em; }
   // Dark mode
   &.dark {
     color: @inverse-rel;
-    box-shadow: @plus-down-shadow;
 
     h1, h2, h3 {
       color: @inverse-rel-light;
@@ -146,39 +145,57 @@ h1, h2 { margin-top: -0.2em; }
 
 // Specific placement for certain splash images
 #main-splash {
-  background-position: right 10% center;
-  display: flex;
-  align-items: center;
+  background-color: white;
+  background-image: ~"url(/img/main-splash.png)";
+  background-size: 100vw auto;
+  background-position: center top 350px;
+
   .container {
     width: 70vw;
-    text-align: left;
+    text-align: center;
   }
 
   @media screen and (min-width: @screen-sm-min) {
+    background-size: auto 80vh;
+    background-position: right 50vw center;
+    display: flex;
+    align-items: center;
+
     .container {
-      margin-left: 40vw;
+      margin-left: 42vw;
       margin-top: 0;
+    }
+  }
+
+  @media screen and (min-width: @screen-md-min) {
+    .container {
+      margin-left: 50vw;
     }
   }
 }
 
 // Main agenda sub-splash
-#main-splash ~ #agenda-slack-splash {
-  background-image: ~"url(/img/slack-agenda.png)";
-  box-shadow: none;
-}
+#agenda-sub-splash {
+  background-image: ~"url(/img/main-agenda-splash.jpg)";
+  background-position: left center;
 
-// Main ratings sub-splash
-#main-splash ~ #ratings-splash  {
-  @media screen and (min-width: @screen-sm-min) {
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1))
-      ~", url(/img/ratings-splash.jpg)";
-    background-position: right top;
-    padding-left: 60vw;
-    justify-content: flex-end;
+  .container {
+    margin-left: 0;
+    background: transparent;
+  }
 
-    .container { min-width: 450px; }
+  @media screen and (max-width: @screen-xs-max) {
+    display: flex;
+    align-items: center;
+    background-image: ~"url(/img/main-agenda-splash.jpg)";
+    background-position: center top;
+
+    .container {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: @padding-lg @padding-base;
+      border-radius: @border-radius-base;
+    }
   }
 }
 
@@ -229,7 +246,6 @@ h1, h2 { margin-top: -0.2em; }
   background-size: auto 600px, cover;
   background-position: center bottom -300px, center;
   height: auto;
-  box-shadow: @plus-down-shadow;
 
   // Enough padding to cover visible portion of background image and then some
   padding-bottom: calc(600px - 300px ~"+" @padding-xxl);
@@ -263,8 +279,27 @@ h1, h2 { margin-top: -0.2em; }
 // Main ratings splash
 #ratings-splash {
   background-image:
-   linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))
-   ~", url(/img/ratings-splash.jpg)";
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6))
+    ~", url(/img/ratings-splash.jpg)";
+  display: flex;
+  align-items: center;
+
+  @media screen and (min-width: @screen-sm-min) {
+    background-image: ~"url(/img/ratings-splash.jpg)";
+    background-position: right center;
+
+    .container {
+      text-align: left;
+      margin: 0;
+      margin-left: 40vw;
+    }
+  }
+
+  @media screen and (min-width: @screen-md-min) {
+    .container {
+      margin-left: 60vw;
+    }
+  }
 }
 
 /*
