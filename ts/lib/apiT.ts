@@ -474,6 +474,7 @@ type TokenDescription =
   ["Invite_join_team", {}]|
   ["Login", {}]|
   ["Unsend_timebomb", {}]|
+  ["Unsend_feedback", {}]|
   ["Unsub_daily_agenda", {}]|
   ["Unsub_label_reminder", {}]|
   ["Unsub_tasks_update", {}]|
@@ -491,6 +492,7 @@ type TokenValue =
   ["Invite_join_team", {}]|
   ["Login", LoginResponse]|
   ["Unsend_timebomb", {}]|
+  ["Unsend_feedback", {}]|
   ["Unsub_daily_agenda", {}]|
   ["Unsub_label_reminder", {}]|
   ["Unsub_tasks_update", {}]|
