@@ -94,6 +94,9 @@ export function token(info: ApiT.TokenResponse) {
     case "Unsend_timebomb":
       return "We've disabled Agenda Check emails for your account.";
 
+    case "Unsend_feedback":
+      return "We've disabled Ratings emails for your account.";
+
     /*
       Other cases are either obsolete, not supported yet, or not intended.
       Log error, but fail gracefully.
