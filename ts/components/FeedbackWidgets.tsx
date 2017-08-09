@@ -4,6 +4,7 @@
 import * as React from "react";
 import CheckboxItem from "./CheckboxItem";
 import delay, { DelayedControl } from "../components/DelayedControl";
+import Tooltip from "../components/Tooltip";
 import { randomString } from "../lib/util";
 import * as Text from "../text/feedback";
 import FeedbackTags, { Props } from "./FeedbackTags";
@@ -20,10 +21,7 @@ export class FeedbackWidgets extends React.Component<Props, {}> {
       <div className="description">
         { Text.StarRatingsDescription }
       </div>
-      <StarRating
-        value={value.stars}
-        onChange={(stars) => onChange({ stars })}
-      />
+      { this.renderStarRating() }
       <FeedbackTags value={value} onChange={onChange} />
 
       { value.stars ? this.renderTextbox() : null }
@@ -42,6 +40,27 @@ export class FeedbackWidgets extends React.Component<Props, {}> {
         { Text.DidntAttend }
       </CheckboxItem>
     </div>
+  }
+
+  renderStarRating() {
+    let { value, onChange } = this.props;
+    let disabled = value.didnt_attend || value.is_organizer;
+    let ret = <StarRating
+      disabled={disabled}
+      value={value.stars}
+      onChange={(stars) => onChange({ stars })}
+    />;
+
+    if (disabled) {
+      let title = value.didnt_attend ?
+        Text.StarRatingsDisabledNotAttend :
+        Text.StarRatingsDisabledOrganizer;
+      return <Tooltip
+        target={<div style={{display: "inline-block"}}>{ ret }</div>}
+        title={title}
+      />;
+    }
+    return ret;
   }
 
   renderTextbox() {

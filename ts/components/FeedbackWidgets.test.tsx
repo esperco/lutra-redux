@@ -5,9 +5,12 @@ import * as Sinon from "sinon";
 import CheckboxItem from "../components/CheckboxItem";
 import { DelayedControl } from "../components/DelayedControl";
 import { expectCalledWith } from "../lib/expect-helpers";
+import { stubRAF } from "../fakes/stubs";
 import FeedbackWidgets from "./FeedbackWidgets";
 
 describe("<FeedbackWidgets />", () => {
+  beforeEach(stubRAF);
+
   it("does not render textbox if no stars", () => {
     let wrapper = shallow(<FeedbackWidgets
       onChange={() => null}
@@ -62,5 +65,24 @@ describe("<FeedbackWidgets />", () => {
 
     expectCalledWith(spy, { didnt_attend: false });
     expectCalledWith(spy, { is_organizer: true });
+  });
+
+  it("disables stars if didnt_attend", () => {
+    let wrapper = mount(<FeedbackWidgets
+      onChange={() => null}
+      value={{ didnt_attend: true }}
+    />);
+    expect(wrapper.find(".stars").find("button").at(0).prop("disabled"))
+      .to.be.true;
+  });
+
+  it("disables stars if is_organizer", () => {
+    stubRAF();
+    let wrapper = mount(<FeedbackWidgets
+      onChange={() => null}
+      value={{ is_organizer: true }}
+    />);
+    expect(wrapper.find(".stars").find("button").at(0).prop("disabled"))
+      .to.be.true;
   });
 });
