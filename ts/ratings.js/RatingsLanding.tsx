@@ -45,6 +45,16 @@ interface State {
     event: ApiT.GenericCalendarEvent;
     feedback: ApiT.GuestEventFeedback;
   };
+
+  /*
+    Preserve feedback in the event someone toggles the is_organizer
+    or didnt_attend button by accident (so notes and whatnot don't get
+    wiped out).
+
+    NB: Stuff does get wiped out on the server -- this is just a local copy
+    we can use to restore data.
+  */
+  resetFeedback?: ApiT.GuestEventFeedback;
 }
 
 export class RatingsLanding extends React.Component<Props, State> {
@@ -85,8 +95,30 @@ export class RatingsLanding extends React.Component<Props, State> {
   async postToken(
     action: Partial<ApiT.EventFeedback>
   ): Promise<ApiT.EventForGuest|void> {
-    // Clean up action
     let { model } = this.state;
+
+    /*
+      Preserve last state if necessary so we can reset accidental clicks
+      of is_organizer or didnt_attend.
+
+      TODO: Refactor into something cleaner later
+    */
+    let resetFeedback = (
+      (action.is_organizer || action.didnt_attend) &&
+      (model && model.feedback &&
+       !model.feedback.is_organizer &&
+       !model.feedback.didnt_attend)
+    ) ? model.feedback : this.state.resetFeedback;
+
+    // Restore old state if unsetting feedback
+    if (this.state.resetFeedback && model && (
+      (action.is_organizer === false && model.feedback.didnt_attend !== true) ||
+      (action.didnt_attend === false && model.feedback.is_organizer !== true) ||
+      (action.is_organizer === false && action.didnt_attend === false)
+    )) {
+      let { uid, ...reset } = this.state.resetFeedback;
+      action = { ...reset, ...action };
+    }
 
     // Busy indicator - optimistic UI updates
     this.setState({
@@ -94,7 +126,8 @@ export class RatingsLanding extends React.Component<Props, State> {
       model: model ? {
         ...model,
         feedback: merge(model.feedback, action)
-      } : undefined
+      } : undefined,
+      resetFeedback
     });
 
     /*
