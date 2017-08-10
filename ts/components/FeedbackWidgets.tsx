@@ -16,21 +16,25 @@ export class FeedbackWidgets extends React.Component<Props, {}> {
 
   render() {
     let { value, onChange } = this.props;
+    let disabled = !!(value.didnt_attend || value.is_organizer);
     return <div className="feedback-widgets">
       <label>{ Text.StarRatingsLabel }</label>
       <div className="description">
         { Text.StarRatingsDescription }
       </div>
-      { this.renderStarRating() }
-      <FeedbackTags value={value} onChange={onChange} />
+      { this.renderStarRating(disabled) }
+      { disabled ? null : <FeedbackTags value={value} onChange={onChange} /> }
 
-      { value.stars ? this.renderTextbox() : null }
+      { value.stars && !disabled ? this.renderTextbox() : null }
 
       <CheckboxItem
         onChange={(is_organizer) => onChange({ is_organizer })}
         checked={!!value.is_organizer}
       >
-        { Text.IsOrganizer }
+        <Tooltip
+          target={<span>{ Text.IsOrganizer }</span>}
+          title={Text.IsOrganizerTooltip}
+        />
       </CheckboxItem>
 
       <CheckboxItem
@@ -42,9 +46,8 @@ export class FeedbackWidgets extends React.Component<Props, {}> {
     </div>
   }
 
-  renderStarRating() {
+  renderStarRating(disabled: boolean) {
     let { value, onChange } = this.props;
-    let disabled = value.didnt_attend || value.is_organizer;
     let ret = <StarRating
       disabled={disabled}
       value={value.stars}
