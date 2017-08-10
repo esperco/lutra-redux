@@ -111,12 +111,21 @@ export const NegativeTags: {
 
 export const IsOrganizer = "I am the meeting organizer.";
 export const IsOrganizerTooltip =
-  "Meeting organizers will receive a meeting feedback summary via email.";
+  "Meeting organizers will receive a meeting feedback summary via email. " +
+  "If you check this box, your feedback will not be included in the " +
+  "summary email";
 export const DidntAttend = "I didn't attend.";
 
 export const TextFeedbackLabel =
   "Any other feedback for the meeting organizer?";
 export const BlurbPlaceholder = "Optional feedback";
+
+const noPeriod = (str: string) => str[str.length - 1] === "." ?
+  str.substr(0, str.length - 1) : str;
+export const StarRatingsDisabledNotAttend =
+  `Uncheck the "${noPeriod(DidntAttend)}" box to rate this meeting.`
+export const StarRatingsDisabledOrganizer =
+  `Uncheck the "${noPeriod(IsOrganizer)}" box to rate this meeting.`
 
 const onOff = (v: boolean) => v ? "on" : "off";
 export const RecurringDescription = (v: boolean) =>

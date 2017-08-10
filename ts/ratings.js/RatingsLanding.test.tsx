@@ -7,7 +7,7 @@ import analyticsSvcFactory from "../fakes/analytics-fake";
 import navSvcFactory from "../fakes/nav-fake";
 import { apiSvcFactory } from "../fakes/api-fake";
 import makeEvent from "../fakes/events-fake";
-import { stubLogs } from "../fakes/stubs";
+import { stubLogs, stubRAF } from "../fakes/stubs";
 import * as ApiT from "../lib/apiT";
 import { expectCalledWith } from "../lib/expect-helpers";
 import { stub as stubGlobal, whenCalled } from "../lib/sandbox";
@@ -43,6 +43,7 @@ describe("<RatingsLanding />", () => {
   };
 
   beforeEach(function() {
+    stubRAF();
     stubGlobal("location", location);
   });
 

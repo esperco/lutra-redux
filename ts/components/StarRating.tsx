@@ -11,6 +11,7 @@ export interface Props {
   value?: number|null;
   onChange: (n: number) => void;
   maxStars?: number; // Default = 5
+  disabled?: boolean;
 }
 
 interface State {
@@ -25,15 +26,17 @@ export class StarRating extends React.Component<Props, State> {
 
   render() {
     let value = this.state.value || this.props.value || 0;
+    let { disabled } = this.props;
     return <div className="star-rating">
       <div className="stars">
         { _.times(this.props.maxStars || DEFAULT_MAX_STARS,
           (n) => <button key={n}
+            disabled={disabled}
             onClick={() => this.props.onChange(n + 1)}
             onMouseEnter={() => this.setState({ value: n + 1 })}
             onMouseLeave={() => this.setState({ value: undefined })}
           >
-            { value > n ?
+            { !disabled && value > n ?
               <span>&#x2605;</span> :
               <span>&#x2606;</span> }
           </button>) }
