@@ -56,16 +56,16 @@ export class AppHeader extends React.Component<Props, {}> {
       <div style={{ flexGrow: 1, flexShrink: 1 }} /> {/* Spacer */}
 
       <nav style={{ flexGrow: 0, flexShrink: 0 }}>
-        <Link href={chartsPath} active={active === "charts"}>
-          <Icon type="charts">{ CommonText.ChartLink }</Icon>
-        </Link>
-
         <Link href={ratingsPath} active={active === "ratings"}>
           <Icon type="ratings">{ CommonText.RatingsLink }</Icon>
         </Link>
 
         <Link href={agendaPath} active={active === "agenda-check"}>
           <Icon type="agenda-check">{ CommonText.AgendaLink }</Icon>
+        </Link>
+
+        <Link href={chartsPath} active={active === "charts"}>
+          <Icon type="charts">{ CommonText.ChartLink }</Icon>
         </Link>
         { this.renderDropdown() }
       </nav>
