@@ -1,6 +1,7 @@
 .PHONY: default setup build clean watch test
 
 # Put Node bins in path
+export SHELL := /bin/bash
 export PATH := node_modules/.bin:$(PATH)
 
 # Can override what we're testing
