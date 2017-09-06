@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import CheckboxItem from "../components/CheckboxItem";
 import delay from '../components/DelayedControl';
+import Dropdown from "../components/Dropdown";
 import TextInput from "../components/TextInput";
 import FeedbackSettings from "../components/FeedbackSettings";
 import TimebombSettings from "../components/TimebombSettings";
@@ -14,9 +15,11 @@ import * as TeamPrefs from "../handlers/team-prefs";
 import { ApiSvc } from "../lib/api";
 import * as ApiT from "../lib/apiT";
 import { settings as groupSettings } from "../groups.js/paths";
+import { deactivate } from "../lib/login";
 import { manage } from "../lib/paths";
 import { NavSvc } from "../lib/routing";
 import { ready, StoreData } from '../states/data-status';
+import { Cancel } from "../text/common";
 import * as Text from "../text/team";
 import { LoggedInState, DispatchFn } from './types';
 
@@ -35,6 +38,7 @@ const calId = "cals";
 const agendaId = "agenda";
 const feedbackId = "feedback";
 const notificationsId = "notifications";
+const removeTeamId = "deactivate";
 
 export default class Settings extends React.Component<Props, {}> {
   render() {
@@ -70,6 +74,8 @@ export default class Settings extends React.Component<Props, {}> {
         <a href={groupSettings.href({ groupId: groups[0] })}>
           { Text.GroupChartsSettingsLink }
         </a> : null }
+
+        <a href={"#" + removeTeamId}>{ Text.RemoveTeamHeading }</a>
     </nav>;
   }
 
@@ -106,6 +112,11 @@ export default class Settings extends React.Component<Props, {}> {
       <h3 id={notificationsId}>{ Text.NotificationsHeading }</h3>
       <div className="panel">
         <Notifications {...props} prefs={prefs} />
+      </div>
+
+      <h3 id={removeTeamId}>{ Text.RemoveTeamHeading }</h3>
+      <div className="panel">
+        <Deactivate {...props} />
       </div>
     </div>;
   }
@@ -288,3 +299,26 @@ const Notifications = (props: Props & { prefs: PrefsType }) => {
     </div>
   </div>;
 }
+
+
+const Deactivate = (props: Props) => <div className="row">
+  <div>
+    { Text.RemoveTeamDescription }
+  </div>
+  <Dropdown
+    toggle={<button>
+      { Text.RemoveTeamBtn }
+    </button>}
+    menu={<div className="dropdown-menu">
+      <p>
+        { Text.RemoveTeamConf }
+      </p>
+      <div className="row">
+        <button>{ Cancel }</button>
+        <button className="danger" onClick={() => deactivate(props.Svcs)}>
+          { Text.RemoveTeamConfYes }
+        </button>
+      </div>
+    </div>}
+  />
+</div>;

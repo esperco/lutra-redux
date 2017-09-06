@@ -186,6 +186,11 @@ namespace Api {
     return JsonHttp.patch(url, flags);
   }
 
+  export function deactivateSelf(): Promise<void> {
+    let url = `${prefix}/api/deactivate/${myUid()}/${myUid()}`;
+    return JsonHttp.post(url);
+  }
+
 
   /* Teams */
 
@@ -569,6 +574,24 @@ namespace Api {
     let url = prefix + `/api/team/set-fb-pref/${myUid()}` +
       `/${string(teamId)}/${string(eventId)}`;
     return JsonHttp.put(url, { value } as ApiT.BoolRequest);
+  }
+
+
+  /* Export */
+
+  export async function postForGroupCalendarEventsCSV(
+    groupId: string,
+    q: ApiT.CalendarRequest
+  ): Promise<string> {
+    let path = prefix + "/api/group/ts/events-csv/" + string(myUid())
+      + "/" + string(groupId);
+    let { respBody } = await JsonHttp.rawHttp({
+      method: "POST",
+      path,
+      body: JSON.stringify(q),
+      contentType: "application/json; charset=UTF-8"
+    });
+    return respBody;
   }
 
 

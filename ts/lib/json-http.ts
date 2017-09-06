@@ -321,6 +321,29 @@ namespace JsonHttp {
     return withCallbacks(id, request);
   }
 
+  // Simpler version of jsonHttp function, with no logic for batching or
+  // assumptions that response is JSON.
+  export function rawHttp(args: {
+    method: ApiT.HttpMethod,
+    path: string,
+    modData?: boolean,
+    body?: string,
+    contentType?: string
+  }) {
+    // Assign random ID to this request
+    let id = Util.randomString();
+    let opts = {
+      id,
+      modData: false,
+      body: "",
+      contentType: "text/plain",
+      ...args
+    }
+    startHandler(id, opts.modData);
+    let p = httpRequest(opts);
+    return withCallbacks(id, p);
+  }
+
   // Queue up batched requests
   interface BatchRequest {
     modData: boolean; // Does this call modify data?

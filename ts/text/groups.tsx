@@ -28,11 +28,14 @@ export function alertsGoTo(email: string) {
   </span>;
 }
 
+export const RemoveGroupHeading = "Deactivate " + Group;
 export const RemoveGroupBtn = "Deactivate";
 export function removeGroupDescription(group?: string) {
   return `Deactivate ${group || "this " + Group}? This will remove all ` +
-         `tags and related data. This cannot be undone.`;
+         `tags and related data.`;
 }
+export const RemoveGroupConf = "Are you sure? This cannot be undone.";
+export const RemoveGroupConfYes = "Yes, deactivate";
 
 export function roleDisplayName(role: GroupRole) {
   if (role === "Owner") return "Administrator";
@@ -133,3 +136,10 @@ export function noContentMessage(href: string) {
 export const GoToGroupsMsg =
   "You're signed up for Esper for Enterprise. " +
   "Click here to switch to your Enterprise account.";
+
+export const ExportCSVHeading = "Export as CSV";
+export const ExportSelectText = "Select dates to export";
+export const ExportCSVDescription = <p>
+  Export Esper data for this team as a CSV file.
+  Select a date range. Then click the download button.
+</p>;

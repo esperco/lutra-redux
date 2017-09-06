@@ -7,6 +7,8 @@ module.exports = {
   },
   logoutRedirect: location.protocol + "//" +
     location.hostname + "/login?logout=1",
+  deactivateRedirect: location.protocol + "//" +
+    location.hostname + "/login?logout=1&msg=deactivate",
   cacheDuration: 10 * 60 * 1000, // 10 min
   maxDaysFetch: 5,
   esperVersion: "lutra-redux",

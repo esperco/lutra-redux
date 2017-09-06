@@ -406,7 +406,7 @@ export function deleteGroup(groupId: string, deps: {
   Svcs: ApiSvc & NavSvc;
 }): Promise<void> {
   return deps.Svcs.Api.deleteGroup(groupId).then(() => {
-    deps.Svcs.Nav.refresh(true);
+    deps.Svcs.Nav.go("#!/");
   });
 }
 

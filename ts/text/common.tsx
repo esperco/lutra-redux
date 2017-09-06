@@ -19,6 +19,7 @@ export const Comments = "Comments";
 export const Contact = "Contact Us";
 export const Dismiss = "Dismiss";
 export const Done = "Finish";
+export const Download = "Download";
 export const Edit = "Edit";
 export const Filter = "Filter";
 export const Filters = "Search and Filtering";
@@ -75,3 +76,6 @@ export const AlphaModeMsg = <div>
   Please send feedback
   to <a href="mailto:support@esper.com">support@esper.com</a>.
 </div>;
+
+// Export
+export const DownloadReady = "Download ready. Click here.";

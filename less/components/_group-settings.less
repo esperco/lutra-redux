@@ -37,3 +37,17 @@
     font-weight: normal;
   }
 }
+
+// Align action at right of panel
+.panel .action-row {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  > * + * { margin-top: 0; }
+  > * { 
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 1em;
+  }
+  > *:last-child { flex-grow: 0; }
+}
