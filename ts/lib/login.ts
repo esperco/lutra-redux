@@ -111,16 +111,24 @@ function getRedirect(Conf: {
     Conf.loginRedirect(hexEncode(location.pathname + location.hash)));
 }
 
+let deactivateRedirect = '/';
+export const deactivate = ({ Api, Nav } : ApiSvc & NavSvc) =>
+  Api.deactivateSelf().then(() => Nav.go(deactivateRedirect));
+
 // Returns a promise for when login process is done -- dispatches to store
 export function init(
   dispatch: (action: LoginAction) => any,
-  Conf: { loginRedirect: string|((hexPath: string) => string) },
+  Conf: { 
+    loginRedirect: string|((hexPath: string) => string),
+    deactivateRedirect: string;
+  },
   Svcs: LocalStoreSvc & ApiSvc & NavSvc & AnalyticsSvc,
   allowSandbox = false
 ): Promise<ApiT.LoginResponse> {
   let redirect = getRedirect(Conf);
   let credentials = getCredentials(Svcs);
   let { Analytics, Api, Nav } = Svcs;
+  deactivateRedirect = Conf.deactivateRedirect;
   if (credentials) {
     Api.setLogin({
       uid: credentials.uid,

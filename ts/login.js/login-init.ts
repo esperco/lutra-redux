@@ -45,11 +45,13 @@ interface LocationLite {
 // Init function to parse query params, returns props for component
 export function init(l: LocationLite, Svcs: AllSvcs): Promise<BaseProps> {
 
-  // Log out
+  // Log out 
   if (getParamByName(params.logout, l.search)) {
     Oauth.logout(Svcs);
+    let msgCode = getParamByName(params.message);
+    let msg = msgCode ? LoginText.message(msgCode) : LoginText.LogoutMsg;
     return Promise.resolve({
-      initMsg: ["message", LoginText.LogoutMsg] as Message
+      initMsg: ["message", msg] as Message
     });
   }
 

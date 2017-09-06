@@ -54,3 +54,11 @@ export function noContentMessage(href: string) {
 
 export const NoCalsMsg =
   "Please share a calendar with Esper before continuing.";
+
+export const RemoveTeamHeading = "Deactivate Account";
+export const RemoveTeamBtn = "Deactivate";
+export const RemoveTeamDescription = <p>
+  Deactivate your Esper account?
+</p>;
+export const RemoveTeamConf = "Are you sure? This cannot be undone.";
+export const RemoveTeamConfYes = "Yes, deactivate";

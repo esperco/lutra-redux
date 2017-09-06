@@ -187,6 +187,11 @@ namespace Api {
     return JsonHttp.patch(url, flags);
   }
 
+  export function deactivateSelf(): Promise<void> {
+    let url = `${prefix}/api/deactivate/${myUid()}/${myUid()}`;
+    return JsonHttp.post(url);
+  }
+
 
   /* Teams */
 

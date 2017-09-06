@@ -7,6 +7,7 @@ declare module "config" {
     apiPrefix: string;
     loginRedirect: string|((hexPath: string) => string);
     logoutRedirect: string;
+    deactivateRedirect: string;
     cacheDuration?: number; // Milliseconds before data is stale
     maxDaysFetch?: number;  // Max number of days in a query to fetch
                             // per API call
