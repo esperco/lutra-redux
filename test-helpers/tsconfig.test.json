@@ -2,7 +2,8 @@
   "extends": "../tsconfig",
   "compilerOptions": {
     "module": "commonjs",
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "typeRoots" : ["./typings", "./node_modules/@types"]
   },
   "include": [
     "../typings/**/*",

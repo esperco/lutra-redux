@@ -13,7 +13,10 @@ import { deepFreeze } from "./util";
 
 describe("Login", function() {
   describe("init", function() {
-    const Conf = { loginRedirect: "//something/login" };
+    const Conf = { 
+      loginRedirect: "//something/login",
+      deactivateRedirect: "//something/deactivate"
+    };
 
     // Default helper for getting all of the services Login needs
     function getSvcs(initData?: any) {
