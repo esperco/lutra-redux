@@ -133,3 +133,9 @@ export function noContentMessage(href: string) {
 export const GoToGroupsMsg =
   "You're signed up for Esper for Enterprise. " +
   "Click here to switch to your Enterprise account.";
+
+export const ExportCSVHeading = "Export as CSV";
+export const ExportCSVDescription = <p>
+  Export Esper data for this team as a CSV file.
+  Select a date range. Then click the download button.
+</p>;
