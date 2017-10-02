@@ -1,51 +1,65 @@
 {% extends '_landing.html' %}
 
 {% block main %}
-  <section id="main-splash" class="splash">
-    <div class="container">
-      <h1>Quality, Not Quanity</h1>
-      <p class="subheading">
-        Use Esper to rate meetings and give actionable feedback.
+  <div class="container" style="margin-top:10rem">
+    <section>
+      <h1>Esper is Shutting Down</h1>
+      <p>
+        <strong>Esper will shut down on October 13, 2017.</strong> If you use
+        Esper for calendar analytics / charting,
+        <a href="#export">see below for how to export your data</a>.
       </p>
-      <div>
-        <a class="cta primary" href="/fb">
-          Sign Up For Free
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section id="agenda-sub-splash" class="splash">
-    <div class="container">
-      <h2>Agenda Required</h2>
-      <p class="subheading">
-        Esper ensures your meetings have&nbsp;a&nbsp;point.
+      <p>
+        After four years of trying to save people time, we've decided
+        to shut down Esper. Esper started off as an executive assistant
+        service focused on scheduling but later pivoted to helping people
+        manage meeting overload by charting how time was spent, creating
+        meeting agendas, and collecting post-meeting ratings. Unfortunately,
+        Esper has not seen the user growth or revenue needed to sustain the
+        product, and we've decided to shut things down.
       </p>
-      <div>
-        <a class="cta secondary" href="/agenda">Learn More</a>
-      </div>
-    </div>
-  </section>
-
-  <section id="charts-sub-splash" class="splash">
-    <div class="container">
-      <h2>Make Time Count</h2>
-      <p class="subheading">
-        Tag, filter, and analyze what's on your calendar. Use Esper's charting
-        tools to understand where all the meetings are&nbsp;coming&nbsp;from.
+      <p>
+        We're proud of all the work that everyone at Esper has put into the
+        product over the years, and we regret not being to do more. We continue
+        to believe that excessive and poorly planned meetings
+        remain a very real problem for companies both large and small
+        and believe that there is an opportunity (albeit a difficult one)
+        for anyone who can solve this.
       </p>
-      <div>
-        <a class="cta secondary" href="/charts">Learn More</a>
-      </div>
-    </div>
-  </section>
-
-  <div class="cta-container alt-bg">
-    <h2>Get Started Today</h2>
-    <div>
-      <a class="cta primary" href="/login">
-        Sign Up For Free
-      </a>
-    </div>
+      <p>
+        We will be canceling all subscriptions and refunding paying users on
+        a prorated basis as appropriate.
+      </p>
+      <p>
+        After shutdown, all customer data will be deleted from our systems.
+        This includes all calendar data, payment information, analytics data,
+        and access tokens. We will not sell or provide customer data to any
+        other companies.
+      </p>
+    <section id="export">
+      <h2>Data Export</h2>
+      <p>
+        If you used Esper's individual charting product, you can
+        <a href="/manage#!/team/export">export your event tagging
+        data as a CSV file here</a>. If you had access to multiple Esper
+        accounts (e.g. as an executive assistant), you will have to export
+        your data for each account (click on each account in the left sidebar).
+      </p>
+      <p>
+        If you used Esper for Enterprise,
+        <a href="/groups#!/settings/default/misc">go here to export your
+        data</a>. If you cannot access that page, please check with your
+        team's administrator. If you were a member of multiple Enterprise
+        teams, you will need to export data for each team separately
+        (click on the dropdown in the header to switch teams).
+      </p>
+    </section>
+    <section>
+      <h2>Need Help?</h2>
+      <p>
+        If you have any questions or concerns, please contact us
+        at <a href="mailto:support@esper.com">support@esper.com</a>.
+      </p>
+    </section>
   </div>
 {% endblock %}
