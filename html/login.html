@@ -14,12 +14,13 @@
   <div id="main" class="main container login-main">
     <div class="panel">
       {# This should get cleared after initial render #}
-      <div class="spinner"></div>
+      <div class="alert danger">
+        Esper has shut down. Login is no longer available.
+        If you need assistance, please contact
+        <a href="mailto:support@esper.com">support@esper.com</a>.
+      </div>
     </div>
   </div>
 {% endblock %}
 
-{% block scripts %}
-  {{ super() }}
-  <script type="text/javascript" src="[[js/login--*.js]]"></script>
-{% endblock %}
+{% block scripts %}{% endblock %}
